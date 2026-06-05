@@ -1,29 +1,47 @@
 {
-  "name": "RCCM Gigbook",
-  "short_name": "Gigbook",
-  "description": "RCCM Church Band Digital Songbook & Setlist Manager",
+  "name": "RCCM GigBook",
+  "short_name": "GigBook",
+  "description": "Guitar Chords, Lyrics & Setlist App for Worship Teams",
   "start_url": "/rccm-gigbook/",
   "scope": "/rccm-gigbook/",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#0f0e17",
-  "theme_color": "#6366f1",
-  "categories": ["music", "productivity", "utilities"],
-  "lang": "en",
+  "orientation": "portrait",
+  "theme_color": "#1e1b4b",
+  "background_color": "#1e1b4b",
+  "categories": ["music", "utilities", "productivity"],
   "icons": [
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "screenshots": [],
-  "prefer_related_applications": false
+  "screenshots": [
+    {
+      "src": "screenshots/home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Songs Feed"
+    }
+  ]
 }
