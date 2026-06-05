@@ -1,49 +1,51 @@
-// ChordBook Service Worker v1.0
-const CACHE_NAME = "chordbook-v1";
+// RCCM GigBook Service Worker — v1.0
+const CACHE_NAME = "rccm-gigbook-v1";
 const STATIC_ASSETS = [
-  "/",
-  "/index.html",
-  "/songs-data.js",
-  "/manifest.json"
+  "./",
+  "./index.html",
+  "./manifest.json"
 ];
 
-// Install — cache static assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {});
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Activate — clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
-// Fetch — network first, fallback to cache
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-  // Skip non-GET and Firebase/CDN requests
+  // Only cache GET requests
   if (event.request.method !== "GET") return;
-  if (url.hostname.includes("firebase") || url.hostname.includes("gstatic")) return;
-  if (url.hostname.includes("jsdelivr") || url.hostname.includes("tailwindcss")) return;
 
+  // Firebase / CDN requests — network first
+  const url = event.request.url;
+  if (url.includes("firebasejs") || url.includes("gstatic") || url.includes("cdn.jsdelivr") || url.includes("googleapis")) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // App shell — cache first
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok) {
+    caches.match(event.request).then((cached) => {
+      const networkFetch = fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      })
-      .catch(() => caches.match(event.request))
+      });
+      return cached || networkFetch;
+    })
   );
 });
