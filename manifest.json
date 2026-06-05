@@ -1,57 +1,49 @@
 {
   "name": "RCCM GigBook",
   "short_name": "GigBook",
-  "description": "Guitar Chords, Lyrics & Setlist App for RCCM Church worship teams.",
+  "description": "Guitar Chords, Lyrics & Setlist App for RCCM worship team",
   "start_url": "/rccm-gigbook/",
   "scope": "/rccm-gigbook/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0f0f1a",
-  "theme_color": "#6366f1",
-  "lang": "en-US",
+  "background_color": "#1e1b2e",
+  "theme_color": "#7c3aed",
   "categories": ["music", "productivity", "utilities"],
   "icons": [
     {
       "src": "icons/icon-72.png",
       "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-96.png",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-128.png",
       "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-144.png",
       "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-152.png",
       "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-167.png",
       "sizes": "167x167",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-180.png",
       "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "icons/icon-192.png",
@@ -60,52 +52,36 @@
       "purpose": "any"
     },
     {
+      "src": "icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-maskable-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icons/icon-maskable-512.png",
+      "src": "icons/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "screenshots/songs-view.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Songs List"
-    },
-    {
-      "src": "screenshots/song-detail.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Chords & Lyrics"
-    }
-  ],
   "shortcuts": [
     {
-      "name": "Songs",
+      "name": "Browse Songs",
       "short_name": "Songs",
-      "description": "Browse all worship songs",
+      "description": "Go to the songs list",
       "url": "/rccm-gigbook/?tab=songs",
       "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Setlists",
+      "name": "My Setlists",
       "short_name": "Setlists",
-      "description": "View my setlists",
+      "description": "View and manage setlists",
       "url": "/rccm-gigbook/?tab=setlist",
       "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
     }
