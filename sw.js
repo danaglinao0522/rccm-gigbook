@@ -1,55 +1,50 @@
 // RCCM GigBook Service Worker v1.0
-const CACHE_NAME = 'gigbook-v1';
-const STATIC_ASSETS = [
-  './',
-  './index.html',
+const CACHE_NAME = 'rccm-gigbook-v1';
+const URLS_TO_CACHE = [
+  '/rccm-gigbook/',
+  '/rccm-gigbook/index.html',
+  '/rccm-gigbook/manifest.json',
+  '/rccm-gigbook/icons/icon-192.png',
+  '/rccm-gigbook/icons/icon-512.png'
 ];
 
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {});
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(URLS_TO_CACHE);
     })
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      )
-    )
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
-  const url = event.request.url;
-
-  // Don't intercept Firebase, Google APIs, or non-GET requests
-  if (
-    event.request.method !== 'GET' ||
-    url.includes('firebasejs') ||
-    url.includes('googleapis') ||
-    url.includes('firebaseapp') ||
-    url.includes('gstatic')
-  ) {
+self.addEventListener('fetch', (event) => {
+  // Network-first strategy for Firebase calls
+  if (event.request.url.includes('firebase') || event.request.url.includes('googleapis')) {
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
     return;
   }
-
+  // Cache-first strategy for app assets
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      const networkFetch = fetch(event.request).then(response => {
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => cached);
-
-      return cached || networkFetch;
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request).then((fetchResponse) => {
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, fetchResponse.clone());
+          return fetchResponse;
+        });
+      });
     })
   );
 });
