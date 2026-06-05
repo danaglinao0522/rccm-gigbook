@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GigBook" />
+  <meta name="theme-color" content="#1e1b4b" />
+  <meta name="description" content="Guitar Chords, Lyrics & Setlist Manager" />
+  <title>GigBook – Guitar Chords & Setlist</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e1b4b'/%3E%3Ctext y='.9em' font-size='80' x='10'%3E🎸%3C/text%3E%3C/svg%3E" />
+
+  <!-- DaisyUI + Tailwind -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tesseract.js OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; overscroll-behavior-y: contain; }
+
+    .chord-line { color: #a78bfa; font-weight: 700; white-space: pre; overflow-x: auto; display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    .lyric-line { color: #e5e7eb; white-space: pre-wrap; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
+    .section-label { color: #f59e0b; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1.2rem; margin-bottom: 0.25rem; opacity: 0.85; }
+    .song-content { line-height: 1.9; }
+
+    @keyframes slideInRight { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideInLeft  { from { transform: translateX(-60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .slide-in-right { animation: slideInRight 0.35s ease-out; }
+    .slide-in-left  { animation: slideInLeft 0.35s ease-out; }
+
+    .song-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; }
+    #main-app.active, #admin-panel.active { flex-direction: column; }
+
+    .nav-pill { background: rgba(15,15,35,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.08); }
+
+    /* Safe area padding for iPhone notch */
+    .pt-safe { padding-top: max(env(safe-area-inset-top), 0px); }
+    .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+  </style>
+</head>
+<body class="min-h-screen bg-base-100 text-base-content">
+
+<!-- TOAST -->
+<div id="toast-container" class="toast toast-top toast-end z-[9999] gap-2" style="padding-top: env(safe-area-inset-top);"></div>
+
+<!-- ═══════════════════════════════ SCREEN: LOGIN ═══════════════════════════════ -->
+<div id="screen-login" class="screen active flex-col items-center justify-center p-6 bg-gradient-to-br from-indigo-950 via-base-100 to-violet-950 relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-16 left-8 text-[9rem] opacity-[0.04] rotate-12 select-none">🎸</div>
+    <div class="absolute bottom-28 right-6 text-8xl opacity-[0.04] -rotate-12 select-none">🎵</div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary opacity-[0.06] rounded-full blur-3xl pointer-events-none"></div>
+  </div>
+  <div class="relative z-10 w-full max-w-sm">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-primary/20 border border-primary/30 mb-5 shadow-xl shadow-primary/20">
+        <span class="text-5xl">🎸</span>
+      </div>
+      <h1 class="text-4xl font-extrabold tracking-tight text-white">GigBook</h1>
+      <p class="text-sm text-base-content/50 mt-2">Guitar Chords · Lyrics · Setlists</p>
+    </div>
+    <div class="card bg-base-200/80 backdrop-blur border border-base-300 shadow-2xl">
+      <div class="card-body gap-5">
+        <div class="text-center">
+          <h2 class="text-xl font-bold">Welcome 👋</h2>
+          <p class="text-sm opacity-50 mt-1">Sign in to access your songs</p>
+        </div>
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-3 text-sm opacity-70"><span class="text-xl">🎵</span> Chord sheets &amp; lyrics library</div>
+          <div class="flex items-center gap-3 text-sm opacity-70"><span class="text-xl">🔑</span> Real-time key transposition</div>
+          <div class="flex items-center gap-3 text-sm opacity-70"><span class="text-xl">📋</span> Custom setlists (max 4 songs)</div>
+          <div class="flex items-center gap-3 text-sm opacity-70"><span class="text-xl">📱</span> Installable on iOS &amp; Android</div>
+        </div>
+        <div class="divider my-0 opacity-20"></div>
+        <button id="google-signin-btn" onclick="App.signInWithGoogle()"
+          class="btn bg-white text-gray-800 hover:bg-gray-50 border border-gray-200 w-full gap-2 shadow">
+          <svg class="w-5 h-5" viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0124 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+          </svg>
+          Sign in with Google
+        </button>
+        <p class="text-center text-xs opacity-30">By signing in you agree to our Terms of Service</p>
+      </div>
+    </div>
+    <button id="install-pwa-btn" class="hidden btn btn-outline btn-primary w-full mt-4 gap-2">
+      📲 Install App on Device
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SCREEN: ROLE ═══════════════════════════════ -->
+<div id="screen-role" class="screen flex-col items-center justify-center p-6 bg-gradient-to-br from-indigo-950 via-base-100 to-violet-950">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <div class="text-5xl mb-4">🎶</div>
+      <h2 class="text-2xl font-extrabold">Welcome, <span id="role-name">Musician</span>!</h2>
+      <p class="text-sm opacity-50 mt-1">How will you be using GigBook?</p>
+    </div>
+    <div class="space-y-4">
+      <button onclick="App.selectRole('musician')" class="w-full card bg-base-200 border border-base-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all text-left">
+        <div class="card-body p-5 flex-row items-center gap-4">
+          <div class="text-4xl">🎸</div>
+          <div class="flex-1">
+            <h3 class="font-bold text-lg">Musician / Band</h3>
+            <p class="text-sm opacity-50">See chords &amp; lyrics. Toggle between chord sheet and lyrics-only view.</p>
+          </div>
+          <span class="opacity-30">›</span>
+        </div>
+      </button>
+      <button onclick="App.selectRole('singer')" class="w-full card bg-base-200 border border-base-300 hover:border-secondary hover:shadow-lg hover:shadow-secondary/20 transition-all text-left">
+        <div class="card-body p-5 flex-row items-center gap-4">
+          <div class="text-4xl">🎤</div>
+          <div class="flex-1">
+            <h3 class="font-bold text-lg">Singer / Vocalist</h3>
+            <p class="text-sm opacity-50">Lyrics-only view by default. Clean reading without chord clutter.</p>
+          </div>
+          <span class="opacity-30">›</span>
+        </div>
+      </button>
+    </div>
+    <p class="text-center text-xs opacity-30 mt-6">You can always change this in Settings</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SCREEN: MAIN ═══════════════════════════════ -->
+<div id="main-app" class="screen flex-col">
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-40 bg-base-100/90 backdrop-blur border-b border-base-300" style="padding-top: env(safe-area-inset-top)">
+    <div class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🎸</span>
+        <span class="text-lg font-extrabold tracking-tight">GigBook</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder">
+            <div class="bg-primary/20 text-primary-content rounded-full w-9" id="nav-avatar-wrap">
+              <img id="nav-avatar-img" src="" alt="" class="hidden w-9 h-9 rounded-full" />
+              <span id="nav-avatar-init" class="text-sm font-bold">👤</span>
+            </div>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content z-[50] mt-2 p-2 shadow-xl bg-base-200 rounded-box w-52 border border-base-300">
+            <li class="menu-title"><span id="nav-user-name" class="text-xs truncate">User</span></li>
+            <li><a onclick="App.openSettings()">⚙️ Settings</a></li>
+            <li id="admin-menu-item" class="hidden"><a onclick="App.openAdminPanel()">🛡️ Admin Panel</a></li>
+            <li><a onclick="App.openSetlistsManager()">📋 My Setlists</a></li>
+            <li><hr class="my-1 opacity-20"/></li>
+            <li><a onclick="App.doSignOut()" class="text-error">🚪 Sign Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- Body -->
+  <main class="flex-1 overflow-y-auto">
+    <div class="max-w-4xl mx-auto px-4 py-4">
+      <!-- Search -->
+      <label class="input input-bordered flex items-center gap-2 bg-base-200 focus-within:border-primary transition-colors mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+        <input type="search" placeholder="Search songs, artist, genre…" class="grow bg-transparent outline-none" oninput="App.searchSongs(this.value)" />
+      </label>
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold">Song Library</h2>
+          <p id="songs-count-label" class="text-xs opacity-40">Loading…</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm gap-1" onclick="App.openSetlistsManager()">📋 <span class="hidden sm:inline">Setlists</span></button>
+          <button id="add-song-btn" class="hidden btn btn-primary btn-sm gap-1" onclick="App.openAddSong()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span class="hidden sm:inline">Add Song</span>
+          </button>
+        </div>
+      </div>
+      <!-- Song Grid -->
+      <div id="song-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-10">
+        <div class="col-span-full flex justify-center py-16"><span class="loading loading-spinner loading-lg text-primary"></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════ SCREEN: SONG VIEW ═══════════════════════════════ -->
+<div id="screen-song" class="screen flex-col bg-base-100">
+  <!-- Top bar -->
+  <div class="sticky top-0 z-40 bg-base-100/95 backdrop-blur border-b border-base-300" style="padding-top: env(safe-area-inset-top)">
+    <div class="flex items-center gap-3 px-4 py-3">
+      <button onclick="App.goBack()" class="btn btn-ghost btn-sm btn-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="flex-1 min-w-0">
+        <h2 id="sv-title" class="font-bold text-lg truncate leading-tight">Song Title</h2>
+        <p id="sv-artist" class="text-xs opacity-50 truncate">Artist</p>
+      </div>
+      <button class="btn btn-ghost btn-sm gap-1 text-xs" onclick="App.addCurrentSongToSetlist()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span class="hidden sm:inline">Setlist</span>
+      </button>
+    </div>
+    <!-- Controls -->
+    <div class="flex items-center gap-2 px-4 pb-3 flex-wrap">
+      <!-- Key Transpose -->
+      <div class="flex items-center bg-base-200 rounded-lg overflow-hidden border border-base-300">
+        <button class="btn btn-ghost btn-xs rounded-none px-2 border-0" onclick="App.shiftKey(-1)">◀</button>
+        <button class="btn btn-ghost btn-xs rounded-none px-3 font-mono font-bold text-primary min-w-[2.5rem] border-0"
+          onclick="document.getElementById('modal-key-picker').showModal()">
+          <span id="sv-key">C</span>
+        </button>
+        <button class="btn btn-ghost btn-xs rounded-none px-2 border-0" onclick="App.shiftKey(1)">▶</button>
+      </div>
+      <span class="text-xs opacity-40">Key</span>
+      <!-- Lyrics toggle (musicians) -->
+      <div id="sv-lyrics-wrap" class="hidden ml-auto flex items-center gap-2">
+        <label class="label cursor-pointer gap-2 py-0">
+          <span class="label-text text-xs">Lyrics only</span>
+          <input type="checkbox" id="sv-lyrics-toggle" class="toggle toggle-primary toggle-sm" onchange="App.renderSongContent()" />
+        </label>
+      </div>
+    </div>
+  </div>
+  <!-- Content -->
+  <div class="flex-1 song-scroll">
+    <div class="max-w-2xl mx-auto px-4 py-5 pb-20">
+      <div id="sv-content" class="song-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SCREEN: SETLIST VIEW ═══════════════════════════════ -->
+<div id="screen-setlist" class="screen flex-col bg-base-100">
+  <div class="sticky top-0 z-40 bg-base-100/95 backdrop-blur border-b border-base-300" style="padding-top: env(safe-area-inset-top)">
+    <div class="flex items-center gap-3 px-4 py-3">
+      <button onclick="App.goBack()" class="btn btn-ghost btn-sm btn-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <h2 id="sl-name" class="font-bold text-base truncate">Setlist</h2>
+          <span id="sl-progress" class="badge badge-ghost badge-xs">1/4</span>
+        </div>
+        <p class="text-xs opacity-40">Swipe ← → to navigate</p>
+      </div>
+    </div>
+    <!-- Song + Key -->
+    <div class="px-4 pb-2 space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <h3 id="sl-song-title" class="font-bold text-lg truncate leading-tight">Song</h3>
+          <p id="sl-song-artist" class="text-xs opacity-50 truncate">Artist</p>
+        </div>
+        <div class="flex items-center bg-base-200 rounded-lg overflow-hidden border border-base-300 shrink-0">
+          <button class="btn btn-ghost btn-xs rounded-none px-2 border-0" onclick="App.shiftSetlistKey(-1)">◀</button>
+          <span id="sl-key" class="px-3 font-mono font-bold text-primary text-sm min-w-[2.5rem] text-center">C</span>
+          <button class="btn btn-ghost btn-xs rounded-none px-2 border-0" onclick="App.shiftSetlistKey(1)">▶</button>
+        </div>
+      </div>
+      <!-- Dots + lyrics toggle -->
+      <div class="flex items-center justify-between gap-2">
+        <div id="sl-lyrics-wrap" class="hidden">
+          <label class="label cursor-pointer gap-2 py-0">
+            <span class="label-text text-xs">Lyrics only</span>
+            <input type="checkbox" id="sl-lyrics-toggle" class="toggle toggle-primary toggle-sm" onchange="App.renderSetlistContent()" />
+          </label>
+        </div>
+        <div id="sl-dots" class="flex items-center gap-2 ml-auto"></div>
+      </div>
+    </div>
+    <!-- Prev / Next -->
+    <div class="flex border-t border-base-300">
+      <button id="sl-prev-btn" onclick="App.setlistNav(-1)" class="flex-1 btn btn-ghost btn-sm rounded-none gap-1 text-xs border-r border-base-300">◀ Previous</button>
+      <button id="sl-next-btn" onclick="App.setlistNav(1)" class="flex-1 btn btn-ghost btn-sm rounded-none gap-1 text-xs">Next ▶</button>
+    </div>
+  </div>
+  <!-- Swipeable content -->
+  <div id="sl-swipe-area" class="flex-1 song-scroll">
+    <div class="max-w-2xl mx-auto px-4 py-5 pb-20">
+      <div id="sl-content" class="song-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SCREEN: ADMIN ═══════════════════════════════ -->
+<div id="screen-admin" class="screen flex-col bg-base-100">
+  <div class="sticky top-0 z-40 bg-base-100/95 backdrop-blur border-b border-base-300" style="padding-top: env(safe-area-inset-top)">
+    <div class="flex items-center gap-3 px-4 py-3">
+      <button onclick="App.goBack()" class="btn btn-ghost btn-sm btn-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <h2 class="text-lg font-bold">🛡️ Admin Panel</h2>
+    </div>
+  </div>
+  <div class="flex-1 overflow-y-auto">
+    <div class="max-w-2xl mx-auto px-4 py-6 space-y-5">
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-base-200 rounded-2xl p-4 text-center border border-base-300">
+          <div id="admin-songs-ct" class="text-2xl font-extrabold text-primary">0</div>
+          <div class="text-xs opacity-50 mt-0.5">Songs</div>
+        </div>
+        <div class="bg-base-200 rounded-2xl p-4 text-center border border-base-300">
+          <div id="admin-sets-ct" class="text-2xl font-extrabold text-secondary">0</div>
+          <div class="text-xs opacity-50 mt-0.5">Setlists</div>
+        </div>
+        <div class="bg-base-200 rounded-2xl p-4 text-center border border-base-300">
+          <div id="admin-users-ct" class="text-2xl font-extrabold text-accent">—</div>
+          <div class="text-xs opacity-50 mt-0.5">Users</div>
+        </div>
+      </div>
+      <!-- Quick actions -->
+      <div class="card bg-base-200 border border-base-300">
+        <div class="card-body p-4">
+          <h3 class="font-bold mb-3">Quick Actions</h3>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn btn-primary btn-sm" onclick="App.goBack(); setTimeout(()=>App.openAddSong(),200)">➕ Add New Song</button>
+            <button class="btn btn-outline btn-sm" onclick="App.openSetlistsManager()">📋 Manage Setlists</button>
+          </div>
+        </div>
+      </div>
+      <!-- Users -->
+      <div class="card bg-base-200 border border-base-300">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold">User Management</h3>
+            <button class="btn btn-ghost btn-xs" onclick="App.loadAdminUsers()">🔄 Refresh</button>
+          </div>
+          <div id="admin-users-list" class="space-y-2">
+            <div class="flex justify-center py-6"><span class="loading loading-spinner text-primary"></span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Songs list -->
+      <div class="card bg-base-200 border border-base-300">
+        <div class="card-body p-4">
+          <h3 class="font-bold mb-3">All Songs</h3>
+          <div id="admin-songs-list" class="space-y-1 max-h-72 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+  MODAL: KEY PICKER
+══════════════════════════════════════════════════════ -->
+<dialog id="modal-key-picker" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Select Key</h3>
+    <div id="key-picker-grid" class="grid grid-cols-6 gap-2"></div>
+    <div class="modal-action"><form method="dialog"><button class="btn btn-ghost">Cancel</button></form></div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- ══════════════════════════════════════════════════════
+  MODAL: ADD TO SETLIST
+══════════════════════════════════════════════════════ -->
+<dialog id="modal-add-setlist" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box max-h-[90vh] flex flex-col">
+    <h3 class="font-bold text-lg mb-1">Add to Setlist</h3>
+    <p class="text-xs opacity-40 mb-4">Max 4 songs per setlist</p>
+    <input type="hidden" id="modal-setlist-song-id" />
+    <div id="modal-setlist-choices" class="space-y-2 flex-1 overflow-y-auto mb-4 min-h-[100px]"></div>
+    <div class="divider my-2 text-xs opacity-30">Create New Setlist</div>
+    <div class="flex gap-2">
+      <input type="text" id="modal-new-setlist-name" placeholder="Setlist name…" class="input input-bordered flex-1 input-sm" maxlength="40" />
+      <button class="btn btn-primary btn-sm" onclick="App.createSetlist()">Create</button>
+    </div>
+    <div class="modal-action mt-3">
+      <form method="dialog"><button class="btn btn-ghost btn-sm">Close</button></form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- ══════════════════════════════════════════════════════
+  MODAL: SONG FORM (Add/Edit)
+══════════════════════════════════════════════════════ -->
+<dialog id="modal-song-form" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box max-h-[95vh] flex flex-col w-full max-w-2xl">
+    <h3 class="font-bold text-lg mb-4" id="song-form-heading">Add New Song</h3>
+    <div class="flex-1 overflow-y-auto pr-1 space-y-3">
+      <input type="hidden" id="sf-id" />
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2">
+          <label class="label py-1"><span class="label-text text-xs font-semibold">Song Title *</span></label>
+          <input type="text" id="sf-title" placeholder="e.g. Wonderwall" class="input input-bordered w-full input-sm" />
+        </div>
+        <div class="col-span-2">
+          <label class="label py-1"><span class="label-text text-xs font-semibold">Artist *</span></label>
+          <input type="text" id="sf-artist" placeholder="e.g. Oasis" class="input input-bordered w-full input-sm" />
+        </div>
+        <div>
+          <label class="label py-1"><span class="label-text text-xs font-semibold">Original Key</span></label>
+          <select id="sf-key" class="select select-bordered w-full select-sm">
+            <option>C</option><option>C#</option><option>D</option><option>D#</option>
+            <option>E</option><option>F</option><option>F#</option><option>G</option>
+            <option>G#</option><option>A</option><option>A#</option><option>B</option>
+          </select>
+        </div>
+        <div>
+          <label class="label py-1"><span class="label-text text-xs font-semibold">Tempo (BPM)</span></label>
+          <input type="number" id="sf-tempo" placeholder="e.g. 120" min="40" max="240" class="input input-bordered w-full input-sm" />
+        </div>
+        <div>
+          <label class="label py-1"><span class="label-text text-xs font-semibold">Genre</span></label>
+          <select id="sf-genre" class="select select-bordered w-full select-sm">
+            <option>Pop</option><option>Rock</option><option>Folk</option><option>Worship</option>
+            <option>Country</option><option>Jazz</option><option>Blues</option><option>R&amp;B</option><option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="label py-1"><span class="label-text text-xs font-semibold">Tags (comma sep.)</span></label>
+          <input type="text" id="sf-tags" placeholder="acoustic, slow" class="input input-bordered w-full input-sm" />
+        </div>
+      </div>
+      <!-- OCR -->
+      <div class="card bg-base-300 border border-dashed border-primary/40">
+        <div class="card-body p-4">
+          <h4 class="font-semibold text-sm mb-1">📷 Scan Chord Sheet Image (OCR)</h4>
+          <p class="text-xs opacity-40 mb-2">Upload a photo of a printed chord sheet to extract text</p>
+          <input type="file" id="sf-ocr-input" accept="image/*" capture="environment"
+            class="file-input file-input-bordered file-input-xs w-full file-input-primary"
+            onchange="App.handleOCR(this)" />
+          <div id="sf-ocr-status" class="hidden mt-3 space-y-1.5">
+            <p id="sf-ocr-msg" class="text-xs opacity-60">Processing…</p>
+            <progress id="sf-ocr-bar" class="progress progress-primary w-full h-1.5" value="0" max="100"></progress>
+          </div>
+        </div>
+      </div>
+      <!-- Content -->
+      <div>
+        <label class="label py-1">
+          <span class="label-text text-xs font-semibold">Chords &amp; Lyrics *</span>
+          <span class="label-text-alt text-xs opacity-40">Use [C], [Am] for chords</span>
+        </label>
+        <textarea id="sf-content" rows="14"
+          placeholder="[Verse 1]&#10;[C]Amazing grace how [Am]sweet the sound&#10;That [F]saved a wretch like [C]me"
+          class="textarea textarea-bordered w-full font-mono text-xs leading-relaxed resize-none"></textarea>
+        <p class="text-xs opacity-30 mt-1">Format: [Chord]lyrics  •  e.g. [G]Hello [Am]World</p>
+      </div>
+    </div>
+    <div class="modal-action gap-2 mt-4 pt-3 border-t border-base-300 shrink-0">
+      <form method="dialog"><button class="btn btn-ghost btn-sm">Cancel</button></form>
+      <button id="sf-save-btn" class="btn btn-primary btn-sm" onclick="App.saveSong()">Save Song</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- ══════════════════════════════════════════════════════
+  MODAL: SETTINGS
+══════════════════════════════════════════════════════ -->
+<dialog id="modal-settings" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">⚙️ Settings</h3>
+    <div class="space-y-4">
+      <div>
+        <label class="label"><span class="label-text font-semibold">My Role</span></label>
+        <select id="settings-role" class="select select-bordered w-full">
+          <option value="musician">🎸 Musician / Band Member</option>
+          <option value="singer">🎤 Singer / Vocalist</option>
+        </select>
+        <p class="text-xs opacity-40 mt-1">Musicians see chord sheets. Singers see lyrics-only by default.</p>
+      </div>
+    </div>
+    <div class="modal-action gap-2 mt-6">
+      <form method="dialog"><button class="btn btn-ghost">Cancel</button></form>
+      <button class="btn btn-primary" onclick="App.saveSettings()">Save</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- ══════════════════════════════════════════════════════
+  MODAL: SETLISTS MANAGER
+══════════════════════════════════════════════════════ -->
+<dialog id="modal-setlists-mgr" class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box max-h-[90vh] flex flex-col">
+    <h3 class="font-bold text-lg mb-1">📋 My Setlists</h3>
+    <p class="text-xs opacity-40 mb-4">Tap Open to start performance mode</p>
+    <div class="flex-1 overflow-y-auto">
+      <div id="setlists-mgr-list" class="space-y-3"></div>
+    </div>
+    <div class="divider my-3 text-xs opacity-30">Create New Setlist</div>
+    <div class="flex gap-2">
+      <input type="text" id="mgr-new-name" placeholder="Setlist name…" class="input input-bordered flex-1 input-sm" maxlength="40" />
+      <button class="btn btn-primary btn-sm" onclick="App.createSetlistFromManager()">Create</button>
+    </div>
+    <div class="modal-action mt-3">
+      <form method="dialog"><button class="btn btn-ghost btn-sm">Close</button></form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- ════════════════════════════════════════════════════════════════════
+  DATA & APP SCRIPT
+════════════════════════════════════════════════════════════════════ -->
+<script src="songs-data.js"></script>
+
+<script>
+/* ╔═══════════════════════════════════════════════════════════════
+   ║  GigBook Application
+   ╚═══════════════════════════════════════════════════════════════ */
+const ADMIN_EMAIL = "buenavistaaglinaodanny@gmail.com";
+const CHORD_KEYS  = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+const App = (function () {
+  'use strict';
+
+  // ── State ──────────────────────────────────────────────────────
+  let firebaseApp, auth, db;
+  let currentUser    = null;
+  let currentUserData= null;
+  let allSongs       = [];
+  let allSetlists    = [];
+  let currentSong    = null;
+  let currentKey     = 'C';
+  let prevScreen     = 'main-app';
+  let activeSetlist  = null;
+  let slIdx          = 0;
+  let slKey          = 'C';
+  let touchStartX    = 0;
+
+  // ── Firebase Dynamic Import ─────────────────────────────────────
+  async function initFirebase() {
+    try {
+      const { initializeApp }  = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+      const authMod            = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+      const firestoreMod       = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+      // ─── REPLACE THESE VALUES WITH YOUR OWN FIREBASE CONFIG ───
+      const cfg = {
+        apiKey:            "YOUR_API_KEY",
+        authDomain:        "YOUR_PROJECT.firebaseapp.com",
+        projectId:         "YOUR_PROJECT_ID",
+        storageBucket:     "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId:             "YOUR_APP_ID"
+      };
+      // ──────────────────────────────────────────────────────────
+
+      firebaseApp = initializeApp(cfg);
+      auth        = authMod.getAuth(firebaseApp);
+      db          = firestoreMod.getFirestore(firebaseApp);
+
+      App._authMod      = authMod;
+      App._firestoreMod = firestoreMod;
+
+      authMod.onAuthStateChanged(auth, handleAuthChange);
+    } catch (e) {
+      console.warn('Firebase unavailable, demo mode:', e.message);
+      runDemoMode();
+    }
+  }
+
+  function runDemoMode() {
+    allSongs    = [...(window.SONGS_DATA || [])];
+    allSetlists = [...(window.SETLISTS_DATA || [])];
+    showScreen('screen-login');
+  }
+
+  // ── Auth ────────────────────────────────────────────────────────
+  async function handleAuthChange(user) {
+    if (user) {
+      currentUser = user;
+      await loadUserProfile(user);
+      if (!currentUserData?.role) showScreen('screen-role');
+      else enterMainApp();
+    } else {
+      currentUser = null;
+      currentUserData = null;
+      showScreen('screen-login');
+    }
+  }
+
+  async function loadUserProfile(user) {
+    if (!db) {
+      currentUserData = { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL, role: 'musician', isAdmin: user.email === ADMIN_EMAIL };
+      return;
+    }
+    const { doc, getDoc, setDoc } = App._firestoreMod;
+    const ref  = doc(db, 'users', user.uid);
+    const snap = await getDoc(ref).catch(() => null);
+    if (snap && snap.exists()) {
+      currentUserData = snap.data();
+    } else {
+      currentUserData = { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL, role: null, isAdmin: user.email === ADMIN_EMAIL, joinedAt: new Date().toISOString() };
+      await setDoc(ref, currentUserData).catch(() => {});
+    }
+    if (user.email === ADMIN_EMAIL) currentUserData.isAdmin = true;
+  }
+
+  function signInWithGoogle() {
+    const btn = document.getElementById('google-signin-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Signing in…';
+
+    if (!auth) {
+      // Demo login
+      currentUser = { uid: 'demo', email: 'demo@demo.com', displayName: 'Demo User', photoURL: null };
+      currentUserData = { ...currentUser, role: null, isAdmin: false };
+      showScreen('screen-role');
+      document.getElementById('role-name').textContent = 'Demo User';
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0124 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg> Sign in with Google';
+      return;
+    }
+    const { GoogleAuthProvider, signInWithPopup } = App._authMod;
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email'); provider.addScope('profile');
+    signInWithPopup(auth, provider).catch(e => {
+      toast('Sign-in failed: ' + e.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/></svg> Sign in with Google';
+    });
+  }
+
+  function doSignOut() {
+    if (auth && App._authMod) App._authMod.signOut(auth).catch(() => {});
+    currentUser = null; currentUserData = null;
+    showScreen('screen-login');
+  }
+
+  // ── Role ────────────────────────────────────────────────────────
+  async function selectRole(role) {
+    currentUserData.role = role;
+    if (db && currentUser && App._firestoreMod) {
+      const { doc, updateDoc } = App._firestoreMod;
+      await updateDoc(doc(db, 'users', currentUser.uid), { role }).catch(() => {});
+    }
+    enterMainApp();
+  }
+
+  // ── Main App ────────────────────────────────────────────────────
+  async function enterMainApp() {
+    showScreen('main-app');
+    updateNavUI();
+    await Promise.all([loadSongs(), loadSetlists()]);
+    renderSongGrid();
+  }
+
+  function updateNavUI() {
+    document.getElementById('nav-user-name').textContent = currentUser?.displayName || currentUser?.email || 'User';
+    const img  = document.getElementById('nav-avatar-img');
+    const init = document.getElementById('nav-avatar-init');
+    if (currentUser?.photoURL) {
+      img.src = currentUser.photoURL;
+      img.classList.remove('hidden');
+      init.classList.add('hidden');
+    } else {
+      img.classList.add('hidden');
+      init.classList.remove('hidden');
+      init.textContent = (currentUser?.displayName || currentUser?.email || '?')[0].toUpperCase();
+    }
+    document.getElementById('admin-menu-item').classList.toggle('hidden', !currentUserData?.isAdmin);
+    document.getElementById('add-song-btn').classList.toggle('hidden', !currentUserData?.isAdmin);
+  }
+
+  async function loadSongs() {
+    if (db && App._firestoreMod) {
+      const { collection, getDocs, query, orderBy } = App._firestoreMod;
+      const snap = await getDocs(query(collection(db, 'songs'), orderBy('title'))).catch(() => null);
+      if (snap) {
+        allSongs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (allSongs.length === 0) allSongs = [...(window.SONGS_DATA || [])];
+        return;
+      }
+    }
+    allSongs = [...(window.SONGS_DATA || [])];
+  }
+
+  async function loadSetlists() {
+    if (db && App._firestoreMod) {
+      const { collection, getDocs, query, orderBy } = App._firestoreMod;
+      const snap = await getDocs(query(collection(db, 'setlists'), orderBy('createdAt', 'desc'))).catch(() => null);
+      if (snap) {
+        allSetlists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (allSetlists.length === 0) allSetlists = [...(window.SETLISTS_DATA || [])];
+        return;
+      }
+    }
+    allSetlists = [...(window.SETLISTS_DATA || [])];
+  }
+
+  // ── Song Grid ───────────────────────────────────────────────────
+  function renderSongGrid(filter = '') {
+    const grid = document.getElementById('song-grid');
+    const lbl  = document.getElementById('songs-count-label');
+    const filtered = filter
+      ? allSongs.filter(s =>
+          s.title.toLowerCase().includes(filter.toLowerCase()) ||
+          s.artist.toLowerCase().includes(filter.toLowerCase()) ||
+          (s.genre||'').toLowerCase().includes(filter.toLowerCase()) ||
+          (s.tags||[]).some(t => t.toLowerCase().includes(filter.toLowerCase()))
+        )
+      : allSongs;
+
+    lbl.textContent = filtered.length + ' song' + (filtered.length !== 1 ? 's' : '');
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="col-span-full text-center py-16 opacity-40"><div class="text-5xl mb-3">🎵</div><p>No songs found</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(s => `
+      <div class="card bg-base-200 border border-base-300 hover:border-primary hover:-translate-y-0.5 hover:shadow-xl cursor-pointer transition-all duration-150 group" onclick="App.openSong('${s.id}')">
+        <div class="card-body p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-base truncate group-hover:text-primary transition-colors">${esc(s.title)}</h3>
+              <p class="text-sm opacity-50 truncate">${esc(s.artist)}</p>
+            </div>
+            <div class="flex flex-col items-end gap-1 shrink-0">
+              <span class="badge badge-primary badge-sm font-mono font-bold">${esc(s.key)}</span>
+              <span class="badge badge-ghost badge-xs">${esc(s.genre||'Pop')}</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1 mt-2">
+            ${(s.tags||[]).slice(0,3).map(t => `<span class="badge badge-outline badge-xs opacity-50">${esc(t)}</span>`).join('')}
+          </div>
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-base-300">
+            <span class="text-xs opacity-30">♩ ${s.tempo||'—'} BPM</span>
+            <div class="flex gap-1">
+              <button class="btn btn-ghost btn-xs" title="Add to Setlist"
+                onclick="event.stopPropagation(); App.openAddToSetlist('${s.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              </button>
+              ${currentUserData?.isAdmin ? `
+                <button class="btn btn-ghost btn-xs text-warning" title="Edit" onclick="event.stopPropagation(); App.editSong('${s.id}')">✏️</button>
+                <button class="btn btn-ghost btn-xs text-error"   title="Delete" onclick="event.stopPropagation(); App.deleteSong('${s.id}')">🗑️</button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function searchSongs(val) { renderSongGrid(val); }
+
+  // ── Song View ───────────────────────────────────────────────────
+  function openSong(id) {
+    currentSong = allSongs.find(s => s.id === id);
+    if (!currentSong) return;
+    currentKey = currentSong.key;
+    prevScreen = 'main-app';
+    showScreen('screen-song');
+
+    document.getElementById('sv-title').textContent  = currentSong.title;
+    document.getElementById('sv-artist').textContent = currentSong.artist;
+    document.getElementById('sv-key').textContent    = currentKey;
+
+    const isMusician = currentUserData?.role === 'musician';
+    document.getElementById('sv-lyrics-wrap').classList.toggle('hidden', !isMusician);
+    document.getElementById('sv-lyrics-toggle').checked = false;
+
+    renderKeyPickerGrid('sv-key');
+    renderSongContent();
+  }
+
+  function renderSongContent() {
+    if (!currentSong) return;
+    const semi = keyOffset(currentSong.key, currentKey);
+    const isMusician = currentUserData?.role === 'musician';
+    const lyricsOnly = isMusician ? document.getElementById('sv-lyrics-toggle').checked : true;
+    const content = transpose(currentSong.content, semi);
+    document.getElementById('sv-content').innerHTML = renderContent(content, !lyricsOnly);
+  }
+
+  function shiftKey(dir) {
+    const i = CHORD_KEYS.indexOf(currentKey);
+    currentKey = CHORD_KEYS[((i + dir + 12) % 12)];
+    document.getElementById('sv-key').textContent = currentKey;
+    renderKeyPickerGrid('sv-key');
+    renderSongContent();
+  }
+
+  function addCurrentSongToSetlist() {
+    if (!currentSong) return;
+    openAddToSetlist(currentSong.id);
+  }
+
+  // ── Key Picker ──────────────────────────────────────────────────
+  function renderKeyPickerGrid(activeEl) {
+    const activeKey = activeEl === 'sv-key'
+      ? currentKey
+      : (activeEl === 'sl-key' ? slKey : currentKey);
+    document.getElementById('key-picker-grid').innerHTML = CHORD_KEYS.map(k => `
+      <button class="btn btn-sm font-mono font-bold ${k === activeKey ? 'btn-primary' : 'btn-ghost'}"
+        onclick="App.pickKey('${k}','${activeEl}')">
+        ${k}
+      </button>
+    `).join('');
+  }
+
+  function pickKey(key, targetEl) {
+    if (targetEl === 'sv-key') {
+      currentKey = key;
+      document.getElementById('sv-key').textContent = key;
+      renderSongContent();
+    } else if (targetEl === 'sl-key') {
+      slKey = key;
+      document.getElementById('sl-key').textContent = key;
+      renderSetlistContent();
+    }
+    renderKeyPickerGrid(targetEl);
+    document.getElementById('modal-key-picker').close();
+  }
+
+  // ── Add to Setlist ──────────────────────────────────────────────
+  function openAddToSetlist(songId) {
+    document.getElementById('modal-setlist-song-id').value = songId;
+    renderSetlistChoices(songId);
+    document.getElementById('modal-add-setlist').showModal();
+  }
+
+  function renderSetlistChoices(songId) {
+    const container = document.getElementById('modal-setlist-choices');
+    if (!allSetlists.length) {
+      container.innerHTML = '<p class="text-center opacity-40 py-4 text-sm">No setlists yet. Create one below!</p>';
+      return;
+    }
+    container.innerHTML = allSetlists.map(sl => {
+      const songs = sl.songs || [];
+      const has   = songs.includes(songId);
+      const full  = songs.length >= 4;
+      return `
+        <div class="flex items-center justify-between p-3 bg-base-200 rounded-xl gap-2">
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-sm truncate">${esc(sl.name)}</p>
+            <div class="flex gap-1 mt-0.5 flex-wrap">
+              ${songs.map(sid => { const s=allSongs.find(x=>x.id===sid); return `<span class="badge badge-ghost badge-xs truncate max-w-[70px]">${esc(s?.title||sid)}</span>`; }).join('')}
+              ${!songs.length?'<span class="text-xs opacity-30">Empty</span>':''}
+            </div>
+          </div>
+          <button class="btn btn-sm shrink-0 ${has?'btn-success btn-outline':full?'btn-disabled opacity-40':'btn-primary'}"
+            onclick="App.addToSetlist('${sl.id}','${songId}')" ${full&&!has?'disabled':''}>
+            ${has?'✓ Added':full?'Full':'+ Add'}
+          </button>
+        </div>`;
+    }).join('');
+  }
+
+  async function addToSetlist(slId, songId) {
+    const sl = allSetlists.find(s => s.id === slId);
+    if (!sl) return;
+    if ((sl.songs||[]).includes(songId)) { toast('Song already in setlist', 'info'); return; }
+    if ((sl.songs||[]).length >= 4)       { toast('Setlist is full (max 4)', 'warning'); return; }
+    sl.songs = [...(sl.songs||[]), songId];
+    if (db && App._firestoreMod) {
+      const { doc, updateDoc } = App._firestoreMod;
+      await updateDoc(doc(db, 'setlists', slId), { songs: sl.songs }).catch(() => {});
+    }
+    renderSetlistChoices(songId);
+    toast('Added to "' + sl.name + '"', 'success');
+  }
+
+  async function createSetlist() {
+    const name = document.getElementById('modal-new-setlist-name').value.trim();
+    if (!name) { toast('Enter a setlist name', 'warning'); return; }
+    const id = 'setlist_' + Date.now();
+    const sl = { id, name, songs: [], createdBy: currentUser?.uid||'demo', createdAt: new Date().toISOString() };
+    allSetlists.unshift(sl);
+    if (db && App._firestoreMod) {
+      const { doc, setDoc } = App._firestoreMod;
+      await setDoc(doc(db, 'setlists', id), sl).catch(() => {});
+    }
+    document.getElementById('modal-new-setlist-name').value = '';
+    const sid = document.getElementById('modal-setlist-song-id').value;
+    if (sid) renderSetlistChoices(sid);
+    toast('Setlist created!', 'success');
+  }
+
+  // ── Setlist View ────────────────────────────────────────────────
+  async function openSetlistsManager() {
+    await loadSetlists();
+    renderSetlistsManager();
+    document.getElementById('modal-setlists-mgr').showModal();
+  }
+
+  function renderSetlistsManager() {
+    const el = document.getElementById('setlists-mgr-list');
+    if (!allSetlists.length) {
+      el.innerHTML = '<p class="text-center opacity-40 py-8 text-sm">No setlists yet.</p>';
+      return;
+    }
+    el.innerHTML = allSetlists.map(sl => `
+      <div class="card bg-base-200 border border-base-300">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <h3 class="font-bold truncate">${esc(sl.name)}</h3>
+              <p class="text-xs opacity-40">${(sl.songs||[]).length}/4 songs</p>
+            </div>
+            <div class="flex gap-2 shrink-0">
+              <button class="btn btn-sm btn-primary" onclick="App.openSetlistView('${sl.id}'); document.getElementById('modal-setlists-mgr').close()">▶ Open</button>
+              ${currentUserData?.isAdmin ? `<button class="btn btn-sm btn-error btn-outline" onclick="App.deleteSetlist('${sl.id}')">🗑️</button>` : ''}
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1 mt-2">
+            ${(sl.songs||[]).map(sid => { const s=allSongs.find(x=>x.id===sid); return `<span class="badge badge-ghost badge-sm">${esc(s?.title||sid)}</span>`; }).join('')}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function createSetlistFromManager() {
+    const name = document.getElementById('mgr-new-name').value.trim();
+    if (!name) { toast('Enter a name', 'warning'); return; }
+    const id = 'setlist_' + Date.now();
+    const sl = { id, name, songs: [], createdBy: currentUser?.uid||'demo', createdAt: new Date().toISOString() };
+    allSetlists.unshift(sl);
+    if (db && App._firestoreMod) {
+      const { doc, setDoc } = App._firestoreMod;
+      await setDoc(doc(db, 'setlists', id), sl).catch(() => {});
+    }
+    document.getElementById('mgr-new-name').value = '';
+    renderSetlistsManager();
+    toast('Setlist created!', 'success');
+  }
+
+  async function deleteSetlist(slId) {
+    if (!confirm('Delete this setlist?')) return;
+    allSetlists = allSetlists.filter(s => s.id !== slId);
+    if (db && App._firestoreMod) {
+      const { doc, deleteDoc } = App._firestoreMod;
+      await deleteDoc(doc(db, 'setlists', slId)).catch(() => {});
+    }
+    renderSetlistsManager();
+    toast('Setlist deleted', 'info');
+  }
+
+  function openSetlistView(slId) {
+    activeSetlist = allSetlists.find(s => s.id === slId);
+    if (!activeSetlist?.songs?.length) { toast('Setlist is empty', 'info'); return; }
+    slIdx = 0;
+    const song = allSongs.find(s => s.id === activeSetlist.songs[0]);
+    if (!song) { toast('Song not found', 'error'); return; }
+    slKey = song.key;
+    prevScreen = 'main-app';
+    showScreen('screen-setlist');
+    setupSwipe();
+    renderSetlistView();
+  }
+
+  function renderSetlistView() {
+    const song = allSongs.find(s => s.id === activeSetlist.songs[slIdx]);
+    if (!song) return;
+    const total = activeSetlist.songs.length;
+
+    document.getElementById('sl-name').textContent       = activeSetlist.name;
+    document.getElementById('sl-progress').textContent   = `${slIdx+1}/${total}`;
+    document.getElementById('sl-song-title').textContent = song.title;
+    document.getElementById('sl-song-artist').textContent= song.artist;
+    document.getElementById('sl-key').textContent        = slKey;
+
+    document.getElementById('sl-prev-btn').disabled = slIdx === 0;
+    document.getElementById('sl-next-btn').disabled = slIdx >= total - 1;
+
+    document.getElementById('sl-dots').innerHTML = activeSetlist.songs.map((_,i) =>
+      `<button class="w-2.5 h-2.5 rounded-full transition-all ${i===slIdx?'bg-primary scale-125':'bg-base-content opacity-25'}" onclick="App.slJump(${i})"></button>`
+    ).join('');
+
+    const isMusician = currentUserData?.role === 'musician';
+    document.getElementById('sl-lyrics-wrap').classList.toggle('hidden', !isMusician);
+    if (!isMusician) document.getElementById('sl-lyrics-toggle').checked = false;
+
+    renderSetlistContent();
+  }
+
+  function renderSetlistContent() {
+    const song = allSongs.find(s => s.id === activeSetlist.songs[slIdx]);
+    if (!song) return;
+    const semi = keyOffset(song.key, slKey);
+    const isMusician = currentUserData?.role === 'musician';
+    const lyricsOnly = isMusician ? document.getElementById('sl-lyrics-toggle').checked : true;
+    const content = transpose(song.content, semi);
+    document.getElementById('sl-content').innerHTML = renderContent(content, !lyricsOnly);
+  }
+
+  function slJump(idx) {
+    slIdx = idx;
+    const song = allSongs.find(s => s.id === activeSetlist.songs[idx]);
+    if (song) slKey = song.key;
+    renderSetlistView();
+  }
+
+  function setlistNav(dir) {
+    const newIdx = slIdx + dir;
+    if (newIdx < 0 || newIdx >= activeSetlist.songs.length) return;
+    const song = allSongs.find(s => s.id === activeSetlist.songs[newIdx]);
+    if (song) slKey = song.key;
+    slIdx = newIdx;
+    const el = document.getElementById('sl-content');
+    el.classList.add(dir > 0 ? 'slide-in-right' : 'slide-in-left');
+    setTimeout(() => el.classList.remove('slide-in-right','slide-in-left'), 400);
+    renderSetlistView();
+  }
+
+  function shiftSetlistKey(dir) {
+    const i = CHORD_KEYS.indexOf(slKey);
+    slKey = CHORD_KEYS[((i + dir + 12) % 12)];
+    document.getElementById('sl-key').textContent = slKey;
+    renderSetlistContent();
+  }
+
+  function setupSwipe() {
+    const el = document.getElementById('sl-swipe-area');
+    el.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    el.addEventListener('touchend',   e => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 55) setlistNav(diff > 0 ? 1 : -1);
+    }, { passive: true });
+  }
+
+  // ── Admin Panel ─────────────────────────────────────────────────
+  function openAdminPanel() {
+    prevScreen = 'main-app';
+    showScreen('screen-admin');
+    // stats
+    document.getElementById('admin-songs-ct').textContent = allSongs.length;
+    document.getElementById('admin-sets-ct').textContent  = allSetlists.length;
+    // songs list
+    document.getElementById('admin-songs-list').innerHTML = allSongs.map(s => `
+      <div class="flex items-center justify-between py-1.5 border-b border-base-300 gap-2">
+        <div class="min-w-0 flex-1">
+          <span class="font-medium text-sm truncate block">${esc(s.title)}</span>
+          <span class="text-xs opacity-40">${esc(s.artist)}</span>
+        </div>
+        <span class="badge badge-primary badge-xs ml-1 shrink-0">${esc(s.key)}</span>
+        <div class="flex gap-1 shrink-0">
+          <button class="btn btn-ghost btn-xs text-warning" onclick="App.editSong('${s.id}')">✏️</button>
+          <button class="btn btn-ghost btn-xs text-error"   onclick="App.deleteSong('${s.id}')">🗑️</button>
+        </div>
+      </div>
+    `).join('') || '<p class="text-xs opacity-40 py-4 text-center">No songs yet</p>';
+    loadAdminUsers();
+  }
+
+  async function loadAdminUsers() {
+    const el = document.getElementById('admin-users-list');
+    el.innerHTML = '<div class="flex justify-center py-6"><span class="loading loading-spinner text-primary"></span></div>';
+    document.getElementById('admin-users-ct').textContent = '—';
+    try {
+      if (!db || !App._firestoreMod) throw new Error('demo');
+      const { collection, getDocs } = App._firestoreMod;
+      const snap  = await getDocs(collection(db, 'users'));
+      const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      document.getElementById('admin-users-ct').textContent = users.length;
+      el.innerHTML = users.map(u => `
+        <div class="flex items-center justify-between p-3 bg-base-100 rounded-xl gap-2">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            ${u.photoURL ? `<img src="${esc(u.photoURL)}" class="w-9 h-9 rounded-full shrink-0 object-cover" />` :
+              `<div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shrink-0">${(u.displayName||u.email||'?')[0].toUpperCase()}</div>`}
+            <div class="min-w-0">
+              <p class="font-semibold text-sm truncate">${esc(u.displayName||'Unknown')}</p>
+              <p class="text-xs opacity-40 truncate">${esc(u.email||'')}</p>
+              <div class="flex gap-1 mt-0.5">
+                <span class="badge badge-xs ${u.role==='musician'?'badge-secondary':'badge-accent'}">${u.role||'—'}</span>
+                ${u.isAdmin?'<span class="badge badge-xs badge-warning">Admin</span>':''}
+              </div>
+            </div>
+          </div>
+          ${u.email !== ADMIN_EMAIL ? `
+            <button class="btn btn-xs ${u.isAdmin?'btn-warning btn-outline':'btn-ghost'} shrink-0" onclick="App.toggleAdmin('${u.id}',${!u.isAdmin})">
+              ${u.isAdmin?'Remove Admin':'Make Admin'}
+            </button>` : '<span class="badge badge-warning shrink-0 text-xs">Owner</span>'}
+        </div>
+      `).join('');
+    } catch {
+      document.getElementById('admin-users-ct').textContent = '1';
+      el.innerHTML = `
+        <div class="alert alert-info text-sm"><span>Connect Firebase to see all users.</span></div>
+        <div class="mt-2 p-3 bg-base-100 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="font-semibold">${esc(currentUser?.displayName||'Admin')}</p>
+            <p class="text-xs opacity-40">${esc(currentUser?.email||'')}</p>
+            <span class="badge badge-warning badge-xs">Admin</span>
+          </div>
+        </div>`;
+    }
+  }
+
+  async function toggleAdmin(uid, makeAdmin) {
+    if (!db || !App._firestoreMod) { toast('Firebase not connected', 'error'); return; }
+    const { doc, updateDoc } = App._firestoreMod;
+    await updateDoc(doc(db, 'users', uid), { isAdmin: makeAdmin }).catch(() => {});
+    toast(makeAdmin ? 'Admin granted' : 'Admin removed', 'success');
+    loadAdminUsers();
+  }
+
+  // ── Add / Edit Song ─────────────────────────────────────────────
+  function openAddSong() {
+    document.getElementById('song-form-heading').textContent = 'Add New Song';
+    document.getElementById('sf-id').value      = '';
+    document.getElementById('sf-title').value   = '';
+    document.getElementById('sf-artist').value  = '';
+    document.getElementById('sf-key').value     = 'C';
+    document.getElementById('sf-tempo').value   = '';
+    document.getElementById('sf-genre').value   = 'Pop';
+    document.getElementById('sf-tags').value    = '';
+    document.getElementById('sf-content').value = '';
+    document.getElementById('sf-ocr-status').classList.add('hidden');
+    document.getElementById('modal-song-form').showModal();
+  }
+
+  function editSong(id) {
+    const s = allSongs.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('song-form-heading').textContent = 'Edit Song';
+    document.getElementById('sf-id').value      = s.id;
+    document.getElementById('sf-title').value   = s.title;
+    document.getElementById('sf-artist').value  = s.artist;
+    document.getElementById('sf-key').value     = s.key;
+    document.getElementById('sf-tempo').value   = s.tempo || '';
+    document.getElementById('sf-genre').value   = s.genre || 'Pop';
+    document.getElementById('sf-tags').value    = (s.tags||[]).join(', ');
+    document.getElementById('sf-content').value = s.content;
+    document.getElementById('sf-ocr-status').classList.add('hidden');
+    document.getElementById('modal-song-form').showModal();
+  }
+
+  async function saveSong() {
+    const id      = document.getElementById('sf-id').value;
+    const title   = document.getElementById('sf-title').value.trim();
+    const artist  = document.getElementById('sf-artist').value.trim();
+    const key     = document.getElementById('sf-key').value;
+    const tempo   = parseInt(document.getElementById('sf-tempo').value) || 0;
+    const genre   = document.getElementById('sf-genre').value;
+    const tags    = document.getElementById('sf-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+    const content = document.getElementById('sf-content').value.trim();
+
+    if (!title || !artist || !content) { toast('Fill in Title, Artist, and Chords/Lyrics', 'warning'); return; }
+
+    const btn = document.getElementById('sf-save-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading loading-spinner loading-xs"></span>';
+
+    const data = { title, artist, key, tempo, genre, tags, content, updatedAt: new Date().toISOString(), addedBy: currentUser?.uid||'admin' };
+
+    try {
+      if (id) {
+        const idx = allSongs.findIndex(s => s.id === id);
+        if (idx !== -1) allSongs[idx] = { ...allSongs[idx], ...data };
+        if (db && App._firestoreMod) {
+          const { doc, updateDoc } = App._firestoreMod;
+          await updateDoc(doc(db,'songs',id), data);
+        }
+        toast('Song updated!', 'success');
+      } else {
+        const newId = 'song_' + Date.now();
+        const newSong = { id: newId, ...data, addedAt: new Date().toISOString() };
+        allSongs.unshift(newSong);
+        if (db && App._firestoreMod) {
+          const { doc, setDoc } = App._firestoreMod;
+          await setDoc(doc(db,'songs',newId), newSong);
+        }
+        toast('Song added!', 'success');
+      }
+      renderSongGrid();
+      document.getElementById('modal-song-form').close();
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Save Song';
+    }
+  }
+
+  async function deleteSong(id) {
+    if (!confirm('Delete this song? This cannot be undone.')) return;
+    allSongs = allSongs.filter(s => s.id !== id);
+    if (db && App._firestoreMod) {
+      const { doc, deleteDoc } = App._firestoreMod;
+      await deleteDoc(doc(db,'songs',id)).catch(() => {});
+    }
+    renderSongGrid();
+    toast('Song deleted', 'info');
+  }
+
+  // ── OCR ─────────────────────────────────────────────────────────
+  async function handleOCR(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const msg = document.getElementById('sf-ocr-msg');
+    const bar = document.getElementById('sf-ocr-bar');
+    document.getElementById('sf-ocr-status').classList.remove('hidden');
+    bar.value = 0;
+    msg.textContent = 'Loading OCR engine…';
+    try {
+      const worker = await Tesseract.createWorker('eng', 1, {
+        logger: m => {
+          if (m.status === 'recognizing text') { bar.value = Math.round(m.progress * 100); }
+          msg.textContent = m.status;
+        }
+      });
+      const { data: { text } } = await worker.recognize(file);
+      await worker.terminate();
+      const ta = document.getElementById('sf-content');
+      ta.value = (ta.value ? ta.value + '\n\n' : '') + text.trim();
+      msg.textContent = '✅ Text extracted! Review and edit below.';
+      bar.value = 100;
+      toast('Image scanned!', 'success');
+    } catch (e) {
+      msg.textContent = '❌ OCR failed: ' + e.message;
+      toast('OCR failed', 'error');
+    }
+  }
+
+  // ── Settings ────────────────────────────────────────────────────
+  function openSettings() {
+    document.getElementById('settings-role').value = currentUserData?.role || 'musician';
+    document.getElementById('modal-settings').showModal();
+  }
+
+  async function saveSettings() {
+    const role = document.getElementById('settings-role').value;
+    currentUserData.role = role;
+    if (db && currentUser && App._firestoreMod) {
+      const { doc, updateDoc } = App._firestoreMod;
+      await updateDoc(doc(db,'users',currentUser.uid), { role }).catch(() => {});
+    }
+    toast('Settings saved!', 'success');
+    document.getElementById('modal-settings').close();
+  }
+
+  // ── Navigation ──────────────────────────────────────────────────
+  function goBack() { showScreen(prevScreen || 'main-app'); }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
+  }
+
+  // ── Chord Transposition ─────────────────────────────────────────
+  function keyOffset(from, to) {
+    const a = CHORD_KEYS.indexOf(from), b = CHORD_KEYS.indexOf(to);
+    if (a === -1 || b === -1) return 0;
+    return ((b - a) % 12 + 12) % 12;
+  }
+
+  function transposeNote(note, semi) {
+    const noteMap = { C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11 };
+    const root = note.match(/^[A-G][#b]?/)?.[0];
+    if (!root) return note;
+    const val = noteMap[root];
+    if (val === undefined) return note;
+    const newVal = ((val + semi) % 12 + 12) % 12;
+    return CHORD_KEYS[newVal] + note.slice(root.length);
+  }
+
+  function transposeChord(chord, semi) {
+    if (chord.includes('/')) {
+      const [a, b] = chord.split('/');
+      return transposeNote(a, semi) + '/' + transposeNote(b, semi);
+    }
+    return transposeNote(chord, semi);
+  }
+
+  function transpose(content, semi) {
+    if (!semi) return content;
+    return content.replace(/\[([^\]]+)\]/g, (_, c) => '[' + transposeChord(c, semi) + ']');
+  }
+
+  // ── Render song content ─────────────────────────────────────────
+  function renderContent(text, showChords) {
+    const lines = text.split('\n');
+    let html = '';
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t) { html += '<div style="height:0.75rem"></div>'; continue; }
+      if (/^\[(Verse|Chorus|Bridge|Pre-Chorus|Intro|Outro|Hook|Refrain|Tag)[^\]]*\]$/i.test(t)) {
+        html += `<div class="section-label">${esc(t.replace(/[\[\]]/g,''))}</div>`;
+        continue;
+      }
+      if (t.includes('[') && /\[[A-G][^\]]*\]/.test(t)) {
+        const { chord, lyric } = parseLine(t);
+        if (showChords && chord.trim()) html += `<div class="chord-line">${chord}</div>`;
+        if (lyric.trim()) html += `<div class="lyric-line">${esc(lyric)}</div>`;
+        else if (!showChords && chord.trim()) {
+          // When not showing chords, show lyrics even if they're empty (just chords line)
+          // Extract just text from brackets (lyric parts only)
+          const lyricOnly = t.replace(/\[[^\]]+\]/g, '').trim();
+          if (lyricOnly) html += `<div class="lyric-line">${esc(lyricOnly)}</div>`;
+        }
+        continue;
+      }
+      html += `<div class="lyric-line">${esc(t)}</div>`;
+    }
+    return html;
+  }
+
+  function parseLine(line) {
+    const parts = line.split(/(\[[^\]]+\])/);
+    let chord = '', lyric = '', col = 0;
+    for (const p of parts) {
+      if (/^\[[^\]]+\]$/.test(p)) {
+        const c = p.slice(1,-1);
+        const pad = Math.max(0, col - chord.length);
+        chord += ' '.repeat(pad) + c;
+      } else {
+        lyric += p;
+        col   += p.length;
+      }
+    }
+    return { chord, lyric };
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────
+  function toast(msg, type='info') {
+    const map = { success:'alert-success', error:'alert-error', warning:'alert-warning', info:'alert-info' };
+    const el  = document.createElement('div');
+    el.className = `alert ${map[type]||'alert-info'} shadow-lg max-w-xs text-sm py-2 px-3`;
+    el.innerHTML = `<span>${esc(msg)}</span>`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+
+  // ── PWA install prompt ───────────────────────────────────────────
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('install-pwa-btn').classList.remove('hidden');
+  });
+  document.getElementById('install-pwa-btn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') toast('App installed! 🎉', 'success');
+    deferredPrompt = null;
+    document.getElementById('install-pwa-btn').classList.add('hidden');
+  });
+
+  // ── Service Worker ────────────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────
+  initFirebase();
+
+  // ── Public API ────────────────────────────────────────────────────
+  return {
+    signInWithGoogle,
+    doSignOut,
+    selectRole,
+    searchSongs,
+    openSong,
+    renderSongContent,
+    shiftKey,
+    addCurrentSongToSetlist,
+    pickKey,
+    renderKeyPickerGrid,
+    openAddToSetlist,
+    addToSetlist,
+    renderSetlistChoices,
+    createSetlist,
+    openSetlistsManager,
+    renderSetlistsManager,
+    createSetlistFromManager,
+    deleteSetlist,
+    openSetlistView,
+    renderSetlistView,
+    renderSetlistContent,
+    slJump,
+    setlistNav,
+    shiftSetlistKey,
+    openAdminPanel,
+    loadAdminUsers,
+    toggleAdmin,
+    openAddSong,
+    editSong,
+    saveSong,
+    deleteSong,
+    handleOCR,
+    openSettings,
+    saveSettings,
+    goBack,
+    _authMod: null,
+    _firestoreMod: null,
+  };
+})();
+</script>
+
+</body>
+</html>
