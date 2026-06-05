@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ChordBook" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>ChordBook — Guitar Chords & Setlist</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="https://emojicdn.elk.sh/🎸?style=apple" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- DaisyUI (FlyonUI is built on DaisyUI — using it for full CDN support) -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet" />
+  <!-- Iconify Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.1.0/dist/iconify-icon.min.js"></script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc,
+             updateDoc, deleteDoc, query, orderBy, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ================================================================
+    // 🔥 FIREBASE CONFIGURATION — Replace with your own project config
+    // ================================================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyAlE76KUY17bv8J5mM_9SBN6p23gNUyc0Y",
+        authDomain: "rccm-gigbook.firebaseapp.com",
+        projectId: "rccm-gigbook",
+        storageBucket: "rccm-gigbook.firebasestorage.app",
+        messagingSenderId: "817371493392",
+        appId: "1:817371493392:web:a7cec582390753b9104695"
+    };
+    // ================================================================
+
+    const ADMIN_EMAIL = "buenavistaaglinaodanny@gmail.com";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window._firebase = { auth, db, GoogleAuthProvider, signInWithPopup, signOut,
+      onAuthStateChanged, doc, getDoc, setDoc, collection, getDocs, addDoc,
+      updateDoc, deleteDoc, query, orderBy, serverTimestamp, ADMIN_EMAIL };
+
+    window._firebaseReadyFlag = true;
+    window.dispatchEvent(new Event("firebase-ready"));
+  </script>
+
+  <style>
+    :root {
+      --brand-1: #6c63ff;
+      --brand-2: #ff6584;
+      --brand-3: #43e97b;
+    }
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; }
+    body { background: #0f0f1a; color: #e2e8f0; }
+
+    /* Scrollable areas */
+    .scroll-area { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .scroll-area::-webkit-scrollbar { width: 4px; }
+    .scroll-area::-webkit-scrollbar-track { background: transparent; }
+    .scroll-area::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.4); border-radius: 2px; }
+
+    /* Chord sheet styles */
+    .chord-line { display: flex; flex-direction: column; margin-bottom: 1.2rem; font-family: 'Courier New', monospace; }
+    .chord-text { color: #6c63ff; font-weight: 700; font-size: 0.95rem; white-space: pre; letter-spacing: 0.05em; }
+    .lyric-text { color: #e2e8f0; font-size: 1rem; white-space: pre-wrap; }
+    .section-label { color: #43e97b; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
+      letter-spacing: 0.15em; margin: 1.5rem 0 0.5rem; border-left: 3px solid #43e97b; padding-left: 0.75rem; }
+    .lyrics-only .chord-text { display: none; }
+    .lyrics-only .section-label { color: #ff6584; border-color: #ff6584; }
+
+    /* Glass card */
+    .glass-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1rem;
+    }
+
+    /* Animated gradient bg */
+    .bg-gradient-animated {
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+    }
+
+    /* Song card hover */
+    .song-card {
+      transition: all 0.25s ease;
+      cursor: pointer;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .song-card:hover, .song-card:active {
+      background: rgba(108,99,255,0.15);
+      border-color: rgba(108,99,255,0.4);
+      transform: translateY(-1px);
+    }
+
+    /* Key badge */
+    .key-badge {
+      background: linear-gradient(135deg, #6c63ff, #a855f7);
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Bottom nav */
+    .bottom-nav { background: rgba(15,15,26,0.95); backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.08); }
+
+    /* Page transitions */
+    .page { display: none; height: calc(100dvh - 4rem); }
+    .page.active { display: flex; flex-direction: column; }
+    .page-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1rem; }
+
+    /* Sign in page */
+    .signin-page { height: 100dvh; background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%); }
+
+    /* Setlist swipe */
+    .setlist-viewer { position: relative; overflow: hidden; touch-action: pan-y; }
+    .setlist-slides { display: flex; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+    .setlist-slide { min-width: 100%; }
+
+    /* Modal backdrop */
+    .modal-backdrop { background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); }
+
+    /* Admin badge */
+    .admin-crown { color: #fbbf24; }
+
+    /* Chord display in song view */
+    .song-viewer { display: flex; flex-direction: column; height: calc(100dvh - 4rem); }
+    .song-header { flex-shrink: 0; padding: 0.75rem 1rem; background: rgba(15,15,26,0.9); 
+      border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .song-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1rem; }
+
+    /* OCR upload area */
+    .upload-zone { border: 2px dashed rgba(108,99,255,0.5); border-radius: 1rem;
+      transition: all 0.2s; cursor: pointer; }
+    .upload-zone:hover { border-color: #6c63ff; background: rgba(108,99,255,0.08); }
+    .upload-zone.dragging { border-color: #43e97b; background: rgba(67,233,123,0.08); }
+
+    /* Toast */
+    #toast-container { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+      z-index: 9999; pointer-events: none; }
+    .toast-msg { background: rgba(30,30,50,0.95); border: 1px solid rgba(108,99,255,0.4);
+      color: #e2e8f0; padding: 0.6rem 1.2rem; border-radius: 0.75rem; font-size: 0.875rem;
+      text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none;
+      animation: toastIn 0.3s ease; white-space: nowrap; }
+    @keyframes toastIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Input focus */
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #6c63ff !important; box-shadow: 0 0 0 3px rgba(108,99,255,0.2); }
+
+    /* Swipe dots */
+    .swipe-dot { width: 8px; height: 8px; border-radius: 9999px; background: rgba(255,255,255,0.3); transition: all 0.2s; }
+    .swipe-dot.active { background: #6c63ff; width: 24px; }
+
+    /* Loading spinner */
+    .loader { border: 3px solid rgba(108,99,255,0.2); border-top-color: #6c63ff; border-radius: 50%;
+      width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Profile avatar */
+    .avatar-ring { border: 2px solid #6c63ff; border-radius: 50%; padding: 2px; }
+
+    /* Setlist card */
+    .setlist-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem; transition: all 0.2s; cursor: pointer; }
+    .setlist-card:hover { border-color: rgba(108,99,255,0.4); }
+    .setlist-card.selected { border-color: #6c63ff; background: rgba(108,99,255,0.12); }
+
+    /* Key selector */
+    .key-btn { padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); }
+    .key-btn:hover { background: rgba(108,99,255,0.3); border-color: #6c63ff; }
+    .key-btn.active-key { background: #6c63ff; border-color: #6c63ff; color: white; }
+
+    /* Role select card */
+    .role-card { cursor: pointer; border: 2px solid rgba(255,255,255,0.1); border-radius: 1.25rem;
+      padding: 1.5rem; text-align: center; transition: all 0.25s; }
+    .role-card:hover { border-color: #6c63ff; transform: scale(1.02); }
+    .role-card.selected { border-color: #6c63ff; background: rgba(108,99,255,0.15); }
+
+    /* Search bar */
+    .search-bar { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.875rem; color: #e2e8f0; padding: 0.6rem 1rem 0.6rem 2.75rem;
+      width: 100%; font-size: 0.95rem; }
+    .search-bar::placeholder { color: rgba(255,255,255,0.35); }
+
+    @media (max-height: 700px) {
+      .song-header { padding: 0.5rem 0.75rem; }
+    }
+
+    /* Admin table */
+    .admin-table th { color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; padding: 0.5rem 0.75rem; }
+    .admin-table td { padding: 0.6rem 0.75rem; font-size: 0.875rem; border-top: 1px solid rgba(255,255,255,0.06); }
+  </style>
+</head>
+<body class="bg-gradient-animated">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- LOADING SCREEN -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center" style="background:#0f0f1a;">
+  <div class="flex flex-col items-center gap-4">
+    <div class="text-5xl">🎸</div>
+    <div class="loader"></div>
+    <p class="text-white/40 text-sm">Loading ChordBook…</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SIGN-IN PAGE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="signin-page" class="signin-page hidden flex-col items-center justify-center px-6">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-10">
+      <div class="text-7xl mb-4">🎸</div>
+      <h1 class="text-3xl font-bold text-white mb-2">ChordBook</h1>
+      <p class="text-white/50 text-sm">Guitar Chords, Lyrics & Setlists</p>
+    </div>
+    <div class="glass-card p-6 flex flex-col gap-4">
+      <p class="text-center text-white/70 text-sm">Sign in to access your songs and setlists</p>
+      <button id="google-signin-btn" class="flex items-center justify-center gap-3 w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-95"
+        style="background: linear-gradient(135deg,#6c63ff,#a855f7); color:white;">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFF" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
+        Continue with Google
+      </button>
+      <p class="text-center text-white/30 text-xs">By continuing, you agree to our Terms of Service</p>
+    </div>
+    <p class="text-center text-white/25 text-xs mt-6">ChordBook v1.0 · Made for Musicians</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- ROLE SELECTION PAGE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="role-page" class="signin-page hidden flex-col items-center justify-center px-6">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <div class="text-5xl mb-3">🎵</div>
+      <h2 class="text-2xl font-bold text-white mb-1">What are you?</h2>
+      <p class="text-white/50 text-sm">This changes how songs are displayed</p>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div class="role-card" data-role="musician" onclick="selectRole('musician')">
+        <div class="text-4xl mb-2">🎸</div>
+        <h3 class="text-white font-bold text-lg mb-1">Musician</h3>
+        <p class="text-white/50 text-sm">See chord sheets with chords & lyrics. Switch between chord and lyrics view.</p>
+      </div>
+      <div class="role-card" data-role="singer" onclick="selectRole('singer')">
+        <div class="text-4xl mb-2">🎤</div>
+        <h3 class="text-white font-bold text-lg mb-1">Singer</h3>
+        <p class="text-white/50 text-sm">Lyrics-only mode by default. Clean view without chord notation.</p>
+      </div>
+    </div>
+    <button id="confirm-role-btn" onclick="confirmRole()" class="w-full mt-6 py-3 rounded-xl font-bold text-white text-sm opacity-40 pointer-events-none transition-all"
+      style="background: linear-gradient(135deg,#6c63ff,#a855f7);">
+      Continue →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN APP -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="main-app" class="hidden flex-col h-screen">
+
+  <!-- TOP BAR -->
+  <header class="flex items-center justify-between px-4 py-3 flex-shrink-0" style="background:rgba(15,15,26,0.95); border-bottom:1px solid rgba(255,255,255,0.07);">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🎸</span>
+      <span class="font-bold text-white text-lg tracking-tight">ChordBook</span>
+      <span id="admin-badge" class="hidden text-xs px-2 py-0.5 rounded-full font-bold" style="background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3);">
+        ★ Admin
+      </span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="openProfileModal()" class="flex items-center gap-2 rounded-full px-2 py-1 transition-all hover:bg-white/10">
+        <img id="user-avatar" src="" alt="" class="w-8 h-8 rounded-full border-2 border-purple-500 hidden" />
+        <span id="user-name-short" class="text-sm text-white/70 hidden"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGES CONTAINER -->
+  <div class="flex-1 overflow-hidden relative">
+
+    <!-- ─── HOME PAGE (Songs List) ─── -->
+    <div id="page-home" class="page active">
+      <div class="page-content">
+        <!-- Search -->
+        <div class="relative mb-4">
+          <iconify-icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" width="18"></iconify-icon>
+          <input type="text" id="search-input" class="search-bar" placeholder="Search songs, artists…" oninput="filterSongs(this.value)" />
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-1 no-scrollbar">
+          <button class="filter-chip active px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all" data-genre="all" onclick="filterByGenre('all', this)">All</button>
+          <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all" data-genre="Rock" onclick="filterByGenre('Rock', this)">Rock</button>
+          <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all" data-genre="Pop" onclick="filterByGenre('Pop', this)">Pop</button>
+          <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all" data-genre="Folk" onclick="filterByGenre('Folk', this)">Folk</button>
+          <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all" data-genre="Folk Rock" onclick="filterByGenre('Folk Rock', this)">Folk Rock</button>
+        </div>
+
+        <!-- Songs count -->
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-white/40 text-xs uppercase tracking-widest font-semibold" id="songs-count-label">Songs</p>
+          <button id="add-song-btn" class="hidden items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+            style="background:rgba(108,99,255,0.2); color:#a78bfa; border:1px solid rgba(108,99,255,0.3);"
+            onclick="openAddSongModal()">
+            <iconify-icon icon="lucide:plus" width="14"></iconify-icon> Add Song
+          </button>
+        </div>
+
+        <!-- Songs List -->
+        <div id="songs-list" class="flex flex-col gap-3 pb-20"></div>
+
+        <!-- Empty state -->
+        <div id="songs-empty" class="hidden flex flex-col items-center justify-center py-20 text-center">
+          <div class="text-5xl mb-3">🎵</div>
+          <p class="text-white/50 text-sm">No songs found</p>
+          <p class="text-white/30 text-xs mt-1">Try a different search or genre</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SETLISTS PAGE ─── -->
+    <div id="page-setlists" class="page">
+      <div class="page-content">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-white">My Setlists</h2>
+          <button onclick="openCreateSetlistModal()" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+            style="background:rgba(108,99,255,0.2); color:#a78bfa; border:1px solid rgba(108,99,255,0.3);">
+            <iconify-icon icon="lucide:plus" width="14"></iconify-icon> New Setlist
+          </button>
+        </div>
+        <div id="setlists-list" class="flex flex-col gap-3 pb-20"></div>
+        <div id="setlists-empty" class="hidden flex flex-col items-center justify-center py-20 text-center">
+          <div class="text-5xl mb-3">📋</div>
+          <p class="text-white/50 text-sm">No setlists yet</p>
+          <p class="text-white/30 text-xs mt-1">Create your first setlist!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PROFILE PAGE ─── -->
+    <div id="page-profile" class="page">
+      <div class="page-content">
+        <!-- Profile Card -->
+        <div class="glass-card p-5 mb-4 text-center">
+          <img id="profile-avatar-lg" src="" alt="" class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-purple-500" />
+          <h3 id="profile-name" class="font-bold text-white text-xl mb-0.5"></h3>
+          <p id="profile-email" class="text-white/50 text-sm mb-3"></p>
+          <span id="profile-role-badge" class="text-xs px-3 py-1 rounded-full font-semibold"></span>
+        </div>
+
+        <!-- Settings -->
+        <div class="glass-card divide-y divide-white/10 mb-4">
+          <div class="p-4">
+            <p class="text-white/50 text-xs uppercase tracking-widest font-semibold mb-3">Display Mode</p>
+            <div class="flex gap-2">
+              <button onclick="setDisplayMode('chords')" id="mode-chords-btn" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border border-white/10">
+                🎸 Chords View
+              </button>
+              <button onclick="setDisplayMode('lyrics')" id="mode-lyrics-btn" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border border-white/10">
+                🎤 Lyrics Only
+              </button>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-white/50 text-xs uppercase tracking-widest font-semibold mb-3">Role</p>
+            <div class="flex gap-2">
+              <button onclick="setRole('musician')" id="role-musician-btn" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border border-white/10">
+                🎸 Musician
+              </button>
+              <button onclick="setRole('singer')" id="role-singer-btn" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all border border-white/10">
+                🎤 Singer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="profile-admin-section" class="hidden glass-card mb-4">
+          <button onclick="navigateTo('admin')" class="flex items-center justify-between w-full p-4">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">⚙️</span>
+              <div class="text-left">
+                <p class="text-white font-semibold text-sm">Admin Panel</p>
+                <p class="text-white/40 text-xs">Manage songs & users</p>
+              </div>
+            </div>
+            <iconify-icon icon="lucide:chevron-right" class="text-white/40" width="18"></iconify-icon>
+          </button>
+        </div>
+
+        <!-- Sign Out -->
+        <button onclick="handleSignOut()" class="w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-95"
+          style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
+          Sign Out
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── ADMIN PAGE ─── -->
+    <div id="page-admin" class="page">
+      <div class="page-content">
+        <!-- Tabs -->
+        <div class="flex gap-1 p-1 rounded-xl mb-4" style="background:rgba(255,255,255,0.06);">
+          <button onclick="switchAdminTab('songs')" id="admin-tab-songs" class="admin-tab flex-1 py-2 rounded-lg text-xs font-semibold transition-all active-tab">Songs</button>
+          <button onclick="switchAdminTab('users')" id="admin-tab-users" class="admin-tab flex-1 py-2 rounded-lg text-xs font-semibold transition-all">Users</button>
+        </div>
+
+        <!-- Songs Management -->
+        <div id="admin-songs-panel">
+          <button onclick="openAddSongModal()" class="flex items-center gap-2 w-full py-3 rounded-xl font-semibold text-sm mb-4 transition-all active:scale-95"
+            style="background:linear-gradient(135deg,#6c63ff,#a855f7); color:white;">
+            <iconify-icon icon="lucide:plus" width="16"></iconify-icon> Add New Song
+          </button>
+          <div id="admin-songs-list" class="flex flex-col gap-2 pb-20"></div>
+        </div>
+
+        <!-- Users Management -->
+        <div id="admin-users-panel" class="hidden pb-20">
+          <div id="admin-users-list" class="flex flex-col gap-2"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end pages container -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav flex items-center justify-around py-2 flex-shrink-0">
+    <button onclick="navigateTo('home')" id="nav-home" class="nav-btn flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all">
+      <iconify-icon icon="lucide:music" width="22" id="nav-home-icon"></iconify-icon>
+      <span class="text-xs font-medium">Songs</span>
+    </button>
+    <button onclick="navigateTo('setlists')" id="nav-setlists" class="nav-btn flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all">
+      <iconify-icon icon="lucide:list-music" width="22" id="nav-setlists-icon"></iconify-icon>
+      <span class="text-xs font-medium">Setlists</span>
+    </button>
+    <button onclick="navigateTo('profile')" id="nav-profile" class="nav-btn flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-all">
+      <iconify-icon icon="lucide:user" width="22" id="nav-profile-icon"></iconify-icon>
+      <span class="text-xs font-medium">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SONG VIEWER OVERLAY -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="song-viewer-overlay" class="hidden fixed inset-0 z-40" style="background:#0f0f1a;">
+  <div class="song-viewer">
+    <!-- Song Header -->
+    <div class="song-header">
+      <div class="flex items-center justify-between mb-2">
+        <button onclick="closeSongViewer()" class="flex items-center gap-1.5 text-white/60 text-sm font-medium active:text-white">
+          <iconify-icon icon="lucide:chevron-left" width="20"></iconify-icon> Back
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="sv-lyrics-btn" onclick="toggleLyricsMode()" class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all border border-white/10"
+            style="background:rgba(255,255,255,0.06);">
+            🎤 Lyrics
+          </button>
+          <button onclick="openAddToSetlistModal()" class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+            style="background:rgba(108,99,255,0.2); color:#a78bfa; border:1px solid rgba(108,99,255,0.3);">
+            + Setlist
+          </button>
+          <button id="sv-edit-btn" class="hidden text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+            style="background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3);"
+            onclick="editCurrentSong()">Edit</button>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 id="sv-title" class="font-bold text-white text-lg leading-tight"></h2>
+          <p id="sv-artist" class="text-white/50 text-sm"></p>
+        </div>
+        <!-- Key Transposer -->
+        <div class="flex items-center gap-1.5">
+          <button onclick="transposeKey(-1)" class="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+            style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+            <iconify-icon icon="lucide:chevron-left" width="16" class="text-white/70"></iconify-icon>
+          </button>
+          <button onclick="openKeyPickerModal()" class="key-badge px-3 py-1 min-w-[3rem] text-center text-sm" id="sv-key-badge">Am</button>
+          <button onclick="transposeKey(1)" class="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+            style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+            <iconify-icon icon="lucide:chevron-right" width="16" class="text-white/70"></iconify-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Song Body -->
+    <div class="song-body" id="sv-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SETLIST VIEWER OVERLAY -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="setlist-viewer-overlay" class="hidden fixed inset-0 z-40" style="background:#0f0f1a;">
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 py-3 flex-shrink-0"
+      style="background:rgba(15,15,26,0.95); border-bottom:1px solid rgba(255,255,255,0.08);">
+      <button onclick="closeSetlistViewer()" class="flex items-center gap-1.5 text-white/60 text-sm font-medium active:text-white">
+        <iconify-icon icon="lucide:chevron-left" width="20"></iconify-icon> Back
+      </button>
+      <div class="text-center">
+        <h3 id="slv-name" class="font-bold text-white text-sm"></h3>
+        <div class="flex items-center justify-center gap-1 mt-1" id="slv-dots"></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="slv-lyrics-btn" onclick="toggleSetlistLyricsMode()" class="text-xs font-semibold px-2 py-1 rounded-lg border border-white/10"
+          style="background:rgba(255,255,255,0.06);">🎤</button>
+      </div>
+    </div>
+    <!-- Swipeable Slides -->
+    <div class="setlist-viewer flex-1 overflow-hidden" id="slv-touch-zone">
+      <div class="setlist-slides h-full" id="slv-slides"></div>
+    </div>
+    <!-- Nav Arrows -->
+    <div class="flex items-center justify-between px-6 py-4 flex-shrink-0"
+      style="background:rgba(15,15,26,0.95); border-top:1px solid rgba(255,255,255,0.08);">
+      <button onclick="setlistPrev()" id="slv-prev-btn" class="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all active:scale-95 disabled:opacity-30"
+        style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:white;">
+        <iconify-icon icon="lucide:chevron-left" width="16"></iconify-icon> Prev
+      </button>
+      <span id="slv-counter" class="text-white/40 text-xs"></span>
+      <button onclick="setlistNext()" id="slv-next-btn" class="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-all active:scale-95 disabled:opacity-30"
+        style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:white;">
+        Next <iconify-icon icon="lucide:chevron-right" width="16"></iconify-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODALS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- Add to Setlist Modal -->
+<div id="modal-add-setlist" class="fixed inset-0 z-50 hidden items-end justify-center modal-backdrop" onclick="closeModalIfBackdrop(event,'modal-add-setlist')">
+  <div class="w-full max-w-lg rounded-t-2xl p-5" style="background:#1a1a2e; border:1px solid rgba(255,255,255,0.1);">
+    <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4"></div>
+    <h3 class="font-bold text-white text-lg mb-1">Add to Setlist</h3>
+    <p class="text-white/40 text-sm mb-4">Choose a setlist (max 4 songs each)</p>
+    <div id="modal-setlists-container" class="flex flex-col gap-2 max-h-64 overflow-y-auto mb-4"></div>
+    <button onclick="openCreateSetlistModal()" class="w-full py-3 rounded-xl font-semibold text-sm border border-dashed transition-all"
+      style="border-color:rgba(108,99,255,0.4); color:#a78bfa; background:rgba(108,99,255,0.08);">
+      + Create New Setlist
+    </button>
+    <button onclick="closeModal('modal-add-setlist')" class="w-full py-3 rounded-xl font-semibold text-sm mt-2 transition-all"
+      style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5);">
+      Cancel
+    </button>
+  </div>
+</div>
+
+<!-- Create Setlist Modal -->
+<div id="modal-create-setlist" class="fixed inset-0 z-50 hidden items-end justify-center modal-backdrop" onclick="closeModalIfBackdrop(event,'modal-create-setlist')">
+  <div class="w-full max-w-lg rounded-t-2xl p-5" style="background:#1a1a2e; border:1px solid rgba(255,255,255,0.1);">
+    <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4"></div>
+    <h3 class="font-bold text-white text-lg mb-4">Create New Setlist</h3>
+    <input type="text" id="new-setlist-name" placeholder="Setlist name (e.g. Sunday Service, Gig Night…)"
+      class="w-full px-4 py-3 rounded-xl text-white text-sm mb-4"
+      style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);"
+      onkeydown="if(event.key==='Enter')createSetlist()" />
+    <button onclick="createSetlist()" class="w-full py-3 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
+      style="background:linear-gradient(135deg,#6c63ff,#a855f7);">
+      Create Setlist
+    </button>
+    <button onclick="closeModal('modal-create-setlist')" class="w-full py-3 rounded-xl font-semibold text-sm mt-2 transition-all"
+      style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5);">
+      Cancel
+    </button>
+  </div>
+</div>
+
+<!-- Key Picker Modal -->
+<div id="modal-key-picker" class="fixed inset-0 z-50 hidden items-end justify-center modal-backdrop" onclick="closeModalIfBackdrop(event,'modal-key-picker')">
+  <div class="w-full max-w-lg rounded-t-2xl p-5" style="background:#1a1a2e; border:1px solid rgba(255,255,255,0.1);">
+    <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4"></div>
+    <h3 class="font-bold text-white text-lg mb-4">Select Key</h3>
+    <div class="grid grid-cols-4 gap-2 mb-4" id="key-picker-grid"></div>
+    <button onclick="closeModal('modal-key-picker')" class="w-full py-3 rounded-xl font-semibold text-sm transition-all"
+      style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5);">
+      Cancel
+    </button>
+  </div>
+</div>
+
+<!-- Add / Edit Song Modal -->
+<div id="modal-add-song" class="fixed inset-0 z-50 hidden overflow-y-auto" style="background:#0f0f1a;">
+  <div class="min-h-full p-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 id="add-song-modal-title" class="font-bold text-white text-xl">Add New Song</h3>
+      <button onclick="closeModal('modal-add-song')" class="w-9 h-9 rounded-full flex items-center justify-center"
+        style="background:rgba(255,255,255,0.08);">
+        <iconify-icon icon="lucide:x" width="18" class="text-white/70"></iconify-icon>
+      </button>
+    </div>
+
+    <!-- OCR Upload -->
+    <div class="upload-zone p-6 text-center mb-4" id="ocr-upload-zone" onclick="document.getElementById('ocr-file-input').click()" 
+      ondragover="event.preventDefault(); this.classList.add('dragging')"
+      ondragleave="this.classList.remove('dragging')"
+      ondrop="handleOCRDrop(event)">
+      <input type="file" id="ocr-file-input" accept="image/*" class="hidden" onchange="handleOCRUpload(event)" capture="environment" />
+      <div class="text-3xl mb-2">📷</div>
+      <p class="text-white/60 text-sm font-medium">Scan or Upload Image</p>
+      <p class="text-white/30 text-xs mt-1">Tap to capture from camera or select an image to extract chords & lyrics via OCR</p>
+    </div>
+    <div id="ocr-status" class="hidden mb-4 p-3 rounded-xl text-sm text-center" style="background:rgba(108,99,255,0.15); color:#a78bfa; border:1px solid rgba(108,99,255,0.3);"></div>
+
+    <!-- Song Form -->
+    <div class="flex flex-col gap-3">
+      <div>
+        <label class="text-white/50 text-xs uppercase tracking-widest font-semibold block mb-1.5">Song Title *</label>
+        <input type="text" id="song-form-title" placeholder="e.g. Wonderwall" class="w-full px-4 py-3 rounded-xl text-white text-sm"
+          style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);" />
+      </div>
+      <div>
+        <label class="text-white/50 text-xs uppercase tracking-widest font-semibold block mb-1.5">Artist *</label>
+        <input type="text" id="song-form-artist" placeholder="e.g. Oasis" class="w-full px-4 py-3 rounded-xl text-white text-sm"
+          style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);" />
+      </div>
+      <div class="flex gap-2">
+        <div class="flex-1">
+          <label class="text-white/50 text-xs uppercase tracking-widest font-semibold block mb-1.5">Original Key *</label>
+          <select id="song-form-key" class="w-full px-4 py-3 rounded-xl text-white text-sm"
+            style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+            <option value="">Select Key</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="text-white/50 text-xs uppercase tracking-widest font-semibold block mb-1.5">Genre</label>
+          <select id="song-form-genre" class="w-full px-4 py-3 rounded-xl text-white text-sm"
+            style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);">
+            <option value="Rock">Rock</option>
+            <option value="Pop">Pop</option>
+            <option value="Folk">Folk</option>
+            <option value="Folk Rock">Folk Rock</option>
+            <option value="Country">Country</option>
+            <option value="Gospel">Gospel</option>
+            <option value="Worship">Worship</option>
+            <option value="Jazz">Jazz</option>
+            <option value="Blues">Blues</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="text-white/50 text-xs uppercase tracking-widest font-semibold block mb-1.5">Chord Sheet *</label>
+        <p class="text-white/30 text-xs mb-2">Format: Line with chords above lyrics. Use [Section] for sections. Blank chord line = lyrics only line. Example:<br/>
+          <span class="text-purple-400">G   Em   C   D</span><br/>
+          <span class="text-white/60">Today is gonna be the day</span><br/>
+          <span class="text-green-400">[Chorus]</span>
+        </p>
+        <textarea id="song-form-content" rows="14" placeholder="[Verse 1]&#10;G        Em&#10;Here are the lyrics with chords above&#10;C        D&#10;Second line of verse&#10;&#10;[Chorus]&#10;Am   F   C   G&#10;This is the chorus"
+          class="w-full px-4 py-3 rounded-xl text-white text-sm font-mono"
+          style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); resize:vertical;"></textarea>
+      </div>
+      <div id="song-form-id" class="hidden"></div>
+      <button onclick="saveSong()" class="w-full py-3.5 rounded-xl font-bold text-white text-sm mt-2 transition-all active:scale-95"
+        style="background:linear-gradient(135deg,#6c63ff,#a855f7);">
+        Save Song
+      </button>
+      <button id="delete-song-btn" class="hidden w-full py-3 rounded-xl font-semibold text-sm transition-all"
+        style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);"
+        onclick="deleteCurrentSong()">
+        Delete Song
+      </button>
+      <button onclick="closeModal('modal-add-song')" class="w-full py-3 rounded-xl font-semibold text-sm transition-all mb-8"
+        style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5);">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="modal-profile" class="fixed inset-0 z-50 hidden items-end justify-center modal-backdrop" onclick="closeModalIfBackdrop(event,'modal-profile')">
+  <div class="w-full max-w-lg rounded-t-2xl p-5" style="background:#1a1a2e; border:1px solid rgba(255,255,255,0.1);">
+    <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4"></div>
+    <div class="flex items-center gap-3 mb-4">
+      <img id="modal-profile-avatar" src="" alt="" class="w-12 h-12 rounded-full border-2 border-purple-500" />
+      <div>
+        <h3 id="modal-profile-name" class="font-bold text-white"></h3>
+        <p id="modal-profile-email" class="text-white/50 text-sm"></p>
+      </div>
+    </div>
+    <button onclick="closeModal('modal-profile'); navigateTo('profile')" class="w-full py-3 rounded-xl font-semibold text-sm mb-2 transition-all"
+      style="background:rgba(255,255,255,0.08); color:white;">
+      View Profile & Settings
+    </button>
+    <button onclick="handleSignOut()" class="w-full py-3 rounded-xl font-semibold text-sm transition-all"
+      style="background:rgba(239,68,68,0.12); color:#f87171;">
+      Sign Out
+    </button>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="modal-confirm-delete" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-6" onclick="closeModalIfBackdrop(event,'modal-confirm-delete')">
+  <div class="w-full max-w-sm rounded-2xl p-6" style="background:#1a1a2e; border:1px solid rgba(255,255,255,0.1);">
+    <div class="text-center mb-4">
+      <div class="text-4xl mb-2">⚠️</div>
+      <h3 class="font-bold text-white text-lg mb-1">Delete Song?</h3>
+      <p class="text-white/50 text-sm">This action cannot be undone.</p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="closeModal('modal-confirm-delete')" class="flex-1 py-3 rounded-xl font-semibold text-sm"
+        style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);">Cancel</button>
+      <button id="confirm-delete-btn" class="flex-1 py-3 rounded-xl font-bold text-sm"
+        style="background:rgba(239,68,68,0.8); color:white;">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Songs Data -->
+<script src="songs-data.js"></script>
+<!-- Tesseract.js for OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN APPLICATION JAVASCRIPT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+// ──────────────────────────────────────────────────────────────
+// CONSTANTS & GLOBALS
+// ──────────────────────────────────────────────────────────────
+const ADMIN_EMAIL = "buenavistaaglinaodanny@gmail.com";
+const ALL_KEYS = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B",
+                  "Cm","C#m","Dm","D#m","Em","Fm","F#m","Gm","G#m","Am","A#m","Bm"];
+const CHROMATIC = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+let currentUser = null;
+let userProfile = null;
+let allSongs = [];
+let filteredSongs = [];
+let currentSong = null;
+let currentTransposeSteps = 0;
+let lyricsOnlyMode = false;
+let setlists = [];
+let currentSetlistSongIndex = 0;
+let currentSetlist = null;
+let setlistLyricsMode = false;
+let currentFilter = "all";
+let editingSongId = null;
+let pendingDeleteId = null;
+let firebaseReady = false;
+let tesseractWorker = null;
+
+// ──────────────────────────────────────────────────────────────
+// FIREBASE INIT
+// ──────────────────────────────────────────────────────────────
+function initFirebase() {
+  firebaseReady = true;
+  const { auth, onAuthStateChanged } = window._firebase;
+  onAuthStateChanged(auth, handleAuthStateChange);
+}
+// Handle race: if firebase already loaded, init now; else wait for event
+if (window._firebaseReadyFlag) {
+  initFirebase();
+} else {
+  window.addEventListener("firebase-ready", initFirebase);
+}
+
+async function handleAuthStateChange(user) {
+  if (user) {
+    currentUser = user;
+    await loadUserProfile(user);
+    await loadSongsFromFirestore();
+    loadSetlistsFromLocal();
+    showMainApp();
+  } else {
+    currentUser = null;
+    userProfile = null;
+    showSignIn();
+  }
+  hideLoading();
+}
+
+// ──────────────────────────────────────────────────────────────
+// AUTH
+// ──────────────────────────────────────────────────────────────
+document.getElementById("google-signin-btn").addEventListener("click", async () => {
+  if (!firebaseReady) { showToast("Connecting to Firebase…"); return; }
+  const { auth, GoogleAuthProvider, signInWithPopup } = window._firebase;
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    showToast("Sign-in failed: " + (e.message || "Unknown error"));
+  }
+});
+
+async function handleSignOut() {
+  const { auth, signOut } = window._firebase;
+  closeModal("modal-profile");
+  await signOut(auth);
+  showToast("Signed out");
+}
+
+// ──────────────────────────────────────────────────────────────
+// USER PROFILE
+// ──────────────────────────────────────────────────────────────
+async function loadUserProfile(user) {
+  const { db, doc, getDoc, setDoc } = window._firebase;
+  const isAdmin = user.email === ADMIN_EMAIL;
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    userProfile = snap.data();
+    if (isAdmin && !userProfile.isAdmin) {
+      userProfile.isAdmin = true;
+      await setDoc(ref, userProfile, { merge: true });
+    }
+  } else {
+    userProfile = {
+      uid: user.uid, email: user.email, name: user.displayName,
+      photoURL: user.photoURL, role: null,
+      isAdmin: isAdmin, displayMode: null, createdAt: new Date().toISOString()
+    };
+    await setDoc(ref, userProfile);
+  }
+}
+
+async function saveUserProfile() {
+  if (!currentUser || !userProfile) return;
+  const { db, doc, setDoc } = window._firebase;
+  const ref = doc(db, "users", currentUser.uid);
+  await setDoc(ref, userProfile, { merge: true });
+}
+
+// ──────────────────────────────────────────────────────────────
+// ROLE SELECTION
+// ──────────────────────────────────────────────────────────────
+let selectedRole = null;
+function selectRole(role) {
+  selectedRole = role;
+  document.querySelectorAll(".role-card").forEach(c => c.classList.remove("selected"));
+  document.querySelector(`.role-card[data-role="${role}"]`).classList.add("selected");
+  const btn = document.getElementById("confirm-role-btn");
+  btn.classList.remove("opacity-40", "pointer-events-none");
+}
+
+async function confirmRole() {
+  if (!selectedRole) return;
+  userProfile.role = selectedRole;
+  userProfile.displayMode = selectedRole === "singer" ? "lyrics" : "chords";
+  await saveUserProfile();
+  showMainApp();
+}
+
+// ──────────────────────────────────────────────────────────────
+// SCREENS
+// ──────────────────────────────────────────────────────────────
+function hideLoading() { document.getElementById("loading-screen").style.display = "none"; }
+function showSignIn() {
+  hide("role-page"); hide("main-app");
+  show("signin-page");
+}
+function showRolePage() {
+  hide("signin-page"); hide("main-app");
+  show("role-page");
+}
+function showMainApp() {
+  if (!userProfile || !userProfile.role) { showRolePage(); return; }
+  hide("signin-page"); hide("role-page");
+  show("main-app");
+  updateUIForUser();
+  renderSongs();
+  renderSetlists();
+  updateProfilePage();
+}
+function show(id) { const el = document.getElementById(id); el.classList.remove("hidden"); el.classList.add("flex"); }
+function hide(id) { const el = document.getElementById(id); el.classList.add("hidden"); el.classList.remove("flex"); }
+
+function updateUIForUser() {
+  if (!userProfile) return;
+  const isAdmin = userProfile.isAdmin || currentUser?.email === ADMIN_EMAIL;
+  if (isAdmin) {
+    document.getElementById("admin-badge").classList.remove("hidden");
+    document.getElementById("add-song-btn").classList.add("flex");
+    document.getElementById("add-song-btn").classList.remove("hidden");
+    document.getElementById("profile-admin-section").classList.remove("hidden");
+    document.getElementById("sv-edit-btn").classList.remove("hidden");
+  }
+  if (currentUser?.photoURL) {
+    document.getElementById("user-avatar").src = currentUser.photoURL;
+    document.getElementById("user-avatar").classList.remove("hidden");
+    document.getElementById("user-name-short").textContent = (currentUser.displayName || "").split(" ")[0];
+    document.getElementById("user-name-short").classList.remove("hidden");
+  }
+  updateModeBtns();
+  updateRoleBtns();
+}
+
+// ──────────────────────────────────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────────────────────────────────
+let currentPage = "home";
+function navigateTo(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => {
+    b.style.color = "rgba(255,255,255,0.4)";
+  });
+  const el = document.getElementById(`page-${page}`);
+  if (el) { el.classList.add("active"); currentPage = page; }
+  const navBtn = document.getElementById(`nav-${page}`);
+  if (navBtn) navBtn.style.color = "#6c63ff";
+  // Update admin panel
+  if (page === "admin") { loadAdminData(); }
+  if (page === "setlists") renderSetlists();
+}
+// Set home as initial active
+document.getElementById("nav-home").style.color = "#6c63ff";
+
+// ──────────────────────────────────────────────────────────────
+// SONGS — LOAD FROM FIRESTORE + JS FILE FALLBACK
+// ──────────────────────────────────────────────────────────────
+async function loadSongsFromFirestore() {
+  try {
+    const { db, collection, getDocs, query, orderBy } = window._firebase;
+    const q = query(collection(db, "songs"), orderBy("title"));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      allSongs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } else {
+      // Seed from JS file
+      allSongs = window.SONGS_DATA || [];
+      await seedSongsToFirestore();
+    }
+  } catch (e) {
+    // Fallback to local JS data
+    allSongs = window.SONGS_DATA || [];
+  }
+  filteredSongs = [...allSongs];
+}
+
+async function seedSongsToFirestore() {
+  try {
+    const { db, collection, addDoc, serverTimestamp } = window._firebase;
+    for (const song of allSongs) {
+      const { id, ...data } = song;
+      await addDoc(collection(db, "songs"), { ...data, createdAt: serverTimestamp() });
+    }
+  } catch (e) { /* silently fail */ }
+}
+
+// ──────────────────────────────────────────────────────────────
+// SONGS RENDER
+// ──────────────────────────────────────────────────────────────
+function renderSongs() {
+  const list = document.getElementById("songs-list");
+  const empty = document.getElementById("songs-empty");
+  const label = document.getElementById("songs-count-label");
+  label.textContent = `${filteredSongs.length} Song${filteredSongs.length !== 1 ? "s" : ""}`;
+  if (!filteredSongs.length) {
+    list.innerHTML = ""; empty.classList.remove("hidden"); return;
+  }
+  empty.classList.add("hidden");
+  list.innerHTML = filteredSongs.map(song => `
+    <div class="song-card rounded-2xl p-4" onclick="openSong('${song.id}')">
+      <div class="flex items-start justify-between">
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-white text-base truncate">${escHtml(song.title)}</h3>
+          <p class="text-white/50 text-sm truncate">${escHtml(song.artist)}</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0 ml-3">
+          <span class="key-badge">${escHtml(song.key)}</span>
+          ${song.genre ? `<span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background:rgba(67,233,123,0.12); color:#43e97b; border:1px solid rgba(67,233,123,0.2);">${escHtml(song.genre)}</span>` : ""}
+        </div>
+      </div>
+      <div class="flex items-center gap-2 mt-2">
+        <iconify-icon icon="lucide:music-2" width="12" style="color:rgba(255,255,255,0.3);"></iconify-icon>
+        <span class="text-xs text-white/30">${song.content ? song.content.filter(l=>l.type==='line'&&l.lyrics).length : 0} lines</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+function filterSongs(query) {
+  const q = query.toLowerCase().trim();
+  filteredSongs = allSongs.filter(s =>
+    (s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)) &&
+    (currentFilter === "all" || s.genre === currentFilter)
+  );
+  renderSongs();
+}
+
+function filterByGenre(genre, btn) {
+  currentFilter = genre;
+  document.querySelectorAll(".filter-chip").forEach(c => {
+    c.style.background = "rgba(255,255,255,0.06)";
+    c.style.color = "rgba(255,255,255,0.5)";
+    c.style.border = "1px solid rgba(255,255,255,0.1)";
+  });
+  btn.style.background = "rgba(108,99,255,0.25)";
+  btn.style.color = "#a78bfa";
+  btn.style.border = "1px solid rgba(108,99,255,0.4)";
+  const q = document.getElementById("search-input").value;
+  filterSongs(q);
+}
+// Initialize filter chips
+document.querySelectorAll(".filter-chip").forEach(c => {
+  c.style.background = "rgba(255,255,255,0.06)";
+  c.style.color = "rgba(255,255,255,0.5)";
+  c.style.border = "1px solid rgba(255,255,255,0.1)";
+});
+document.querySelector(".filter-chip[data-genre='all']").style.background = "rgba(108,99,255,0.25)";
+document.querySelector(".filter-chip[data-genre='all']").style.color = "#a78bfa";
+document.querySelector(".filter-chip[data-genre='all']").style.border = "1px solid rgba(108,99,255,0.4)";
+
+// ──────────────────────────────────────────────────────────────
+// SONG VIEWER
+// ──────────────────────────────────────────────────────────────
+function openSong(songId) {
+  const song = allSongs.find(s => s.id === songId);
+  if (!song) return;
+  currentSong = { ...song };
+  currentTransposeSteps = 0;
+  lyricsOnlyMode = userProfile?.displayMode === "lyrics";
+  document.getElementById("song-viewer-overlay").classList.remove("hidden");
+  renderSongViewer();
+}
+
+function closeSongViewer() {
+  document.getElementById("song-viewer-overlay").classList.add("hidden");
+  currentSong = null;
+}
+
+function renderSongViewer() {
+  if (!currentSong) return;
+  document.getElementById("sv-title").textContent = currentSong.title;
+  document.getElementById("sv-artist").textContent = currentSong.artist;
+  const transposedKey = transposeChord(currentSong.key, currentTransposeSteps);
+  document.getElementById("sv-key-badge").textContent = transposedKey;
+  const lyricsBtn = document.getElementById("sv-lyrics-btn");
+  const isMusician = userProfile?.role === "musician";
+
+  // Singer: always lyrics only, no toggle shown
+  if (!isMusician) {
+    lyricsOnlyMode = true;
+    lyricsBtn.classList.add("hidden");
+  } else {
+    lyricsBtn.classList.remove("hidden");
+    lyricsBtn.textContent = lyricsOnlyMode ? "🎸 Chords" : "🎤 Lyrics";
+    lyricsBtn.style.color = lyricsOnlyMode ? "#43e97b" : "rgba(255,255,255,0.6)";
+  }
+
+  const body = document.getElementById("sv-body");
+  body.className = "song-body" + (lyricsOnlyMode ? " lyrics-only" : "");
+  body.innerHTML = "";
+  if (!currentSong.content) return;
+  currentSong.content.forEach(item => {
+    if (item.type === "section") {
+      const div = document.createElement("div");
+      div.className = "section-label";
+      div.textContent = item.text;
+      body.appendChild(div);
+    } else if (item.type === "line") {
+      const div = document.createElement("div");
+      div.className = "chord-line";
+      if (item.chords) {
+        const chordDiv = document.createElement("div");
+        chordDiv.className = "chord-text";
+        chordDiv.textContent = transposeChordLine(item.chords, currentTransposeSteps);
+        div.appendChild(chordDiv);
+      }
+      if (item.lyrics !== undefined) {
+        const lyricDiv = document.createElement("div");
+        lyricDiv.className = "lyric-text";
+        lyricDiv.textContent = item.lyrics;
+        div.appendChild(lyricDiv);
+      }
+      body.appendChild(div);
+    }
+  });
+}
+
+function toggleLyricsMode() {
+  lyricsOnlyMode = !lyricsOnlyMode;
+  renderSongViewer();
+}
+
+// ──────────────────────────────────────────────────────────────
+// KEY TRANSPOSITION
+// ──────────────────────────────────────────────────────────────
+function transposeKey(steps) {
+  currentTransposeSteps = (currentTransposeSteps + steps + 12) % 12;
+  renderSongViewer();
+}
+
+function transposeChord(chord, steps) {
+  if (!chord || steps === 0) return chord;
+  const isMinor = chord.endsWith("m") && !chord.endsWith("#m") ? "m" : (chord.endsWith("#m") ? "" : "");
+  let root = chord.replace(/m$/, "").replace(/#m$/, "#");
+  const isSharp = root.endsWith("#");
+  const idx = CHROMATIC.indexOf(root);
+  if (idx === -1) return chord;
+  const newIdx = (idx + steps + 12) % 12;
+  return CHROMATIC[newIdx] + (chord.endsWith("m") ? "m" : "");
+}
+
+function transposeChordLine(line, steps) {
+  if (steps === 0) return line;
+  return line.replace(/[A-G][#b]?m?(?:maj|min|dim|aug|sus|add)?[0-9]*/g, match => {
+    const rootMatch = match.match(/^([A-G][#b]?)(.*)/);
+    if (!rootMatch) return match;
+    const [, root, suffix] = rootMatch;
+    const idx = CHROMATIC.indexOf(root);
+    if (idx === -1) return match;
+    const newIdx = (idx + steps + 12) % 12;
+    return CHROMATIC[newIdx] + suffix;
+  });
+}
+
+function openKeyPickerModal() {
+  const grid = document.getElementById("key-picker-grid");
+  const currentKey = transposeChord(currentSong?.key, currentTransposeSteps);
+  grid.innerHTML = ALL_KEYS.map(k => `
+    <button class="key-btn ${k === currentKey ? "active-key" : ""}" onclick="pickKey('${k}')">
+      ${escHtml(k)}
+    </button>
+  `).join("");
+  openModal("modal-key-picker");
+}
+
+function pickKey(key) {
+  if (!currentSong) return;
+  const originalIdx = CHROMATIC.indexOf(currentSong.key.replace(/m$/, ""));
+  const targetIdx = CHROMATIC.indexOf(key.replace(/m$/, ""));
+  if (originalIdx === -1 || targetIdx === -1) { currentTransposeSteps = 0; }
+  else { currentTransposeSteps = (targetIdx - originalIdx + 12) % 12; }
+  closeModal("modal-key-picker");
+  renderSongViewer();
+}
+
+// ──────────────────────────────────────────────────────────────
+// SETLISTS
+// ──────────────────────────────────────────────────────────────
+function loadSetlistsFromLocal() {
+  const raw = localStorage.getItem(`setlists_${currentUser?.uid}`);
+  setlists = raw ? JSON.parse(raw) : [];
+}
+
+function saveSetlistsToLocal() {
+  localStorage.setItem(`setlists_${currentUser?.uid}`, JSON.stringify(setlists));
+}
+
+function renderSetlists() {
+  const list = document.getElementById("setlists-list");
+  const empty = document.getElementById("setlists-empty");
+  if (!setlists.length) { list.innerHTML = ""; empty.classList.remove("hidden"); return; }
+  empty.classList.add("hidden");
+  list.innerHTML = setlists.map((sl, i) => {
+    const songs = sl.songIds.map(id => allSongs.find(s => s.id === id)).filter(Boolean);
+    return `
+    <div class="setlist-card p-4" onclick="openSetlistViewer(${i})">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h3 class="font-bold text-white text-base">${escHtml(sl.name)}</h3>
+          <p class="text-white/40 text-xs">${songs.length}/4 songs</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="event.stopPropagation(); deleteSetlist(${i})" class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+            style="background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.2);">
+            <iconify-icon icon="lucide:trash-2" width="14"></iconify-icon>
+          </button>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        ${songs.map((s, si) => `
+          <div class="flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="background:rgba(108,99,255,0.2); color:#a78bfa;">${si + 1}</span>
+            <span class="text-white/70 text-sm truncate">${escHtml(s.title)}</span>
+            <span class="text-white/30 text-xs ml-auto flex-shrink-0">${escHtml(s.key)}</span>
+          </div>
+        `).join("")}
+        ${songs.length === 0 ? `<p class="text-white/30 text-xs italic">No songs added yet</p>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function openCreateSetlistModal() {
+  closeModal("modal-add-setlist");
+  document.getElementById("new-setlist-name").value = "";
+  openModal("modal-create-setlist");
+  setTimeout(() => document.getElementById("new-setlist-name").focus(), 100);
+}
+
+function createSetlist() {
+  const name = document.getElementById("new-setlist-name").value.trim();
+  if (!name) { showToast("Please enter a setlist name"); return; }
+  const newSetlist = { id: "sl_" + Date.now(), name, songIds: [], createdAt: new Date().toISOString() };
+  setlists.push(newSetlist);
+  saveSetlistsToLocal();
+  closeModal("modal-create-setlist");
+  renderSetlists();
+  showToast(`"${name}" created!`);
+  if (currentSong) { openAddToSetlistModal(); }
+}
+
+function deleteSetlist(index) {
+  if (!confirm(`Delete "${setlists[index].name}"?`)) return;
+  setlists.splice(index, 1);
+  saveSetlistsToLocal();
+  renderSetlists();
+  showToast("Setlist deleted");
+}
+
+// ──────────────────────────────────────────────────────────────
+// ADD TO SETLIST MODAL
+// ──────────────────────────────────────────────────────────────
+function openAddToSetlistModal() {
+  const container = document.getElementById("modal-setlists-container");
+  if (!setlists.length) {
+    container.innerHTML = `<p class="text-center text-white/40 text-sm py-4">No setlists yet. Create one below!</p>`;
+  } else {
+    container.innerHTML = setlists.map((sl, i) => {
+      const isFull = sl.songIds.length >= 4;
+      const alreadyAdded = sl.songIds.includes(currentSong?.id);
+      return `
+      <div class="setlist-card p-3 ${alreadyAdded ? "selected" : ""} ${isFull && !alreadyAdded ? "opacity-50" : ""}"
+        onclick="${(!isFull || alreadyAdded) ? `toggleSongInSetlist(${i})` : ""}">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-white text-sm">${escHtml(sl.name)}</p>
+            <p class="text-white/40 text-xs">${sl.songIds.length}/4 songs ${isFull && !alreadyAdded ? "· Full" : ""}</p>
+          </div>
+          <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+            style="border-color:${alreadyAdded ? "#6c63ff" : "rgba(255,255,255,0.2)"}; background:${alreadyAdded ? "#6c63ff" : "transparent"};">
+            ${alreadyAdded ? '<iconify-icon icon="lucide:check" width="12" style="color:white;"></iconify-icon>' : ""}
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+  openModal("modal-add-setlist");
+}
+
+function toggleSongInSetlist(slIndex) {
+  if (!currentSong) return;
+  const sl = setlists[slIndex];
+  const idx = sl.songIds.indexOf(currentSong.id);
+  if (idx > -1) {
+    sl.songIds.splice(idx, 1);
+    showToast(`Removed from "${sl.name}"`);
+  } else {
+    if (sl.songIds.length >= 4) { showToast("Setlist is full (max 4 songs)"); return; }
+    sl.songIds.push(currentSong.id);
+    showToast(`Added to "${sl.name}"!`);
+  }
+  saveSetlistsToLocal();
+  renderSetlists();
+  openAddToSetlistModal();
+}
+
+// ──────────────────────────────────────────────────────────────
+// SETLIST VIEWER (Swipeable)
+// ──────────────────────────────────────────────────────────────
+function openSetlistViewer(slIndex) {
+  currentSetlist = setlists[slIndex];
+  currentSetlistSongIndex = 0;
+  setlistLyricsMode = userProfile?.displayMode === "lyrics";
+  document.getElementById("slv-name").textContent = currentSetlist.name;
+  renderSetlistSlides();
+  document.getElementById("setlist-viewer-overlay").classList.remove("hidden");
+  initSetlistSwipe();
+}
+
+function closeSetlistViewer() {
+  document.getElementById("setlist-viewer-overlay").classList.add("hidden");
+  currentSetlist = null;
+}
+
+function renderSetlistSlides() {
+  if (!currentSetlist) return;
+  const songs = currentSetlist.songIds.map(id => allSongs.find(s => s.id === id)).filter(Boolean);
+  const slides = document.getElementById("slv-slides");
+  const dotsEl = document.getElementById("slv-dots");
+  const counter = document.getElementById("slv-counter");
+  const total = songs.length;
+
+  if (!total) {
+    slides.innerHTML = `<div class="setlist-slide h-full flex items-center justify-center"><p class="text-white/40">No songs in this setlist</p></div>`;
+    dotsEl.innerHTML = "";
+    counter.textContent = "";
+    return;
+  }
+
+  slides.innerHTML = songs.map((song, i) => {
+    const songContent = renderSongHTML(song, setlistLyricsMode);
+    return `
+    <div class="setlist-slide h-full overflow-y-auto" style="padding:1rem;">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="font-bold text-white text-xl">${escHtml(song.title)}</h2>
+          <p class="text-white/50 text-sm">${escHtml(song.artist)}</p>
+        </div>
+        <span class="key-badge">${escHtml(song.key)}</span>
+      </div>
+      <div class="${setlistLyricsMode ? "lyrics-only" : ""}">${songContent}</div>
+      <div style="height:5rem;"></div>
+    </div>`;
+  }).join("");
+
+  dotsEl.innerHTML = songs.map((_, i) => `<div class="swipe-dot ${i === currentSetlistSongIndex ? "active" : ""}"></div>`).join("");
+  counter.textContent = `${currentSetlistSongIndex + 1} / ${total}`;
+  updateSetlistNav(total);
+  goToSetlistSlide(currentSetlistSongIndex, false);
+}
+
+function renderSongHTML(song, lyricsOnly) {
+  if (!song.content) return "";
+  return song.content.map(item => {
+    if (item.type === "section") return `<div class="section-label">${escHtml(item.text)}</div>`;
+    if (item.type === "line") return `
+      <div class="chord-line">
+        ${item.chords && !lyricsOnly ? `<div class="chord-text">${escHtml(item.chords)}</div>` : ""}
+        ${item.lyrics !== undefined ? `<div class="lyric-text">${escHtml(item.lyrics)}</div>` : ""}
+      </div>`;
+    return "";
+  }).join("");
+}
+
+function goToSetlistSlide(index, animated = true) {
+  const slides = document.getElementById("slv-slides");
+  if (!animated) slides.style.transition = "none";
+  else slides.style.transition = "transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)";
+  slides.style.transform = `translateX(-${index * 100}%)`;
+  currentSetlistSongIndex = index;
+  if (!animated) setTimeout(() => slides.style.transition = "", 50);
+
+  // Update dots
+  document.querySelectorAll(".swipe-dot").forEach((d, i) => {
+    d.classList.toggle("active", i === index);
+  });
+  const songs = currentSetlist?.songIds.map(id => allSongs.find(s => s.id === id)).filter(Boolean) || [];
+  document.getElementById("slv-counter").textContent = `${index + 1} / ${songs.length}`;
+  updateSetlistNav(songs.length);
+}
+
+function setlistNext() {
+  const songs = currentSetlist?.songIds.map(id => allSongs.find(s => s.id === id)).filter(Boolean) || [];
+  if (currentSetlistSongIndex < songs.length - 1) goToSetlistSlide(currentSetlistSongIndex + 1);
+}
+
+function setlistPrev() {
+  if (currentSetlistSongIndex > 0) goToSetlistSlide(currentSetlistSongIndex - 1);
+}
+
+function updateSetlistNav(total) {
+  document.getElementById("slv-prev-btn").disabled = currentSetlistSongIndex === 0;
+  document.getElementById("slv-next-btn").disabled = currentSetlistSongIndex >= total - 1;
+  document.getElementById("slv-prev-btn").style.opacity = currentSetlistSongIndex === 0 ? "0.3" : "1";
+  document.getElementById("slv-next-btn").style.opacity = currentSetlistSongIndex >= total - 1 ? "0.3" : "1";
+}
+
+function toggleSetlistLyricsMode() {
+  setlistLyricsMode = !setlistLyricsMode;
+  const btn = document.getElementById("slv-lyrics-btn");
+  btn.textContent = setlistLyricsMode ? "🎸" : "🎤";
+  btn.style.color = setlistLyricsMode ? "#43e97b" : "rgba(255,255,255,0.6)";
+  const savedIdx = currentSetlistSongIndex;
+  renderSetlistSlides();
+  goToSetlistSlide(savedIdx, false);
+}
+
+// Touch/swipe for setlist
+let touchStartX = 0;
+function initSetlistSwipe() {
+  const zone = document.getElementById("slv-touch-zone");
+  zone.ontouchstart = e => { touchStartX = e.touches[0].clientX; };
+  zone.ontouchend = e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { diff > 0 ? setlistNext() : setlistPrev(); }
+  };
+}
+
+// ──────────────────────────────────────────────────────────────
+// PROFILE PAGE
+// ──────────────────────────────────────────────────────────────
+function updateProfilePage() {
+  if (!currentUser || !userProfile) return;
+  document.getElementById("profile-avatar-lg").src = currentUser.photoURL || "";
+  document.getElementById("profile-name").textContent = currentUser.displayName || "";
+  document.getElementById("profile-email").textContent = currentUser.email || "";
+  const roleBadge = document.getElementById("profile-role-badge");
+  roleBadge.textContent = userProfile.role === "musician" ? "🎸 Musician" : "🎤 Singer";
+  roleBadge.style.background = "rgba(108,99,255,0.2)";
+  roleBadge.style.color = "#a78bfa";
+  roleBadge.style.border = "1px solid rgba(108,99,255,0.3)";
+  updateModeBtns();
+  updateRoleBtns();
+}
+
+function updateModeBtns() {
+  const mode = userProfile?.displayMode || "chords";
+  const chordsBtn = document.getElementById("mode-chords-btn");
+  const lyricsBtn = document.getElementById("mode-lyrics-btn");
+  if (!chordsBtn || !lyricsBtn) return;
+  if (mode === "chords") {
+    chordsBtn.style.background = "rgba(108,99,255,0.2)"; chordsBtn.style.color = "#a78bfa"; chordsBtn.style.borderColor = "rgba(108,99,255,0.4)";
+    lyricsBtn.style.background = "rgba(255,255,255,0.06)"; lyricsBtn.style.color = "rgba(255,255,255,0.5)"; lyricsBtn.style.borderColor = "rgba(255,255,255,0.1)";
+  } else {
+    lyricsBtn.style.background = "rgba(108,99,255,0.2)"; lyricsBtn.style.color = "#a78bfa"; lyricsBtn.style.borderColor = "rgba(108,99,255,0.4)";
+    chordsBtn.style.background = "rgba(255,255,255,0.06)"; chordsBtn.style.color = "rgba(255,255,255,0.5)"; chordsBtn.style.borderColor = "rgba(255,255,255,0.1)";
+  }
+}
+
+function updateRoleBtns() {
+  const role = userProfile?.role || "musician";
+  const mBtn = document.getElementById("role-musician-btn");
+  const sBtn = document.getElementById("role-singer-btn");
+  if (!mBtn || !sBtn) return;
+  if (role === "musician") {
+    mBtn.style.background = "rgba(108,99,255,0.2)"; mBtn.style.color = "#a78bfa"; mBtn.style.borderColor = "rgba(108,99,255,0.4)";
+    sBtn.style.background = "rgba(255,255,255,0.06)"; sBtn.style.color = "rgba(255,255,255,0.5)"; sBtn.style.borderColor = "rgba(255,255,255,0.1)";
+  } else {
+    sBtn.style.background = "rgba(108,99,255,0.2)"; sBtn.style.color = "#a78bfa"; sBtn.style.borderColor = "rgba(108,99,255,0.4)";
+    mBtn.style.background = "rgba(255,255,255,0.06)"; mBtn.style.color = "rgba(255,255,255,0.5)"; mBtn.style.borderColor = "rgba(255,255,255,0.1)";
+  }
+}
+
+async function setDisplayMode(mode) {
+  userProfile.displayMode = mode;
+  await saveUserProfile();
+  updateModeBtns();
+  showToast(mode === "chords" ? "Chords view enabled" : "Lyrics-only enabled");
+}
+
+async function setRole(role) {
+  userProfile.role = role;
+  if (role === "singer") userProfile.displayMode = "lyrics";
+  await saveUserProfile();
+  updateRoleBtns();
+  updateModeBtns();
+  showToast(role === "musician" ? "Switched to Musician mode" : "Switched to Singer mode");
+}
+
+function openProfileModal() {
+  document.getElementById("modal-profile-avatar").src = currentUser?.photoURL || "";
+  document.getElementById("modal-profile-name").textContent = currentUser?.displayName || "";
+  document.getElementById("modal-profile-email").textContent = currentUser?.email || "";
+  openModal("modal-profile");
+}
+
+// ──────────────────────────────────────────────────────────────
+// ADMIN — SONGS MANAGEMENT
+// ──────────────────────────────────────────────────────────────
+function switchAdminTab(tab) {
+  document.getElementById("admin-songs-panel").classList.toggle("hidden", tab !== "songs");
+  document.getElementById("admin-users-panel").classList.toggle("hidden", tab !== "users");
+  document.querySelectorAll(".admin-tab").forEach(t => {
+    t.style.background = "transparent"; t.style.color = "rgba(255,255,255,0.4)";
+  });
+  const active = document.getElementById(`admin-tab-${tab}`);
+  active.style.background = "rgba(108,99,255,0.2)"; active.style.color = "#a78bfa";
+  if (tab === "users") loadUsersForAdmin();
+}
+// Init tab styles
+document.getElementById("admin-tab-songs").style.background = "rgba(108,99,255,0.2)";
+document.getElementById("admin-tab-songs").style.color = "#a78bfa";
+document.getElementById("admin-tab-users").style.color = "rgba(255,255,255,0.4)";
+
+function loadAdminData() {
+  const list = document.getElementById("admin-songs-list");
+  list.innerHTML = allSongs.map(song => `
+    <div class="flex items-center justify-between p-3 rounded-xl mb-1" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);">
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-white text-sm truncate">${escHtml(song.title)}</p>
+        <p class="text-white/40 text-xs">${escHtml(song.artist)} · ${escHtml(song.key)}</p>
+      </div>
+      <div class="flex gap-1.5 ml-2">
+        <button onclick="editSong('${song.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center"
+          style="background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.2);">
+          <iconify-icon icon="lucide:pencil" width="13"></iconify-icon>
+        </button>
+        <button onclick="confirmDeleteSong('${song.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center"
+          style="background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.2);">
+          <iconify-icon icon="lucide:trash-2" width="13"></iconify-icon>
+        </button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function loadUsersForAdmin() {
+  const { db, collection, getDocs } = window._firebase;
+  const list = document.getElementById("admin-users-list");
+  list.innerHTML = `<div class="flex justify-center py-8"><div class="loader"></div></div>`;
+  try {
+    const snap = await getDocs(collection(db, "users"));
+    const users = snap.docs.map(d => d.data());
+    list.innerHTML = users.map(u => `
+      <div class="flex items-center justify-between p-3 rounded-xl mb-1" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <img src="${u.photoURL || ''}" alt="" class="w-9 h-9 rounded-full border border-purple-500/30 flex-shrink-0" onerror="this.style.display='none'" />
+          <div class="min-w-0">
+            <p class="font-semibold text-white text-sm truncate">${escHtml(u.name || "Unknown")}</p>
+            <p class="text-white/40 text-xs truncate">${escHtml(u.email || "")} · ${u.role || "?"}</p>
+          </div>
+        </div>
+        <div class="flex gap-1.5 ml-2 flex-shrink-0">
+          ${u.email !== ADMIN_EMAIL ? `
+            <button onclick="toggleUserAdmin('${u.uid}', ${!u.isAdmin})" class="text-xs px-2 py-1 rounded-lg font-semibold"
+              style="${u.isAdmin ? "background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);" : "background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);"}">
+              ${u.isAdmin ? "★ Admin" : "Make Admin"}
+            </button>` : `<span class="text-xs px-2 py-1 rounded-lg font-semibold" style="color:#fbbf24;">★ Owner</span>`}
+        </div>
+      </div>
+    `).join("");
+  } catch (e) {
+    list.innerHTML = `<p class="text-center text-white/40 p-4 text-sm">Failed to load users</p>`;
+  }
+}
+
+async function toggleUserAdmin(uid, makeAdmin) {
+  const { db, doc, setDoc } = window._firebase;
+  try {
+    await setDoc(doc(db, "users", uid), { isAdmin: makeAdmin }, { merge: true });
+    showToast(makeAdmin ? "Admin access granted" : "Admin access removed");
+    loadUsersForAdmin();
+  } catch (e) { showToast("Failed to update user"); }
+}
+
+// ──────────────────────────────────────────────────────────────
+// ADD / EDIT SONG
+// ──────────────────────────────────────────────────────────────
+function openAddSongModal(songId = null) {
+  editingSongId = songId;
+  const title = document.getElementById("add-song-modal-title");
+  const delBtn = document.getElementById("delete-song-btn");
+  title.textContent = songId ? "Edit Song" : "Add New Song";
+  delBtn.classList.toggle("hidden", !songId);
+
+  // Populate key select
+  const keySelect = document.getElementById("song-form-key");
+  keySelect.innerHTML = ALL_KEYS.map(k => `<option value="${k}">${k}</option>`).join("");
+
+  if (songId) {
+    const song = allSongs.find(s => s.id === songId);
+    if (song) {
+      document.getElementById("song-form-title").value = song.title;
+      document.getElementById("song-form-artist").value = song.artist;
+      document.getElementById("song-form-key").value = song.key;
+      document.getElementById("song-form-genre").value = song.genre || "Other";
+      document.getElementById("song-form-content").value = contentToText(song.content);
+    }
+  } else {
+    document.getElementById("song-form-title").value = "";
+    document.getElementById("song-form-artist").value = "";
+    document.getElementById("song-form-key").value = "G";
+    document.getElementById("song-form-genre").value = "Rock";
+    document.getElementById("song-form-content").value = "";
+  }
+  openModal("modal-add-song");
+}
+
+function editCurrentSong() {
+  if (currentSong) openAddSongModal(currentSong.id);
+}
+
+function editSong(songId) { openAddSongModal(songId); }
+
+function contentToText(content) {
+  if (!content) return "";
+  return content.map(item => {
+    if (item.type === "section") return `[${item.text}]`;
+    if (item.type === "line") {
+      const lines = [];
+      if (item.chords) lines.push(item.chords);
+      if (item.lyrics !== undefined) lines.push(item.lyrics);
+      return lines.join("\n");
+    }
+    return "";
+  }).join("\n");
+}
+
+function parseContentFromText(text) {
+  const lines = text.split("\n");
+  const content = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\[.+\]$/.test(line.trim())) {
+      content.push({ type: "section", text: line.trim().replace(/^\[|\]$/g, "") });
+    } else {
+      const isChordLine = /^[A-G][#b]?m?\s/.test(line.trim()) || /^[A-G][#b]?m?$/.test(line.trim());
+      const nextLine = lines[i + 1] || "";
+      const nextIsChord = /^[A-G][#b]?m?\s/.test(nextLine.trim()) || /^\[/.test(nextLine.trim());
+      if (isChordLine && !nextIsChord && nextLine && !/^\[/.test(nextLine.trim())) {
+        content.push({ type: "line", chords: line, lyrics: nextLine });
+        i++;
+      } else if (isChordLine) {
+        content.push({ type: "line", chords: line, lyrics: "" });
+      } else {
+        content.push({ type: "line", chords: "", lyrics: line });
+      }
+    }
+  }
+  return content;
+}
+
+async function saveSong() {
+  const title = document.getElementById("song-form-title").value.trim();
+  const artist = document.getElementById("song-form-artist").value.trim();
+  const key = document.getElementById("song-form-key").value;
+  const genre = document.getElementById("song-form-genre").value;
+  const rawContent = document.getElementById("song-form-content").value.trim();
+  if (!title || !artist || !key || !rawContent) { showToast("Please fill all required fields"); return; }
+  const content = parseContentFromText(rawContent);
+  const { db, collection, addDoc, doc, updateDoc, serverTimestamp } = window._firebase;
+  const songData = { title, artist, key, genre, content, updatedAt: new Date().toISOString() };
+  try {
+    if (editingSongId) {
+      await updateDoc(doc(db, "songs", editingSongId), songData);
+      const idx = allSongs.findIndex(s => s.id === editingSongId);
+      if (idx > -1) allSongs[idx] = { ...allSongs[idx], ...songData };
+      showToast("Song updated!");
+    } else {
+      songData.addedBy = currentUser?.email;
+      songData.addedAt = new Date().toISOString();
+      const ref = await addDoc(collection(db, "songs"), songData);
+      allSongs.push({ id: ref.id, ...songData });
+      showToast("Song added!");
+    }
+    filteredSongs = [...allSongs];
+    renderSongs();
+    loadAdminData();
+    closeModal("modal-add-song");
+  } catch (e) { showToast("Error saving song: " + e.message); }
+}
+
+function confirmDeleteSong(songId) {
+  pendingDeleteId = songId;
+  document.getElementById("confirm-delete-btn").onclick = () => deleteSong(songId);
+  openModal("modal-confirm-delete");
+}
+
+async function deleteCurrentSong() {
+  if (currentSong) confirmDeleteSong(currentSong.id);
+}
+
+async function deleteSong(songId) {
+  const { db, doc, deleteDoc } = window._firebase;
+  try {
+    await deleteDoc(doc(db, "songs", songId));
+    allSongs = allSongs.filter(s => s.id !== songId);
+    filteredSongs = filteredSongs.filter(s => s.id !== songId);
+    renderSongs();
+    loadAdminData();
+    closeModal("modal-confirm-delete");
+    closeModal("modal-add-song");
+    closeSongViewer();
+    showToast("Song deleted");
+  } catch (e) { showToast("Error deleting: " + e.message); }
+}
+
+// ──────────────────────────────────────────────────────────────
+// OCR — Image to Chord Sheet
+// ──────────────────────────────────────────────────────────────
+async function handleOCRUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await processOCRFile(file);
+}
+
+async function handleOCRDrop(event) {
+  event.preventDefault();
+  document.getElementById("ocr-upload-zone").classList.remove("dragging");
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith("image/")) await processOCRFile(file);
+}
+
+async function processOCRFile(file) {
+  const status = document.getElementById("ocr-status");
+  status.classList.remove("hidden");
+  status.textContent = "📷 Processing image…";
+  status.style.color = "#a78bfa";
+  try {
+    const worker = await Tesseract.createWorker("eng");
+    const result = await worker.recognize(file);
+    await worker.terminate();
+    const text = result.data.text.trim();
+    if (text) {
+      document.getElementById("song-form-content").value = text;
+      status.textContent = "✅ Text extracted! Please review and adjust formatting.";
+      status.style.color = "#43e97b";
+    } else {
+      status.textContent = "⚠️ No text detected. Try a clearer image.";
+      status.style.color = "#fbbf24";
+    }
+  } catch (e) {
+    status.textContent = "❌ OCR failed. Please type manually.";
+    status.style.color = "#f87171";
+  }
+  document.getElementById("ocr-file-input").value = "";
+}
+
+// ──────────────────────────────────────────────────────────────
+// MODALS
+// ──────────────────────────────────────────────────────────────
+function openModal(id) {
+  const el = document.getElementById(id);
+  el.classList.remove("hidden");
+  el.classList.add("flex");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal(id) {
+  const el = document.getElementById(id);
+  el.classList.add("hidden");
+  el.classList.remove("flex");
+  if (!document.querySelector('.modal-backdrop:not(.hidden)')) {
+    document.body.style.overflow = "";
+  }
+}
+
+function closeModalIfBackdrop(event, id) {
+  if (event.target === document.getElementById(id)) closeModal(id);
+}
+
+// ──────────────────────────────────────────────────────────────
+// TOAST NOTIFICATIONS
+// ──────────────────────────────────────────────────────────────
+let toastTimeout;
+function showToast(message) {
+  const container = document.getElementById("toast-container");
+  clearTimeout(toastTimeout);
+  container.innerHTML = `<div class="toast-msg">${escHtml(message)}</div>`;
+  toastTimeout = setTimeout(() => { container.innerHTML = ""; }, 2500);
+}
+
+// ──────────────────────────────────────────────────────────────
+// UTILITY
+// ──────────────────────────────────────────────────────────────
+function escHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ──────────────────────────────────────────────────────────────
+// PWA MANIFEST CHECK
+// ──────────────────────────────────────────────────────────────
+// manifest.json is loaded via <link rel="manifest">
+// Service worker registration
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+// PREVENT OVERSCROLL ON iOS
+// ──────────────────────────────────────────────────────────────
+document.addEventListener("touchmove", (e) => {
+  if (e.target.closest(".song-body, .page-content, .setlist-slide")) return;
+  e.preventDefault();
+}, { passive: false });
+
+// ──────────────────────────────────────────────────────────────
+// KEYBOARD SHORTCUT
+// ──────────────────────────────────────────────────────────────
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    ["modal-add-song","modal-add-setlist","modal-create-setlist","modal-key-picker","modal-profile","modal-confirm-delete"]
+      .forEach(id => closeModal(id));
+    closeSongViewer();
+    closeSetlistViewer();
+  }
+});
+</script>
+
+</body>
+</html>
