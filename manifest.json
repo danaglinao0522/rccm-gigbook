@@ -1,46 +1,54 @@
 {
-  "name": "RCCM GigBook",
-  "short_name": "GigBook",
-  "description": "Guitar Chords, Lyrics, and Setlist App for RCCM Worship Team",
+  "name": "RCCM Gigbook",
+  "short_name": "Gigbook",
+  "description": "Guitar Chords, Lyrics & Setlist App for RCCM Worship Team",
   "start_url": "/rccm-gigbook/",
   "scope": "/rccm-gigbook/",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#121212",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0a",
   "theme_color": "#121212",
-  "lang": "en",
+  "lang": "en-US",
   "categories": ["music", "productivity", "utilities"],
   "icons": [
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-maskable.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "icons/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "RCCM Gigbook on mobile"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Songs",
       "short_name": "Songs",
-      "description": "Browse all chord sheets",
+      "description": "Browse all songs",
+      "url": "/rccm-gigbook/",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Setlists",
+      "short_name": "Setlists",
+      "description": "View setlists",
       "url": "/rccm-gigbook/",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
   "prefer_related_applications": false,
-  "related_applications": [],
-  "display_override": ["standalone", "minimal-ui", "browser"]
+  "related_applications": []
 }
