@@ -1,32 +1,27 @@
 {
-  "name": "RCCM Gigbook",
-  "short_name": "Gigbook",
-  "description": "Guitar Chords, Lyrics and Setlist App for worship teams",
-  "start_url": "https://danaglinao0522.github.io/rccm-gigbook/",
-  "scope": "https://danaglinao0522.github.io/rccm-gigbook/",
+  "name": "RCCM GigBook",
+  "short_name": "GigBook",
+  "description": "Guitar Chords, Lyrics & Setlist App for RCCM worship team",
+  "start_url": "/rccm-gigbook/",
+  "scope": "/rccm-gigbook/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "background_color": "#121212",
   "theme_color": "#121212",
-  "categories": ["music", "productivity"],
+  "lang": "en",
+  "categories": ["music", "productivity", "utilities"],
   "icons": [
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-maskable.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [],

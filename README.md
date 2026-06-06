@@ -1,52 +1,44 @@
-# RCCM Gigbook — Guitar Chords, Lyrics & Setlist PWA
+# RCCM GigBook — Setup Guide
 
-A full-featured Progressive Web App for worship teams — manage songs, chord sheets, and setlists in real time with Firebase Firestore.
-
----
-
-## 🚀 Quick Setup
-
-### 1. Firebase Project Setup
-
-1. Go to [Firebase Console](https://console.firebase.google.com/) and create a new project (e.g., `rccm-gigbook`).
-2. Enable **Google Authentication**:
-   - Go to **Authentication → Sign-in method → Google → Enable**.
-3. Create a **Firestore Database**:
-   - Go to **Firestore Database → Create database → Start in production mode**.
-4. Register a **Web App** under your Firebase project:
-   - Go to **Project Settings → General → Your apps → Add app → Web**.
-   - Copy the `firebaseConfig` object provided.
+> Guitar Chords, Lyrics & Setlist PWA · Firebase Firestore · GitHub Pages
 
 ---
 
-### 2. Configure `index.html`
+## 📁 Required Root File Structure
 
-Open `index.html` and replace the placeholder `firebaseConfig` near line ~430 with your actual Firebase config:
+```
+rccm-gigbook/
+├── index.html          ← Main application (single file)
+├── layout-checklist.html ← Feature checklist & visual layout breakdown
+├── manifest.json       ← PWA manifest (see below)
+├── README.md           ← This file
+├── sw.js               ← Service Worker (see below)
+└── icons/
+    ├── logo.png        ← Brand logo shown on Sign-In screen (required)
+    ├── icon-192.png    ← PWA icon 192×192 (required)
+    └── icon-512.png    ← PWA icon 512×512 (required)
+```
+
+---
+
+## 🔥 Step 1 — Firebase Project Setup
+
+### 1.1 Create Firebase Project
+1. Go to [https://console.firebase.google.com](https://console.firebase.google.com)
+2. Click **"Add project"** → Name it `rccm-gigbook`
+3. Disable Google Analytics (optional) → **Create project**
+
+### 1.2 Enable Authentication
+1. In sidebar: **Build → Authentication → Get started**
+2. Click **Sign-in method** tab
+3. Enable **Google** provider → Set project support email → Save
+
+### 1.3 Enable Firestore Database
+1. In sidebar: **Build → Firestore Database → Create database**
+2. Choose **Production mode** → Select your region → **Enable**
+3. Go to **Rules** tab and paste:
 
 ```javascript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-```
-
-Also confirm the admin email constant matches your master account:
-
-```javascript
-const ADMIN_EMAIL = 'buenavistaaglinaodanny@gmail.com';
-```
-
----
-
-### 3. Firestore Security Rules
-
-Go to **Firestore → Rules** and paste the following:
-
-```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -57,20 +49,19 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId;
       allow update: if request.auth != null &&
         (request.auth.uid == userId ||
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin']);
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Sub-Admin');
       allow delete: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin'];
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
     // Songs collection
     match /songs/{songId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin'] ||
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canAddSongs == true);
+      allow create: if request.auth != null;
       allow update, delete: if request.auth != null &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin'] ||
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canDeleteSongs == true);
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Sub-Admin');
     }
 
     // Setlists collection
@@ -79,14 +70,15 @@ service cloud.firestore {
       allow create: if request.auth != null;
       allow update: if request.auth != null &&
         (resource.data.createdBy == request.auth.uid ||
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin']);
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Sub-Admin');
       allow delete: if request.auth != null &&
         (resource.data.createdBy == request.auth.uid ||
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin']);
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin');
     }
 
-    // Config collection (admin only writes)
-    match /config/{configId} {
+    // App settings (Admin only write)
+    match /settings/{docId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
@@ -95,58 +87,72 @@ service cloud.firestore {
 }
 ```
 
----
-
-### 4. Asset Icons Setup
-
-Create an `icons/` folder in the root directory with the following files:
-
-```
-icons/
-├── logo.png          ← Your app logo (displayed on the Sign-In page)
-├── icon-192.png      ← PWA icon 192×192px (Apple touch icon)
-├── icon-512.png      ← PWA icon 512×512px (used in manifest)
-└── icon-maskable.png ← Maskable PWA icon 512×512px
-```
-
-> Use any image editor or [favicon.io](https://favicon.io/) to generate these icons.
+### 1.4 Get Firebase Config
+1. In Firebase Console → **Project Settings** (gear icon) → **General**
+2. Scroll to **"Your apps"** → Click **Web** (`</>`) icon
+3. Register app name → Copy the `firebaseConfig` object
 
 ---
 
-### 5. `manifest.json` Configuration
+## ⚙️ Step 2 — Configure `index.html`
 
-Create a `manifest.json` file in the root directory:
+Open `index.html` and replace the placeholder config block:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+```
+
+With your actual values from Firebase Console. Example:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "AIzaSyAbc123DefGhi456JklMno789",
+  authDomain: "rccm-gigbook.firebaseapp.com",
+  projectId: "rccm-gigbook",
+  storageBucket: "rccm-gigbook.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef1234567890"
+};
+```
+
+---
+
+## 📋 Step 3 — Create `manifest.json`
+
+Create `manifest.json` in the root directory with this content:
 
 ```json
 {
-  "name": "RCCM Gigbook",
-  "short_name": "Gigbook",
-  "description": "Guitar Chords, Lyrics and Setlist App for worship teams",
-  "start_url": "https://danaglinao0522.github.io/rccm-gigbook/",
-  "scope": "https://danaglinao0522.github.io/rccm-gigbook/",
+  "name": "RCCM GigBook",
+  "short_name": "GigBook",
+  "description": "Guitar Chords, Lyrics & Setlist App for RCCM worship team",
+  "start_url": "/rccm-gigbook/",
+  "scope": "/rccm-gigbook/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "background_color": "#121212",
   "theme_color": "#121212",
-  "categories": ["music", "productivity"],
+  "lang": "en",
+  "categories": ["music", "productivity", "utilities"],
   "icons": [
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-maskable.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [],
@@ -154,21 +160,23 @@ Create a `manifest.json` file in the root directory:
 }
 ```
 
+> ⚠️ **Important:** Update `start_url` and `scope` to match your GitHub Pages URL path (e.g., `/rccm-gigbook/`).
+
 ---
 
-### 6. Service Worker (`sw.js`)
+## 🔧 Step 4 — Create `sw.js` (Service Worker)
 
-Create `sw.js` in the root for full PWA offline support:
+Create `sw.js` in the root directory for offline caching:
 
 ```javascript
 const CACHE_NAME = 'rccm-gigbook-v1';
 const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/logo.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  '/rccm-gigbook/',
+  '/rccm-gigbook/index.html',
+  '/rccm-gigbook/manifest.json',
+  '/rccm-gigbook/icons/logo.png',
+  '/rccm-gigbook/icons/icon-192.png',
+  '/rccm-gigbook/icons/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -190,89 +198,196 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    fetch(event.request)
-      .then((res) => {
-        const clone = res.clone();
+    caches.match(event.request).then((cached) => {
+      return cached || fetch(event.request).then((response) => {
+        const clone = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        return res;
-      })
-      .catch(() => caches.match(event.request))
+        return response;
+      });
+    }).catch(() => caches.match('/rccm-gigbook/index.html'))
   );
 });
 ```
 
-Then register it by adding this inside your `index.html` `<script>` block:
+Add this snippet inside the `<head>` of `index.html` to register the service worker:
 
-```javascript
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
-    .then(reg => console.log('SW registered:', reg.scope))
-    .catch(err => console.error('SW error:', err));
-}
+```html
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/rccm-gigbook/sw.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.warn('SW registration failed:', err));
+    });
+  }
+</script>
 ```
 
 ---
 
-### 7. GitHub Pages Deployment
+## 🎸 Step 5 — Prepare Icon Assets
 
-1. Push all files to your GitHub repository.
-2. Go to **Settings → Pages → Branch: main / root**.
-3. The app will be live at: `https://danaglinao0522.github.io/rccm-gigbook/`
+Place these files in the `icons/` folder:
 
-> Make sure your Firebase project's **Authorized Domains** includes your GitHub Pages URL:
-> Firebase Console → Authentication → Settings → Authorized domains → Add `danaglinao0522.github.io`
+| File | Size | Purpose |
+|------|------|---------|
+| `logo.png` | Any (recommended 256×256) | Sign-In screen brand logo |
+| `icon-192.png` | 192×192 px | PWA home screen icon |
+| `icon-512.png` | 512×512 px | PWA splash screen icon |
 
----
-
-## 📱 Installing the PWA
-
-### Android (Chrome)
-- Open the app in Chrome → tap the **Install App** button or use the browser's **"Add to Home Screen"** option from the overflow menu.
-
-### iOS (Safari)
-- Open the app in Safari → tap the **Share** button (box with arrow) → **"Add to Home Screen"**.
-
-> The Install App button auto-hides once the app is already installed or running in standalone mode.
+> Use [https://realfavicongenerator.net](https://realfavicongenerator.net) to generate all sizes from a single source image.
 
 ---
 
-## 🎭 Role Hierarchy
+## 🚀 Step 6 — Deploy to GitHub Pages
 
-| Role | Setlist Limit | Songs Per Setlist | Chord View | Key/Capo | Admin Panel |
-|------|---------------|-------------------|------------|----------|-------------|
-| Admin | Unlimited | Unlimited | ✅ | ✅ | ✅ |
-| Sub-Admin | 5 | Global Cap | ✅ | ✅ | ✅ |
-| Lead | 5 | Global Cap | ✅ | ✅ | ❌ |
-| Musician | 2 | Global Cap | ✅ | ✅ | ❌ |
-| Singer | 2 | Global Cap | Lyrics Only | ❌ | ❌ |
-| Tech | 2 | Global Cap | Lyrics Only | ❌ | ❌ |
-
----
-
-## 🔧 Troubleshooting
-
-- **Google Sign-In popup blocked:** Make sure your domain is authorized in Firebase Console.
-- **Permission denied errors:** Verify your Firestore Security Rules are published correctly.
-- **App not installable:** Ensure `manifest.json` is correctly linked and `sw.js` is registered.
-- **Songs not loading:** Check that Firestore is initialized and rules allow reads for authenticated users.
-
----
-
-## 📂 File Structure
-
-```
-rccm-gigbook/
-├── index.html          ← Main single-page app (all code)
-├── manifest.json       ← PWA manifest
-├── sw.js               ← Service Worker
-├── README.md           ← This file
-└── icons/
-    ├── logo.png
-    ├── icon-192.png
-    ├── icon-512.png
-    └── icon-maskable.png
+### 6.1 Push to GitHub
+```bash
+git init
+git add .
+git commit -m "Initial RCCM GigBook deployment"
+git branch -M main
+git remote add origin https://github.com/danaglinao0522/rccm-gigbook.git
+git push -u origin main
 ```
 
+### 6.2 Enable GitHub Pages
+1. Go to your repo → **Settings → Pages**
+2. Source: **Deploy from a branch**
+3. Branch: `main` / Folder: `/ (root)`
+4. Click **Save**
+5. Your app will be live at: `https://danaglinao0522.github.io/rccm-gigbook/`
+
+### 6.3 Configure Firebase Authorized Domains
+1. Firebase Console → **Authentication → Settings → Authorized domains**
+2. Add: `danaglinao0522.github.io`
+
 ---
 
-*Built with ❤️ for RCCM Worship Team*
+## 👤 Step 7 — First Admin Login
+
+1. Open your deployed app URL
+2. Sign in with Google using `buenavistaaglinaodanny@gmail.com`
+3. Complete onboarding (select **Musician** or your role)
+4. After saving, the app will automatically detect the Admin email and assign the **Admin** role
+5. You now have access to all 4 tabs including Users and Admin Panel
+
+---
+
+## 🔄 Firestore Data Structure Reference
+
+```
+firestore/
+├── users/
+│   └── {uid}
+│       ├── uid: string
+│       ├── email: string
+│       ├── displayName: string
+│       ├── photoURL: string
+│       ├── role: "Admin" | "Sub-Admin" | "Lead" | "Tech" | "Singer" | "Musician"
+│       ├── instruments: string[]        // ["Guitar", "Keyboard", "Djembe"]
+│       ├── canSing: boolean
+│       ├── inTechTeam: boolean
+│       ├── tutorialEnabled: boolean
+│       ├── maxSetlists: number | null   // null = use role default
+│       ├── permissions: {
+│       │     deleteSongs: boolean,
+│       │     addSongs: boolean
+│       │   }
+│       └── createdAt: Timestamp
+│
+├── songs/
+│   └── {songId}
+│       ├── title: string
+│       ├── artist: string
+│       ├── content: string              // Raw chord/lyric sheet (no brackets)
+│       ├── createdBy: string           // uid
+│       └── createdAt: Timestamp
+│
+├── setlists/
+│   └── {setlistId}
+│       ├── name: string
+│       ├── visibility: "public" | "private" | "custom-group"
+│       ├── type: "standard" | "custom-group"
+│       ├── songs: string[]             // Array of song IDs
+│       ├── accessList: string[]        // Array of UIDs (custom-group only)
+│       ├── createdBy: string           // uid
+│       ├── createdByName: string
+│       ├── createdByPhoto: string
+│       └── createdAt: Timestamp
+│
+└── settings/
+    └── app
+        ├── appName: string
+        ├── appIcon: string
+        └── theme: string               // Theme preset name
+```
+
+---
+
+## 📱 Installing on iOS (Safari)
+
+1. Open the app URL in **Safari** (not Chrome)
+2. Tap the **Share** button (box with arrow)
+3. Scroll and tap **"Add to Home Screen"**
+4. Tap **"Add"** — the app icon appears on your home screen
+5. Launch from home screen for standalone PWA mode
+
+## 🤖 Installing on Android (Chrome)
+
+1. Open the app URL in **Chrome**
+2. Tap the **three-dot menu** (⋮)
+3. Tap **"Add to Home screen"** or **"Install app"**
+4. Tap **"Install"** — the app icon appears on your home screen
+5. The **"Install App"** button on the splash screen also triggers this flow
+
+---
+
+## 🎵 Song Sheet Format Guide
+
+The app uses a **bracket-free intelligent chord parser**. Simply paste raw chord sheets:
+
+```
+VERSE 1
+G                 D
+What is our hope in life and death
+        Em              C
+Christ alone, Christ alone
+
+CHORUS
+       C              G
+Hallelujah, praise the One who set us free
+       C              D
+Hallelujah, death has lost its grip on me
+```
+
+**Rules:**
+- Lines with only chord names (A-G + extensions) → rendered as **chord lines** (amber)
+- Lines with text → rendered as **lyric lines** (white)
+- Lines matching VERSE/CHORUS/BRIDGE etc. → rendered as **section headers**
+- No `[ ]` or `| |` required
+
+---
+
+## 🛡️ Security Notes
+
+- The Admin email (`buenavistaaglinaodanny@gmail.com`) is hardcoded in the app and Firestore security rules as the immutable master admin
+- Never commit your `firebaseConfig` API key to a public repository — use GitHub Secrets for CI/CD if needed
+- Firestore rules enforce server-side role validation on all write operations
+
+---
+
+## 🐛 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Sign-in popup blocked | Allow popups for your domain in browser settings |
+| "Firebase not configured" | Replace all `YOUR_*` placeholders in `firebaseConfig` |
+| App icon not showing | Ensure `icons/logo.png`, `icons/icon-192.png` exist in repo |
+| Install button not appearing | Must be on HTTPS (GitHub Pages is HTTPS by default) |
+| Firestore permission denied | Check Authorized Domains in Firebase Auth settings |
+| Songs not loading | Check Firestore rules and ensure user is authenticated |
+
+---
+
+*RCCM GigBook — Built for worship teams. All glory to God.*

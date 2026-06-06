@@ -1,17 +1,19 @@
-const CACHE_NAME = 'gigbook-v1';
-const ASSETS = [
-  '/rccm-gigbook/',
-  '/rccm-gigbook/index.html',
-  '/rccm-gigbook/manifest.json',
-  '/rccm-gigbook/icons/icon-192.png',
-  '/rccm-gigbook/icons/icon-512.png'
+// RCCM GigBook Service Worker
+const CACHE_NAME = 'rccm-gigbook-v1';
+const STATIC_ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/logo.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS).catch(() => {});
-    })
+      return cache.addAll(STATIC_ASSETS.map(url => new Request(url, { cache: 'reload' })));
+    }).catch(err => console.warn('Cache install error (non-fatal):', err))
   );
   self.skipWaiting();
 });
@@ -19,41 +21,28 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      )
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  const url = event.request.url;
-  if (
-    url.includes('firestore.googleapis.com') ||
-    url.includes('firebase') ||
-    url.includes('gstatic.com') ||
-    url.includes('googleapis.com') ||
-    url.includes('iconify') ||
-    url.includes('jsdelivr') ||
-    url.includes('tailwindcss')
-  ) {
-    return;
-  }
+  if (event.request.method !== 'GET') return;
+  if (event.request.url.includes('firestore.googleapis.com') ||
+      event.request.url.includes('firebase') ||
+      event.request.url.includes('googleapis.com')) return;
+
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) return response;
-      return fetch(event.request)
-        .then((fetchResponse) => {
-          if (fetchResponse && fetchResponse.status === 200 && event.request.method === 'GET') {
-            const cloned = fetchResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
-          }
-          return fetchResponse;
-        })
-        .catch(() => {
-          return caches.match('/rccm-gigbook/index.html');
-        });
+    caches.match(event.request).then((cached) => {
+      const fetchPromise = fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => null);
+      return cached || fetchPromise || caches.match('./index.html');
     })
   );
 });
