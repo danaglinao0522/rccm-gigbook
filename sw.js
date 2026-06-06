@@ -1,6 +1,6 @@
-// RCCM GigBook Service Worker v1.0.0
-const CACHE_NAME = 'rccm-gigbook-v1.0.0';
+const CACHE_NAME = 'gigbook-v1.0';
 const STATIC_ASSETS = [
+  '/',
   '/rccm-gigbook/',
   '/rccm-gigbook/index.html',
   '/rccm-gigbook/manifest.json',
@@ -9,22 +9,18 @@ const STATIC_ASSETS = [
   '/rccm-gigbook/icons/icon-512.png'
 ];
 
-// Install: cache static assets
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {
-        // Non-fatal: some assets may not exist yet
-      });
-    })
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_ASSETS.map(url => new Request(url, { cache: 'reload' })));
+    }).catch(err => console.log('Cache install partial error (some icons may be missing):', err))
   );
   self.skipWaiting();
 });
 
-// Activate: clean old caches
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
           .filter(name => name !== CACHE_NAME)
@@ -35,60 +31,64 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch: network-first for Firebase, cache-first for static
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
+self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip Firebase, Google APIs — always network
+  // Skip Firebase, Google APIs, CDN requests (always network)
+  const url = event.request.url;
   if (
-    url.hostname.includes('firebaseio.com') ||
-    url.hostname.includes('googleapis.com') ||
-    url.hostname.includes('firebaseapp.com') ||
-    url.hostname.includes('gstatic.com') ||
-    url.hostname.includes('google.com')
-  ) return;
-
-  // CDN resources: network-first with cache fallback
-  if (
-    url.hostname.includes('cdn.jsdelivr.net') ||
-    url.hostname.includes('iconify.design') ||
-    url.hostname.includes('tailwindcss.com')
+    url.includes('firestore.googleapis.com') ||
+    url.includes('firebase') ||
+    url.includes('googleapis.com') ||
+    url.includes('gstatic.com') ||
+    url.includes('cdn.jsdelivr.net') ||
+    url.includes('iconify.design') ||
+    url.includes('accounts.google.com')
   ) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
     return;
   }
 
-  // App shell: cache-first, then network
+  // Cache-first strategy for static assets
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(response => {
-        if (response.ok) {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        // Return cached, but also update cache in background
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, clone);
+            });
+          }
+          return networkResponse;
+        }).catch(() => cachedResponse);
+
+        return cachedResponse;
+      }
+
+      // Not in cache — fetch from network and cache result
+      return fetch(event.request).then((response) => {
+        if (!response || response.status !== 200 || response.type === 'opaque') {
+          return response;
         }
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, clone);
+        });
         return response;
       }).catch(() => {
-        // Offline fallback: return app shell
-        return caches.match('/rccm-gigbook/index.html');
+        // Fallback to index.html for navigation requests
+        if (event.request.mode === 'navigate') {
+          return caches.match('/rccm-gigbook/index.html');
+        }
       });
     })
   );
 });
 
-// Message handler for cache updates
-self.addEventListener('message', event => {
+// Listen for skip waiting message
+self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
