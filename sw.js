@@ -1,6 +1,5 @@
-// RCCM GigBook Service Worker v1.0
-const CACHE_NAME = 'rccm-gigbook-v1';
-const URLS_TO_CACHE = [
+const CACHE_NAME = 'gigbook-v1';
+const ASSETS = [
   '/rccm-gigbook/',
   '/rccm-gigbook/index.html',
   '/rccm-gigbook/manifest.json',
@@ -11,7 +10,7 @@ const URLS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(URLS_TO_CACHE);
+      return cache.addAll(ASSETS).catch(() => {});
     })
   );
   self.skipWaiting();
@@ -19,32 +18,42 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      )
+    )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network-first strategy for Firebase calls
-  if (event.request.url.includes('firebase') || event.request.url.includes('googleapis')) {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+  const url = event.request.url;
+  if (
+    url.includes('firestore.googleapis.com') ||
+    url.includes('firebase') ||
+    url.includes('gstatic.com') ||
+    url.includes('googleapis.com') ||
+    url.includes('iconify') ||
+    url.includes('jsdelivr') ||
+    url.includes('tailwindcss')
+  ) {
     return;
   }
-  // Cache-first strategy for app assets
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((fetchResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, fetchResponse.clone());
+      if (response) return response;
+      return fetch(event.request)
+        .then((fetchResponse) => {
+          if (fetchResponse && fetchResponse.status === 200 && event.request.method === 'GET') {
+            const cloned = fetchResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          }
           return fetchResponse;
+        })
+        .catch(() => {
+          return caches.match('/rccm-gigbook/index.html');
         });
-      });
     })
   );
 });
