@@ -25,5 +25,14 @@
     }
   ],
   "screenshots": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Open Songs",
+      "short_name": "Songs",
+      "description": "Go directly to the Songs list",
+      "url": "/rccm-gigbook/",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
 }
