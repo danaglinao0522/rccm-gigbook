@@ -254,22 +254,29 @@
 
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:10px;">
-      <div id="songs-list-view">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          <div style="position:relative;flex:1;">
-            <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:#6b7280;pointer-events:none;"></iconify-icon>
-            <input type="text" class="search-input" placeholder="Search songs or artists..." id="song-search-input" oninput="searchSongs()" />
-          </div>
-          <button id="songs-sort-btn" onclick="cycleSongsSort()" style="display:flex;align-items:center;gap:5px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:0 12px;height:36px;color:#e5e7eb;cursor:pointer;font-size:13px;flex-shrink:0;">
-            <iconify-icon icon="mdi:sort-variant" style="font-size:18px;color:var(--chords-color);"></iconify-icon>
-            <span id="songs-sort-label">A-Z</span>
+    <div id="songs-list-view">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <input type="text" class="search-input" placeholder="Search songs..." id="song-search-input" oninput="filterSongs()" style="flex:1;" />
+        <button id="song-filter-btn" onclick="toggleSongFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;">
+          <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
+          <span id="song-filter-label">A–Z</span>
+        </button>
+        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#1e1e1e;border:1px solid #444;border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+          <button onclick="setSongSort('az')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            A–Z
+          </button>
+          <button onclick="setSongSort('za')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Z–A
+          </button>
+          <button onclick="setSongSort('artist')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:account-music" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            By Artist
           </button>
         </div>
-        <div id="songs-sort-suggestions" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-          <button class="filter-chip active" onclick="setSongsSort('az',this)">A–Z</button>
-          <button class="filter-chip" onclick="setSongsSort('za',this)">Z–A</button>
-          <button class="filter-chip" onclick="setSongsSort('artist',this)">By Artist</button>
-        </div>
+      </div>
         <div id="songs-list" style="display:flex;flex-direction:column;gap:8px;"></div>
         <div id="songs-empty" style="display:none;text-align:center;padding:40px 20px;color:#6b7280;">
           <iconify-icon icon="mdi:music-off" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
@@ -326,23 +333,32 @@
     <!-- SETLISTS TAB -->
     <div id="tab-setlists" class="tab-panel" style="padding:10px;">
       <div id="setlists-list-view">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          <div style="position:relative;flex:1;">
-            <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:#6b7280;pointer-events:none;"></iconify-icon>
-            <input type="text" class="search-input" placeholder="Search setlists..." id="setlist-search-input" oninput="searchSetlists()" />
-          </div>
-          <button id="setlists-sort-btn" onclick="cycleSetlistsSort()" style="display:flex;align-items:center;gap:5px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:0 12px;height:36px;color:#e5e7eb;cursor:pointer;font-size:13px;flex-shrink:0;">
-            <iconify-icon icon="mdi:sort-variant" style="font-size:18px;color:var(--chords-color);"></iconify-icon>
-            <span id="setlists-sort-label">Newest</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <input type="text" class="search-input" placeholder="Search setlists..." id="setlist-search-input" oninput="filterSetlists()" style="flex:1;" />
+        <button id="setlist-filter-btn" onclick="toggleSetlistFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;">
+          <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
+          <span id="setlist-filter-label">Newest</span>
+        </button>
+        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#1e1e1e;border:1px solid #444;border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+          <button onclick="setSetlistSort('newest')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Newest First
+          </button>
+          <button onclick="setSetlistSort('oldest')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Oldest First
+          </button>
+          <button onclick="setSetlistSort('az')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            A–Z
+          </button>
+          <button onclick="setSetlistSort('za')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Z–A
           </button>
         </div>
-        <div id="setlists-sort-suggestions" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-          <button class="filter-chip active" onclick="setSetlistsSort('newest',this)">Newest</button>
-          <button class="filter-chip" onclick="setSetlistsSort('oldest',this)">Oldest</button>
-          <button class="filter-chip" onclick="setSetlistsSort('az',this)">A–Z</button>
-          <button class="filter-chip" onclick="setSetlistsSort('za',this)">Z–A</button>
-          <button class="filter-chip" onclick="setSetlistsSort('mine',this)">Mine Only</button>
-        </div>
+      </div>
         <div id="setlists-list" style="display:flex;flex-direction:column;gap:8px;"></div>
         <div id="setlists-empty" style="display:none;text-align:center;padding:40px 20px;color:#6b7280;">
           <iconify-icon icon="mdi:playlist-music" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
@@ -354,24 +370,43 @@
 
     <!-- USERS TAB -->
     <div id="tab-users" class="tab-panel" style="padding:10px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <div style="position:relative;flex:1;">
-          <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:#6b7280;pointer-events:none;"></iconify-icon>
-          <input type="text" class="search-input" placeholder="Search users..." id="user-search-input" oninput="filterUsers()" />
-        </div>
-        <button id="users-sort-btn" onclick="cycleUsersSort()" style="display:flex;align-items:center;gap:5px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:0 12px;height:36px;color:#e5e7eb;cursor:pointer;font-size:13px;flex-shrink:0;">
-          <iconify-icon icon="mdi:filter-variant" style="font-size:18px;color:var(--chords-color);"></iconify-icon>
-          <span id="users-sort-label">All Roles</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <input type="text" class="search-input" placeholder="Search users..." id="user-search-input" oninput="filterUsers()" style="flex:1;" />
+        <button id="user-filter-btn" onclick="toggleUserFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;">
+          <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
+          <span id="user-filter-label">All</span>
         </button>
-      </div>
-      <div id="user-filter-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;overflow-x:auto;padding-bottom:4px;">
-        <button class="filter-chip active" data-filter="all" onclick="setUserFilter('all',this)">All</button>
-        <button class="filter-chip" data-filter="Admin" onclick="setUserFilter('Admin',this)">Admin</button>
-        <button class="filter-chip" data-filter="Sub-Admin" onclick="setUserFilter('Sub-Admin',this)">Sub-Admin</button>
-        <button class="filter-chip" data-filter="Lead" onclick="setUserFilter('Lead',this)">Lead</button>
-        <button class="filter-chip" data-filter="Musician" onclick="setUserFilter('Musician',this)">Musician</button>
-        <button class="filter-chip" data-filter="Singer" onclick="setUserFilter('Singer',this)">Singer</button>
-        <button class="filter-chip" data-filter="Tech" onclick="setUserFilter('Tech',this)">Tech</button>
+        <div id="user-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#1e1e1e;border:1px solid #444;border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+          <button onclick="setUserFilter('all')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:account-group" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            All
+          </button>
+          <button onclick="setUserFilter('Admin')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:crown" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Admin
+          </button>
+          <button onclick="setUserFilter('Sub-Admin')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:account-tie" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Sub-Admin
+          </button>
+          <button onclick="setUserFilter('Lead')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:account-star" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Lead
+          </button>
+          <button onclick="setUserFilter('Musician')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:guitar-electric" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Musician
+          </button>
+          <button onclick="setUserFilter('Singer')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:microphone" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Singer
+          </button>
+          <button onclick="setUserFilter('Tech')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:monitor" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
+            Tech
+          </button>
+        </div>
       </div>
       <div id="users-list" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
@@ -747,12 +782,12 @@
 // FIREBASE CONFIGURATION
 // ============================================================
 const firebaseConfig = {
-   apiKey: "AIzaSyAlE76KUY17bv8J5mM_9SBN6p23gNUyc0Y",
+  apiKey: "AIzaSyDemo-Replace-With-Your-Key",
   authDomain: "rccm-gigbook.firebaseapp.com",
   projectId: "rccm-gigbook",
-  storageBucket: "rccm-gigbook.firebasestorage.app",
-  messagingSenderId: "817371493392",
-  appId: "1:817371493392:web:a7cec582390753b9104695"
+  storageBucket: "rccm-gigbook.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:0000000000000000"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -785,9 +820,8 @@ let currentEditUserId = null;
 let userFilterActive = 'all';
 let currentSongSort = 'az';
 let songSearchQuery = '';
-let currentSetlistsSort = 'newest';
 let setlistSearchQuery = '';
-let userFilterActive = 'all';
+let currentSetlistSort = 'newest';
 let deferredInstallPrompt = null;
 let swipeStartX = 0;
 let swipeStartY = 0;
@@ -799,7 +833,6 @@ let usersUnsubscribe = null;
 let adminSettingsUnsubscribe = null;
 let currentSetlistSongs = [];
 let tutorialEnabled = true;
-let swipeContext = null; // 'songs' | 'setlist-{id}'
 
 // ============================================================
 // PWA INSTALL HANDLER
@@ -1122,22 +1155,51 @@ function loadAdminSettings() {
 // ============================================================
 // SONGS LIST RENDER
 // ============================================================
-function searchSongs() {
-  songSearchQuery = document.getElementById('song-search-input').value.toLowerCase().trim();
-  renderSongsList();
-}
-function searchSongs() {
-  songSearchQuery = document.getElementById('song-search-input').value.toLowerCase().trim();
-  renderSongsList();
-}
 function sortSongs(mode) {
   currentSongSort = mode;
   renderSongsList();
 }
 
-function searchSetlists() {
-  setlistSearchQuery = document.getElementById('setlist-search-input').value.toLowerCase().trim();
+function filterSongs() {
+  songSearchQuery = (document.getElementById('song-search-input')?.value || '').toLowerCase();
+  renderSongsList();
+}
+
+function toggleSongFilterMenu() {
+  const menu = document.getElementById('song-filter-menu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+function setSongSort(mode) {
+  currentSongSort = mode;
+  const label = document.getElementById('song-filter-label');
+  const labelMap = { az: 'A–Z', za: 'Z–A', artist: 'By Artist' };
+  if (label) label.textContent = labelMap[mode] || mode;
+  toggleSongFilterMenu();
+  renderSongsList();
+}
+
+function toggleSetlistFilterMenu() {
+  const menu = document.getElementById('setlist-filter-menu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+function setSetlistSort(mode) {
+  currentSetlistSort = mode;
+  const label = document.getElementById('setlist-filter-label');
+  const labelMap = { newest: 'Newest', oldest: 'Oldest', az: 'A–Z', za: 'Z–A' };
+  if (label) label.textContent = labelMap[mode] || mode;
+  toggleSetlistFilterMenu();
   renderSetlistsList();
+}
+
+function filterSetlists() {
+  setlistSearchQuery = (document.getElementById('setlist-search-input')?.value || '').toLowerCase();
+  renderSetlistsList();
+}
+
+function sortSongs(mode) {
+  setSongSort(mode);
 }
 
 function renderSongsList() {
@@ -1209,7 +1271,6 @@ function openSongSheet(songId) {
     setTimeout(showTutorialModal, 500);
   }
   loadCreatorInfo(song.createdBy);
-  swipeContext = 'songs';
   setupSwipeListeners();
   pushState();
   stopAutoScroll();
@@ -1462,77 +1523,31 @@ document.addEventListener('touchmove', (e) => {
 window.addEventListener('load', () => { setupPinchZoom(); });
 
 // ============================================================
-// SWIPE GESTURE (Song Navigation — handheld devices)
+// SWIPE GESTURE (Song Navigation)
 // ============================================================
-let swipeState = { startX: 0, startY: 0, active: false };
-
 function setupSwipeListeners() {
-  const el = document.getElementById('song-sheet-content');
-  if (!el) return;
-  // Remove old listeners by cloning (simple approach)
-  const newEl = el.cloneNode(true);
-  el.parentNode.replaceChild(newEl, el);
-  // Re-assign references
-  const freshEl = document.getElementById('song-sheet-content');
-  freshEl.addEventListener('touchstart', onSwipeStart, { passive: true });
-  freshEl.addEventListener('touchmove', onSwipeMove, { passive: false });
-  freshEl.addEventListener('touchend', onSwipeEnd, { passive: true });
-}
-
-function onSwipeStart(e) {
-  if (e.touches.length !== 1) return;
-  swipeState.startX = e.touches[0].clientX;
-  swipeState.startY = e.touches[0].clientY;
-  swipeState.active = true;
-}
-
-function onSwipeMove(e) {
-  if (!swipeState.active || e.touches.length !== 1) return;
-  const dx = e.touches[0].clientX - swipeState.startX;
-  const dy = e.touches[0].clientY - swipeState.startY;
-  // If vertical scroll, let it through; only block if horizontal dominates
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-}
-
-function onSwipeEnd(e) {
-  if (!swipeState.active) return;
-  swipeState.active = false;
-  const dx = e.changedTouches[0].clientX - swipeState.startX;
-  const dy = e.changedTouches[0].clientY - swipeState.startY;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 55) {
-    if (swipeContext === 'songs') {
+  const content = document.getElementById('song-sheet-content');
+  content.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      swipeStartX = e.touches[0].clientX;
+      swipeStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+  content.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - swipeStartX;
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
       if (dx < 0) navigateSong(1);
       else navigateSong(-1);
-    } else if (typeof swipeContext === 'string' && swipeContext.startsWith('setlist-')) {
-      if (dx < 0) navigateSetlistSong(1);
-      else navigateSetlistSong(-1);
     }
-  }
+  }, { passive: true });
 }
-
 function navigateSong(dir) {
   const sorted = getSortedSongs();
   const idx = sorted.findIndex(s => s.id === currentSongId);
   const next = sorted[idx + dir];
-  if (next) {
-    stopAutoScroll();
-    openSongSheet(next.id);
-  }
+  if (next) openSongSheet(next.id);
 }
-
-function navigateSetlistSong(dir) {
-  const sorted = getSortedSongs();
-  const idx = sorted.findIndex(s => s.id === currentSongId);
-  const next = sorted[idx + dir];
-  if (next) {
-    stopAutoScroll();
-    openSongSheet(next.id);
-  }
-}
-
 function getSortedSongs() {
   let songs = [...allSongs];
   if (currentSongSort === 'az') songs.sort((a,b)=>(a.title||'').localeCompare(b.title||''));
@@ -1655,18 +1670,17 @@ function canSeeSetlist(setlist) {
 }
 
 function renderSetlistsList() {
+  let setlists = allSetlists.filter(s => canSeeSetlist(s));
+  if (setlistSearchQuery) {
+    setlists = setlists.filter(s => (s.name||'').toLowerCase().includes(setlistSearchQuery));
+  }
+  if (currentSetlistSort === 'az') setlists.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  else if (currentSetlistSort === 'za') setlists.sort((a,b) => (b.name||'').localeCompare(a.name||''));
+  else if (currentSetlistSort === 'newest') setlists.sort((a,b) => (b.createdAt?.toDate?.() || new Date(0)) - (a.createdAt?.toDate?.() || new Date(0)));
+  else if (currentSetlistSort === 'oldest') setlists.sort((a,b) => (a.createdAt?.toDate?.() || new Date(0)) - (b.createdAt?.toDate?.() || new Date(0)));
   const listEl = document.getElementById('setlists-list');
   const emptyEl = document.getElementById('setlists-empty');
-  let visible = allSetlists.filter(s => canSeeSetlist(s));
-  if (setlistSearchQuery) {
-    visible = visible.filter(s => (s.name||'').toLowerCase().includes(setlistSearchQuery));
-  }
-  if (currentSetlistsSort === 'az') visible.sort((a,b) => (a.name||'').localeCompare(b.name||''));
-  else if (currentSetlistsSort === 'za') visible.sort((a,b) => (b.name||'').localeCompare(a.name||''));
-  else if (currentSetlistsSort === 'oldest') visible.sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
-  else if (currentSetlistsSort === 'newest') visible.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
-  else if (currentSetlistsSort === 'mine') visible = visible.filter(s => s.createdBy === currentUser?.uid);
-  if (visible.length === 0) {
+  if (setlists.length === 0) {
     listEl.innerHTML = '';
     emptyEl.style.display = 'block';
     return;
@@ -1719,14 +1733,11 @@ function openSetlistDetail(setlistId) {
   const detailView = document.getElementById('setlist-detail-view');
   detailView.style.display = 'block';
   renderSetlistDetail(setlist);
-  swipeContext = 'setlist-' + setlistId;
-  setupSwipeListeners();
   updateHomeBtn(true);
   pushState();
 }
 
 function closeSetlistDetail() {
-  swipeContext = null;
   document.getElementById('setlist-detail-view').style.display = 'none';
   document.getElementById('setlists-list-view').style.display = 'block';
   currentSetlistId = null;
@@ -1954,9 +1965,8 @@ function renderUsersList() {
   listEl.innerHTML = users.map(u => {
     const instruments = (u.instruments||[]).join(', ');
     const isAdminUser = u.email === ADMIN_EMAIL;
-    const myRole = currentUserProfile?.role || '';
-    const canEdit = myRole === 'Admin' || myRole === 'Sub-Admin';
-    const canDelete = myRole === 'Admin' && !isAdminUser;
+    const canEdit = role === 'Admin' || role === 'Sub-Admin';
+    const canDelete = role === 'Admin' && !isAdminUser;
     return `
     <div class="user-row">
       <img src="${escHtml(u.photoURL||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#333;flex-shrink:0;" onerror="this.style.background='#374151'" />
@@ -1967,13 +1977,14 @@ function renderUsersList() {
           ${instruments ? `<span style="color:#6b7280;font-size:11px;">${escHtml(instruments)}</span>` : ''}
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-        ${canEdit ? `<button onclick="openUserEditModal('${u.uid}')" class="btn-secondary btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;">
+      ${canEdit ? `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <button onclick="openUserEditModal('${u.uid}')" class="btn-secondary btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;">
           <iconify-icon icon="mdi:pencil" style="font-size:14px;"></iconify-icon>
-        </button>` : ''}
+        </button>
         ${canDelete ? `<button onclick="deleteUser('${u.uid}')" class="btn-danger btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;">
           <iconify-icon icon="mdi:delete" style="font-size:14px;"></iconify-icon>
         </button>` : ''}
+      </div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1988,79 +1999,7 @@ function filterUsers() { renderUsersList(); }
 function setUserFilter(filter, el) {
   userFilterActive = filter;
   document.querySelectorAll('#user-filter-chips .filter-chip').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-  else document.querySelector('#user-filter-chips .filter-chip[data-filter="all"]')?.classList.add('active');
-  renderUsersList();
-}
-
-// ============================================================
-// SONGS SORT CYCLING
-// ============================================================
-const SONG_SORT_MODES = ['az','za','artist'];
-const SONG_SORT_LABELS = {'az':'A–Z','za':'Z–A','artist':'By Artist'};
-let songSortModeIndex = 0;
-
-function cycleSongsSort() {
-  songSortModeIndex = (songSortModeIndex + 1) % SONG_SORT_MODES.length;
-  const mode = SONG_SORT_MODES[songSortModeIndex];
-  currentSongSort = mode;
-  document.getElementById('songs-sort-label').textContent = SONG_SORT_LABELS[mode];
-  renderSongsList();
-  // Update chip active state
-  document.querySelectorAll('#songs-sort-suggestions .filter-chip').forEach(c => {
-    c.classList.toggle('active', c.textContent.trim().startsWith(mode === 'az' ? 'A' : mode === 'za' ? 'Z' : 'By Artist'));
-  });
-}
-function setSongsSort(mode, el) {
-  currentSongSort = mode;
-  document.getElementById('songs-sort-label').textContent = SONG_SORT_LABELS[mode];
-  songSortModeIndex = SONG_SORT_MODES.indexOf(mode);
-  document.querySelectorAll('#songs-sort-suggestions .filter-chip').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderSongsList();
-}
-
-// ============================================================
-// SETLISTS SORT CYCLING
-// ============================================================
-const SETLISTS_SORT_MODES = ['newest','oldest','az','za','mine'];
-const SETLISTS_SORT_LABELS = {'newest':'Newest','oldest':'Oldest','az':'A–Z','za':'Z–A','mine':'Mine Only'};
-let setlistsSortModeIndex = 0;
-
-function cycleSetlistsSort() {
-  setlistsSortModeIndex = (setlistsSortModeIndex + 1) % SETLISTS_SORT_MODES.length;
-  const mode = SETLISTS_SORT_MODES[setlistsSortModeIndex];
-  currentSetlistsSort = mode;
-  document.getElementById('setlists-sort-label').textContent = SETLISTS_SORT_LABELS[mode];
-  renderSetlistsList();
-  document.querySelectorAll('#setlists-sort-suggestions .filter-chip').forEach(c => c.classList.remove('active'));
-  const target = document.querySelector(`#setlists-sort-suggestions .filter-chip[onclick*="'${mode}'"]`);
-  if (target) target.classList.add('active');
-}
-function setSetlistsSort(mode, el) {
-  currentSetlistsSort = mode;
-  document.getElementById('setlists-sort-label').textContent = SETLISTS_SORT_LABELS[mode];
-  setlistsSortModeIndex = SETLISTS_SORT_MODES.indexOf(mode);
-  document.querySelectorAll('#setlists-sort-suggestions .filter-chip').forEach(c => c.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderSetlistsList();
-}
-
-// ============================================================
-// USERS SORT CYCLING (role-based)
-// ============================================================
-const USER_FILTER_MODES = ['all','Admin','Sub-Admin','Lead','Musician','Singer','Tech'];
-const USER_FILTER_LABELS = {'all':'All Roles','Admin':'Admin','Sub-Admin':'Sub-Admin','Lead':'Lead','Musician':'Musician','Singer':'Singer','Tech':'Tech'};
-let userFilterModeIndex = 0;
-
-function cycleUsersSort() {
-  userFilterModeIndex = (userFilterModeIndex + 1) % USER_FILTER_MODES.length;
-  const filter = USER_FILTER_MODES[userFilterModeIndex];
-  userFilterActive = filter;
-  document.getElementById('users-sort-label').textContent = USER_FILTER_LABELS[filter];
-  document.querySelectorAll('#user-filter-chips .filter-chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.filter === filter);
-  });
+  el.classList.add('active');
   renderUsersList();
 }
 
