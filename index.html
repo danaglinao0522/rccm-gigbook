@@ -62,8 +62,9 @@
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .view { display: none; }
     .view.active { display: flex; flex-direction: column; }
-    .tab-panel { display: none; }
+    .tab-panel { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.2s ease, transform 0.2s ease; }
     .tab-panel.active { display: block; }
+    .tab-panel.active.tab-visible { opacity: 1; transform: translateY(0); }
     #app-root { display: none; }
     .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 6px 0; cursor: pointer; transition: color 0.2s; color: #6b7280; }
     .bottom-nav-btn.active { color: var(--chords-color); }
@@ -214,6 +215,7 @@
     Install App
   </button>
   <div id="auth-error" style="color:#ef4444;font-size:13px;margin-top:16px;text-align:center;display:none;"></div>
+  <div id="prev-account-chip" style="display:none;margin-top:20px;"></div>
 </div>
 
 <!-- ONBOARDING MODAL -->
@@ -623,12 +625,12 @@
 <button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
 
 <!-- ADD SONG FAB (inside setlist detail) -->
-<button id="add-song-fab" style="display:none;position:fixed;bottom:80px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--chords-color);color:#000;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;z-index:500;border:none;transition:transform 0.15s;" onclick="openSongSelectorModal()" title="Add Song">
+<button id="add-song-fab" style="display:none;position:fixed;bottom:80px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--chords-color);color:#000;flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;z-index:500;border:none;transition:transform 0.15s;" onclick="openSongSelectorModal()" title="Add Song">
   <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
 </button>
 
 <!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:16px;z-index:500;display:flex;align-items:center;flex-direction:column;gap:0;">
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;">
   <!-- Vertical slider popup -->
   <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
     <span style="color:#6b7280;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
@@ -653,26 +655,44 @@
 </div>
 
 <!-- PROFILE VIEW OVERLAY -->
-<div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;">
-  <div style="padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #2a2a2a;">
-    <button onclick="closeProfileView()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;display:flex;align-items:center;">
+<div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;transition:opacity 0.25s ease,transform 0.25s ease;opacity:0;transform:translateX(100%);">
+  <!-- Header bar -->
+  <div style="padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #2a2a2a;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;">
+    <button onclick="closeProfileView()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;display:flex;align-items:center;padding:4px;">
       <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
     </button>
     <span style="color:#fff;font-size:16px;font-weight:600;">My Profile</span>
   </div>
-  <div style="padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;">
-    <img id="profile-view-pic" src="" alt="Profile" style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#333;" />
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span id="profile-view-role-badge"></span>
-      <span id="profile-view-name" style="color:#fff;font-size:18px;font-weight:700;"></span>
-      <button onclick="openNameEditModal()" style="background:transparent;border:none;color:#FBBF24;cursor:pointer;padding:4px;">
-        <iconify-icon icon="mdi:pencil" style="font-size:18px;"></iconify-icon>
+
+  <!-- Hero section -->
+  <div style="padding:32px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:0;background:linear-gradient(180deg,#1a1a1a 0%,var(--canvas-bg) 100%);">
+    <div style="position:relative;margin-bottom:16px;">
+      <img id="profile-view-pic" src="" alt="Profile"
+        style="width:96px;height:96px;border-radius:50%;object-fit:cover;background:#333;border:3px solid var(--chords-color);box-shadow:0 0 0 6px rgba(251,191,36,0.1);" />
+    </div>
+    <!-- Name row with edit pencil -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span id="profile-view-name" style="color:#fff;font-size:20px;font-weight:700;letter-spacing:0.01em;"></span>
+      <button onclick="openNameEditModal()" title="Edit name"
+        style="background:#2a2a2a;border:1px solid #444;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
+        <iconify-icon icon="mdi:pencil" style="font-size:16px;"></iconify-icon>
       </button>
     </div>
-    <div id="profile-view-instruments" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;"></div>
-    <div style="width:100%;background:#1e1e1e;border-radius:10px;padding:12px;margin-top:8px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="color:#e5e7eb;font-size:14px;">Tutorial on Song Open</span>
+    <!-- Role | Instruments row -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+      <span id="profile-view-role-badge"></span>
+      <span id="profile-view-instruments-inline" style="color:#9ca3af;font-size:13px;"></span>
+    </div>
+  </div>
+
+  <!-- Settings card -->
+  <div style="padding:0 16px 12px;">
+    <div style="background:#1e1e1e;border-radius:12px;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #2a2a2a;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:#6b7280;"></iconify-icon>
+          <span style="color:#e5e7eb;font-size:14px;">Tutorial on Song Open</span>
+        </div>
         <label class="toggle-switch">
           <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
           <span class="toggle-slider"></span>
@@ -680,8 +700,17 @@
       </div>
     </div>
   </div>
-  <div style="padding:16px;">
-    <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+
+  <!-- My Setlists -->
+  <div style="padding:0 16px 12px;">
+    <div class="section-label" style="margin-bottom:8px;">My Setlists</div>
+    <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:#6b7280;font-size:13px;">No setlists created yet.</div>
+  </div>
+
+  <!-- Sign out -->
+  <div style="padding:12px 16px 32px;">
+    <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
       <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
       Sign Out
     </button>
@@ -1032,6 +1061,9 @@ window.addEventListener('popstate', () => {
   handleBackButton();
 });
 function handleBackButton() {
+  // Modals first (highest priority)
+  if (document.getElementById('manage-members-modal').style.display !== 'none') { closeManageMembersModal(); return; }
+  if (document.getElementById('logo-change-modal').style.display !== 'none') { closeLogoChangeModal(); return; }
   if (document.getElementById('create-song-modal').style.display !== 'none') { closeCreateSongModal(); return; }
   if (document.getElementById('create-setlist-modal').style.display !== 'none') { closeCreateSetlistModal(); return; }
   if (document.getElementById('key-modal').style.display !== 'none') { closeKeyModal(); return; }
@@ -1041,10 +1073,16 @@ function handleBackButton() {
   if (document.getElementById('tutorial-modal').style.display !== 'none') { closeTutorialModal(); return; }
   if (document.getElementById('alert-modal').style.display !== 'none') { closeAlertModal(); return; }
   if (document.getElementById('setlist-limit-modal').style.display !== 'none') { closeSetlistLimitModal(); return; }
+  // Profile overlay
   if (document.getElementById('profile-view').style.display !== 'none') { closeProfileView(); return; }
+  // Song sheet (inside song tab or from setlist)
   const sheetView = document.getElementById('song-sheet-view');
-  if (sheetView && sheetView.style.display !== 'none') { goHome(); return; }
-  if (activeTab !== 'songs') { switchTab('songs'); return; }
+  if (sheetView && sheetView.style.display !== 'none') { closeSongSheet(); return; }
+  // Setlist detail
+  if (currentSetlistId !== null) { closeSetlistDetail(); return; }
+  // User detail
+  if (currentDetailUserId !== null) { closeUserDetail(); return; }
+  // No detail open — stay on current tab (don't auto-switch to songs)
 }
 
 // ============================================================
@@ -1068,6 +1106,54 @@ function showAuthView() {
   const authView = document.getElementById('auth-view');
   authView.style.display = 'flex';
   authView.classList.add('fade-in');
+  // Show previously used account chip
+  try {
+    const prev = JSON.parse(localStorage.getItem('rccm_prev_account') || 'null');
+    const chip = document.getElementById('prev-account-chip');
+    if (prev && prev.email && chip) {
+      const picHtml = prev.photoURL
+        ? `<img src="${escHtml(prev.photoURL)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.style.background='#374151'" />`
+        : `<div style="width:32px;height:32px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><iconify-icon icon="mdi:account" style="font-size:18px;color:#9ca3af;"></iconify-icon></div>`;
+      chip.innerHTML = `
+        <p style="color:#6b7280;font-size:11px;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.08em;">Previously used</p>
+        <button onclick="quickSignIn()" style="display:flex;align-items:center;gap:10px;background:#1e1e1e;border:1px solid #333;border-radius:12px;padding:10px 14px;cursor:pointer;width:100%;max-width:320px;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='#1e1e1e'">
+          ${picHtml}
+          <div style="flex:1;min-width:0;">
+            <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(prev.displayName||'Unknown')}</p>
+            <p style="color:#6b7280;font-size:11px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(prev.email)}</p>
+          </div>
+          <iconify-icon icon="mdi:chevron-right" style="font-size:18px;color:#6b7280;flex-shrink:0;"></iconify-icon>
+        </button>`;
+      chip.style.display = 'flex';
+      chip.style.flexDirection = 'column';
+      chip.style.alignItems = 'center';
+      chip.style.width = '100%';
+      chip.style.maxWidth = '320px';
+    } else if (chip) {
+      chip.style.display = 'none';
+    }
+  } catch(e) { console.error(e); }
+}
+async function quickSignIn() {
+  const btn = document.getElementById('google-signin-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;margin:0 auto;"></div>';
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    const result = await auth.signInWithPopup(provider);
+    if (result.user) {
+      localStorage.setItem('rccm_prev_account', JSON.stringify({
+        displayName: result.user.displayName || '',
+        email: result.user.email || '',
+        photoURL: result.user.photoURL || ''
+      }));
+    }
+    document.getElementById('auth-error').style.display = 'none';
+  } catch (err) {
+    console.error(err);
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Sign In with Google`;
+  }
 }
 
 async function initApp(user) {
@@ -1114,7 +1200,15 @@ document.getElementById('google-signin-btn').addEventListener('click', async () 
   btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;margin:0 auto;"></div>';
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
-    await auth.signInWithPopup(provider);
+    const result = await auth.signInWithPopup(provider);
+    // Save account info for quick re-sign-in chip
+    if (result.user) {
+      localStorage.setItem('rccm_prev_account', JSON.stringify({
+        displayName: result.user.displayName || '',
+        email: result.user.email || '',
+        photoURL: result.user.photoURL || ''
+      }));
+    }
     document.getElementById('auth-error').style.display = 'none';
   } catch (err) {
     console.error('Sign-in error:', err);
@@ -1126,18 +1220,34 @@ document.getElementById('google-signin-btn').addEventListener('click', async () 
   }
 });
 
+let _signingOut = false;
 function signOut() {
+  if (_signingOut) return;
+  _signingOut = true;
   stopAutoScroll();
-  if (songsUnsubscribe) songsUnsubscribe();
-  if (setlistsUnsubscribe) setlistsUnsubscribe();
-  if (usersUnsubscribe) usersUnsubscribe();
-  if (adminSettingsUnsubscribe) adminSettingsUnsubscribe();
+  if (songsUnsubscribe) { songsUnsubscribe(); songsUnsubscribe = null; }
+  if (setlistsUnsubscribe) { setlistsUnsubscribe(); setlistsUnsubscribe = null; }
+  if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
+  if (adminSettingsUnsubscribe) { adminSettingsUnsubscribe(); adminSettingsUnsubscribe = null; }
   allSongs = []; allSetlists = []; allUsers = [];
-  currentUser = null; currentUserProfile = null; currentSongId = null;
+  currentUser = null; currentUserProfile = null; currentSongId = null; currentSetlistId = null;
   document.getElementById('app-root').style.display = 'none';
   document.getElementById('profile-view').style.display = 'none';
   document.getElementById('fab-btn').style.display = 'none';
-  auth.signOut().catch(console.error);
+  document.getElementById('add-song-fab').style.display = 'none';
+  document.getElementById('autoscroll-fab').style.display = 'none';
+  auth.signOut().then(() => {
+    _signingOut = false;
+    // Save last used account for quick re-sign-in
+    try {
+      const prev = JSON.parse(localStorage.getItem('rccm_prev_account') || 'null');
+      // Already saved on sign-in; just show it
+    } catch(e) {}
+    showAuthView();
+  }).catch(err => {
+    _signingOut = false;
+    console.error('Sign out error:', err);
+  });
 }
 
 // ============================================================
@@ -1200,6 +1310,11 @@ function mountApp() {
   setupListeners();
   checkDesktop();
   pushState();
+  // Start initial tab visible
+  requestAnimationFrame(() => {
+    const initPanel = document.getElementById('tab-songs');
+    if (initPanel) initPanel.classList.add('tab-visible');
+  });
   runTTLCleanup();
   seedSongsIfEmpty();
   loadAdminSettings();
@@ -1258,11 +1373,14 @@ function switchTab(tab) {
   closeSongSheet();
   closeSetlistDetail();
   activeTab = tab;
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  const panel = document.getElementById(`tab-${tab}`);
-  if (panel) panel.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
+  const panel = document.getElementById('tab-' + tab);
+  if (panel) {
+    panel.classList.add('active');
+    requestAnimationFrame(() => requestAnimationFrame(() => panel.classList.add('tab-visible')));
+  }
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  const navBtn = document.getElementById(`nav-${tab}`);
+  const navBtn = document.getElementById('nav-' + tab);
   if (navBtn) navBtn.classList.add('active');
   updateFAB();
   updateHomeBtn(false);
@@ -1272,14 +1390,16 @@ function updateFAB() {
   const role = currentUserProfile?.role || '';
   const fabEl = document.getElementById('fab-btn');
   const addSongFab = document.getElementById('add-song-fab');
-  const canCreate = ['Admin','Sub-Admin','Lead'].includes(role);
+  const canCreateSong = ['Admin','Sub-Admin','Lead'].includes(role);
+  // ALL users can create a setlist
+  const canCreateSetlist = !!currentUser;
   const songSheetOpen = document.getElementById('song-sheet-view')?.style.display === 'block';
   const setlistDetailOpen = currentSetlistId !== null;
 
-  // Main + FAB: only on list views, not in detail/sheet
-  const onListView = (activeTab === 'songs' && !songSheetOpen) ||
-                     (activeTab === 'setlists' && !setlistDetailOpen && !songSheetOpen);
-  fabEl.style.display = (canCreate && onListView) ? 'flex' : 'none';
+  const onSongList = activeTab === 'songs' && !songSheetOpen;
+  const onSetlistList = activeTab === 'setlists' && !setlistDetailOpen && !songSheetOpen;
+  const showFab = (onSongList && canCreateSong) || (onSetlistList && canCreateSetlist);
+  fabEl.style.display = showFab ? 'flex' : 'none';
 
   // Add-Song FAB: only inside a setlist detail, when canEdit, under song limit, no song sheet
   if (addSongFab) {
@@ -1309,19 +1429,11 @@ function updateHomeBtn(show) {
 }
 
 function goHome() {
-  if (currentSongId) {
-    closeSongSheet();
-    return;
-  }
-  if (currentSetlistId) {
-    closeSetlistDetail();
-    return;
-  }
-  if (currentDetailUserId) {
-    closeUserDetail();
-    return;
-  }
-  switchTab(activeTab || 'songs');
+  // goHome is called by the back arrow button in the top nav
+  if (currentSongId) { closeSongSheet(); return; }
+  if (currentSetlistId) { closeSetlistDetail(); return; }
+  if (currentDetailUserId) { closeUserDetail(); return; }
+  // Fallback: stay on current tab
 }
 
 // ============================================================
@@ -2369,10 +2481,13 @@ function openCreateSetlistModal() {
   document.getElementById('new-setlist-custom').checked = false;
   document.getElementById('custom-group-users-section').style.display = 'none';
   selectedCustomMembers = [];
+  const scm = document.getElementById('selected-custom-members');
+  if (scm) scm.innerHTML = '';
   // Only Admin, Sub-Admin, Lead can create custom group setlists
   const role = currentUserProfile?.role || '';
   const canCustom = ['Admin','Sub-Admin','Lead'].includes(role);
-  document.getElementById('custom-group-section').style.display = canCustom ? 'block' : 'none';
+  const cgSection = document.getElementById('custom-group-section');
+  if (cgSection) cgSection.style.display = canCustom ? 'block' : 'none';
   document.getElementById('create-setlist-modal').style.display = 'flex';
   pushState();
 }
@@ -2512,7 +2627,7 @@ function renderWhitelistAvatars(uids) {
     const u = allUsers.find(x => x.uid === uid);
     if (!u) return `<div style="width:22px;height:22px;border-radius:50%;background:#374151;border:2px solid #2a2a2a;flex-shrink:0;"></div>`;
     return `<img src="${escHtml(u.photoURL||'')}" title="${escHtml(u.displayName||'')}"
-      style="width:22px;height:22px;border-radius:50%;object-fit:cover;background:#374151;border:2px solid #1e1e1e;flex-shrink:0;margin-left:-6px;"
+      style="width:22px;height:22px;min-width:22px;border-radius:50%;object-fit:cover;overflow:hidden;background:#374151;border:2px solid #1e1e1e;flex-shrink:0;margin-left:-6px;display:block;"
       onerror="this.style.background='#374151'" />`;
   }).join('');
   const extra = uids.length > 8 ? `<span style="color:#6b7280;font-size:10px;margin-left:4px;">+${uids.length-8}</span>` : '';
@@ -2648,18 +2763,70 @@ async function saveUserEdit() {
 // ============================================================
 function openProfileView() {
   const p = currentUserProfile;
-  document.getElementById('profile-view-pic').src = p?.photoURL || '';
-  document.getElementById('profile-view-name').textContent = p?.displayName || '';
-  document.getElementById('profile-view-role-badge').innerHTML = `<span class="role-badge ${getRoleBadgeClass(p?.role)}">${escHtml(p?.role||'')}</span>`;
-  const instrEl = document.getElementById('profile-view-instruments');
-  instrEl.innerHTML = (p?.instruments||[]).map(i => `<span class="instrument-tag">${escHtml(i)}</span>`).join('');
-  document.getElementById('tutorial-toggle').checked = p?.showTutorial !== false;
-  tutorialEnabled = p?.showTutorial !== false;
-  document.getElementById('profile-view').style.display = 'flex';
-  document.getElementById('profile-view').style.flexDirection = 'column';
+  if (!p) return;
+  document.getElementById('profile-view-pic').src = p.photoURL || '';
+  document.getElementById('profile-view-name').textContent = p.displayName || '';
+  const roleBadge = document.getElementById('profile-view-role-badge');
+  roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role);
+  roleBadge.textContent = p.role || '';
+  const instInline = document.getElementById('profile-view-instruments-inline');
+  if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
+  document.getElementById('tutorial-toggle').checked = p.showTutorial !== false;
+  tutorialEnabled = p.showTutorial !== false;
+  renderProfileSetlists();
+  const profileView = document.getElementById('profile-view');
+  profileView.style.display = 'flex';
+  profileView.style.flexDirection = 'column';
+  requestAnimationFrame(() => {
+    profileView.style.opacity = '1';
+    profileView.style.transform = 'translateX(0)';
+  });
   pushState();
 }
-function closeProfileView() { document.getElementById('profile-view').style.display = 'none'; }
+
+function renderProfileSetlists() {
+  const mySetlists = allSetlists.filter(s => s.createdBy === currentUser?.uid);
+  const container = document.getElementById('profile-my-setlists');
+  const empty = document.getElementById('profile-setlists-empty');
+  if (!mySetlists.length) {
+    if (container) container.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  if (container) container.innerHTML = mySetlists.map(s => `
+    <div class="setlist-card" style="cursor:pointer;" onclick="closeProfileAndOpenSetlist('${s.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <p style="color:#fff;font-size:13px;font-weight:600;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span class="privacy-badge ${s.isPrivate ? 'badge-private' : 'badge-public'}">${s.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
+            ${s.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom</span>' : ''}
+            <span style="color:#6b7280;font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
+          </div>
+        </div>
+        <button onclick="event.stopPropagation();deleteSetlist('${s.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;">
+          <iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon>
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function closeProfileAndOpenSetlist(id) {
+  closeProfileView();
+  // Wait for animation then open
+  setTimeout(() => {
+    switchTab('setlists');
+    openSetlistDetail(id);
+  }, 240);
+}
+
+function closeProfileView() {
+  const profileView = document.getElementById('profile-view');
+  profileView.style.opacity = '0';
+  profileView.style.transform = 'translateX(100%)';
+  setTimeout(() => { profileView.style.display = 'none'; }, 240);
+}
 
 async function saveTutorialPref(val) {
   tutorialEnabled = val;
