@@ -1,15 +1,15 @@
 {
   "name": "RCCM Gigbook",
   "short_name": "Gigbook",
-  "description": "Your live worship performance companion — Guitar Chords, Lyrics, and Setlist management with real-time sync.",
+  "description": "Guitar Chords, Lyrics, and Setlist App for live worship performances",
   "start_url": "/rccm-gigbook/",
   "scope": "/rccm-gigbook/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#121212",
   "theme_color": "#121212",
-  "categories": ["music", "productivity", "entertainment"],
-  "lang": "en",
+  "lang": "en-US",
+  "categories": ["music", "utilities", "productivity"],
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -24,7 +24,15 @@
       "purpose": "any maskable"
     }
   ],
+  "shortcuts": [
+    {
+      "name": "Songs",
+      "short_name": "Songs",
+      "description": "Open the song library",
+      "url": "/rccm-gigbook/",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "screenshots": [],
-  "related_applications": [],
   "prefer_related_applications": false
 }

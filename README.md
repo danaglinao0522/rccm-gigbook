@@ -1,45 +1,56 @@
 # RCCM Gigbook — Production Deployment Guide
 
-A production-ready Progressive Web App for live worship performance management — Guitar Chords, Lyrics, and Setlist management with real-time Firebase Firestore sync.
+A production-ready, enterprise-grade Progressive Web App (PWA) for managing Guitar Chords, Lyrics, and Setlists. Built with HTML5, Tailwind CSS, FlyonUI, and Firebase Firestore as the real-time backend.
 
 ---
 
-## 📦 Repository Structure
+## 🚀 Live Deployment URL
+
+```
+https://danaglinao0522.github.io/rccm-gigbook/
+```
+
+---
+
+## 📦 Project File Structure
 
 ```
 rccm-gigbook/
-├── index.html          ← Complete SPA application (all HTML/CSS/JS)
-├── manifest.json       ← PWA manifest configuration
-├── README.md           ← This deployment guide
+├── index.html          # Complete single-file PWA application
+├── manifest.json       # PWA web manifest
+├── README.md           # This file
 └── icons/
-    ├── logo.png        ← App brand logo (splash + nav bar)
-    ├── icon-192.png    ← PWA home screen icon (192×192)
-    └── icon-512.png    ← PWA splash icon (512×512)
+    ├── logo.png         # App brand logo (used in splash, nav header, auth view)
+    ├── icon-192.png     # PWA icon — 192x192px (Apple Touch Icon)
+    ├── icon-512.png     # PWA icon — 512x512px (Maskable)
+    └── icon-192.png     # Shortcut icon reference
 ```
 
 ---
 
-## 🔧 Firebase Setup Protocol
+## 🔥 Firebase Project Setup
 
 ### Step 1 — Create Firebase Project
-1. Navigate to [https://console.firebase.google.com/](https://console.firebase.google.com/)
+
+1. Go to [https://console.firebase.google.com](https://console.firebase.google.com)
 2. Click **"Add Project"** → Name it `rccm-gigbook`
-3. Disable Google Analytics (optional) → Click **Create Project**
+3. Disable Google Analytics (optional)
+4. Click **"Create Project"**
 
 ### Step 2 — Enable Authentication
-1. In Firebase Console → **Authentication** → **Sign-in method**
-2. Enable **Google** as a Sign-in Provider
-3. Set your project's **Authorized Domain** to:
-   ```
-   danaglinao0522.github.io
-   ```
 
-### Step 3 — Enable Firestore Database
-1. In Firebase Console → **Firestore Database** → **Create Database**
-2. Choose **Production Mode**
-3. Select your nearest region (e.g., `asia-southeast1` for Philippines)
+1. In Firebase Console → **Authentication** → **Sign-in method**
+2. Enable **Google** as a sign-in provider
+3. Set your **Authorized Domain** to: `danaglinao0522.github.io`
+
+### Step 3 — Create Firestore Database
+
+1. In Firebase Console → **Firestore Database** → **Create database**
+2. Choose **Production mode**
+3. Select your preferred server region (e.g., `us-central`)
 
 ### Step 4 — Firestore Security Rules
+
 Paste the following rules in **Firestore → Rules**:
 
 ```
@@ -53,7 +64,8 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId;
       allow update: if request.auth != null && (
         request.auth.uid == userId ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin'
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Sub-Admin'
       );
       allow delete: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
@@ -62,12 +74,16 @@ service cloud.firestore {
     // Songs collection
     match /songs/{songId} {
       allow read: if request.auth != null;
-      allow create, update: if request.auth != null && (
+      allow create: if request.auth != null && (
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin', 'Lead'] ||
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canAddSongs == true
       );
+      allow update: if request.auth != null && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin', 'Lead']
+      );
       allow delete: if request.auth != null && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Sub-Admin'] ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Sub-Admin' ||
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.canDeleteSongs == true
       );
     }
@@ -86,8 +102,8 @@ service cloud.firestore {
       );
     }
 
-    // Global config (Admin only write)
-    match /config/{docId} {
+    // Global settings (Admin only write)
+    match /settings/{docId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
@@ -96,14 +112,15 @@ service cloud.firestore {
 }
 ```
 
-### Step 5 — Get Firebase Config Keys
-1. In Firebase Console → **Project Settings** (gear icon) → **General**
-2. Scroll down to **"Your apps"** → Click **"</>"** (Web)
-3. Register app name: `rccm-gigbook`
-4. Copy the `firebaseConfig` object
+### Step 5 — Register Web App & Get Config
 
-### Step 6 — Inject Config into index.html
-Replace the placeholder config block in `index.html` (line ~340):
+1. In Firebase Console → **Project Settings** → **Your Apps** → Click **`</>`** (Web)
+2. Register app name as `RCCM Gigbook`
+3. Copy the `firebaseConfig` object
+
+### Step 6 — Insert Config into index.html
+
+Replace the placeholder config block near the top of the `<script>` section in `index.html`:
 
 ```javascript
 const firebaseConfig = {
@@ -118,124 +135,129 @@ const firebaseConfig = {
 
 ---
 
-## 🚀 GitHub Pages Deployment
+## 📱 Required Icon Assets
+
+Create and place these image files in the `icons/` folder:
+
+| File | Size | Purpose |
+|------|------|---------|
+| `logo.png` | 512×512px | App brand logo (splash, header, auth) |
+| `icon-192.png` | 192×192px | PWA home screen icon / Apple Touch Icon |
+| `icon-512.png` | 512×512px | PWA splash screen icon |
+
+> **Design Note:** Logo should have a transparent or solid background. The app applies `border-radius` styling automatically via CSS.
+
+---
+
+## 🌐 GitHub Pages Deployment
 
 ### Step 1 — Initialize Repository
+
 ```bash
 git init
 git remote add origin https://github.com/danaglinao0522/rccm-gigbook.git
 ```
 
-### Step 2 — Add Required Assets
-Ensure the following files exist before pushing:
-```
-icons/logo.png       (Your brand logo — recommended: 512×512px, transparent PNG)
-icons/icon-192.png   (PWA icon — exactly 192×192px)
-icons/icon-512.png   (PWA icon — exactly 512×512px)
-```
+### Step 2 — Commit All Files
 
-### Step 3 — Commit and Push
 ```bash
 git add .
-git commit -m "feat: initial RCCM Gigbook production build"
+git commit -m "Initial production deploy — RCCM Gigbook PWA"
 git push -u origin main
 ```
 
-### Step 4 — Enable GitHub Pages
-1. Go to your repository on GitHub
+### Step 3 — Enable GitHub Pages
+
+1. Go to your GitHub repository
 2. **Settings** → **Pages**
-3. Source: **Deploy from a branch** → Branch: `main` → Folder: `/ (root)`
+3. Under **Source**, select `main` branch and `/ (root)` folder
 4. Click **Save**
 5. Your app will be live at: `https://danaglinao0522.github.io/rccm-gigbook/`
 
----
+### Step 4 — Add GitHub Pages Domain to Firebase Auth
 
-## 👤 Admin Account Setup
-
-The primary Admin account is hardcoded to:
-```
-buenavistaaglinaodanny@gmail.com
-```
-
-**First-time Admin login flow:**
-1. Sign in with the Admin Google account
-2. The system auto-assigns the `Admin` role — no onboarding modal is shown
-3. Navigate to the **Admin Panel** tab (4th tab in bottom nav)
-4. Configure themes, typography, and global settings
+1. Firebase Console → **Authentication** → **Settings** → **Authorized Domains**
+2. Click **Add domain** → Enter: `danaglinao0522.github.io`
 
 ---
 
-## 🎭 Role Hierarchy Summary
+## 👤 Role Hierarchy Reference
 
-| Role | Setlist Limit | Song Access | User Management | Admin Panel |
-|------|--------------|-------------|-----------------|-------------|
-| Admin | Unlimited | Full CRUD | Full (except self-demotion) | ✅ Full |
-| Sub-Admin | 5 max | Add + Delete | View only (no role changes) | ❌ |
-| Lead | 5 max | Add | View only | ❌ |
-| Musician | 2 max | Read only* | ❌ | ❌ |
-| Singer | 2 max | Read (Lyrics Only) | ❌ | ❌ |
-| Tech | — | Read (Lyrics Only, all sets) | ❌ | ❌ |
-
-*Unless `canAddSongs` permission is granted by Admin
+| Role | Setlist Limit | Song Limit | Users Tab | Admin Panel | Notes |
+|------|---------------|------------|-----------|-------------|-------|
+| **Admin** | Unlimited | Unlimited | ✅ | ✅ | Hardcoded: `buenavistaaglinaodanny@gmail.com` |
+| **Sub-Admin** | 5 | Unlimited | ✅ | ❌ | Cannot delete users or change Admin config |
+| **Lead** | 5 | — | ✅ (view) | ❌ | Can manage setlists & tracks |
+| **Musician** | 2 | — | ❌ | ❌ | Full chord+lyric view, transposition |
+| **Singer** | 2 | — | ❌ | ❌ | Lyrics-only view permanently |
+| **Tech** | 2 | — | ❌ | ❌ | Lyrics-only, sees all setlists |
 
 ---
 
-## 📱 PWA Installation Instructions
+## ⚙️ Admin Configuration
 
-### iOS (Safari)
-1. Open `https://danaglinao0522.github.io/rccm-gigbook/` in Safari
-2. Tap the **Share** button (box with arrow)
-3. Scroll down and tap **"Add to Home Screen"**
-4. Tap **"Add"**
+Once logged in as Admin (`buenavistaaglinaodanny@gmail.com`):
 
-### Android (Chrome)
-1. Open the URL in Chrome
-2. Tap the **3-dot menu** → **"Add to Home Screen"**
-3. Or tap the **"Install App"** button shown on the sign-in screen
+- Navigate to the **Admin Panel** tab (4th tab in bottom nav)
+- Configure:
+  - **App Name** & **App Icon** path
+  - **Global Song Limit** per setlist (overrides the default 4)
+  - **Theme Presets** (5 high-contrast presets + custom hex builder)
+  - **Typography** (font family, navbar size, button size, metadata size)
 
----
-
-## 🔥 Firestore Collections Reference
-
-| Collection | Purpose |
-|-----------|---------|
-| `users` | User profiles, roles, permissions, preferences |
-| `songs` | Song library with chord/lyric sheets |
-| `setlists` | Setlists with song arrays, ACL whitelists, TTL timestamps |
-| `config/global` | Global theme, typography, and app settings |
+All Admin Panel changes sync in real-time to all connected client sessions via Firestore.
 
 ---
 
 ## 🔒 Security Notes
 
-- Never expose Firebase Admin SDK keys in client-side code
-- Firestore Security Rules enforce all role-based access server-side
-- The Admin email is hardcoded client-side for UI routing only — server rules enforce actual permissions
-- All transposition operations are local-only and never write to Firestore
+- The Admin email is hardcoded in JavaScript and enforced via Firestore rules
+- No other user can be assigned the Admin role through the UI
+- Custom-Group Setlists enforce ACL filtering client-side AND via Firestore reads
+- All key transposition operations are purely local (client-only) — never written to Firestore
+- TTL cleanup runs automatically on every app boot for setlists older than 1 month
 
 ---
 
-## 🛠 Local Development
+## 📋 manifest.json Reference
 
-No build tools required. Open `index.html` directly in a browser.
+See `manifest.json` in the project root for the complete PWA manifest configuration.
 
-For Firebase emulation (optional):
+---
+
+## 🛠️ Local Development
+
+No build tools required. This is a single-file HTML app.
+
 ```bash
-npm install -g firebase-tools
-firebase login
-firebase emulators:start --only firestore,auth
+# Serve locally using any static file server:
+npx serve .
+# or
+python -m http.server 8080
 ```
 
-Then update the app to point to local emulators by adding before `firebase.initializeApp()`:
-```javascript
-firebase.firestore().useEmulator('localhost', 8080);
-firebase.auth().useEmulator('http://localhost:9099');
-```
+Open `http://localhost:8080` in your browser.
+
+> **Note:** Firebase Authentication requires HTTPS or `localhost`. Local development on `localhost` works without HTTPS.
 
 ---
 
-## 📋 Changelog
+## 📦 Dependencies (All CDN — No npm Required)
 
-| Version | Date | Notes |
-|---------|------|-------|
-| 1.0.0 | 2025 | Initial production release |
+| Library | Version | Purpose |
+|---------|---------|---------|
+| Tailwind CSS Browser | @4 | Utility-first styling |
+| FlyonUI | 1.1.0 | UI component system |
+| Iconify | 2.1.0 | Icon engine |
+| Firebase App | 10.8.0 | Firebase core |
+| Firebase Auth | 10.8.0 | Google authentication |
+| Firebase Firestore | 10.8.0 | Real-time database |
+
+---
+
+## 📞 Support
+
+For issues related to Firebase configuration, GitHub Pages deployment, or feature modifications, refer to:
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+- [Tailwind CSS Docs](https://tailwindcss.com/docs)
