@@ -28,14 +28,15 @@
     }
     html, body {
       overscroll-behavior-y: contain;
-      overflow-x: hidden;
+      overflow: hidden;
+      height: 100%;
       max-width: 100%;
       font-family: var(--app-font-family);
       background: var(--canvas-bg);
       color: var(--lyrics-color);
     }
     * { box-sizing: border-box; }
-    #app-root { background: var(--canvas-bg); min-height: 100vh; }
+    #app-root { background: var(--canvas-bg); height: 100vh; overflow: hidden; }
     .song-sheet-content { font-size: var(--sheet-font-size); }
     .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: monospace; }
     .lyric-line { color: var(--lyrics-color); white-space: pre-wrap; }
@@ -231,7 +232,7 @@
 </div>
 
 <!-- MAIN APP ROOT -->
-<div id="app-root" style="display:none;flex-direction:column;min-height:100vh;background:var(--canvas-bg);">
+<div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
   <div id="top-nav" style="position:sticky;top:0;z-index:400;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #2a2a2a;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;max-width:100%;">
@@ -250,7 +251,7 @@
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:70px;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:70px;-webkit-overflow-scrolling:touch;">
 
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:10px;">
@@ -1511,11 +1512,15 @@ function getPinchDist(e) {
   return Math.sqrt(dx*dx + dy*dy);
 }
 
-// GLOBAL PINCH BLOCK (non-song areas)
+// GLOBAL PINCH BLOCK (non-song areas) — only block zoom gestures outside the sheet
 document.addEventListener('touchmove', (e) => {
   if (e.touches.length > 1) {
     const sheet = document.getElementById('song-sheet-content');
+    const mainContent = document.getElementById('main-content');
+    // If inside the song sheet content, let the pinch-zoom handler deal with it
     if (sheet && sheet.contains(e.target)) return;
+    // If inside main-content (for scrolling), don't block single-touch scrolling
+    if (mainContent && mainContent.contains(e.target)) return;
     e.preventDefault();
   }
 }, { passive: false });
