@@ -150,6 +150,16 @@
     .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid #444; background: #1e1e1e; color: #9ca3af; cursor: pointer; white-space: nowrap; }
     .filter-chip.active { background: var(--chords-color); color: #000; border-color: var(--chords-color); }
     .sort-select { background: #1e1e1e; border: 1px solid #333; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 13px; outline: none; }
+    /* Admin panel */
+    /* sync toast controlled via JS */
+    .theme-preset-card { transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .theme-preset-card:hover { transform: scale(1.04); }
+    /* Bottom nav profile pic active border */
+    .bottom-nav-btn.profile-active img { border-color: var(--chords-color) !important; }
+    /* Horizontal scrollbar hide for carousel */
+    #theme-carousel::-webkit-scrollbar { display: none; }
+    /* Admin branding logo hover */
+    #admin-logo-preview:hover { opacity: 0.85; }
   </style>
 </head>
 <body class="no-select">
@@ -237,17 +247,17 @@
   <!-- TOP NAV -->
   <div id="top-nav" style="position:sticky;top:0;z-index:400;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #2a2a2a;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;max-width:100%;">
     <div style="display:flex;align-items:center;gap:8px;">
-      <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px 6px 4px 0;display:none;align-items:center;">
+      <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px 6px 4px 0;align-items:center;">
         <iconify-icon icon="mdi:arrow-left" style="font-size:20px;"></iconify-icon>
       </button>
+      <span id="top-nav-title" style="color:#fff;font-size:15px;font-weight:600;display:none;"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
       <img src="icons/logo.png" alt="Logo" onclick="goHome()" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
       <div onclick="goHome()" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;">
         <iconify-icon icon="mdi:music-note" style="font-size:18px;color:#fff;"></iconify-icon>
       </div>
     </div>
-    <button id="profile-btn" onclick="openProfileView()" style="background:transparent;border:none;cursor:pointer;padding:2px;">
-      <img id="top-profile-pic" src="" alt="Profile" class="profile-pic" style="width:34px;height:34px;" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23374151\'/><text x=\'50\' y=\'65\' font-size=\'40\' text-anchor=\'middle\' fill=\'%23fff\'>?</text></svg>'" />
-    </button>
   </div>
 
   <!-- MAIN CONTENT AREA -->
@@ -405,79 +415,171 @@
 
     <!-- ADMIN PANEL TAB -->
     <div id="tab-admin" class="tab-panel" style="padding:10px;">
-      <div style="display:flex;flex-direction:column;gap:14px;">
+      <!-- Sync broadcast toast -->
+      <div id="sync-toast" style="display:none;position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1a2a1a;border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+        <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
+        <span style="color:#34d399;font-size:13px;font-weight:600;">Applying to all users…</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- APP BRANDING -->
         <div>
-          <div class="section-label">App Settings</div>
-          <div style="background:#1e1e1e;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px;">
-            <div>
-              <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">App Name</label>
-              <input type="text" class="input-field" id="admin-app-name" placeholder="RCCM Gigbook" />
+          <div class="section-label">App Branding</div>
+          <div style="background:#1e1e1e;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;">
+            <!-- Logo + Name row -->
+            <div style="display:flex;align-items:center;gap:14px;">
+              <button onclick="openLogoChangeModal()" title="Change app logo"
+                style="flex-shrink:0;background:#2a2a2a;border:2px dashed #555;border-radius:12px;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;position:relative;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--chords-color)'" onmouseout="this.style.borderColor='#555'">
+                <img id="admin-logo-preview" src="icons/logo.png" alt="Logo"
+                  style="width:46px;height:46px;border-radius:8px;object-fit:cover;"
+                  onerror="this.style.display='none';document.getElementById('admin-logo-fallback').style.display='flex'" />
+                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;">
+                  <iconify-icon icon="mdi:music-note" style="font-size:24px;color:#fff;"></iconify-icon>
+                </div>
+                <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--chords-color);background:#1e1e1e;border-radius:50%;padding:1px;"></iconify-icon>
+              </button>
+              <div style="flex:1;min-width:0;">
+                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em;">App Name</label>
+                <input type="text" class="input-field" id="admin-app-name" placeholder="RCCM Gigbook" style="font-size:15px;font-weight:600;" />
+              </div>
             </div>
-            <div>
-              <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">App Icon Path</label>
-              <input type="text" class="input-field" id="admin-app-icon" placeholder="icons/logo.png" />
-            </div>
-            <div>
-              <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Global Song Limit Per Setlist</label>
-              <input type="number" class="input-field" id="admin-song-limit" value="4" min="1" max="100" />
-            </div>
-            <button class="btn-primary" onclick="saveAdminSettings()">Save Settings</button>
+            <button class="btn-primary" onclick="saveAdminSettings()" style="width:100%;">Save Branding</button>
           </div>
         </div>
+
+        <!-- SONG LIMITS PER ROLE -->
+        <div>
+          <div class="section-label">Song Limit Per Setlist · By Role</div>
+          <div style="background:#1e1e1e;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:#252525;border-radius:8px;padding:10px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                  <span class="role-badge badge-admin" style="font-size:10px;">Admin</span>
+                </div>
+                <input type="number" class="input-field" id="limit-admin" value="999" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
+                <p style="color:#6b7280;font-size:10px;margin:4px 0 0;">Default: unlimited</p>
+              </div>
+              <div style="background:#252525;border-radius:8px;padding:10px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                  <span class="role-badge badge-subadmin" style="font-size:10px;">Sub-Admin</span>
+                </div>
+                <input type="number" class="input-field" id="limit-subadmin" value="30" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
+              </div>
+              <div style="background:#252525;border-radius:8px;padding:10px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                  <span class="role-badge badge-lead" style="font-size:10px;">Lead</span>
+                </div>
+                <input type="number" class="input-field" id="limit-lead" value="20" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
+              </div>
+              <div style="background:#252525;border-radius:8px;padding:10px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                  <span class="role-badge badge-musician" style="font-size:10px;">Musician</span>
+                </div>
+                <input type="number" class="input-field" id="limit-musician" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
+              </div>
+              <div style="background:#252525;border-radius:8px;padding:10px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                  <span class="role-badge badge-singer" style="font-size:10px;">Singer</span>
+                </div>
+                <input type="number" class="input-field" id="limit-singer" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
+              </div>
+              <div style="background:#252525;border-radius:8px;padding:10px;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                  <span class="role-badge badge-tech" style="font-size:10px;">Tech</span>
+                </div>
+                <input type="number" class="input-field" id="limit-tech" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
+              </div>
+            </div>
+            <!-- Keep old id for compat -->
+            <input type="hidden" id="admin-song-limit" value="4" />
+            <button class="btn-primary" onclick="saveRoleLimits()" style="width:100%;">Save Limits</button>
+          </div>
+        </div>
+
+        <!-- THEME PRESETS — Horizontal Carousel -->
         <div>
           <div class="section-label">Theme Presets</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <button class="theme-preset-btn" style="background:#121212;color:#FBBF24;border-color:#333;" onclick="applyTheme('gigbook')">Gigbook Classic</button>
-            <button class="theme-preset-btn" style="background:#1E293B;color:#34D399;border-color:#334155;" onclick="applyTheme('nordic')">Nordic Studio</button>
-            <button class="theme-preset-btn" style="background:#FDFBF7;color:#B91C1C;border-color:#e5e0d5;" onclick="applyTheme('parchment')">Vintage Parchment</button>
-            <button class="theme-preset-btn" style="background:#0F172A;color:#06B6D4;border-color:#1e293b;" onclick="applyTheme('cyber')">Cyber Neon</button>
-            <button class="theme-preset-btn" style="background:#1F2937;color:#38BDF8;border-color:#374151;" onclick="applyTheme('charcoal')">Minimalist Charcoal</button>
-          </div>
-        </div>
-        <div>
-          <div class="section-label">Custom Theme</div>
-          <div style="background:#1e1e1e;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px;">
-            <div class="color-input-wrapper">
-              <input type="color" id="custom-bg" value="#121212" oninput="applyCustomTheme()" />
-              <label style="color:#9ca3af;font-size:13px;">Canvas Background</label>
-            </div>
-            <div class="color-input-wrapper">
-              <input type="color" id="custom-lyrics" value="#FFFFFF" oninput="applyCustomTheme()" />
-              <label style="color:#9ca3af;font-size:13px;">Lyrics Text Color</label>
-            </div>
-            <div class="color-input-wrapper">
-              <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
-              <label style="color:#9ca3af;font-size:13px;">Chords Color</label>
-            </div>
-            <button class="btn-primary" onclick="saveCustomTheme()">Apply & Save Theme</button>
-          </div>
-        </div>
-        <div>
-          <div class="section-label">Typography</div>
-          <div style="background:#1e1e1e;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:12px;">
-            <div>
-              <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Font Family</label>
-              <select class="select-field" onchange="setFontFamily(this.value)">
-                <option value="system">System Sans-Serif</option>
-                <option value="mono">Monospace</option>
-                <option value="serif">Serif</option>
-                <option value="display">Display</option>
-              </select>
-            </div>
-            <div>
-              <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:6px;">Navbar Font Size: <span id="nav-font-label">13px</span></label>
-              <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setNavFont(this.value)" />
-            </div>
-            <div>
-              <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:6px;">Button Font Size: <span id="btn-font-label">13px</span></label>
-              <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setBtnFont(this.value)" />
-            </div>
-            <div>
-              <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:6px;">Metadata Font Size: <span id="meta-font-label">14px</span></label>
-              <input type="range" min="10" max="20" value="14" class="autoscroll-slider" oninput="setMetaFont(this.value)" />
+          <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
+            <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
+              <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
+                style="background:#121212;border:2px solid var(--chords-color);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(251,191,36,0.3);">
+                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#FBBF24;"></div><div style="width:12px;height:12px;border-radius:3px;background:#FFFFFF;"></div></div>
+                <span style="color:#FBBF24;font-size:11px;font-weight:700;white-space:nowrap;">Gigbook Classic</span>
+              </button>
+              <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
+                style="background:#1E293B;border:2px solid #334155;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#34D399;"></div><div style="width:12px;height:12px;border-radius:3px;background:#F8FAFC;"></div></div>
+                <span style="color:#34D399;font-size:11px;font-weight:700;white-space:nowrap;">Nordic Studio</span>
+              </button>
+              <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
+                style="background:#FDFBF7;border:2px solid #e5e0d5;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#B91C1C;"></div><div style="width:12px;height:12px;border-radius:3px;background:#1F2937;"></div></div>
+                <span style="color:#B91C1C;font-size:11px;font-weight:700;white-space:nowrap;">Vintage Parchment</span>
+              </button>
+              <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
+                style="background:#0F172A;border:2px solid #1e293b;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#06B6D4;"></div><div style="width:12px;height:12px;border-radius:3px;background:#EC4899;"></div></div>
+                <span style="color:#06B6D4;font-size:11px;font-weight:700;white-space:nowrap;">Cyber Neon</span>
+              </button>
+              <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
+                style="background:#1F2937;border:2px solid #374151;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#38BDF8;"></div><div style="width:12px;height:12px;border-radius:3px;background:#9CA3AF;"></div></div>
+                <span style="color:#38BDF8;font-size:11px;font-weight:700;white-space:nowrap;">Minimalist Charcoal</span>
+              </button>
             </div>
           </div>
         </div>
+
+        <!-- CUSTOM THEME + TYPOGRAPHY — Side by side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;">
+          <!-- Custom Theme -->
+          <div>
+            <div class="section-label">Custom Theme</div>
+            <div style="background:#1e1e1e;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
+              <div class="color-input-wrapper">
+                <input type="color" id="custom-bg" value="#121212" oninput="applyCustomTheme()" />
+                <label style="color:#9ca3af;font-size:12px;">Background</label>
+              </div>
+              <div class="color-input-wrapper">
+                <input type="color" id="custom-lyrics" value="#FFFFFF" oninput="applyCustomTheme()" />
+                <label style="color:#9ca3af;font-size:12px;">Lyrics</label>
+              </div>
+              <div class="color-input-wrapper">
+                <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
+                <label style="color:#9ca3af;font-size:12px;">Chords</label>
+              </div>
+              <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;">Apply & Save</button>
+            </div>
+          </div>
+          <!-- Typography -->
+          <div>
+            <div class="section-label">Typography</div>
+            <div style="background:#1e1e1e;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Font</label>
+                <select class="select-field" onchange="setFontFamily(this.value)" style="font-size:12px;padding:6px 8px;">
+                  <option value="system">System</option>
+                  <option value="mono">Monospace</option>
+                  <option value="serif">Serif</option>
+                  <option value="display">Display</option>
+                </select>
+              </div>
+              <div>
+                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Nav: <span id="nav-font-label">13px</span></label>
+                <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setNavFont(this.value)" />
+              </div>
+              <div>
+                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Btn: <span id="btn-font-label">13px</span></label>
+                <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setBtnFont(this.value)" />
+              </div>
+              <div>
+                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Meta: <span id="meta-font-label">14px</span></label>
+                <input type="range" min="10" max="20" value="14" class="autoscroll-slider" oninput="setMetaFont(this.value)" />
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1058,7 +1160,7 @@ function mountApp() {
   const appRoot = document.getElementById('app-root');
   appRoot.style.display = 'flex';
   appRoot.classList.add('fade-in');
-  document.getElementById('top-profile-pic').src = currentUserProfile.photoURL || '';
+  document.getElementById('top-profile-pic') && (document.getElementById('top-profile-pic').src = currentUserProfile.photoURL || '');
   buildNav();
   setupListeners();
   checkDesktop();
@@ -1101,7 +1203,15 @@ function buildNav() {
       { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' }
     ];
   }
-  nav.innerHTML = tabs.map(t => `
+  const photoURL = escHtml(currentUserProfile?.photoURL || '');
+  const profileBtn = `<button class="bottom-nav-btn nav-text" onclick="openProfileView()" style="flex:0 0 auto;width:58px;">
+    <img src="${photoURL}" alt="Profile"
+      style="width:26px;height:26px;border-radius:50%;object-fit:cover;background:#333;border:2px solid #444;"
+      onerror="this.style.background='#374151';this.src=''"
+    />
+    <span style="font-size:var(--nav-font-size);">Profile</span>
+  </button>`;
+  nav.innerHTML = profileBtn + tabs.map(t => `
     <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" onclick="switchTab('${t.id}')">
       <iconify-icon icon="${t.icon}"></iconify-icon>
       <span style="font-size:var(--nav-font-size);">${t.label}</span>
@@ -1162,12 +1272,29 @@ function setupListeners() {
   songsUnsubscribe = db.collection('songs').orderBy('title').onSnapshot(snap => {
     allSongs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderSongsList();
+    // If song sheet is open, refresh content live
+    if (currentSongId) {
+      const updated = allSongs.find(s => s.id === currentSongId);
+      if (updated) {
+        document.getElementById('sheet-song-title').textContent = updated.title || '';
+        document.getElementById('sheet-song-artist').textContent = updated.artist || '';
+        renderSheetContent(updated.content || '', localKey, originalKey);
+      }
+    }
   }, err => console.error('Songs listener:', err));
 
   if (setlistsUnsubscribe) setlistsUnsubscribe();
   setlistsUnsubscribe = db.collection('setlists').orderBy('createdAt', 'desc').onSnapshot(snap => {
     allSetlists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderSetlistsList();
+    // If a setlist detail is currently open, refresh it live
+    if (currentSetlistId) {
+      const updated = allSetlists.find(s => s.id === currentSetlistId);
+      if (updated) {
+        currentSetlistSongs = updated.songs ? [...updated.songs] : [];
+        renderSetlistDetail(updated);
+      }
+    }
   }, err => console.error('Setlists listener:', err));
 
   const role = currentUserProfile?.role || '';
@@ -1185,9 +1312,29 @@ function loadAdminSettings() {
   adminSettingsUnsubscribe = db.collection('settings').doc('global').onSnapshot(snap => {
     if (snap.exists) {
       const data = snap.data();
+      // Song limits
+      if (data.roleLimits) {
+        globalRoleLimits = data.roleLimits;
+        // Populate admin inputs if on admin tab
+        const roleKeys = ['admin','subadmin','lead','musician','singer','tech'];
+        roleKeys.forEach(k => {
+          const el = document.getElementById('limit-' + k);
+          if (el && data.roleLimits[k]) el.value = data.roleLimits[k];
+        });
+      }
       if (data.songLimit) globalSongLimit = data.songLimit;
       if (data.theme) applyThemeData(data.theme);
       if (data.typography) applyTypographyData(data.typography);
+      if (data.appName) {
+        document.title = data.appName;
+        const inp = document.getElementById('admin-app-name');
+        if (inp) inp.value = data.appName;
+      }
+      if (data.logoURL) {
+        const imgs = [document.getElementById('admin-logo-preview'),
+                      document.getElementById('logo-modal-preview')];
+        imgs.forEach(img => { if (img) img.src = data.logoURL; });
+      }
     }
   }, err => console.error('Settings listener:', err));
 }
@@ -1309,6 +1456,8 @@ function openSongSheet(songId, fromSetlist) {
   sheetView.style.display = 'block';
   document.getElementById('sheet-song-title').textContent = song.title || '';
   document.getElementById('sheet-song-artist').textContent = song.artist || '';
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) { navTitle.textContent = song.title || ''; navTitle.style.display = 'block'; }
   document.getElementById('current-key-display').textContent = localKey;
   updateCapoDisplay();
   renderSheetContent(song.content || '', localKey, originalKey);
@@ -1360,6 +1509,8 @@ function closeSongSheet() {
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('autoscroll-popup').style.display = 'none';
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
   if (openedFromSetlist) {
     openedFromSetlist = false;
@@ -1510,6 +1661,7 @@ function toggleLyricsOnly() {
 // ============================================================
 // AUTO-SCROLL
 // ============================================================
+let globalRoleLimits = { admin: 999, subadmin: 30, lead: 20, musician: 4, singer: 4, tech: 4 };
 let autoScrollAnimFrame = null;
 let autoScrollAccumulator = 0;
 function setAutoScroll(val) {
@@ -1645,10 +1797,20 @@ function setupSwipeListeners() {
   }, { passive: true });
 }
 function navigateSong(dir) {
-  const sorted = getSortedSongs();
-  const idx = sorted.findIndex(s => s.id === currentSongId);
-  const next = sorted[idx + dir];
-  if (next) openSongSheet(next.id);
+  if (openedFromSetlist) {
+    // Navigate only within the current setlist's songs
+    const setlistSongs = currentSetlistSongs
+      .map(sid => allSongs.find(s => s.id === sid))
+      .filter(Boolean);
+    const idx = setlistSongs.findIndex(s => s.id === currentSongId);
+    const next = setlistSongs[idx + dir];
+    if (next) openSongSheet(next.id, true);
+  } else {
+    const sorted = getSortedSongs();
+    const idx = sorted.findIndex(s => s.id === currentSongId);
+    const next = sorted[idx + dir];
+    if (next) openSongSheet(next.id, false);
+  }
 }
 function getSortedSongs() {
   let songs = [...allSongs];
@@ -1936,7 +2098,15 @@ function filterSongSelector() {
 }
 function getSetlistSongLimit() {
   const role = currentUserProfile?.role || '';
-  return ['Admin','Sub-Admin','Lead'].includes(role) ? 99999 : 4;
+  const map = {
+    'Admin':     globalRoleLimits.admin    ?? 999,
+    'Sub-Admin': globalRoleLimits.subadmin ?? 30,
+    'Lead':      globalRoleLimits.lead     ?? 20,
+    'Musician':  globalRoleLimits.musician ?? 4,
+    'Singer':    globalRoleLimits.singer   ?? 4,
+    'Tech':      globalRoleLimits.tech     ?? 4
+  };
+  return map[role] ?? 4;
 }
 
 function renderSongSelectorList(query) {
@@ -2261,12 +2431,100 @@ function closeTutorialModal() {
 async function saveAdminSettings() {
   const role = currentUserProfile?.role || '';
   if (role !== 'Admin') return;
-  const limit = parseInt(document.getElementById('admin-song-limit').value) || 4;
-  globalSongLimit = limit;
+  const name = document.getElementById('admin-app-name').value.trim();
+  showSyncToast();
   try {
-    await db.collection('settings').doc('global').set({ songLimit: limit }, { merge: true });
-    showAlert('Saved', 'Settings saved successfully.', 'mdi:check-circle');
-  } catch(e) { console.error(e); }
+    const updates = {};
+    if (name) updates.appName = name;
+    await db.collection('settings').doc('global').set(updates, { merge: true });
+    hideSyncToast();
+    showAlert('Saved', 'Branding saved and pushed to all users.', 'mdi:check-circle');
+  } catch(e) { hideSyncToast(); console.error(e); }
+}
+
+async function saveRoleLimits() {
+  const role = currentUserProfile?.role || '';
+  if (role !== 'Admin') return;
+  const limits = {
+    admin:    parseInt(document.getElementById('limit-admin').value) || 999,
+    subadmin: parseInt(document.getElementById('limit-subadmin').value) || 30,
+    lead:     parseInt(document.getElementById('limit-lead').value) || 20,
+    musician: parseInt(document.getElementById('limit-musician').value) || 4,
+    singer:   parseInt(document.getElementById('limit-singer').value) || 4,
+    tech:     parseInt(document.getElementById('limit-tech').value) || 4
+  };
+  globalSongLimit = limits.musician;
+  showSyncToast();
+  try {
+    await db.collection('settings').doc('global').set({ roleLimits: limits, songLimit: limits.musician }, { merge: true });
+    hideSyncToast();
+    showAlert('Saved', 'Song limits saved and pushed to all users.', 'mdi:check-circle');
+  } catch(e) { hideSyncToast(); console.error(e); }
+}
+
+let syncToastTimeout = null;
+function showSyncToast() {
+  const t = document.getElementById('sync-toast');
+  if (!t) return;
+  t.style.display = 'flex';
+  if (syncToastTimeout) { clearTimeout(syncToastTimeout); syncToastTimeout = null; }
+}
+function hideSyncToast() {
+  syncToastTimeout = setTimeout(() => {
+    const t = document.getElementById('sync-toast');
+    if (t) t.style.display = 'none';
+  }, 1400);
+}
+
+function openLogoChangeModal() {
+  const cur = document.getElementById('admin-logo-preview')?.src || 'icons/logo.png';
+  document.getElementById('logo-url-input').value = cur;
+  document.getElementById('logo-modal-preview').src = cur;
+  document.getElementById('logo-change-modal').style.display = 'flex';
+}
+function closeLogoChangeModal() {
+  document.getElementById('logo-change-modal').style.display = 'none';
+}
+function previewLogoInput() {
+  const val = document.getElementById('logo-url-input').value.trim();
+  if (val) document.getElementById('logo-modal-preview').src = val;
+}
+async function saveLogoChange() {
+  const url = document.getElementById('logo-url-input').value.trim();
+  if (!url) return;
+  document.getElementById('admin-logo-preview').src = url;
+  showSyncToast();
+  try {
+    await db.collection('settings').doc('global').set({ logoURL: url }, { merge: true });
+    hideSyncToast();
+    closeLogoChangeModal();
+    showAlert('Logo Updated', 'App logo saved and pushed to all users.', 'mdi:image-check');
+  } catch(e) { hideSyncToast(); console.error(e); }
+}
+
+function updateThemeCarousel(activeKey) {
+  const keys = ['gigbook','nordic','parchment','cyber','charcoal'];
+  const themeStyles = {
+    gigbook:   { bg: '#121212', border: '#FBBF24', glow: 'rgba(251,191,36,0.3)', color: '#FBBF24' },
+    nordic:    { bg: '#1E293B', border: '#34D399', glow: 'rgba(52,211,153,0.3)', color: '#34D399' },
+    parchment: { bg: '#FDFBF7', border: '#B91C1C', glow: 'rgba(185,28,28,0.3)', color: '#B91C1C' },
+    cyber:     { bg: '#0F172A', border: '#06B6D4', glow: 'rgba(6,182,212,0.3)', color: '#06B6D4' },
+    charcoal:  { bg: '#1F2937', border: '#38BDF8', glow: 'rgba(56,189,248,0.3)', color: '#38BDF8' }
+  };
+  keys.forEach(k => {
+    const btn = document.getElementById('theme-btn-' + k);
+    if (!btn) return;
+    const s = themeStyles[k];
+    if (k === activeKey) {
+      btn.style.border = '2px solid ' + s.border;
+      btn.style.boxShadow = '0 0 0 3px ' + s.glow;
+      btn.style.transform = 'scale(1.05)';
+    } else {
+      btn.style.border = '2px solid #333';
+      btn.style.boxShadow = 'none';
+      btn.style.transform = 'scale(1)';
+    }
+  });
 }
 
 // ============================================================
@@ -2284,7 +2542,9 @@ function applyTheme(key) {
   const theme = THEMES[key];
   if (!theme) return;
   applyThemeData(theme);
-  saveThemeToDb(theme);
+  updateThemeCarousel(key);
+  showSyncToast();
+  saveThemeToDb(theme).then(() => hideSyncToast());
 }
 
 function applyThemeData(theme) {
@@ -2311,13 +2571,15 @@ function saveCustomTheme() {
     lyrics: document.getElementById('custom-lyrics').value,
     chords: document.getElementById('custom-chords').value
   };
-  saveThemeToDb(theme);
-  showAlert('Theme Saved', 'Your custom theme has been applied to all devices.', 'mdi:palette');
+  showSyncToast();
+  saveThemeToDb(theme).then(() => { hideSyncToast(); showAlert('Theme Saved', 'Custom theme applied to all users.', 'mdi:palette'); });
 }
 
 async function saveThemeToDb(theme) {
   if (currentUserProfile?.role !== 'Admin') return;
-  try { await db.collection('settings').doc('global').set({ theme }, { merge: true }); } catch(e) { console.error(e); }
+  try {
+    await db.collection('settings').doc('global').set({ theme }, { merge: true });
+  } catch(e) { console.error(e); }
 }
 
 // ============================================================
@@ -2332,28 +2594,34 @@ function setFontFamily(val) {
   };
   document.documentElement.style.setProperty('--app-font-family', map[val] || map.system);
   document.body.style.fontFamily = map[val] || map.system;
-  saveTypographyToDb({ fontFamily: val });
+  showSyncToast();
+  saveTypographyToDb({ fontFamily: val }).then(hideSyncToast);
 }
 
 function setNavFont(val) {
   document.getElementById('nav-font-label').textContent = val + 'px';
   document.documentElement.style.setProperty('--nav-font-size', val + 'px');
-  saveTypographyToDb({ navFont: parseInt(val) });
+  showSyncToast();
+  saveTypographyToDb({ navFont: parseInt(val) }).then(hideSyncToast);
 }
 function setBtnFont(val) {
   document.getElementById('btn-font-label').textContent = val + 'px';
   document.documentElement.style.setProperty('--btn-font-size', val + 'px');
-  saveTypographyToDb({ btnFont: parseInt(val) });
+  showSyncToast();
+  saveTypographyToDb({ btnFont: parseInt(val) }).then(hideSyncToast);
 }
 function setMetaFont(val) {
   document.getElementById('meta-font-label').textContent = val + 'px';
   document.documentElement.style.setProperty('--meta-font-size', val + 'px');
-  saveTypographyToDb({ metaFont: parseInt(val) });
+  showSyncToast();
+  saveTypographyToDb({ metaFont: parseInt(val) }).then(hideSyncToast);
 }
 
 async function saveTypographyToDb(typo) {
   if (currentUserProfile?.role !== 'Admin') return;
-  try { await db.collection('settings').doc('global').set({ typography: typo }, { merge: true }); } catch(e) { console.error(e); }
+  try {
+    await db.collection('settings').doc('global').set({ typography: typo }, { merge: true });
+  } catch(e) { console.error(e); }
 }
 
 function applyTypographyData(typo) {
@@ -2371,15 +2639,8 @@ function applyTypographyData(typo) {
 }
 
 // ============================================================
-// SETLIST FAB — CONTEXT ROUTING
+// SETLIST FAB — CONTEXT ROUTING (handled via handleFabClick in HTML onclick)
 // ============================================================
-document.getElementById('fab-btn').addEventListener('click', () => {
-  if (activeTab === 'songs') {
-    openCreateSongModal();
-  } else if (activeTab === 'setlists') {
-    openCreateSetlistModal();
-  }
-});
 
 // ============================================================
 // SEEDING ROUTINE
@@ -2518,5 +2779,31 @@ window.addEventListener('load', () => {
   pushState();
 });
 </script>
+
+<!-- LOGO CHANGE MODAL -->
+<div id="logo-change-modal" class="modal-overlay center" style="display:none;">
+  <div class="modal-sheet center-card" style="max-width:380px;border-radius:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Change App Logo</h3>
+      <button onclick="closeLogoChangeModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="text-align:center;margin-bottom:4px;">
+        <img id="logo-modal-preview" src="icons/logo.png" alt="Preview"
+          style="width:80px;height:80px;border-radius:16px;object-fit:cover;background:#2a2a2a;border:2px dashed #444;"
+          onerror="this.style.background='linear-gradient(135deg,#7c3aed,#FBBF24)'" />
+      </div>
+      <div>
+        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Logo URL or Path</label>
+        <input type="text" class="input-field" id="logo-url-input" placeholder="icons/logo.png or https://..." oninput="previewLogoInput()" />
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-secondary" style="flex:1;" onclick="closeLogoChangeModal()">Cancel</button>
+        <button class="btn-primary" style="flex:1;" onclick="saveLogoChange()">Save Logo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
