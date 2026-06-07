@@ -251,6 +251,7 @@
         <iconify-icon icon="mdi:arrow-left" style="font-size:20px;"></iconify-icon>
       </button>
       <span id="top-nav-title" style="color:#fff;font-size:15px;font-weight:600;display:none;"></span>
+      <span id="top-nav-appname" style="color:#fff;font-size:16px;font-weight:700;letter-spacing:0.01em;">RCCM Gigbook</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <img src="icons/logo.png" alt="Logo" onclick="goHome()" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
@@ -303,10 +304,7 @@
               <h2 id="sheet-song-title" style="color:#fff;font-size:16px;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
               <p id="sheet-song-artist" style="color:#9ca3af;font-size:13px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
             </div>
-            <div id="sheet-creator-info" style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-              <img id="sheet-creator-pic" src="" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;" />
-              <span id="sheet-creator-name" style="font-size:11px;color:#6b7280;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-            </div>
+
           </div>
           <!-- MUSICIAN/LEAD/SUBADMIN/ADMIN CONTROLS -->
           <div id="musician-controls" style="margin-top:8px;">
@@ -372,6 +370,7 @@
 
     <!-- USERS TAB -->
     <div id="tab-users" class="tab-panel" style="padding:10px;">
+      <div id="users-list-panel">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
         <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search users..." id="user-search-input" oninput="filterUsers()" style="flex:1;" />
@@ -411,6 +410,8 @@
         </div>
       </div>
       <div id="users-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div><!-- /users-list-panel -->
+      <div id="user-detail-view" style="display:none;"></div>
     </div>
 
     <!-- ADMIN PANEL TAB -->
@@ -593,18 +594,19 @@
 <!-- FAB -->
 <button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
 
-<!-- AUTOSCROLL FAB -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:20px;z-index:500;align-items:flex-end;gap:0;flex-direction:column;">
-  <!-- Horizontal slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:row;align-items:center;gap:8px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:10px 14px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;">
-    <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
-      style="background:transparent;border:none;color:#6b7280;font-size:10px;cursor:pointer;padding:2px 6px;border-radius:4px;border:1px solid #333;flex-shrink:0;">STOP</button>
+<!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:16px;z-index:500;display:flex;align-items:center;flex-direction:column;gap:0;">
+  <!-- Vertical slider popup -->
+  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+    <span style="color:#6b7280;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
+    <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:13px;font-weight:700;min-width:16px;text-align:center;">0</span>
     <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
-      style="width:120px;height:4px;accent-color:var(--chords-color);cursor:pointer;"
+      style="writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:28px;height:100px;accent-color:var(--chords-color);cursor:pointer;background:transparent;"
       oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
-    <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:12px;font-weight:700;min-width:14px;text-align:center;">0</span>
+    <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
+      style="background:transparent;border:1px solid #444;color:#6b7280;font-size:9px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;letter-spacing:0.05em;">STOP</button>
   </div>
-  <!-- The FAB button itself -->
+  <!-- FAB button -->
   <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
     style="width:46px;height:46px;border-radius:50%;background:#2a2a2a;border:1px solid #444;color:#9ca3af;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;">
     <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
@@ -658,7 +660,7 @@
   <div class="modal-sheet" style="max-height:92vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Create New Song</h3>
+      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Add New Song</h3>
       <button onclick="closeCreateSongModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
@@ -1211,12 +1213,12 @@ function buildNav() {
     />
     <span style="font-size:var(--nav-font-size);">Profile</span>
   </button>`;
-  nav.innerHTML = profileBtn + tabs.map(t => `
+  nav.innerHTML = tabs.map(t => `
     <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" onclick="switchTab('${t.id}')">
       <iconify-icon icon="${t.icon}"></iconify-icon>
       <span style="font-size:var(--nav-font-size);">${t.label}</span>
     </button>
-  `).join('');
+  `).join('') + profileBtn;
 }
 
 function switchTab(tab) {
@@ -1237,9 +1239,11 @@ function updateFAB() {
   const role = currentUserProfile?.role || '';
   const fabEl = document.getElementById('fab-btn');
   const canCreate = ['Admin','Sub-Admin','Lead'].includes(role);
-  const validTab = activeTab === 'songs' || activeTab === 'setlists';
-  fabEl.style.display = (canCreate && validTab) ? 'flex' : 'none';
-  fabEl.textContent = activeTab === 'setlists' ? '+' : '+';
+  // Hide FAB when a song sheet is open OR when inside a setlist detail
+  const songSheetOpen = document.getElementById('song-sheet-view')?.style.display === 'block';
+  const setlistDetailOpen = currentSetlistId !== null;
+  const onListView = (activeTab === 'songs' && !songSheetOpen) || (activeTab === 'setlists' && !setlistDetailOpen && !songSheetOpen);
+  fabEl.style.display = (canCreate && onListView) ? 'flex' : 'none';
   updateAutoscrollFabPosition();
 }
 function handleFabClick() {
@@ -1253,6 +1257,8 @@ function handleFabClick() {
 function updateHomeBtn(show) {
   const btn = document.getElementById('home-btn');
   btn.style.display = show ? 'flex' : 'none';
+  const appName = document.getElementById('top-nav-appname');
+  if (appName) appName.style.display = show ? 'none' : 'inline';
 }
 
 function goHome() {
@@ -1260,7 +1266,14 @@ function goHome() {
     closeSongSheet();
     return;
   }
-  closeSetlistDetail();
+  if (currentSetlistId) {
+    closeSetlistDetail();
+    return;
+  }
+  if (currentDetailUserId) {
+    closeUserDetail();
+    return;
+  }
   switchTab(activeTab || 'songs');
 }
 
@@ -1329,6 +1342,8 @@ function loadAdminSettings() {
         document.title = data.appName;
         const inp = document.getElementById('admin-app-name');
         if (inp) inp.value = data.appName;
+        const nameEl = document.getElementById('top-nav-appname');
+        if (nameEl) nameEl.textContent = data.appName;
       }
       if (data.logoURL) {
         const imgs = [document.getElementById('admin-logo-preview'),
@@ -1466,7 +1481,6 @@ function openSongSheet(songId, fromSetlist) {
   if (tutorialEnabled && (currentUserProfile?.showTutorial !== false)) {
     setTimeout(showTutorialModal, 500);
   }
-  loadCreatorInfo(song.createdBy);
   setupSwipeListeners();
   pushState();
   stopAutoScroll();
@@ -1491,18 +1505,7 @@ function setupSongControls() {
   }
 }
 
-async function loadCreatorInfo(uid) {
-  if (!uid) { document.getElementById('sheet-creator-info').style.display = 'none'; return; }
-  try {
-    const snap = await db.collection('users').doc(uid).get();
-    if (snap.exists) {
-      const d = snap.data();
-      document.getElementById('sheet-creator-pic').src = d.photoURL || '';
-      document.getElementById('sheet-creator-name').textContent = d.displayName || '';
-      document.getElementById('sheet-creator-info').style.display = 'flex';
-    }
-  } catch(e) { document.getElementById('sheet-creator-info').style.display = 'none'; }
-}
+// loadCreatorInfo removed — creator info no longer shown on song sheet
 
 function closeSongSheet() {
   stopAutoScroll();
@@ -1690,12 +1693,7 @@ function updateAutoscrollFabIcon() {
   }
 }
 function updateAutoscrollFabPosition() {
-  const fabEl = document.getElementById('fab-btn');
-  const asFab = document.getElementById('autoscroll-fab');
-  if (!asFab) return;
-  const fabVisible = fabEl && fabEl.style.display !== 'none';
-  // Autoscroll FAB stays on right; when main FAB is visible, offset it left to avoid overlap
-  asFab.style.right = fabVisible ? '80px' : '20px';
+  // Autoscroll FAB always pinned far right; main FAB never overlaps (different states)
 }
 // Close autoscroll popup when tapping outside it
 document.addEventListener('click', (e) => {
@@ -1779,22 +1777,29 @@ window.addEventListener('load', () => { setupPinchZoom(); });
 // ============================================================
 // SWIPE GESTURE (Song Navigation)
 // ============================================================
+let _swipeStartHandler = null;
+let _swipeEndHandler = null;
 function setupSwipeListeners() {
   const content = document.getElementById('song-sheet-content');
-  content.addEventListener('touchstart', (e) => {
+  // Remove previous listeners to prevent stacking
+  if (_swipeStartHandler) content.removeEventListener('touchstart', _swipeStartHandler);
+  if (_swipeEndHandler) content.removeEventListener('touchend', _swipeEndHandler);
+  _swipeStartHandler = (e) => {
     if (e.touches.length === 1) {
       swipeStartX = e.touches[0].clientX;
       swipeStartY = e.touches[0].clientY;
     }
-  }, { passive: true });
-  content.addEventListener('touchend', (e) => {
+  };
+  _swipeEndHandler = (e) => {
     const dx = e.changedTouches[0].clientX - swipeStartX;
     const dy = e.changedTouches[0].clientY - swipeStartY;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
       if (dx < 0) navigateSong(1);
       else navigateSong(-1);
     }
-  }, { passive: true });
+  };
+  content.addEventListener('touchstart', _swipeStartHandler, { passive: true });
+  content.addEventListener('touchend', _swipeEndHandler, { passive: true });
 }
 function navigateSong(dir) {
   if (openedFromSetlist) {
@@ -1966,12 +1971,13 @@ function renderSetlistsList() {
             <span class="privacy-badge ${setlist.isPrivate ? 'badge-private' : 'badge-public'}">${setlist.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
             ${setlist.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom Group</span>' : ''}
             <span style="color:#6b7280;font-size:11px;">${setlist.songs ? setlist.songs.length : 0} songs</span>
+            ${setlist.isCustomGroup && setlist.whitelist && setlist.whitelist.length > 0 ? renderWhitelistAvatars(setlist.whitelist) : ''}
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
           ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
-          <span style="color:var(--chords-color);padding:4px;display:flex;align-items:center;"><iconify-icon icon="mdi:chevron-right" style="font-size:22px;"></iconify-icon></span>
+
         </div>
       </div>
     </div>`;
@@ -2038,7 +2044,7 @@ function renderSetlistDetail(setlist) {
         </div>
         <div id="setlist-creator-info" style="display:flex;align-items:center;gap:6px;"></div>
       </div>
-      ${canEdit ? `<button onclick="openSongSelectorModal()" style="display:flex;align-items:center;gap:6px;width:100%;justify-content:center;" class="btn-secondary">
+      ${canEdit && currentSetlistSongs.length < getSetlistSongLimit() ? `<button onclick="openSongSelectorModal()" style="display:flex;align-items:center;gap:6px;width:100%;justify-content:center;" class="btn-secondary">
         <iconify-icon icon="mdi:plus" style="font-size:16px;"></iconify-icon> Add Song
       </button>` : ''}
     </div>
@@ -2050,7 +2056,7 @@ function renderSetlistDetail(setlist) {
             <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
             <p style="color:#6b7280;font-size:11px;margin:2px 0 0;">${escHtml(song.artist||'')}</p>
           </div>
-          <span style="color:var(--chords-color);padding:4px;display:flex;align-items:center;"><iconify-icon icon="mdi:chevron-right" style="font-size:18px;"></iconify-icon></span>
+
           ${canEdit ? `<button onclick="event.stopPropagation();removeSongFromSetlist('${song.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       `).join('')}
@@ -2273,7 +2279,7 @@ function renderUsersList() {
     const canEdit = role === 'Admin' || role === 'Sub-Admin';
     const canDelete = role === 'Admin' && !isAdminUser;
     return `
-    <div class="user-row">
+    <div class="user-row" onclick="openUserDetail('${u.uid}')" style="cursor:pointer;">
       <img src="${escHtml(u.photoURL||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#333;flex-shrink:0;" onerror="this.style.background='#374151'" />
       <div style="flex:1;min-width:0;">
         <p style="color:#fff;font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
@@ -2282,7 +2288,7 @@ function renderUsersList() {
           ${instruments ? `<span style="color:#6b7280;font-size:11px;">${escHtml(instruments)}</span>` : ''}
         </div>
       </div>
-      ${canEdit ? `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+      ${canEdit ? `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
         <button onclick="openUserEditModal('${u.uid}')" class="btn-secondary btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;">
           <iconify-icon icon="mdi:pencil" style="font-size:14px;"></iconify-icon>
         </button>
@@ -2290,7 +2296,6 @@ function renderUsersList() {
           <iconify-icon icon="mdi:delete" style="font-size:14px;"></iconify-icon>
         </button>` : ''}
       </div>` : ''}
-      </div>
     </div>`;
   }).join('');
 }
@@ -2298,6 +2303,78 @@ function renderUsersList() {
 function getRoleBadgeClass(role) {
   const map = { 'Admin':'badge-admin','Sub-Admin':'badge-subadmin','Lead':'badge-lead','Musician':'badge-musician','Singer':'badge-singer','Tech':'badge-tech' };
   return map[role] || 'badge-musician';
+}
+
+// Render small horizontal avatars for custom group whitelist
+function renderWhitelistAvatars(uids) {
+  if (!uids || !uids.length) return '';
+  const avatars = uids.slice(0, 8).map(uid => {
+    const u = allUsers.find(x => x.uid === uid);
+    if (!u) return `<div style="width:22px;height:22px;border-radius:50%;background:#374151;border:2px solid #2a2a2a;flex-shrink:0;"></div>`;
+    return `<img src="${escHtml(u.photoURL||'')}" title="${escHtml(u.displayName||'')}"
+      style="width:22px;height:22px;border-radius:50%;object-fit:cover;background:#374151;border:2px solid #1e1e1e;flex-shrink:0;margin-left:-6px;"
+      onerror="this.style.background='#374151'" />`;
+  }).join('');
+  const extra = uids.length > 8 ? `<span style="color:#6b7280;font-size:10px;margin-left:4px;">+${uids.length-8}</span>` : '';
+  return `<div style="display:flex;align-items:center;margin-top:5px;padding-left:6px;">${avatars}${extra}</div>`;
+}
+
+// ─── USER DETAIL VIEW ───────────────────────────────────────────────────────
+let currentDetailUserId = null;
+function openUserDetail(uid) {
+  const u = allUsers.find(x => x.uid === uid);
+  if (!u) return;
+  currentDetailUserId = uid;
+  const myRole = currentUserProfile?.role || '';
+  const canEdit = myRole === 'Admin' || myRole === 'Sub-Admin';
+  const canDelete = myRole === 'Admin' && u.email !== ADMIN_EMAIL;
+  // Setlists created by this user that the current viewer can see
+  const userSetlists = allSetlists.filter(s => s.createdBy === uid && canSeeSetlist(s));
+  const instruments = (u.instruments||[]).join(', ');
+  const detail = document.getElementById('user-detail-view');
+  detail.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #2a2a2a;">
+      <img src="${escHtml(u.photoURL||'')}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;background:#333;flex-shrink:0;" />
+      <div style="flex:1;min-width:0;">
+        <p style="color:#fff;font-size:16px;font-weight:700;margin:0;">${escHtml(u.displayName||'')}</p>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">
+          <span class="role-badge ${getRoleBadgeClass(u.role)}">${escHtml(u.role||'')}</span>
+          ${instruments ? `<span style="color:#6b7280;font-size:11px;">${escHtml(instruments)}</span>` : ''}
+        </div>
+      </div>
+      ${canEdit ? `<div style="display:flex;gap:6px;flex-shrink:0;">
+        <button onclick="openUserEditModal('${u.uid}')" class="btn-secondary btn-text" style="padding:6px 10px;">
+          <iconify-icon icon="mdi:pencil" style="font-size:14px;"></iconify-icon>
+        </button>
+        ${canDelete ? `<button onclick="deleteUser('${u.uid}')" class="btn-danger btn-text" style="padding:6px 10px;">
+          <iconify-icon icon="mdi:delete" style="font-size:14px;"></iconify-icon>
+        </button>` : ''}
+      </div>` : ''}
+    </div>
+    <div class="section-label" style="margin-bottom:8px;">Setlists Created (${userSetlists.length})</div>
+    ${userSetlists.length === 0
+      ? '<p style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0;">No visible setlists.</p>'
+      : userSetlists.map(s => `
+        <div class="setlist-card" onclick="openSetlistDetail('${s.id}')" style="cursor:pointer;margin-bottom:8px;">
+          <p style="color:#fff;font-size:13px;font-weight:600;margin:0 0 4px;">${escHtml(s.name)}</p>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span class="privacy-badge ${s.isPrivate ? 'badge-private' : 'badge-public'}">${s.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
+            ${s.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom</span>' : ''}
+            <span style="color:#6b7280;font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
+            ${s.isCustomGroup && s.whitelist && s.whitelist.length ? renderWhitelistAvatars(s.whitelist) : ''}
+          </div>
+        </div>`).join('')}
+  `;
+  document.getElementById('users-list-panel').style.display = 'none';
+  detail.style.display = 'block';
+  updateHomeBtn(true);
+  pushState();
+}
+function closeUserDetail() {
+  document.getElementById('user-detail-view').style.display = 'none';
+  document.getElementById('users-list-panel').style.display = 'block';
+  currentDetailUserId = null;
+  updateHomeBtn(false);
 }
 
 function filterUsers() { renderUsersList(); }
