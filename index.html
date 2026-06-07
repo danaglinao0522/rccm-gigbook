@@ -489,19 +489,18 @@
 </div>
 
 <!-- FAB -->
-<button id="fab-btn" class="fab" style="display:none;" onclick="openCreateSongModal()">+</button>
+<button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
 
 <!-- AUTOSCROLL FAB -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:84px;z-index:500;align-items:flex-end;gap:0;flex-direction:column;">
-  <!-- Vertical slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
-    <span style="color:#6b7280;font-size:10px;font-weight:600;letter-spacing:0.05em;">SPEED</span>
-    <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:12px;font-weight:700;">0</span>
-    <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
-      style="writing-mode:vertical-lr;direction:rtl;width:36px;height:110px;accent-color:var(--chords-color);cursor:pointer;-webkit-appearance:slider-vertical;appearance:slider-vertical;"
-      oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:20px;z-index:500;align-items:flex-end;gap:0;flex-direction:column;">
+  <!-- Horizontal slider popup -->
+  <div id="autoscroll-popup" style="display:none;flex-direction:row;align-items:center;gap:8px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:10px 14px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap;">
     <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
-      style="background:transparent;border:none;color:#6b7280;font-size:10px;cursor:pointer;padding:2px 6px;border-radius:4px;border:1px solid #333;">STOP</button>
+      style="background:transparent;border:none;color:#6b7280;font-size:10px;cursor:pointer;padding:2px 6px;border-radius:4px;border:1px solid #333;flex-shrink:0;">STOP</button>
+    <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
+      style="width:120px;height:4px;accent-color:var(--chords-color);cursor:pointer;"
+      oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
+    <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:12px;font-weight:700;min-width:14px;text-align:center;">0</span>
   </div>
   <!-- The FAB button itself -->
   <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
@@ -1130,7 +1129,15 @@ function updateFAB() {
   const canCreate = ['Admin','Sub-Admin','Lead'].includes(role);
   const validTab = activeTab === 'songs' || activeTab === 'setlists';
   fabEl.style.display = (canCreate && validTab) ? 'flex' : 'none';
+  fabEl.textContent = activeTab === 'setlists' ? '+' : '+';
   updateAutoscrollFabPosition();
+}
+function handleFabClick() {
+  if (activeTab === 'setlists') {
+    openCreateSetlistModal();
+  } else {
+    openCreateSongModal();
+  }
 }
 
 function updateHomeBtn(show) {
@@ -1139,9 +1146,12 @@ function updateHomeBtn(show) {
 }
 
 function goHome() {
-  closeSongSheet();
+  if (currentSongId) {
+    closeSongSheet();
+    return;
+  }
   closeSetlistDetail();
-  switchTab('songs');
+  switchTab(activeTab || 'songs');
 }
 
 // ============================================================
@@ -1280,13 +1290,20 @@ async function deleteSong(id) {
 // ============================================================
 // SONG SHEET ENGINE
 // ============================================================
-function openSongSheet(songId) {
+let openedFromSetlist = false;
+function openSongSheet(songId, fromSetlist) {
   const song = allSongs.find(s => s.id === songId);
   if (!song) return;
   currentSongId = songId;
+  openedFromSetlist = !!fromSetlist;
   originalKey = song.key || 'C';
   localKey = originalKey;
   lyricsOnlyMode = false;
+  if (openedFromSetlist) {
+    // Show the songs tab panel so the song-sheet-view is accessible
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-songs').classList.add('active');
+  }
   document.getElementById('songs-list-view').style.display = 'none';
   const sheetView = document.getElementById('song-sheet-view');
   sheetView.style.display = 'block';
@@ -1341,11 +1358,20 @@ async function loadCreatorInfo(uid) {
 function closeSongSheet() {
   stopAutoScroll();
   document.getElementById('song-sheet-view').style.display = 'none';
-  document.getElementById('songs-list-view').style.display = 'block';
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('autoscroll-popup').style.display = 'none';
   currentSongId = null;
-  updateHomeBtn(false);
+  if (openedFromSetlist) {
+    openedFromSetlist = false;
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-setlists').classList.add('active');
+    document.getElementById('songs-list-view').style.display = 'block';
+    document.getElementById('setlist-detail-view').style.display = 'block';
+    updateHomeBtn(true);
+  } else {
+    document.getElementById('songs-list-view').style.display = 'block';
+    updateHomeBtn(false);
+  }
   updateFAB();
 }
 
@@ -1516,7 +1542,8 @@ function updateAutoscrollFabPosition() {
   const asFab = document.getElementById('autoscroll-fab');
   if (!asFab) return;
   const fabVisible = fabEl && fabEl.style.display !== 'none';
-  asFab.style.right = fabVisible ? '84px' : '20px';
+  // Autoscroll FAB stays on right; when main FAB is visible, offset it left to avoid overlap
+  asFab.style.right = fabVisible ? '80px' : '20px';
 }
 // Close autoscroll popup when tapping outside it
 document.addEventListener('click', (e) => {
@@ -1769,7 +1796,7 @@ function renderSetlistsList() {
     const role = currentUserProfile?.role || '';
     const canEdit = isOwner || ['Admin','Sub-Admin'].includes(role);
     return `
-    <div class="setlist-card">
+    <div class="setlist-card" onclick="openSetlistDetail('${setlist.id}')" style="cursor:pointer;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
           <p style="color:#fff;font-size:14px;font-weight:600;margin:0;">${escHtml(setlist.name)}</p>
@@ -1780,9 +1807,9 @@ function renderSetlistsList() {
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          ${canEdit && isOwner ? `<button onclick="toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
-          ${canEdit ? `<button onclick="deleteSetlist('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
-          <button onclick="openSetlistDetail('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:var(--chords-color);padding:4px;"><iconify-icon icon="mdi:chevron-right" style="font-size:22px;"></iconify-icon></button>
+          ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
+          <span style="color:var(--chords-color);padding:4px;display:flex;align-items:center;"><iconify-icon icon="mdi:chevron-right" style="font-size:22px;"></iconify-icon></span>
         </div>
       </div>
     </div>`;
@@ -1807,11 +1834,19 @@ function openSetlistDetail(setlistId) {
   if (!setlist) return;
   currentSetlistId = setlistId;
   currentSetlistSongs = setlist.songs ? [...setlist.songs] : [];
+  // Ensure setlists tab is active
+  activeTab = 'setlists';
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-setlists').classList.add('active');
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('nav-setlists');
+  if (navBtn) navBtn.classList.add('active');
   document.getElementById('setlists-list-view').style.display = 'none';
   const detailView = document.getElementById('setlist-detail-view');
   detailView.style.display = 'block';
   renderSetlistDetail(setlist);
   updateHomeBtn(true);
+  updateFAB();
   pushState();
 }
 
@@ -1819,6 +1854,8 @@ function closeSetlistDetail() {
   document.getElementById('setlist-detail-view').style.display = 'none';
   document.getElementById('setlists-list-view').style.display = 'block';
   currentSetlistId = null;
+  updateHomeBtn(false);
+  updateFAB();
 }
 
 function renderSetlistDetail(setlist) {
@@ -1845,14 +1882,14 @@ function renderSetlistDetail(setlist) {
     </div>
     <div id="setlist-songs-container">
       ${songs.length === 0 ? '<p style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0;">No songs in this setlist yet.</p>' : songs.map((song, i) => `
-        <div class="setlist-song-item">
+        <div class="setlist-song-item" onclick="openSongSheet('${song.id}', true)" style="cursor:pointer;">
           <span style="color:#6b7280;font-size:12px;width:20px;text-align:center;">${i+1}</span>
           <div style="flex:1;min-width:0;">
             <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
             <p style="color:#6b7280;font-size:11px;margin:2px 0 0;">${escHtml(song.artist||'')}</p>
           </div>
-          <button onclick="openSongSheet('${song.id}')" style="background:transparent;border:none;color:var(--chords-color);cursor:pointer;padding:4px;"><iconify-icon icon="mdi:play" style="font-size:18px;"></iconify-icon></button>
-          ${canEdit ? `<button onclick="removeSongFromSetlist('${song.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
+          <span style="color:var(--chords-color);padding:4px;display:flex;align-items:center;"><iconify-icon icon="mdi:chevron-right" style="font-size:18px;"></iconify-icon></span>
+          ${canEdit ? `<button onclick="event.stopPropagation();removeSongFromSetlist('${song.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       `).join('')}
     </div>
@@ -2037,9 +2074,12 @@ async function saveSetlist() {
   };
   if (isCustomGroup) data.whitelist = selectedCustomMembers;
   try {
-    await db.collection('setlists').add(data);
+    const docRef = await db.collection('setlists').add(data);
     closeCreateSetlistModal();
-    showAlert('Setlist Created', 'This setlist is temporary and will be permanently deleted from the database exactly 1 month after creation.', 'mdi:clock-alert-outline');
+    // Redirect directly to the new setlist detail
+    const newSetlist = { id: docRef.id, ...data, songs: [] };
+    allSetlists.unshift(newSetlist);
+    openSetlistDetail(docRef.id);
   } catch(e) { console.error(e); showAlert('Error', 'Failed to create setlist.', 'mdi:alert-circle'); }
 }
 
