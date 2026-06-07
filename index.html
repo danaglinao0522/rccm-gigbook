@@ -66,9 +66,11 @@
     .tab-panel.active { display: block; }
     .tab-panel.active.tab-visible { opacity: 1; transform: translateY(0); }
     #app-root { display: none; }
-    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 6px 0; cursor: pointer; transition: color 0.2s; color: #6b7280; }
+    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 4px; cursor: pointer; transition: color 0.2s; color: #6b7280; gap: 2px; }
     .bottom-nav-btn.active { color: var(--chords-color); }
-    .bottom-nav-btn iconify-icon { font-size: 20px; }
+    .bottom-nav-btn iconify-icon { font-size: 22px; flex-shrink: 0; }
+    .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .bottom-nav-btn img { flex-shrink: 0; }
     .song-card { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background 0.15s; }
     .song-card:hover { background: #2a2a2a; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
@@ -116,9 +118,57 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
     .swipe-container { touch-action: pan-y; }
+    /* ── Responsive layout ─────────────────────────────── */
+    /* Mobile base (< 640px): single column, full width modals */
+
+    /* Tablet (640px+) */
+    @media (min-width: 640px) {
+      .modal-sheet { max-width: 520px; }
+      .modal-sheet.center-card { max-width: 480px; }
+      #bottom-nav { justify-content: center; }
+      .bottom-nav-btn { max-width: 100px; }
+    }
+
+    /* Desktop (1024px+) */
     @media (min-width: 1024px) {
-      #app-root { max-width: 56rem; margin: 0 auto; padding: 0 2rem; position: relative; }
-      body { background: #0a0a0a; }
+      body { background: #0a0a0a; overflow: hidden; }
+      #app-root {
+        max-width: 420px; margin: 0 auto;
+        box-shadow: 0 0 60px rgba(0,0,0,0.7);
+        border-left: 1px solid #222; border-right: 1px solid #222;
+        position: relative; height: 100vh;
+      }
+      /* On desktop, modals stay within the app column */
+      .modal-overlay { position: absolute; }
+      #profile-view { position: absolute; }
+      #autoscroll-fab { position: absolute; right: 16px; }
+      #add-song-fab  { position: absolute; right: 20px; }
+      .fab           { position: absolute; right: 20px; }
+      #sync-bar      { position: absolute; }
+      .desktop-font-btns { position: absolute; left: 16px; }
+      #sync-toast    { position: absolute; }
+      /* Wider sheet font for readability */
+      .song-sheet-content { font-size: calc(var(--sheet-font-size) + 1px); }
+    }
+
+    /* Large desktop sidebar layout (1280px+) */
+    @media (min-width: 1280px) {
+      body { display: flex; align-items: stretch; justify-content: center; }
+      #desktop-sidebar {
+        display: flex !important;
+        flex-direction: column;
+        width: 220px;
+        background: #111;
+        border-right: 1px solid #222;
+        padding: 24px 0 80px;
+        gap: 4px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      #app-root { max-width: 420px; border-radius: 0; flex-shrink: 0; }
+      #bottom-nav { display: none !important; }
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #555; appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
     .checkbox-custom:checked { background: var(--chords-color); border-color: var(--chords-color); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
@@ -269,6 +319,15 @@
   </div>
 </div>
 
+<!-- DESKTOP SIDEBAR (shown at 1280px+) -->
+<div id="desktop-sidebar" style="display:none;">
+  <div style="padding:16px 20px 20px;">
+    <img src="icons/logo.png" style="width:40px;height:40px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none'" />
+    <p id="sidebar-app-name" style="color:#fff;font-size:15px;font-weight:700;margin:8px 0 0;">RCCM Gigbook</p>
+  </div>
+  <div id="sidebar-nav" style="display:flex;flex-direction:column;gap:2px;padding:0 10px;"></div>
+</div>
+
 <!-- MAIN APP ROOT -->
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
@@ -292,7 +351,7 @@
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:70px;-webkit-overflow-scrolling:touch;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch;">
 
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:10px;">
@@ -480,8 +539,11 @@
 
         <!-- SONG LIMITS PER ROLE -->
         <div>
-          <div class="section-label">Song Limit Per Setlist · By Role</div>
-          <div style="background:#1e1e1e;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleRoleLimits()">
+            <div class="section-label" style="margin-bottom:0;">Song Limit Per Setlist · By Role</div>
+            <iconify-icon id="role-limits-chevron" icon="mdi:chevron-down" style="font-size:18px;color:#6b7280;transition:transform 0.25s;"></iconify-icon>
+          </div>
+          <div id="role-limits-body" style="background:#1e1e1e;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:600px;opacity:1;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <div style="background:#252525;border-radius:8px;padding:10px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
@@ -524,7 +586,7 @@
             <!-- Keep old id for compat -->
             <input type="hidden" id="admin-song-limit" value="4" />
             <button class="btn-primary" onclick="saveRoleLimits()" style="width:100%;">Save Limits</button>
-          </div>
+          </div><!-- /role-limits-body -->
         </div>
 
         <!-- THEME PRESETS — Horizontal Carousel -->
@@ -616,7 +678,7 @@
   </div>
 
   <!-- BOTTOM NAV -->
-  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:rgba(18,18,18,0.97);border-top:1px solid #2a2a2a;display:flex;z-index:400;max-width:100%;">
+  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:rgba(18,18,18,0.97);border-top:1px solid #2a2a2a;display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(60px + env(safe-area-inset-bottom,0px));">
     <!-- Dynamically built by buildNav() -->
   </div>
 </div>
@@ -1367,6 +1429,20 @@ function buildNav() {
       <span style="font-size:var(--nav-font-size);">${t.label}</span>
     </button>
   `).join('') + profileBtn;
+  // Also populate desktop sidebar nav
+  const sidebarNav = document.getElementById('sidebar-nav');
+  if (sidebarNav) {
+    const sidebarProfileBtn = `<button onclick="openProfileView()" style="display:flex;align-items:center;gap:10px;background:transparent;border:none;color:#6b7280;cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='#1e1e1e'" onmouseout="this.style.background='transparent'">
+      <img src="${photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#333;border:2px solid #444;" onerror="this.style.background='#374151'" />
+      <span style="font-size:13px;font-weight:500;">Profile</span>
+    </button>`;
+    sidebarNav.innerHTML = tabs.map(t => `
+      <button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}')" style="display:flex;align-items:center;gap:10px;background:${t.id===activeTab?'#2a2a2a':'transparent'};border:none;color:${t.id===activeTab?'var(--chords-color)':'#6b7280'};cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='#1e1e1e'" onmouseout="this.style.background='${t.id===activeTab?'#2a2a2a':'transparent'}'">
+        <iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>
+        <span style="font-size:13px;font-weight:500;">${t.label}</span>
+      </button>
+    `).join('') + sidebarProfileBtn;
+  }
 }
 
 function switchTab(tab) {
@@ -1630,13 +1706,16 @@ function openSongSheet(songId, fromSetlist) {
   localKey = originalKey;
   lyricsOnlyMode = false;
   if (openedFromSetlist) {
-    // Show the songs tab panel so the song-sheet-view is accessible
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-songs').classList.add('active');
+    // Switch to songs tab to render the song sheet, but setlist detail stays in memory
+    document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
+    const songsPanel = document.getElementById('tab-songs');
+    songsPanel.classList.add('active');
+    songsPanel.classList.add('tab-visible');
   }
   document.getElementById('songs-list-view').style.display = 'none';
   const sheetView = document.getElementById('song-sheet-view');
   sheetView.style.display = 'block';
+  sheetView.style.opacity = '1';
   document.getElementById('sheet-song-title').textContent = song.title || '';
   document.getElementById('sheet-song-artist').textContent = song.artist || '';
   const navTitle = document.getElementById('top-nav-title');
@@ -1687,8 +1766,10 @@ function closeSongSheet() {
   currentSongId = null;
   if (openedFromSetlist) {
     openedFromSetlist = false;
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-setlists').classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
+    const setlistsPanel = document.getElementById('tab-setlists');
+    setlistsPanel.classList.add('active');
+    setlistsPanel.classList.add('tab-visible');
     document.getElementById('songs-list-view').style.display = 'block';
     document.getElementById('setlist-detail-view').style.display = 'block';
     updateHomeBtn(true);
@@ -2693,10 +2774,23 @@ function closeUserDetail() {
 }
 
 function filterUsers() { renderUsersList(); }
-function setUserFilter(filter, el) {
+function toggleUserFilterMenu() {
+  const menu = document.getElementById('user-filter-menu');
+  if (!menu) return;
+  const isOpen = menu.style.display === 'block';
+  // Close all filter menus first
+  document.querySelectorAll('#song-filter-menu,#setlist-filter-menu,#user-filter-menu').forEach(m => m.style.display = 'none');
+  if (!isOpen) menu.style.display = 'block';
+}
+
+function setUserFilter(filter) {
   userFilterActive = filter;
-  document.querySelectorAll('#user-filter-chips .filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
+  // Update label on the button
+  const label = document.getElementById('user-filter-label');
+  if (label) label.textContent = filter === 'all' ? 'All' : filter;
+  // Close menu
+  const menu = document.getElementById('user-filter-menu');
+  if (menu) menu.style.display = 'none';
   renderUsersList();
 }
 
@@ -2886,7 +2980,25 @@ async function saveAdminSettings() {
   } catch(e) { hideSyncToast(); console.error(e); }
 }
 
-async function saveRoleLimits() {
+async function toggleRoleLimits() {
+  const body = document.getElementById('role-limits-body');
+  const chevron = document.getElementById('role-limits-chevron');
+  if (!body) return;
+  const collapsed = body.style.maxHeight === '0px';
+  if (collapsed) {
+    body.style.maxHeight = '600px';
+    body.style.opacity = '1';
+    body.style.padding = '14px';
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  } else {
+    body.style.maxHeight = '0px';
+    body.style.opacity = '0';
+    body.style.padding = '0 14px';
+    if (chevron) chevron.style.transform = 'rotate(-90deg)';
+  }
+}
+
+function saveRoleLimits() {
   const role = currentUserProfile?.role || '';
   if (role !== 'Admin') return;
   const limits = {
