@@ -150,6 +150,32 @@
     .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid #444; background: #1e1e1e; color: #9ca3af; cursor: pointer; white-space: nowrap; }
     .filter-chip.active { background: var(--chords-color); color: #000; border-color: var(--chords-color); }
     .sort-select { background: #1e1e1e; border: 1px solid #333; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 13px; outline: none; }
+
+    /* ── Sync bar ── */
+    #sync-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #sync-bar.active { opacity: 1; }
+    #sync-bar-fill {
+      position: absolute;
+      top: 0; left: -60%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent 0%, #22c55e 40%, #4ade80 60%, transparent 100%);
+      border-radius: 0 2px 2px 0;
+      animation: syncSlide 1.4s cubic-bezier(0.4,0,0.2,1) infinite;
+    }
+    @keyframes syncSlide {
+      0%   { left: -60%; opacity: 0.9; }
+      50%  { opacity: 1; }
+      100% { left: 110%; opacity: 0.7; }
+    }
     /* Admin panel */
     /* sync toast controlled via JS */
     .theme-preset-card { transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
@@ -245,7 +271,9 @@
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
-  <div id="top-nav" style="position:sticky;top:0;z-index:400;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #2a2a2a;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;max-width:100%;">
+  <div id="top-nav" style="position:sticky;top:0;z-index:400;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #2a2a2a;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;max-width:100%;position:relative;">
+    <!-- Sync loading bar -->
+    <div id="sync-bar"><div id="sync-bar-fill"></div></div>
     <div style="display:flex;align-items:center;gap:8px;">
       <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px 6px 4px 0;align-items:center;">
         <iconify-icon icon="mdi:arrow-left" style="font-size:20px;"></iconify-icon>
@@ -593,6 +621,11 @@
 
 <!-- FAB -->
 <button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
+
+<!-- ADD SONG FAB (inside setlist detail) -->
+<button id="add-song-fab" style="display:none;position:fixed;bottom:80px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--chords-color);color:#000;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;z-index:500;border:none;transition:transform 0.15s;" onclick="openSongSelectorModal()" title="Add Song">
+  <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
+</button>
 
 <!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
 <div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:16px;z-index:500;display:flex;align-items:center;flex-direction:column;gap:0;">
@@ -1238,12 +1271,26 @@ function switchTab(tab) {
 function updateFAB() {
   const role = currentUserProfile?.role || '';
   const fabEl = document.getElementById('fab-btn');
+  const addSongFab = document.getElementById('add-song-fab');
   const canCreate = ['Admin','Sub-Admin','Lead'].includes(role);
-  // Hide FAB when a song sheet is open OR when inside a setlist detail
   const songSheetOpen = document.getElementById('song-sheet-view')?.style.display === 'block';
   const setlistDetailOpen = currentSetlistId !== null;
-  const onListView = (activeTab === 'songs' && !songSheetOpen) || (activeTab === 'setlists' && !setlistDetailOpen && !songSheetOpen);
+
+  // Main + FAB: only on list views, not in detail/sheet
+  const onListView = (activeTab === 'songs' && !songSheetOpen) ||
+                     (activeTab === 'setlists' && !setlistDetailOpen && !songSheetOpen);
   fabEl.style.display = (canCreate && onListView) ? 'flex' : 'none';
+
+  // Add-Song FAB: only inside a setlist detail, when canEdit, under song limit, no song sheet
+  if (addSongFab) {
+    const setlist = allSetlists.find(s => s.id === currentSetlistId);
+    const isOwner = setlist?.createdBy === currentUser?.uid;
+    const canEdit = isOwner || ['Admin','Sub-Admin','Lead'].includes(role);
+    const underLimit = setlist ? currentSetlistSongs.length < getSetlistSongLimit() : false;
+    const showAddSong = setlistDetailOpen && !songSheetOpen && canEdit && underLimit;
+    addSongFab.style.display = showAddSong ? 'flex' : 'none';
+  }
+
   updateAutoscrollFabPosition();
 }
 function handleFabClick() {
@@ -1283,6 +1330,7 @@ function goHome() {
 function setupListeners() {
   if (songsUnsubscribe) songsUnsubscribe();
   songsUnsubscribe = db.collection('songs').orderBy('title').onSnapshot(snap => {
+    showSyncBar();
     allSongs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderSongsList();
     // If song sheet is open, refresh content live
@@ -1294,10 +1342,12 @@ function setupListeners() {
         renderSheetContent(updated.content || '', localKey, originalKey);
       }
     }
-  }, err => console.error('Songs listener:', err));
+    hideSyncBar();
+  }, err => { console.error('Songs listener:', err); hideSyncBar(); });
 
   if (setlistsUnsubscribe) setlistsUnsubscribe();
   setlistsUnsubscribe = db.collection('setlists').orderBy('createdAt', 'desc').onSnapshot(snap => {
+    showSyncBar();
     allSetlists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderSetlistsList();
     // If a setlist detail is currently open, refresh it live
@@ -1306,23 +1356,28 @@ function setupListeners() {
       if (updated) {
         currentSetlistSongs = updated.songs ? [...updated.songs] : [];
         renderSetlistDetail(updated);
+        updateFAB(); // refresh add-song-fab visibility
       }
     }
-  }, err => console.error('Setlists listener:', err));
+    hideSyncBar();
+  }, err => { console.error('Setlists listener:', err); hideSyncBar(); });
 
   const role = currentUserProfile?.role || '';
   if (['Admin','Sub-Admin','Lead'].includes(role)) {
     if (usersUnsubscribe) usersUnsubscribe();
     usersUnsubscribe = db.collection('users').onSnapshot(snap => {
+      showSyncBar();
       allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderUsersList();
-    }, err => console.error('Users listener:', err));
+      hideSyncBar();
+    }, err => { console.error('Users listener:', err); hideSyncBar(); });
   }
 }
 
 function loadAdminSettings() {
   if (adminSettingsUnsubscribe) adminSettingsUnsubscribe();
   adminSettingsUnsubscribe = db.collection('settings').doc('global').onSnapshot(snap => {
+    showSyncBar();
     if (snap.exists) {
       const data = snap.data();
       // Song limits
@@ -1351,7 +1406,8 @@ function loadAdminSettings() {
         imgs.forEach(img => { if (img) img.src = data.logoURL; });
       }
     }
-  }, err => console.error('Settings listener:', err));
+    hideSyncBar();
+  }, err => { console.error('Settings listener:', err); hideSyncBar(); });
 }
 
 // ============================================================
@@ -1489,6 +1545,8 @@ function openSongSheet(songId, fromSetlist) {
   document.getElementById('autoscroll-popup').style.display = 'none';
   updateAutoscrollFabIcon();
   document.getElementById('autoscroll-fab').style.display = 'flex';
+  const addSongFabEl = document.getElementById('add-song-fab');
+  if (addSongFabEl) addSongFabEl.style.display = 'none';
   updateAutoscrollFabPosition();
 }
 
@@ -1665,6 +1723,26 @@ function toggleLyricsOnly() {
 // AUTO-SCROLL
 // ============================================================
 let globalRoleLimits = { admin: 999, subadmin: 30, lead: 20, musician: 4, singer: 4, tech: 4 };
+
+// ── Sync bar helpers ──────────────────────────────────────────
+let _syncCount = 0;
+let _syncHideTimer = null;
+function showSyncBar() {
+  _syncCount++;
+  if (_syncHideTimer) { clearTimeout(_syncHideTimer); _syncHideTimer = null; }
+  const bar = document.getElementById('sync-bar');
+  if (bar) bar.classList.add('active');
+}
+function hideSyncBar() {
+  _syncCount = Math.max(0, _syncCount - 1);
+  if (_syncCount > 0) return;
+  // Small delay so fast sequential updates don't flicker
+  _syncHideTimer = setTimeout(() => {
+    const bar = document.getElementById('sync-bar');
+    if (bar) bar.classList.remove('active');
+    _syncHideTimer = null;
+  }, 600);
+}
 let autoScrollAnimFrame = null;
 let autoScrollAccumulator = 0;
 function setAutoScroll(val) {
@@ -2022,6 +2100,8 @@ function closeSetlistDetail() {
   document.getElementById('setlist-detail-view').style.display = 'none';
   document.getElementById('setlists-list-view').style.display = 'block';
   currentSetlistId = null;
+  const addSongFab = document.getElementById('add-song-fab');
+  if (addSongFab) addSongFab.style.display = 'none';
   updateHomeBtn(false);
   updateFAB();
 }
@@ -2044,9 +2124,7 @@ function renderSetlistDetail(setlist) {
         </div>
         <div id="setlist-creator-info" style="display:flex;align-items:center;gap:6px;"></div>
       </div>
-      ${canEdit && currentSetlistSongs.length < getSetlistSongLimit() ? `<button onclick="openSongSelectorModal()" style="display:flex;align-items:center;gap:6px;width:100%;justify-content:center;" class="btn-secondary">
-        <iconify-icon icon="mdi:plus" style="font-size:16px;"></iconify-icon> Add Song
-      </button>` : ''}
+
     </div>
     <div id="setlist-songs-container">
       ${songs.length === 0 ? '<p style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0;">No songs in this setlist yet.</p>' : songs.map((song, i) => `
@@ -2069,14 +2147,135 @@ async function loadSetlistCreator(uid) {
   if (!uid) return;
   try {
     const snap = await db.collection('users').doc(uid).get();
-    if (snap.exists) {
-      const d = snap.data();
-      document.getElementById('setlist-creator-info').innerHTML = `
+    if (!snap.exists) return;
+    const d = snap.data();
+    const myRole = currentUserProfile?.role || '';
+    const isOwner = uid === currentUser?.uid;
+    const canManage = isOwner || myRole === 'Admin';
+    const setlist = allSetlists.find(s => s.id === currentSetlistId);
+    const isCustomGroup = setlist?.isCustomGroup;
+    document.getElementById('setlist-creator-info').innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;">
         <img src="${escHtml(d.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#333;" />
-        <span style="font-size:11px;color:#6b7280;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(d.displayName||'')}</span>
-      `;
-    }
+        <span style="font-size:11px;color:#6b7280;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(d.displayName||'')}</span>
+        ${isCustomGroup && canManage ? `<button onclick="openManageMembersModal()" title="Manage Members"
+          style="background:#2a2a2a;border:1px solid #444;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.15s;"
+          onmouseover="this.style.background='#3a3a3a'" onmouseout="this.style.background='#2a2a2a'">
+          <iconify-icon icon="mdi:account-multiple-plus" style="font-size:16px;color:var(--chords-color);"></iconify-icon>
+        </button>` : ''}
+      </div>
+    `;
   } catch(e) {}
+}
+
+// ============================================================
+// MANAGE MEMBERS MODAL (Custom Group Setlists)
+// ============================================================
+function openManageMembersModal() {
+  const setlist = allSetlists.find(s => s.id === currentSetlistId);
+  if (!setlist || !setlist.isCustomGroup) return;
+  document.getElementById('manage-members-search').value = '';
+  renderManageCurrentMembers();
+  renderManageAddList('');
+  document.getElementById('manage-members-modal').style.display = 'flex';
+  pushState();
+}
+
+function closeManageMembersModal() {
+  document.getElementById('manage-members-modal').style.display = 'none';
+}
+
+function renderManageCurrentMembers() {
+  const setlist = allSetlists.find(s => s.id === currentSetlistId);
+  const whitelist = setlist?.whitelist || [];
+  const container = document.getElementById('manage-current-members');
+  if (whitelist.length === 0) {
+    container.innerHTML = '<p style="color:#6b7280;font-size:12px;text-align:center;padding:10px 0;">No members yet.</p>';
+    return;
+  }
+  container.innerHTML = whitelist.map(uid => {
+    const u = allUsers.find(x => x.uid === uid);
+    const name = u ? escHtml(u.displayName || u.email || uid) : uid;
+    const photo = u?.photoURL || '';
+    return `<div style="display:flex;align-items:center;gap:8px;background:#252525;border-radius:8px;padding:8px 10px;">
+      <img src="${escHtml(photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#374151;flex-shrink:0;" onerror="this.style.background='#374151'" />
+      <span style="color:#e5e7eb;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
+      <button onclick="removeMemberFromSetlist('${uid}')"
+        style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;"
+        title="Remove">
+        <iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function renderManageAddList(query) {
+  const setlist = allSetlists.find(s => s.id === currentSetlistId);
+  const whitelist = setlist?.whitelist || [];
+  const creatorUid = setlist?.createdBy;
+  // Exclude creator and already-added members
+  const available = allUsers.filter(u =>
+    u.uid !== currentUser?.uid &&
+    u.uid !== creatorUid &&
+    !whitelist.includes(u.uid) &&
+    (
+      (u.displayName||'').toLowerCase().includes(query.toLowerCase()) ||
+      (u.email||'').toLowerCase().includes(query.toLowerCase())
+    )
+  );
+  const container = document.getElementById('manage-add-members-list');
+  if (available.length === 0) {
+    container.innerHTML = '<p style="color:#6b7280;font-size:12px;text-align:center;padding:12px;">No more users to add.</p>';
+    return;
+  }
+  container.innerHTML = available.map(u => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #1a1a1a;cursor:pointer;transition:background 0.15s;"
+      onclick="addMemberToSetlist('${u.uid}')"
+      onmouseover="this.style.background='#1a2a1a'" onmouseout="this.style.background='transparent'">
+      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#374151;flex-shrink:0;" onerror="this.style.background='#374151'" />
+      <div style="flex:1;min-width:0;">
+        <p style="color:#e5e7eb;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
+        <p style="color:#6b7280;font-size:11px;margin:0;">${escHtml(u.email||'')}</p>
+      </div>
+      <iconify-icon icon="mdi:plus-circle" style="font-size:20px;color:var(--chords-color);flex-shrink:0;"></iconify-icon>
+    </div>`).join('');
+}
+
+function filterManageMembers() {
+  const q = document.getElementById('manage-members-search').value;
+  renderManageAddList(q);
+}
+
+async function removeMemberFromSetlist(uid) {
+  const setlist = allSetlists.find(s => s.id === currentSetlistId);
+  if (!setlist) return;
+  const newWhitelist = (setlist.whitelist || []).filter(id => id !== uid);
+  try {
+    await db.collection('setlists').doc(currentSetlistId).update({ whitelist: newWhitelist });
+    setlist.whitelist = newWhitelist;
+    renderManageCurrentMembers();
+    renderManageAddList(document.getElementById('manage-members-search').value);
+    // Refresh the setlist detail (member avatars)
+    renderSetlistDetail(setlist);
+    loadSetlistCreator(setlist.createdBy);
+  } catch(e) { console.error(e); showAlert('Error', 'Failed to remove member.', 'mdi:alert-circle'); }
+}
+
+async function addMemberToSetlist(uid) {
+  const setlist = allSetlists.find(s => s.id === currentSetlistId);
+  if (!setlist) return;
+  const newWhitelist = [...(setlist.whitelist || [])];
+  if (newWhitelist.includes(uid)) return;
+  newWhitelist.push(uid);
+  try {
+    await db.collection('setlists').doc(currentSetlistId).update({ whitelist: newWhitelist });
+    setlist.whitelist = newWhitelist;
+    renderManageCurrentMembers();
+    renderManageAddList(document.getElementById('manage-members-search').value);
+    // Refresh avatars in setlist detail
+    renderSetlistDetail(setlist);
+    loadSetlistCreator(setlist.createdBy);
+  } catch(e) { console.error(e); showAlert('Error', 'Failed to add member.', 'mdi:alert-circle'); }
 }
 
 async function removeSongFromSetlist(songId) {
@@ -2085,6 +2284,7 @@ async function removeSongFromSetlist(songId) {
     await db.collection('setlists').doc(currentSetlistId).update({ songs: currentSetlistSongs });
     const setlist = allSetlists.find(s => s.id === currentSetlistId);
     if (setlist) { setlist.songs = currentSetlistSongs; renderSetlistDetail(setlist); }
+    updateFAB();
   } catch(e) { console.error(e); }
 }
 
@@ -2878,6 +3078,35 @@ window.addEventListener('load', () => {
         <button class="btn-secondary" style="flex:1;" onclick="closeLogoChangeModal()">Cancel</button>
         <button class="btn-primary" style="flex:1;" onclick="saveLogoChange()">Save Logo</button>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MANAGE MEMBERS MODAL -->
+<div id="manage-members-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-sheet" style="max-height:88vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Manage Members</h3>
+      <button onclick="closeManageMembersModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+    </div>
+    <!-- Current members -->
+    <div style="margin-bottom:14px;">
+      <div class="section-label" style="margin-bottom:8px;">Current Members</div>
+      <div id="manage-current-members" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+    <!-- Divider -->
+    <div style="height:1px;background:#2a2a2a;margin-bottom:14px;"></div>
+    <!-- Add members -->
+    <div>
+      <div class="section-label" style="margin-bottom:8px;">Add Members</div>
+      <div style="position:relative;margin-bottom:8px;">
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="manage-members-search"
+          placeholder="Search users to add..." oninput="filterManageMembers()" />
+      </div>
+      <div id="manage-add-members-list" style="max-height:200px;overflow-y:auto;background:#111;border-radius:8px;"></div>
     </div>
   </div>
 </div>
