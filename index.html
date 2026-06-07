@@ -314,18 +314,9 @@
                 <span id="lyrics-toggle-label">Lyrics Only</span>
               </button>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <iconify-icon icon="mdi:play-speed" style="font-size:16px;color:#6b7280;flex-shrink:0;"></iconify-icon>
-              <input type="range" min="0" max="10" value="0" class="autoscroll-slider" id="autoscroll-slider" oninput="setAutoScroll(this.value)" style="flex:1;" />
-            </div>
           </div>
           <!-- SINGER/TECH CONTROLS -->
-          <div id="singer-controls" style="display:none;margin-top:8px;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <iconify-icon icon="mdi:play-speed" style="font-size:16px;color:#6b7280;flex-shrink:0;"></iconify-icon>
-              <input type="range" min="0" max="10" value="0" class="autoscroll-slider" id="autoscroll-slider-singer" oninput="setAutoScroll(this.value)" style="flex:1;" />
-            </div>
-          </div>
+          <div id="singer-controls" style="display:none;margin-top:8px;"></div>
         </div>
         <div id="song-sheet-content" class="song-sheet-content swipe-container" style="overflow-x:hidden;max-width:100%;word-wrap:break-word;padding-bottom:20px;line-height:1.6;"></div>
       </div>
@@ -499,6 +490,25 @@
 
 <!-- FAB -->
 <button id="fab-btn" class="fab" style="display:none;" onclick="openCreateSongModal()">+</button>
+
+<!-- AUTOSCROLL FAB -->
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:84px;z-index:500;align-items:flex-end;gap:0;flex-direction:column;">
+  <!-- Vertical slider popup -->
+  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+    <span style="color:#6b7280;font-size:10px;font-weight:600;letter-spacing:0.05em;">SPEED</span>
+    <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:12px;font-weight:700;">0</span>
+    <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
+      style="writing-mode:vertical-lr;direction:rtl;width:36px;height:110px;accent-color:var(--chords-color);cursor:pointer;-webkit-appearance:slider-vertical;appearance:slider-vertical;"
+      oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
+    <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
+      style="background:transparent;border:none;color:#6b7280;font-size:10px;cursor:pointer;padding:2px 6px;border-radius:4px;border:1px solid #333;">STOP</button>
+  </div>
+  <!-- The FAB button itself -->
+  <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
+    style="width:46px;height:46px;border-radius:50%;background:#2a2a2a;border:1px solid #444;color:#9ca3af;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;">
+    <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
+  </button>
+</div>
 
 <!-- DESKTOP FONT BUTTONS -->
 <div id="desktop-font-btns" class="desktop-font-btns" style="display:none;">
@@ -778,6 +788,23 @@
   </div>
 </div>
 
+<!-- SETLIST LIMIT MODAL -->
+<div id="setlist-limit-modal" class="modal-overlay center" style="display:none;">
+  <div class="modal-sheet center-card" style="max-width:400px;border-radius:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <iconify-icon icon="mdi:playlist-remove" style="font-size:22px;color:#ef4444;"></iconify-icon>
+        <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Setlist Limit Reached</h3>
+      </div>
+      <button onclick="closeSetlistLimitModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+    </div>
+    <p id="setlist-limit-msg" style="color:#9ca3af;font-size:13px;margin:0 0 14px;line-height:1.5;"></p>
+    <div class="section-label" style="margin-bottom:8px;">Your Setlists</div>
+    <div id="setlist-limit-list" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;"></div>
+    <button onclick="closeSetlistLimitModal()" class="btn-secondary" style="width:100%;margin-top:14px;">Cancel</button>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // FIREBASE CONFIGURATION
@@ -877,6 +904,7 @@ function handleBackButton() {
   if (document.getElementById('song-selector-modal').style.display !== 'none') { closeSongSelectorModal(); return; }
   if (document.getElementById('tutorial-modal').style.display !== 'none') { closeTutorialModal(); return; }
   if (document.getElementById('alert-modal').style.display !== 'none') { closeAlertModal(); return; }
+  if (document.getElementById('setlist-limit-modal').style.display !== 'none') { closeSetlistLimitModal(); return; }
   if (document.getElementById('profile-view').style.display !== 'none') { closeProfileView(); return; }
   const sheetView = document.getElementById('song-sheet-view');
   if (sheetView && sheetView.style.display !== 'none') { goHome(); return; }
@@ -1102,6 +1130,7 @@ function updateFAB() {
   const canCreate = ['Admin','Sub-Admin','Lead'].includes(role);
   const validTab = activeTab === 'songs' || activeTab === 'setlists';
   fabEl.style.display = (canCreate && validTab) ? 'flex' : 'none';
+  updateAutoscrollFabPosition();
 }
 
 function updateHomeBtn(show) {
@@ -1276,7 +1305,11 @@ function openSongSheet(songId) {
   pushState();
   stopAutoScroll();
   document.getElementById('autoscroll-slider').value = 0;
-  if (document.getElementById('autoscroll-slider-singer')) document.getElementById('autoscroll-slider-singer').value = 0;
+  document.getElementById('autoscroll-speed-label').textContent = '0';
+  document.getElementById('autoscroll-popup').style.display = 'none';
+  updateAutoscrollFabIcon();
+  document.getElementById('autoscroll-fab').style.display = 'flex';
+  updateAutoscrollFabPosition();
 }
 
 function setupSongControls() {
@@ -1309,6 +1342,8 @@ function closeSongSheet() {
   stopAutoScroll();
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('songs-list-view').style.display = 'block';
+  document.getElementById('autoscroll-fab').style.display = 'none';
+  document.getElementById('autoscroll-popup').style.display = 'none';
   currentSongId = null;
   updateHomeBtn(false);
   updateFAB();
@@ -1456,6 +1491,41 @@ function setAutoScroll(val) {
   stopAutoScroll();
   if (autoScrollSpeed > 0) startAutoScroll();
 }
+function toggleAutoscrollPopup() {
+  const popup = document.getElementById('autoscroll-popup');
+  popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+}
+function updateAutoscrollFabIcon() {
+  const btn = document.getElementById('autoscroll-fab-btn');
+  const icon = document.getElementById('autoscroll-fab-icon');
+  const val = parseInt(document.getElementById('autoscroll-slider').value || 0);
+  if (val > 0) {
+    btn.style.background = 'var(--chords-color)';
+    btn.style.color = '#000';
+    btn.style.borderColor = 'var(--chords-color)';
+    icon.style.color = '#000';
+  } else {
+    btn.style.background = '#2a2a2a';
+    btn.style.color = '#9ca3af';
+    btn.style.borderColor = '#444';
+    icon.style.color = '#9ca3af';
+  }
+}
+function updateAutoscrollFabPosition() {
+  const fabEl = document.getElementById('fab-btn');
+  const asFab = document.getElementById('autoscroll-fab');
+  if (!asFab) return;
+  const fabVisible = fabEl && fabEl.style.display !== 'none';
+  asFab.style.right = fabVisible ? '84px' : '20px';
+}
+// Close autoscroll popup when tapping outside it
+document.addEventListener('click', (e) => {
+  const fab = document.getElementById('autoscroll-fab');
+  const popup = document.getElementById('autoscroll-popup');
+  if (fab && popup && popup.style.display === 'flex') {
+    if (!fab.contains(e.target)) popup.style.display = 'none';
+  }
+});
 function startAutoScroll() {
   const content = document.getElementById('main-content');
   let lastTime = null;
@@ -1663,15 +1733,18 @@ async function saveSong() {
 // ============================================================
 function canSeeSetlist(setlist) {
   const role = currentUserProfile?.role || '';
-  if (['Admin','Sub-Admin','Lead'].includes(role)) return true;
-  if (role === 'Tech') return true;
-  if (!setlist.isCustomGroup) {
-    if (setlist.isPrivate && setlist.createdBy !== currentUser?.uid) return false;
-    return true;
+  // Only Admin sees every setlist regardless of type
+  if (role === 'Admin') return true;
+  // Custom group: only creator or whitelisted members
+  if (setlist.isCustomGroup) {
+    if (setlist.createdBy === currentUser?.uid) return true;
+    if (setlist.whitelist && setlist.whitelist.includes(currentUser?.uid)) return true;
+    return false;
   }
-  if (setlist.createdBy === currentUser?.uid) return true;
-  if (setlist.whitelist && setlist.whitelist.includes(currentUser?.uid)) return true;
-  return false;
+  // Private: only the creator
+  if (setlist.isPrivate && setlist.createdBy !== currentUser?.uid) return false;
+  // Public: everyone sees it
+  return true;
 }
 
 function renderSetlistsList() {
@@ -1691,7 +1764,7 @@ function renderSetlistsList() {
     return;
   }
   emptyEl.style.display = 'none';
-  listEl.innerHTML = visible.map(setlist => {
+  listEl.innerHTML = setlists.map(setlist => {
     const isOwner = setlist.createdBy === currentUser?.uid;
     const role = currentUserProfile?.role || '';
     const canEdit = isOwner || ['Admin','Sub-Admin'].includes(role);
@@ -1824,8 +1897,13 @@ function filterSongSelector() {
   const q = document.getElementById('song-selector-search').value.toLowerCase();
   renderSongSelectorList(q);
 }
+function getSetlistSongLimit() {
+  const role = currentUserProfile?.role || '';
+  return ['Admin','Sub-Admin','Lead'].includes(role) ? 99999 : 4;
+}
+
 function renderSongSelectorList(query) {
-  const limit = currentSetlistId && isCustomGroupSetlist(currentSetlistId) ? 99999 : globalSongLimit;
+  const limit = getSetlistSongLimit();
   const atLimit = currentSetlistSongs.length >= limit;
   const available = allSongs.filter(s =>
     !currentSetlistSongs.includes(s.id) &&
@@ -1855,10 +1933,7 @@ function isCustomGroupSetlist(id) {
 }
 
 async function addSongToSetlist(songId) {
-  const role = currentUserProfile?.role || '';
-  const isAdmin = role === 'Admin';
-  const isCustomGroup = isCustomGroupSetlist(currentSetlistId);
-  const limit = isCustomGroup ? 99999 : (isAdmin ? 99999 : globalSongLimit);
+  const limit = getSetlistSongLimit();
   if (currentSetlistSongs.length >= limit) {
     showAlert('Limit Reached', `This setlist can hold a maximum of ${limit} songs.`, 'mdi:alert');
     return;
@@ -1881,6 +1956,10 @@ function openCreateSetlistModal() {
   document.getElementById('new-setlist-custom').checked = false;
   document.getElementById('custom-group-users-section').style.display = 'none';
   selectedCustomMembers = [];
+  // Only Admin, Sub-Admin, Lead can create custom group setlists
+  const role = currentUserProfile?.role || '';
+  const canCustom = ['Admin','Sub-Admin','Lead'].includes(role);
+  document.getElementById('custom-group-section').style.display = canCustom ? 'block' : 'none';
   document.getElementById('create-setlist-modal').style.display = 'flex';
   pushState();
 }
@@ -1931,18 +2010,29 @@ async function saveSetlist() {
   const name = document.getElementById('new-setlist-name').value.trim();
   if (!name) { showAlert('Missing Info', 'Please enter a setlist name.', 'mdi:alert-circle'); return; }
   const role = currentUserProfile?.role || '';
-  const existingCount = allSetlists.filter(s => s.createdBy === currentUser?.uid).length;
-  let maxAllowed = Infinity;
-  if (role === 'Sub-Admin' || role === 'Lead') maxAllowed = currentUserProfile?.maxSetlistsOverride ?? 5;
-  else if (role === 'Musician' || role === 'Singer') maxAllowed = currentUserProfile?.maxSetlistsOverride ?? 2;
-  if (existingCount >= maxAllowed) {
-    showAlert('Limit Reached', `You can only create ${maxAllowed} setlists. Delete one to create another.`, 'mdi:playlist-remove');
-    return;
+  const isAdmin = role === 'Admin';
+
+  // Enforce setlist creation limit (Admin = unlimited, everyone else = 3 by default)
+  if (!isAdmin) {
+    const existingCount = allSetlists.filter(s => s.createdBy === currentUser?.uid).length;
+    const maxAllowed = currentUserProfile?.maxSetlistsOverride ?? 3;
+    if (existingCount >= maxAllowed) {
+      closeCreateSetlistModal();
+      showSetlistLimitModal(maxAllowed);
+      return;
+    }
   }
-  const isCustomGroup = document.getElementById('new-setlist-custom').checked;
+
+  // Only Admin, Sub-Admin, Lead can create custom group setlists
+  const canCreateCustom = ['Admin','Sub-Admin','Lead'].includes(role);
+  const isCustomGroup = canCreateCustom && document.getElementById('new-setlist-custom').checked;
+
+  // If custom group, it's neither public nor private in the normal sense
+  const isPrivate = !isCustomGroup && document.getElementById('new-setlist-private').checked;
+
   const data = {
-    name, isPrivate: document.getElementById('new-setlist-private').checked,
-    isCustomGroup, songs: [], createdBy: currentUser.uid,
+    name, isPrivate, isCustomGroup, songs: [],
+    createdBy: currentUser.uid,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   if (isCustomGroup) data.whitelist = selectedCustomMembers;
@@ -2306,11 +2396,13 @@ async function runTTLCleanup() {
   try {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-    const snap = await db.collection('setlists').where('createdAt', '<', oneMonthAgo).get();
+    const cutoff = firebase.firestore.Timestamp.fromDate(oneMonthAgo);
+    const snap = await db.collection('setlists').where('createdAt', '<', cutoff).get();
     if (snap.empty) return;
     const batch = db.batch();
     snap.docs.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
+    console.log(`TTL cleanup: deleted ${snap.size} expired setlist(s).`);
   } catch(e) { console.error('TTL cleanup error:', e); }
 }
 
@@ -2325,6 +2417,53 @@ function showAlert(title, message, icon='mdi:information') {
   pushState();
 }
 function closeAlertModal() { document.getElementById('alert-modal').style.display = 'none'; }
+
+// ============================================================
+// SETLIST LIMIT MODAL
+// ============================================================
+function showSetlistLimitModal(maxAllowed) {
+  const mySetlists = allSetlists.filter(s => s.createdBy === currentUser?.uid);
+  document.getElementById('setlist-limit-msg').textContent =
+    `You've reached your limit of ${maxAllowed} setlist${maxAllowed !== 1 ? 's' : ''}. Delete one below to create a new one.`;
+  const listEl = document.getElementById('setlist-limit-list');
+  listEl.innerHTML = mySetlists.map(s => `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#252525;border-radius:8px;padding:10px 12px;">
+      <div style="flex:1;min-width:0;">
+        <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
+        <p style="color:#6b7280;font-size:11px;margin:2px 0 0;">
+          ${s.isCustomGroup ? '⚡ Custom' : s.isPrivate ? '🔒 Private' : '🌐 Public'}
+          · ${s.songs ? s.songs.length : 0} song${s.songs && s.songs.length !== 1 ? 's' : ''}
+        </p>
+      </div>
+      <button onclick="deleteSetlistFromLimit('${s.id}')"
+        style="background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+        Delete
+      </button>
+    </div>
+  `).join('');
+  document.getElementById('setlist-limit-modal').style.display = 'flex';
+  pushState();
+}
+
+function closeSetlistLimitModal() {
+  document.getElementById('setlist-limit-modal').style.display = 'none';
+}
+
+async function deleteSetlistFromLimit(id) {
+  if (!confirm('Delete this setlist? This cannot be undone.')) return;
+  try {
+    await db.collection('setlists').doc(id).delete();
+    // Re-render the list after deletion; if now under limit, close and reopen create modal
+    const mySetlists = allSetlists.filter(s => s.createdBy === currentUser?.uid);
+    const maxAllowed = currentUserProfile?.maxSetlistsOverride ?? 3;
+    if (mySetlists.length < maxAllowed) {
+      closeSetlistLimitModal();
+      openCreateSetlistModal();
+    } else {
+      showSetlistLimitModal(maxAllowed);
+    }
+  } catch(e) { console.error(e); showAlert('Error', 'Failed to delete setlist.', 'mdi:alert-circle'); }
+}
 
 // ============================================================
 // UTILITIES
