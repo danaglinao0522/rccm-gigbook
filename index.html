@@ -19,9 +19,16 @@
       --surface-1: #1e1e1e;
       --surface-2: #2a2a2a;
       --surface-3: #252525;
+      --surface-input: #2a2a2a;
       --border-color: #2a2a2a;
       --border-subtle: #333;
       --nav-bg: rgba(14,14,14,0.96);
+      --text-muted: #6b7280;
+      --text-secondary: #9ca3af;
+      --modal-overlay: rgba(0,0,0,0.75);
+      --toggle-track: #374151;
+      --scrollbar-thumb: #444;
+      --accent-glow: rgba(251,191,36,0.15);
       --lyrics-color: #FFFFFF;
       --chords-color: #FBBF24;
       --sheet-font-size: 15px;
@@ -73,21 +80,21 @@
     .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 4px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color: #6b7280; gap: 3px; background: transparent; border: none; position: relative; }
     .bottom-nav-btn:active { transform: scale(0.92); }
     .bottom-nav-btn.active { color: var(--chords-color); }
-    .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--chords-color); border-radius: 0 0 3px 3px; box-shadow: 0 0 8px rgba(251,191,36,0.5); }
+    .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--chords-color); border-radius: 0 0 3px 3px; box-shadow: 0 0 8px var(--accent-glow); }
     .bottom-nav-btn .nav-icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 28px; border-radius: 10px; transition: background 0.2s; }
-    .bottom-nav-btn.active .nav-icon-wrap { background: rgba(251,191,36,0.12); }
+    .bottom-nav-btn.active .nav-icon-wrap { background: var(--accent-glow); }
     .bottom-nav-btn iconify-icon { font-size: 21px; flex-shrink: 0; }
     .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
     .bottom-nav-btn.active span { font-weight: 700; }
     .bottom-nav-btn img { flex-shrink: 0; }
     .song-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background 0.15s; }
     .song-card:hover { background: var(--surface-2); }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
     .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 16px; }
     .modal-sheet.center-card { border-radius: 16px; max-height: 85vh; }
     .modal-sheet.key-modal { max-height: 50vh; }
-    .modal-handle { width: 40px; height: 4px; background: #444; border-radius: 2px; margin: 0 auto 12px; }
+    .modal-handle { width: 40px; height: 4px; background: var(--border-subtle); border-radius: 2px; margin: 0 auto 12px; }
     .role-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
     .badge-admin { background: #7c3aed; color: #fff; }
     .badge-subadmin { background: #2563eb; color: #fff; }
@@ -99,33 +106,33 @@
     .user-row { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; inset: 0; background: #374151; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s; }
     .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
     input:checked + .toggle-slider { background: var(--chords-color); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
     .fab { position: fixed; bottom: 80px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--chords-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.15s; }
     .fab:active { transform: scale(0.92); }
     .desktop-font-btns { position: fixed; bottom: 80px; left: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 500; }
-    .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border-color); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
     .autoscroll-slider { width: 100%; accent-color: var(--chords-color); }
-    input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: #374151; outline: none; }
+    input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--chords-color); cursor: pointer; }
-    .drag-zone { border: 2px dashed #444; border-radius: 10px; padding: 20px; text-align: center; color: #6b7280; cursor: pointer; transition: border-color 0.2s; }
+    .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 10px; padding: 20px; text-align: center; color: #6b7280; cursor: pointer; transition: border-color 0.2s; }
     .drag-zone.dragover { border-color: var(--chords-color); color: var(--chords-color); }
     .btn-primary { background: var(--chords-color); color: #000; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s; }
     .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 16px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); }
+    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 16px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.15s; }
     .btn-danger { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); }
-    .input-field { background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: #fff; width: 100%; font-size: 14px; outline: none; }
+    .input-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
     .input-field:focus { border-color: var(--chords-color); }
-    .select-field { background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: #fff; width: 100%; font-size: 14px; outline: none; }
-    .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; margin-bottom: 6px; }
+    .select-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
+    .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
     .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #333; }
     .theme-preset-btn { border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
     .theme-preset-btn.active { border-color: var(--chords-color); }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
     .swipe-container { touch-action: pan-y; }
     /* ── Responsive layout ─────────────────────────────── */
     /* Mobile base (< 640px): single column, full width modals */
@@ -176,7 +183,7 @@
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #555; appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
     .checkbox-custom:checked { background: var(--chords-color); border-color: var(--chords-color); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
-    .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: #9ca3af; }
+    .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: var(--text-secondary); }
     .song-selector-row { padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
     .song-selector-row:hover { background: var(--surface-2); }
     .setlist-song-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface-3); border-radius: 8px; margin-bottom: 6px; }
@@ -184,13 +191,13 @@
     .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
     .key-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .key-btn { padding: 10px 4px; border-radius: 8px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: #fff; font-weight: 600; font-size: 15px; transition: all 0.15s; }
+    .key-btn { padding: 10px 4px; border-radius: 8px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: var(--lyrics-color); font-weight: 600; font-size: 15px; transition: all 0.15s; }
     .key-btn.active { border-color: var(--chords-color); color: var(--chords-color); }
-    .key-btn:hover { background: #333; }
-    .spinner { width: 28px; height: 28px; border: 3px solid #333; border-top-color: var(--chords-color); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    .key-btn:hover { background: var(--surface-3); }
+    .spinner { width: 28px; height: 28px; border: 3px solid var(--surface-2); border-top-color: var(--chords-color); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .onboarding-btn { padding: 12px 20px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--surface-1); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
-    .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--chords-color); background: #2a1f00; color: var(--chords-color); }
+    .onboarding-btn { padding: 12px 20px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--surface-1); color: var(--lyrics-color); font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--chords-color); background: var(--accent-glow); color: var(--chords-color); }
     .no-select { user-select: none; -webkit-user-select: none; }
     .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
     .badge-public { background: #064e3b; color: #34d399; }
@@ -200,11 +207,11 @@
     .camera-btn { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 13px; }
     .progress-bar-track { width: 100%; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
     .progress-bar-fill { height: 100%; background: var(--chords-color); border-radius: 2px; transition: width 0.1s linear; }
-    .search-input { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 7px 12px 7px 36px; color: #fff; font-size: 13px; width: 100%; outline: none; }
+    .search-input { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 7px 12px 7px 36px; color: var(--lyrics-color); font-size: 13px; width: 100%; outline: none; }
     .search-input:focus { border-color: var(--chords-color); }
-    .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: #9ca3af; cursor: pointer; white-space: nowrap; }
+    .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
     .filter-chip.active { background: var(--chords-color); color: #000; border-color: var(--chords-color); }
-    .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 13px; outline: none; }
+    .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px; color: var(--lyrics-color); font-size: 13px; outline: none; }
 
     /* ── Sync bar ── */
     #sync-bar {
@@ -336,7 +343,7 @@
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
-  <div id="top-nav" style="position:sticky;top:0;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;">
+  <div id="top-nav" style="position:sticky;top:0;left:0;right:0;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin:0;">
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -602,7 +609,7 @@
           <!-- Custom Theme -->
           <div>
             <div class="section-label">Custom Theme</div>
-            <div style="background:#1e1e1e;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div style="background:var(--surface-1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
               <div class="color-input-wrapper">
                 <input type="color" id="custom-bg" value="#121212" oninput="applyCustomTheme()" />
                 <label style="color:#9ca3af;font-size:12px;">Background</label>
@@ -615,15 +622,7 @@
                 <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
                 <label style="color:#9ca3af;font-size:12px;">Chords</label>
               </div>
-              <div class="color-input-wrapper">
-                <input type="color" id="custom-surface1" value="#1e1e1e" oninput="applyCustomTheme()" />
-                <label style="color:#9ca3af;font-size:12px;">Cards</label>
-              </div>
-              <div class="color-input-wrapper">
-                <input type="color" id="custom-border" value="#2a2a2a" oninput="applyCustomTheme()" />
-                <label style="color:#9ca3af;font-size:12px;">Borders</label>
-              </div>
-              <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;">Apply & Save</button>
+              <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;margin-top:4px;">Apply & Save</button>
             </div>
           </div>
           <!-- Typography -->
@@ -1034,6 +1033,10 @@ const db = firebase.firestore();
 // CONSTANTS & GLOBAL STATE
 // ============================================================
 const ADMIN_EMAIL = 'buenavistaaglinaodanny@gmail.com';
+// ── Version Control ──────────────────────────────────────────
+// Bump this string whenever you push a new release to GitHub.
+const APP_VERSION = '1.0.0';
+const VERSION_URL = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/version.json';
 const CHROMATIC_SCALE = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const ENHARMONIC_MAP = { 'Db':'C#','Eb':'D#','Fb':'E','Gb':'F#','Ab':'G#','Bb':'A#','Cb':'B' };
 
@@ -1396,12 +1399,62 @@ function mountApp() {
   runTTLCleanup();
   seedSongsIfEmpty();
   loadAdminSettings();
+  checkForUpdates();
 }
 
 function checkDesktop() {
   const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
   if (!isTouch) {
     document.getElementById('desktop-font-btns').style.display = 'flex';
+  }
+}
+
+// ============================================================
+// VERSION CHECK — fetch version.json from GitHub on startup
+// ============================================================
+async function checkForUpdates() {
+  // Skip if VERSION_URL is still the placeholder
+  if (VERSION_URL.includes('YOUR_USERNAME')) return;
+  try {
+    const res = await fetch(VERSION_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const remote = data.version || '';
+    if (remote && remote !== APP_VERSION) {
+      showUpdateModal(remote);
+    }
+  } catch(e) {
+    // Silently fail — no network, CORS blocked, etc.
+    console.log('Version check skipped:', e.message);
+  }
+}
+
+function showUpdateModal(newVersion) {
+  const modal = document.getElementById('update-modal');
+  if (!modal) return;
+  const verEl = document.getElementById('update-new-version');
+  if (verEl) verEl.textContent = newVersion;
+  modal.style.display = 'flex';
+}
+
+function closeUpdateModal() {
+  const modal = document.getElementById('update-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function reloadApp() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(r => r.unregister());
+    });
+  }
+  // Clear cache then reload
+  if ('caches' in window) {
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+      window.location.reload(true);
+    });
+  } else {
+    window.location.reload(true);
   }
 }
 
@@ -3154,11 +3207,51 @@ function updateThemeCarousel(activeKey) {
 // THEME ENGINE
 // ============================================================
 const THEMES = {
-  gigbook:  { bg: '#121212', lyrics: '#FFFFFF', chords: '#FBBF24', s1: '#1e1e1e', s2: '#2a2a2a', s3: '#252525', border: '#2a2a2a', borderSubtle: '#333', navBg: 'rgba(14,14,14,0.96)' },
-  nordic:   { bg: '#1E293B', lyrics: '#F8FAFC', chords: '#34D399', s1: '#263548', s2: '#334155', s3: '#2d3f52', border: '#334155', borderSubtle: '#3d4f63', navBg: 'rgba(20,30,48,0.96)' },
-  parchment:{ bg: '#FDFBF7', lyrics: '#1F2937', chords: '#B91C1C', s1: '#F3EFE8', s2: '#E8E0D4', s3: '#EDE7DC', border: '#D6CCBF', borderSubtle: '#CABFB0', navBg: 'rgba(243,239,232,0.97)' },
-  cyber:    { bg: '#0F172A', lyrics: '#EC4899', chords: '#06B6D4', s1: '#1a2540', s2: '#243050', s3: '#1f2d48', border: '#2a3a5c', borderSubtle: '#304470', navBg: 'rgba(10,18,38,0.97)' },
-  charcoal: { bg: '#1F2937', lyrics: '#9CA3AF', chords: '#38BDF8', s1: '#283548', s2: '#374151', s3: '#303d4e', border: '#374151', borderSubtle: '#3f4f62', navBg: 'rgba(22,30,42,0.96)' }
+  gigbook:  {
+    bg:'#121212', lyrics:'#FFFFFF', chords:'#FBBF24',
+    s1:'#1e1e1e', s2:'#2a2a2a', s3:'#252525', sInput:'#2a2a2a',
+    border:'#2a2a2a', borderSubtle:'#333',
+    navBg:'rgba(14,14,14,0.96)',
+    textMuted:'#6b7280', textSecondary:'#9ca3af',
+    modalOverlay:'rgba(0,0,0,0.78)', toggleTrack:'#374151',
+    scrollbar:'#444', accentGlow:'rgba(251,191,36,0.15)'
+  },
+  nordic: {
+    bg:'#0f1e2d', lyrics:'#e2f0f7', chords:'#34D399',
+    s1:'#162636', s2:'#1e3347', s3:'#1a2d40', sInput:'#1e3347',
+    border:'#1e3347', borderSubtle:'#254056',
+    navBg:'rgba(10,24,38,0.97)',
+    textMuted:'#5a8a9f', textSecondary:'#7ab5cc',
+    modalOverlay:'rgba(0,10,20,0.82)', toggleTrack:'#1a3a52',
+    scrollbar:'#254056', accentGlow:'rgba(52,211,153,0.15)'
+  },
+  parchment: {
+    bg:'#f5ede0', lyrics:'#2c1810', chords:'#9b1c1c',
+    s1:'#ede0ce', s2:'#e0d0ba', s3:'#e8d8c4', sInput:'#e0d0ba',
+    border:'#c9b89a', borderSubtle:'#bba882',
+    navBg:'rgba(237,220,200,0.97)',
+    textMuted:'#8c6e4e', textSecondary:'#7a5c3c',
+    modalOverlay:'rgba(44,24,16,0.55)', toggleTrack:'#c9b89a',
+    scrollbar:'#bba882', accentGlow:'rgba(155,28,28,0.12)'
+  },
+  cyber: {
+    bg:'#060d1a', lyrics:'#e0f0ff', chords:'#00e5ff',
+    s1:'#0d1b2e', s2:'#122236', s3:'#0f1f32', sInput:'#122236',
+    border:'#1a3050', borderSubtle:'#1e3a60',
+    navBg:'rgba(4,10,22,0.97)',
+    textMuted:'#3a6080', textSecondary:'#4a80a8',
+    modalOverlay:'rgba(0,5,18,0.88)', toggleTrack:'#1a3050',
+    scrollbar:'#1e3a60', accentGlow:'rgba(0,229,255,0.15)'
+  },
+  charcoal: {
+    bg:'#161e28', lyrics:'#c8d4e0', chords:'#38BDF8',
+    s1:'#1e2a38', s2:'#263446', s3:'#223040', sInput:'#263446',
+    border:'#2e3e52', borderSubtle:'#364a60',
+    navBg:'rgba(14,18,26,0.97)',
+    textMuted:'#4a6070', textSecondary:'#5a7890',
+    modalOverlay:'rgba(0,0,0,0.78)', toggleTrack:'#2e3e52',
+    scrollbar:'#364a60', accentGlow:'rgba(56,189,248,0.15)'
+  }
 };
 
 function applyTheme(key) {
@@ -3172,25 +3265,31 @@ function applyTheme(key) {
 
 function applyThemeData(theme) {
   const root = document.documentElement;
-  root.style.setProperty('--canvas-bg', theme.bg);
-  root.style.setProperty('--lyrics-color', theme.lyrics);
-  root.style.setProperty('--chords-color', theme.chords);
-  root.style.setProperty('--surface-1', theme.s1 || adjustBrightness(theme.bg, 12));
-  root.style.setProperty('--surface-2', theme.s2 || adjustBrightness(theme.bg, 22));
-  root.style.setProperty('--surface-3', theme.s3 || adjustBrightness(theme.bg, 17));
-  root.style.setProperty('--border-color', theme.border || adjustBrightness(theme.bg, 22));
-  root.style.setProperty('--border-subtle', theme.borderSubtle || adjustBrightness(theme.bg, 30));
-  root.style.setProperty('--nav-bg', theme.navBg || (theme.bg + 'f5'));
-  const customBg = document.getElementById('custom-bg');
-  const customLyrics = document.getElementById('custom-lyrics');
-  const customChords = document.getElementById('custom-chords');
-  const customS1 = document.getElementById('custom-surface1');
-  const customBorder = document.getElementById('custom-border');
-  if (customBg) customBg.value = theme.bg;
-  if (customLyrics) customLyrics.value = theme.lyrics;
-  if (customChords) customChords.value = theme.chords;
-  if (customS1) customS1.value = theme.s1 || adjustBrightness(theme.bg, 12);
-  if (customBorder) customBorder.value = theme.border || adjustBrightness(theme.bg, 22);
+  const ab = adjustBrightness;
+  root.style.setProperty('--canvas-bg',      theme.bg);
+  root.style.setProperty('--lyrics-color',   theme.lyrics);
+  root.style.setProperty('--chords-color',   theme.chords);
+  root.style.setProperty('--surface-1',      theme.s1       || ab(theme.bg, 12));
+  root.style.setProperty('--surface-2',      theme.s2       || ab(theme.bg, 22));
+  root.style.setProperty('--surface-3',      theme.s3       || ab(theme.bg, 17));
+  root.style.setProperty('--surface-input',  theme.sInput   || theme.s2 || ab(theme.bg, 22));
+  root.style.setProperty('--border-color',   theme.border   || ab(theme.bg, 22));
+  root.style.setProperty('--border-subtle',  theme.borderSubtle || ab(theme.bg, 30));
+  root.style.setProperty('--nav-bg',         theme.navBg    || (theme.bg + 'f5'));
+  root.style.setProperty('--text-muted',     theme.textMuted     || '#6b7280');
+  root.style.setProperty('--text-secondary', theme.textSecondary || '#9ca3af');
+  root.style.setProperty('--modal-overlay',  theme.modalOverlay  || 'rgba(0,0,0,0.75)');
+  root.style.setProperty('--toggle-track',   theme.toggleTrack   || '#374151');
+  root.style.setProperty('--scrollbar-thumb',theme.scrollbar     || '#444');
+  root.style.setProperty('--accent-glow',    theme.accentGlow    || 'rgba(251,191,36,0.15)');
+  // Update meta theme-color
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.content = theme.bg;
+  // Sync custom theme pickers
+  const el = id => document.getElementById(id);
+  if (el('custom-bg'))     el('custom-bg').value     = theme.bg;
+  if (el('custom-lyrics')) el('custom-lyrics').value = theme.lyrics;
+  if (el('custom-chords')) el('custom-chords').value = theme.chords;
 }
 
 // Helper: lighten/darken a hex color by amount (positive = lighter)
@@ -3203,34 +3302,60 @@ function adjustBrightness(hex, amount) {
 }
 
 function applyCustomTheme() {
-  const root = document.documentElement;
   const bg = document.getElementById('custom-bg').value;
   const lyrics = document.getElementById('custom-lyrics').value;
   const chords = document.getElementById('custom-chords').value;
-  const s1 = document.getElementById('custom-surface1')?.value || adjustBrightness(bg, 12);
-  const border = document.getElementById('custom-border')?.value || adjustBrightness(bg, 22);
-  root.style.setProperty('--canvas-bg', bg);
-  root.style.setProperty('--lyrics-color', lyrics);
-  root.style.setProperty('--chords-color', chords);
-  root.style.setProperty('--surface-1', s1);
-  root.style.setProperty('--surface-2', adjustBrightness(s1, 10));
-  root.style.setProperty('--surface-3', adjustBrightness(s1, 5));
-  root.style.setProperty('--border-color', border);
-  root.style.setProperty('--border-subtle', adjustBrightness(border, 10));
-  root.style.setProperty('--nav-bg', bg + 'f5');
+  const ab = adjustBrightness;
+  // Auto-derive all surface/nav/text from the 3 base colors
+  const isDark = isColorDark(bg);
+  const s1 = ab(bg, isDark ? 12 : -10);
+  const s2 = ab(bg, isDark ? 22 : -18);
+  const s3 = ab(bg, isDark ? 17 : -14);
+  const border = ab(bg, isDark ? 24 : -20);
+  const borderSubtle = ab(bg, isDark ? 32 : -28);
+  const textMuted = isDark ? '#6b7280' : '#6b5a40';
+  const textSecondary = isDark ? '#9ca3af' : '#8a7560';
+  const modalOverlay = isDark ? 'rgba(0,0,0,0.78)' : 'rgba(40,20,10,0.55)';
+  const accentGlow = hexToRgba(chords, 0.15);
+  const theme = {
+    bg, lyrics, chords, s1, s2, s3, sInput: s2,
+    border, borderSubtle, navBg: bg,
+    textMuted, textSecondary, modalOverlay,
+    toggleTrack: border, scrollbar: borderSubtle, accentGlow
+  };
+  applyThemeData(theme);
+}
+
+function isColorDark(hex) {
+  const num = parseInt(hex.replace('#',''), 16);
+  const r = (num >> 16) & 0xff, g = (num >> 8) & 0xff, b = num & 0xff;
+  return (0.299*r + 0.587*g + 0.114*b) < 128;
+}
+
+function hexToRgba(hex, alpha) {
+  const num = parseInt(hex.replace('#',''), 16);
+  return `rgba(${(num>>16)&0xff},${(num>>8)&0xff},${num&0xff},${alpha})`;
 }
 
 function saveCustomTheme() {
   const bg = document.getElementById('custom-bg').value;
-  const s1 = document.getElementById('custom-surface1')?.value || adjustBrightness(bg, 12);
-  const border = document.getElementById('custom-border')?.value || adjustBrightness(bg, 22);
+  const lyrics = document.getElementById('custom-lyrics').value;
+  const chords = document.getElementById('custom-chords').value;
+  const ab = adjustBrightness;
+  const isDark = isColorDark(bg);
+  const s1 = ab(bg, isDark ? 12 : -10);
+  const s2 = ab(bg, isDark ? 22 : -18);
+  const s3 = ab(bg, isDark ? 17 : -14);
+  const border = ab(bg, isDark ? 24 : -20);
+  const borderSubtle = ab(bg, isDark ? 32 : -28);
   const theme = {
-    bg,
-    lyrics: document.getElementById('custom-lyrics').value,
-    chords: document.getElementById('custom-chords').value,
-    s1, s2: adjustBrightness(s1, 10), s3: adjustBrightness(s1, 5),
-    border, borderSubtle: adjustBrightness(border, 10),
-    navBg: bg + 'f5'
+    bg, lyrics, chords, s1, s2, s3, sInput: s2,
+    border, borderSubtle, navBg: bg,
+    textMuted: isDark ? '#6b7280' : '#6b5a40',
+    textSecondary: isDark ? '#9ca3af' : '#8a7560',
+    modalOverlay: isDark ? 'rgba(0,0,0,0.78)' : 'rgba(40,20,10,0.55)',
+    toggleTrack: border, scrollbar: borderSubtle,
+    accentGlow: hexToRgba(chords, 0.15)
   };
   showSyncToast();
   saveThemeToDb(theme).then(() => { hideSyncToast(); showAlert('Theme Saved', 'Custom theme applied to all users.', 'mdi:palette'); });
@@ -3529,6 +3654,28 @@ window.addEventListener('load', () => {
     <iconify-icon icon="mdi:monitor" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
     <span>Tech</span>
   </button>
+</div>
+
+<!-- UPDATE AVAILABLE MODAL -->
+<div id="update-modal" class="modal-overlay center" style="display:none;z-index:10000;">
+  <div class="modal-sheet center-card" style="max-width:340px;border-radius:20px;padding:24px;text-align:center;">
+    <div style="width:56px;height:56px;border-radius:16px;background:var(--accent-glow);border:2px solid var(--chords-color);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <iconify-icon icon="mdi:update" style="font-size:28px;color:var(--chords-color);"></iconify-icon>
+    </div>
+    <h3 style="color:var(--lyrics-color);font-size:17px;font-weight:700;margin:0 0 8px;">Update Available</h3>
+    <p style="color:var(--text-secondary);font-size:13px;margin:0 0 6px;line-height:1.5;">A new version of RCCM Gigbook is ready.</p>
+    <p style="color:var(--text-muted);font-size:12px;margin:0 0 20px;">
+      Version <strong style="color:var(--chords-color);" id="update-new-version">—</strong> is available
+      &nbsp;·&nbsp; Current: <strong style="color:var(--text-secondary);">v1.0.0</strong>
+    </p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn-primary" onclick="reloadApp()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <iconify-icon icon="mdi:refresh" style="font-size:18px;"></iconify-icon>
+        Restart & Update
+      </button>
+      <button class="btn-secondary" onclick="closeUpdateModal()" style="width:100%;">Later</button>
+    </div>
+  </div>
 </div>
 
 </body>
