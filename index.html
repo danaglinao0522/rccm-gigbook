@@ -138,15 +138,10 @@
         border-left: 1px solid #222; border-right: 1px solid #222;
         position: relative; height: 100vh;
       }
-      /* On desktop, modals stay within the app column */
-      .modal-overlay { position: absolute; }
-      #profile-view { position: absolute; }
-      #autoscroll-fab { position: absolute; right: 16px; }
-      #add-song-fab  { position: absolute; right: 20px; }
-      .fab           { position: absolute; right: 20px; }
-      #sync-bar      { position: absolute; }
-      .desktop-font-btns { position: absolute; left: 16px; }
-      #sync-toast    { position: absolute; }
+      /* On desktop, modals stay centered with max-width */
+      .modal-sheet { max-width: 400px; }
+      .modal-overlay { align-items: center; }
+      .modal-sheet:not(.center-card) { border-radius: 16px; }
       /* Wider sheet font for readability */
       .song-sheet-content { font-size: calc(var(--sheet-font-size) + 1px); }
     }
@@ -463,40 +458,10 @@
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
         <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search users..." id="user-search-input" oninput="filterUsers()" style="flex:1;" />
-        <button id="user-filter-btn" onclick="toggleUserFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;">
+        <button id="user-filter-btn" onclick="toggleUserFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;position:relative;z-index:1;">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="user-filter-label">All</span>
         </button>
-        <div id="user-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#1e1e1e;border:1px solid #444;border-radius:8px;padding:8px;min-width:140px;z-index:200;">
-          <button onclick="setUserFilter('all')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:account-group" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            All
-          </button>
-          <button onclick="setUserFilter('Admin')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:crown" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Admin
-          </button>
-          <button onclick="setUserFilter('Sub-Admin')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:account-tie" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Sub-Admin
-          </button>
-          <button onclick="setUserFilter('Lead')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:account-star" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Lead
-          </button>
-          <button onclick="setUserFilter('Musician')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:guitar-electric" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Musician
-          </button>
-          <button onclick="setUserFilter('Singer')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:microphone" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Singer
-          </button>
-          <button onclick="setUserFilter('Tech')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:monitor" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Tech
-          </button>
-        </div>
       </div>
       <div id="users-list" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div><!-- /users-list-panel -->
@@ -1088,6 +1053,7 @@ let usersUnsubscribe = null;
 let adminSettingsUnsubscribe = null;
 let currentSetlistSongs = [];
 let tutorialEnabled = true;
+let _signingOut = false;
 
 // ============================================================
 // PWA INSTALL HANDLER
@@ -1150,14 +1116,30 @@ function handleBackButton() {
 // ============================================================
 // AUTH STATE LISTENER — BOOT GATE
 // ============================================================
+// Safety: if splash is still showing after 8s, go to auth
+let _splashTimer = setTimeout(() => {
+  if (document.getElementById('splash-screen').style.display !== 'none') {
+    console.warn('Auth timeout — forcing auth view');
+    showAuthView();
+  }
+}, 8000);
+
 auth.onAuthStateChanged(async (user) => {
+  clearTimeout(_splashTimer);
+  // Don't react during sign-out teardown
+  if (_signingOut) return;
   if (user) {
     currentUser = user;
-    await initApp(user);
+    try {
+      await initApp(user);
+    } catch(err) {
+      console.error('Auth state initApp error:', err);
+      showAuthView();
+    }
   } else {
     currentUser = null;
     currentUserProfile = null;
-    showAuthView();
+    if (!_signingOut) showAuthView();
   }
 });
 
@@ -1197,10 +1179,20 @@ function showAuthView() {
   } catch(e) { console.error(e); }
 }
 async function quickSignIn() {
-  const btn = document.getElementById('google-signin-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;margin:0 auto;"></div>';
+  // Get the hint email from localStorage to skip account chooser
+  let hintEmail = '';
+  try {
+    const prev = JSON.parse(localStorage.getItem('rccm_prev_account') || 'null');
+    hintEmail = prev?.email || '';
+  } catch(e) {}
+
+  const chip = document.getElementById('prev-account-chip');
+  if (chip) chip.innerHTML = '<div class="spinner" style="width:24px;height:24px;margin:8px auto;"></div>';
+
   const provider = new firebase.auth.GoogleAuthProvider();
+  // Set login_hint so Google skips the account picker for this email
+  if (hintEmail) provider.setCustomParameters({ login_hint: hintEmail });
+
   try {
     const result = await auth.signInWithPopup(provider);
     if (result.user) {
@@ -1212,13 +1204,18 @@ async function quickSignIn() {
     }
     document.getElementById('auth-error').style.display = 'none';
   } catch (err) {
-    console.error(err);
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Sign In with Google`;
+    console.error('Quick sign-in error:', err);
+    const errEl = document.getElementById('auth-error');
+    errEl.textContent = err.message || 'Sign-in failed. Please try again.';
+    errEl.style.display = 'block';
+    // Restore chip
+    showAuthView();
   }
 }
 
 async function initApp(user) {
+  // Hide auth view, keep splash during load
+  document.getElementById('auth-view').style.display = 'none';
   try {
     let profileSnap = await db.collection('users').doc(user.uid).get();
     if (!profileSnap.exists) {
@@ -1282,7 +1279,6 @@ document.getElementById('google-signin-btn').addEventListener('click', async () 
   }
 });
 
-let _signingOut = false;
 function signOut() {
   if (_signingOut) return;
   _signingOut = true;
@@ -2242,8 +2238,8 @@ function renderSetlistsList() {
             <span class="privacy-badge ${setlist.isPrivate ? 'badge-private' : 'badge-public'}">${setlist.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
             ${setlist.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom Group</span>' : ''}
             <span style="color:#6b7280;font-size:11px;">${setlist.songs ? setlist.songs.length : 0} songs</span>
-            ${setlist.isCustomGroup && setlist.whitelist && setlist.whitelist.length > 0 ? renderWhitelistAvatars(setlist.whitelist) : ''}
           </div>
+          ${setlist.isCustomGroup && setlist.whitelist && setlist.whitelist.length > 0 ? renderWhitelistAvatars(setlist.whitelist) : ''}
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
@@ -2704,15 +2700,22 @@ function getRoleBadgeClass(role) {
 // Render small horizontal avatars for custom group whitelist
 function renderWhitelistAvatars(uids) {
   if (!uids || !uids.length) return '';
-  const avatars = uids.slice(0, 8).map(uid => {
+  const visible = uids.slice(0, 7);
+  const avatars = visible.map((uid, i) => {
     const u = allUsers.find(x => x.uid === uid);
-    if (!u) return `<div style="width:22px;height:22px;border-radius:50%;background:#374151;border:2px solid #2a2a2a;flex-shrink:0;"></div>`;
-    return `<img src="${escHtml(u.photoURL||'')}" title="${escHtml(u.displayName||'')}"
-      style="width:22px;height:22px;min-width:22px;border-radius:50%;object-fit:cover;overflow:hidden;background:#374151;border:2px solid #1e1e1e;flex-shrink:0;margin-left:-6px;display:block;"
-      onerror="this.style.background='#374151'" />`;
+    const marginLeft = i === 0 ? '0' : '-7px';
+    const zIndex = visible.length - i;
+    const base = `position:relative;z-index:${zIndex};display:inline-block;width:24px;height:24px;border-radius:50%;flex-shrink:0;margin-left:${marginLeft};border:2px solid #1e1e1e;overflow:hidden;background:#374151;vertical-align:middle;`;
+    if (!u || !u.photoURL) {
+      return `<div style="${base}display:flex;align-items:center;justify-content:center;"><iconify-icon icon="mdi:account" style="font-size:13px;color:#9ca3af;"></iconify-icon></div>`;
+    }
+    return `<img src="${escHtml(u.photoURL)}" title="${escHtml(u.displayName||uid)}"
+      style="${base}" onerror="this.style.background='#374151'" />`;
   }).join('');
-  const extra = uids.length > 8 ? `<span style="color:#6b7280;font-size:10px;margin-left:4px;">+${uids.length-8}</span>` : '';
-  return `<div style="display:flex;align-items:center;margin-top:5px;padding-left:6px;">${avatars}${extra}</div>`;
+  const extra = uids.length > 7
+    ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#2a2a2a;border:2px solid #1e1e1e;font-size:9px;color:#9ca3af;font-weight:700;margin-left:-7px;flex-shrink:0;vertical-align:middle;">+${uids.length-7}</span>`
+    : '';
+  return `<div style="display:flex;align-items:center;margin-top:6px;flex-wrap:nowrap;">${avatars}${extra}</div>`;
 }
 
 // ─── USER DETAIL VIEW ───────────────────────────────────────────────────────
@@ -2776,21 +2779,49 @@ function closeUserDetail() {
 function filterUsers() { renderUsersList(); }
 function toggleUserFilterMenu() {
   const menu = document.getElementById('user-filter-menu');
-  if (!menu) return;
+  const btn = document.getElementById('user-filter-btn');
+  if (!menu || !btn) return;
   const isOpen = menu.style.display === 'block';
-  // Close all filter menus first
-  document.querySelectorAll('#song-filter-menu,#setlist-filter-menu,#user-filter-menu').forEach(m => m.style.display = 'none');
-  if (!isOpen) menu.style.display = 'block';
+  // Close any open menus
+  document.querySelectorAll('#user-filter-menu').forEach(m => m.style.display = 'none');
+  if (!isOpen) {
+    // Position the portal below the button
+    const rect = btn.getBoundingClientRect();
+    menu.style.display = 'block';
+    const menuW = menu.offsetWidth || 160;
+    let left = rect.right - menuW;
+    if (left < 8) left = 8;
+    menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.left = left + 'px';
+  }
 }
+// Close filter menu when clicking outside
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('user-filter-menu');
+  const btn = document.getElementById('user-filter-btn');
+  if (menu && menu.style.display === 'block') {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.style.display = 'none';
+    }
+  }
+});
 
 function setUserFilter(filter) {
   userFilterActive = filter;
-  // Update label on the button
   const label = document.getElementById('user-filter-label');
   if (label) label.textContent = filter === 'all' ? 'All' : filter;
-  // Close menu
+  const btn = document.getElementById('user-filter-btn');
+  if (btn) btn.style.color = filter === 'all' ? '#9ca3af' : 'var(--chords-color)';
   const menu = document.getElementById('user-filter-menu');
-  if (menu) menu.style.display = 'none';
+  if (menu) {
+    // Highlight active item
+    menu.querySelectorAll('button').forEach(b => {
+      const isActive = b.textContent.trim() === (filter === 'all' ? 'All Roles' : filter);
+      b.style.background = isActive ? '#2a2a2a' : 'transparent';
+      b.style.color = isActive ? 'var(--chords-color)' : '#e5e7eb';
+    });
+    menu.style.display = 'none';
+  }
   renderUsersList();
 }
 
@@ -3388,6 +3419,42 @@ window.addEventListener('load', () => {
       <div id="manage-add-members-list" style="max-height:200px;overflow-y:auto;background:#111;border-radius:8px;"></div>
     </div>
   </div>
+</div>
+
+
+<!-- USER FILTER PORTAL MENU -->
+<div id="user-filter-menu" style="display:none;position:fixed;background:#1e1e1e;border:1px solid #444;border-radius:12px;padding:6px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
+  <div style="padding:6px 10px 4px;border-bottom:1px solid #2a2a2a;margin-bottom:4px;">
+    <span style="color:#6b7280;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
+  </div>
+  <button onclick="setUserFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:account-group" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+    <span>All Roles</span>
+  </button>
+  <button onclick="setUserFilter('Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:crown" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+    <span>Admin</span>
+  </button>
+  <button onclick="setUserFilter('Sub-Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:account-tie" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+    <span>Sub-Admin</span>
+  </button>
+  <button onclick="setUserFilter('Lead')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:account-star" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+    <span>Lead</span>
+  </button>
+  <button onclick="setUserFilter('Musician')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:guitar-electric" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+    <span>Musician</span>
+  </button>
+  <button onclick="setUserFilter('Singer')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:microphone" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+    <span>Singer</span>
+  </button>
+  <button onclick="setUserFilter('Tech')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:monitor" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+    <span>Tech</span>
+  </button>
 </div>
 
 </body>
