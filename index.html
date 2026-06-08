@@ -77,7 +77,7 @@
     .tab-panel.active { display: block; }
     .tab-panel.active.tab-visible { opacity: 1; transform: translateY(0); }
     #app-root { display: none; }
-    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 4px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color: #6b7280; gap: 3px; background: transparent; border: none; position: relative; }
+    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 4px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color:var(--text-muted); gap: 3px; background: transparent; border: none; position: relative; }
     .bottom-nav-btn:active { transform: scale(0.92); }
     .bottom-nav-btn.active { color: var(--chords-color); }
     .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--chords-color); border-radius: 0 0 3px 3px; box-shadow: 0 0 8px var(--accent-glow); }
@@ -96,12 +96,12 @@
     .modal-sheet.key-modal { max-height: 50vh; }
     .modal-handle { width: 40px; height: 4px; background: var(--border-subtle); border-radius: 2px; margin: 0 auto 12px; }
     .role-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-    .badge-admin { background: #7c3aed; color: #fff; }
-    .badge-subadmin { background: #2563eb; color: #fff; }
-    .badge-lead { background: #059669; color: #fff; }
-    .badge-musician { background: #d97706; color: #fff; }
-    .badge-singer { background: #db2777; color: #fff; }
-    .badge-tech { background: #0891b2; color: #fff; }
+    .badge-admin { background: #7c3aed; color:var(--lyrics-color); }
+    .badge-subadmin { background: #2563eb; color:var(--lyrics-color); }
+    .badge-lead { background: #059669; color:var(--lyrics-color); }
+    .badge-musician { background: #d97706; color:var(--lyrics-color); }
+    .badge-singer { background: #db2777; color:var(--lyrics-color); }
+    .badge-tech { background: #0891b2; color:var(--lyrics-color); }
     .setlist-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
     .user-row { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
@@ -117,17 +117,17 @@
     .autoscroll-slider { width: 100%; accent-color: var(--chords-color); }
     input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--chords-color); cursor: pointer; }
-    .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 10px; padding: 20px; text-align: center; color: #6b7280; cursor: pointer; transition: border-color 0.2s; }
+    .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 10px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s; }
     .drag-zone.dragover { border-color: var(--chords-color); color: var(--chords-color); }
     .btn-primary { background: var(--chords-color); color: #000; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s; }
     .btn-primary:hover { opacity: 0.9; }
     .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 16px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.15s; }
-    .btn-danger { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); }
+    .btn-danger { background: #dc2626; color:var(--lyrics-color); border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); }
     .input-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
     .input-field:focus { border-color: var(--chords-color); }
     .select-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
     .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
-    .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #333; }
+    .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
     .theme-preset-btn { border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
     .theme-preset-btn.active { border-color: var(--chords-color); }
     ::-webkit-scrollbar { width: 4px; }
@@ -147,11 +147,11 @@
 
     /* Desktop (1024px+) */
     @media (min-width: 1024px) {
-      body { background: #0a0a0a; overflow: hidden; }
+      body { background: var(--canvas-bg); overflow: hidden; }
       #app-root {
         max-width: 420px; margin: 0 auto;
         box-shadow: 0 0 60px rgba(0,0,0,0.7);
-        border-left: 1px solid #222; border-right: 1px solid #222;
+        border-left:1px solid var(--border-color); border-right:1px solid var(--border-color);
         position: relative; height: 100vh;
       }
       /* On desktop, modals stay centered with max-width */
@@ -169,8 +169,8 @@
         display: flex !important;
         flex-direction: column;
         width: 220px;
-        background: #111;
-        border-right: 1px solid #222;
+        background: var(--canvas-bg);
+        border-right:1px solid var(--border-color);
         padding: 24px 0 80px;
         gap: 4px;
         position: sticky;
@@ -181,7 +181,7 @@
       #app-root { max-width: 420px; border-radius: 0; flex-shrink: 0; }
       #bottom-nav { display: none !important; }
     }
-    .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #555; appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
+    .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
     .checkbox-custom:checked { background: var(--chords-color); border-color: var(--chords-color); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
     .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: var(--text-secondary); }
     .song-selector-row { padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
@@ -253,20 +253,20 @@
 <body class="no-select">
 
 <!-- SPLASH SCREEN -->
-<div id="splash-screen" style="position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
+<div id="splash-screen" style="position:fixed;inset:0;background:var(--canvas-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
   <img src="icons/logo.png" alt="RCCM Gigbook" class="splash-logo-anim" style="width:100px;height:100px;border-radius:20px;object-fit:cover;" onerror="this.style.display='none';document.getElementById('splash-fallback').style.display='flex'" />
   <div id="splash-fallback" style="display:none;width:100px;height:100px;border-radius:20px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;" class="splash-logo-anim">
-    <iconify-icon icon="mdi:music-note" style="font-size:50px;color:#fff;"></iconify-icon>
+    <iconify-icon icon="mdi:music-note" style="font-size:50px;color:var(--lyrics-color);"></iconify-icon>
   </div>
-  <p style="color:#6b7280;font-size:13px;margin-top:20px;letter-spacing:0.1em;">RCCM GIGBOOK</p>
+  <p style="color:var(--text-muted);font-size:13px;margin-top:20px;letter-spacing:0.1em;">RCCM GIGBOOK</p>
   <div class="spinner" style="margin-top:32px;"></div>
 </div>
 
 <!-- AUTH VIEW -->
-<div id="auth-view" style="display:none;position:fixed;inset:0;background:#0a0a0a;flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:8000;">
+<div id="auth-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:8000;">
   <img src="icons/logo.png" alt="RCCM Gigbook" style="width:90px;height:90px;border-radius:18px;object-fit:cover;margin-bottom:28px;" onerror="this.style.background='linear-gradient(135deg,#7c3aed,#FBBF24)';this.style.display='flex'" />
-  <h1 style="color:#fff;font-size:22px;font-weight:700;margin-bottom:4px;">RCCM Gigbook</h1>
-  <p style="color:#6b7280;font-size:13px;margin-bottom:36px;">Your performance companion</p>
+  <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin-bottom:4px;">RCCM Gigbook</h1>
+  <p style="color:var(--text-muted);font-size:13px;margin-bottom:36px;">Your performance companion</p>
   <button id="google-signin-btn" style="display:flex;align-items:center;gap:10px;background:#fff;color:#111;border:none;border-radius:12px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.3);">
     <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
     Sign In with Google
@@ -281,11 +281,11 @@
 
 <!-- ONBOARDING MODAL -->
 <div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:7000;align-items:flex-end;justify-content:center;">
-  <div style="background:#1a1a1a;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:24px;max-height:90vh;overflow-y:auto;">
+  <div style="background:var(--surface-1);border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:24px;max-height:90vh;overflow-y:auto;">
     <div class="modal-handle"></div>
-    <h2 style="color:#fff;font-size:18px;font-weight:700;margin-bottom:4px;">Welcome to RCCM Gigbook</h2>
-    <p style="color:#6b7280;font-size:13px;margin-bottom:16px;">Tell us your role to get started</p>
-    <em style="color:#9ca3af;font-size:12px;display:block;margin-bottom:18px;line-height:1.5;">"If you're a musician/singer but also work in Tech Team, Don't click the Tech button."</em>
+    <h2 style="color:var(--lyrics-color);font-size:18px;font-weight:700;margin-bottom:4px;">Welcome to RCCM Gigbook</h2>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Tell us your role to get started</p>
+    <em style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:18px;line-height:1.5;">"If you're a musician/singer but also work in Tech Team, Don't click the Tech button."</em>
     <div id="onboarding-role-selector" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
       <button class="onboarding-btn" onclick="selectOnboardingRole('Musician')">
         <iconify-icon icon="mdi:guitar" style="font-size:24px;display:block;margin:0 auto 6px;"></iconify-icon>
@@ -303,22 +303,22 @@
     <div id="musician-options" style="display:none;">
       <div class="section-label">Your Instruments</div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
-        <label style="display:flex;align-items:center;gap:10px;color:#e5e7eb;font-size:14px;cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:10px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
           <input type="checkbox" class="checkbox-custom" id="ob-guitar" value="Guitar"> Guitar
         </label>
-        <label style="display:flex;align-items:center;gap:10px;color:#e5e7eb;font-size:14px;cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:10px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
           <input type="checkbox" class="checkbox-custom" id="ob-keyboard" value="Keyboard"> Keyboard
         </label>
-        <label style="display:flex;align-items:center;gap:10px;color:#e5e7eb;font-size:14px;cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:10px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
           <input type="checkbox" class="checkbox-custom" id="ob-djembe" value="Djembe"> Djembe
         </label>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
-        <label style="display:flex;align-items:center;justify-content:space-between;color:#e5e7eb;font-size:14px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;color:var(--lyrics-color);font-size:14px;">
           Can you also sing?
           <label class="toggle-switch"><input type="checkbox" id="ob-can-sing"><span class="toggle-slider"></span></label>
         </label>
-        <label style="display:flex;align-items:center;justify-content:space-between;color:#e5e7eb;font-size:14px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;color:var(--lyrics-color);font-size:14px;">
           Are you part of the Tech Team too?
           <label class="toggle-switch"><input type="checkbox" id="ob-is-tech"><span class="toggle-slider"></span></label>
         </label>
@@ -334,7 +334,7 @@
 <div id="desktop-sidebar" style="display:none;">
   <div style="padding:16px 20px 20px;">
     <img src="icons/logo.png" style="width:40px;height:40px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none'" />
-    <p id="sidebar-app-name" style="color:#fff;font-size:15px;font-weight:700;margin:8px 0 0;">RCCM Gigbook</p>
+    <p id="sidebar-app-name" style="color:var(--lyrics-color);font-size:15px;font-weight:700;margin:8px 0 0;">RCCM Gigbook</p>
   </div>
   <div id="sidebar-nav" style="display:flex;flex-direction:column;gap:2px;padding:0 10px;"></div>
 </div>
@@ -347,16 +347,16 @@
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
     <div style="display:flex;align-items:center;gap:8px;">
-      <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px 6px 4px 0;align-items:center;">
+      <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px 6px 4px 0;align-items:center;">
         <iconify-icon icon="mdi:arrow-left" style="font-size:20px;"></iconify-icon>
       </button>
-      <span id="top-nav-title" style="color:#fff;font-size:15px;font-weight:600;display:none;"></span>
-      <span id="top-nav-appname" style="color:#fff;font-size:16px;font-weight:700;letter-spacing:0.01em;">RCCM Gigbook</span>
+      <span id="top-nav-title" style="color:var(--lyrics-color);font-size:15px;font-weight:600;display:none;"></span>
+      <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;">RCCM Gigbook</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <img src="icons/logo.png" alt="Logo" onclick="goHome()" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
       <div onclick="goHome()" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;">
-        <iconify-icon icon="mdi:music-note" style="font-size:18px;color:#fff;"></iconify-icon>
+        <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
       </div>
     </div>
   </div>
@@ -368,33 +368,33 @@
     <div id="tab-songs" class="tab-panel active" style="padding:10px;">
     <div id="songs-list-view">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
-        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search songs..." id="song-search-input" oninput="filterSongs()" style="flex:1;" />
-        <button id="song-filter-btn" onclick="toggleSongFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;">
+        <button id="song-filter-btn" onclick="toggleSongFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="song-filter-label">A–Z</span>
         </button>
-        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#1e1e1e;border:1px solid #444;border-radius:8px;padding:8px;min-width:140px;z-index:200;">
-          <button onclick="setSongSort('az')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+          <button onclick="setSongSort('az')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             A–Z
           </button>
-          <button onclick="setSongSort('za')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+          <button onclick="setSongSort('za')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             Z–A
           </button>
-          <button onclick="setSongSort('artist')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+          <button onclick="setSongSort('artist')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:account-music" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             By Artist
           </button>
-          <button onclick="setSongSort('favourites')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+          <button onclick="setSongSort('favourites')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:heart" style="font-size:14px;margin-right:6px;vertical-align:middle;color:#ef4444;"></iconify-icon>
             Favourites
           </button>
         </div>
       </div>
         <div id="songs-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-        <div id="songs-empty" style="display:none;text-align:center;padding:40px 20px;color:#6b7280;">
+        <div id="songs-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:music-off" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No songs yet.</p>
         </div>
@@ -402,28 +402,28 @@
 
       <!-- SONG SHEET VIEW -->
       <div id="song-sheet-view" style="display:none;">
-        <div id="song-sheet-subheader" style="padding:8px 0;border-bottom:1px solid #2a2a2a;margin-bottom:8px;">
+        <div id="song-sheet-subheader" style="padding:8px 0;border-bottom:1px solid var(--border-color);margin-bottom:8px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
             <div style="flex:1;min-width:0;">
-              <h2 id="sheet-song-title" style="color:#fff;font-size:16px;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
-              <p id="sheet-song-artist" style="color:#9ca3af;font-size:13px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
+              <h2 id="sheet-song-title" style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
+              <p id="sheet-song-artist" style="color:var(--text-secondary);font-size:13px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
             </div>
             <button id="sheet-heart-btn" onclick="toggleFavouriteSheet()" style="background:transparent;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;" title="Add to Favourites">
-              <iconify-icon icon="mdi:heart-outline" style="font-size:22px;color:#6b7280;"></iconify-icon>
+              <iconify-icon icon="mdi:heart-outline" style="font-size:22px;color:var(--text-muted);"></iconify-icon>
             </button>
           </div>
           <!-- MUSICIAN/LEAD/SUBADMIN/ADMIN CONTROLS -->
           <div id="musician-controls" style="margin-top:8px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-              <button id="key-selector-btn" onclick="openKeyModal()" style="display:flex;align-items:center;gap:6px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#fff;cursor:pointer;font-size:13px;">
+              <button id="key-selector-btn" onclick="openKeyModal()" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--lyrics-color);cursor:pointer;font-size:13px;">
                 <iconify-icon icon="mdi:music-clef-treble" style="font-size:16px;color:var(--chords-color);"></iconify-icon>
                 Key: <span id="current-key-display">C</span>
               </button>
-              <div id="capo-display" style="display:flex;align-items:center;gap:4px;background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:6px 10px;font-size:12px;color:#9ca3af;">
+              <div id="capo-display" style="display:flex;align-items:center;gap:4px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--text-secondary);">
                 <iconify-icon icon="mdi:guitar-pick" style="font-size:14px;"></iconify-icon>
                 Capo: <span id="capo-value" style="color:var(--chords-color);font-weight:600;margin-left:2px;">0</span>
               </div>
-              <button id="lyrics-only-toggle-btn" onclick="toggleLyricsOnly()" style="margin-left:auto;display:flex;align-items:center;gap:6px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:12px;">
+              <button id="lyrics-only-toggle-btn" onclick="toggleLyricsOnly()" style="margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:12px;">
                 <iconify-icon icon="mdi:text" style="font-size:16px;"></iconify-icon>
                 <span id="lyrics-toggle-label">Lyrics Only</span>
               </button>
@@ -440,33 +440,33 @@
     <div id="tab-setlists" class="tab-panel" style="padding:10px;">
       <div id="setlists-list-view">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
-        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search setlists..." id="setlist-search-input" oninput="filterSetlists()" style="flex:1;" />
-        <button id="setlist-filter-btn" onclick="toggleSetlistFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;">
+        <button id="setlist-filter-btn" onclick="toggleSetlistFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="setlist-filter-label">Newest</span>
         </button>
-        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#1e1e1e;border:1px solid #444;border-radius:8px;padding:8px;min-width:140px;z-index:200;">
-          <button onclick="setSetlistSort('newest')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+          <button onclick="setSetlistSort('newest')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             Newest First
           </button>
-          <button onclick="setSetlistSort('oldest')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+          <button onclick="setSetlistSort('oldest')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             Oldest First
           </button>
-          <button onclick="setSetlistSort('az')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+          <button onclick="setSetlistSort('az')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             A–Z
           </button>
-          <button onclick="setSetlistSort('za')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+          <button onclick="setSetlistSort('za')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             Z–A
           </button>
         </div>
       </div>
         <div id="setlists-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-        <div id="setlists-empty" style="display:none;text-align:center;padding:40px 20px;color:#6b7280;">
+        <div id="setlists-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:playlist-music" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No setlists yet.</p>
         </div>
@@ -478,9 +478,9 @@
     <div id="tab-users" class="tab-panel" style="padding:10px;">
       <div id="users-list-panel">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
-        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search users..." id="user-search-input" oninput="filterUsers()" style="flex:1;" />
-        <button id="user-filter-btn" onclick="toggleUserFilterMenu()" style="display:flex;align-items:center;gap:4px;background:#2a2a2a;border:1px solid #444;border-radius:8px;padding:6px 10px;color:#9ca3af;cursor:pointer;font-size:13px;position:relative;z-index:1;">
+        <button id="user-filter-btn" onclick="toggleUserFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;position:relative;z-index:1;">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="user-filter-label">All</span>
         </button>
@@ -493,7 +493,7 @@
     <!-- ADMIN PANEL TAB -->
     <div id="tab-admin" class="tab-panel" style="padding:10px;">
       <!-- Sync broadcast toast -->
-      <div id="sync-toast" style="display:none;position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1a2a1a;border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+      <div id="sync-toast" style="display:none;position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--surface-1);border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
         <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
         <span style="color:#34d399;font-size:13px;font-weight:600;">Applying to all users…</span>
       </div>
@@ -502,21 +502,21 @@
         <!-- APP BRANDING -->
         <div>
           <div class="section-label">App Branding</div>
-          <div style="background:#1e1e1e;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;">
+          <div style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;">
             <!-- Logo + Name row -->
             <div style="display:flex;align-items:center;gap:14px;">
               <button onclick="openLogoChangeModal()" title="Change app logo"
-                style="flex-shrink:0;background:#2a2a2a;border:2px dashed #555;border-radius:12px;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;position:relative;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--chords-color)'" onmouseout="this.style.borderColor='#555'">
+                style="flex-shrink:0;background:var(--surface-2);border:2px dashed #555;border-radius:12px;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;position:relative;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--chords-color)'" onmouseout="this.style.borderColor='#555'">
                 <img id="admin-logo-preview" src="icons/logo.png" alt="Logo"
                   style="width:46px;height:46px;border-radius:8px;object-fit:cover;"
                   onerror="this.style.display='none';document.getElementById('admin-logo-fallback').style.display='flex'" />
                 <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;">
-                  <iconify-icon icon="mdi:music-note" style="font-size:24px;color:#fff;"></iconify-icon>
+                  <iconify-icon icon="mdi:music-note" style="font-size:24px;color:var(--lyrics-color);"></iconify-icon>
                 </div>
-                <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--chords-color);background:#1e1e1e;border-radius:50%;padding:1px;"></iconify-icon>
+                <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--chords-color);background:var(--surface-1);border-radius:50%;padding:1px;"></iconify-icon>
               </button>
               <div style="flex:1;min-width:0;">
-                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em;">App Name</label>
+                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em;">App Name</label>
                 <input type="text" class="input-field" id="admin-app-name" placeholder="RCCM Gigbook" style="font-size:15px;font-weight:600;" />
               </div>
             </div>
@@ -528,42 +528,42 @@
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleRoleLimits()">
             <div class="section-label" style="margin-bottom:0;">Song Limit Per Setlist · By Role</div>
-            <iconify-icon id="role-limits-chevron" icon="mdi:chevron-down" style="font-size:18px;color:#6b7280;transition:transform 0.25s;"></iconify-icon>
+            <iconify-icon id="role-limits-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
           </div>
-          <div id="role-limits-body" style="background:#1e1e1e;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:600px;opacity:1;">
+          <div id="role-limits-body" style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:600px;opacity:1;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <div style="background:#252525;border-radius:8px;padding:10px;">
+              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                   <span class="role-badge badge-admin" style="font-size:10px;">Admin</span>
                 </div>
                 <input type="number" class="input-field" id="limit-admin" value="999" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
-                <p style="color:#6b7280;font-size:10px;margin:4px 0 0;">Default: unlimited</p>
+                <p style="color:var(--text-muted);font-size:10px;margin:4px 0 0;">Default: unlimited</p>
               </div>
-              <div style="background:#252525;border-radius:8px;padding:10px;">
+              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                   <span class="role-badge badge-subadmin" style="font-size:10px;">Sub-Admin</span>
                 </div>
                 <input type="number" class="input-field" id="limit-subadmin" value="30" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
               </div>
-              <div style="background:#252525;border-radius:8px;padding:10px;">
+              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                   <span class="role-badge badge-lead" style="font-size:10px;">Lead</span>
                 </div>
                 <input type="number" class="input-field" id="limit-lead" value="20" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
               </div>
-              <div style="background:#252525;border-radius:8px;padding:10px;">
+              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                   <span class="role-badge badge-musician" style="font-size:10px;">Musician</span>
                 </div>
                 <input type="number" class="input-field" id="limit-musician" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
               </div>
-              <div style="background:#252525;border-radius:8px;padding:10px;">
+              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                   <span class="role-badge badge-singer" style="font-size:10px;">Singer</span>
                 </div>
                 <input type="number" class="input-field" id="limit-singer" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
               </div>
-              <div style="background:#252525;border-radius:8px;padding:10px;">
+              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                   <span class="role-badge badge-tech" style="font-size:10px;">Tech</span>
                 </div>
@@ -582,7 +582,7 @@
           <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
             <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
               <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
-                style="background:#121212;border:2px solid var(--chords-color);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(251,191,36,0.3);">
+                style="background:var(--canvas-bg);border:2px solid var(--chords-color);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(251,191,36,0.3);">
                 <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#FBBF24;"></div><div style="width:12px;height:12px;border-radius:3px;background:#FFFFFF;"></div></div>
                 <span style="color:#FBBF24;font-size:11px;font-weight:700;white-space:nowrap;">Gigbook Classic</span>
               </button>
@@ -618,15 +618,15 @@
             <div style="background:var(--surface-1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
               <div class="color-input-wrapper">
                 <input type="color" id="custom-bg" value="#121212" oninput="applyCustomTheme()" />
-                <label style="color:#9ca3af;font-size:12px;">Background</label>
+                <label style="color:var(--text-secondary);font-size:12px;">Background</label>
               </div>
               <div class="color-input-wrapper">
                 <input type="color" id="custom-lyrics" value="#FFFFFF" oninput="applyCustomTheme()" />
-                <label style="color:#9ca3af;font-size:12px;">Lyrics</label>
+                <label style="color:var(--text-secondary);font-size:12px;">Lyrics</label>
               </div>
               <div class="color-input-wrapper">
                 <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
-                <label style="color:#9ca3af;font-size:12px;">Chords</label>
+                <label style="color:var(--text-secondary);font-size:12px;">Chords</label>
               </div>
               <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;margin-top:4px;">Apply & Save</button>
             </div>
@@ -634,9 +634,9 @@
           <!-- Typography -->
           <div>
             <div class="section-label">Typography</div>
-            <div style="background:#1e1e1e;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div style="background:var(--surface-1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
               <div>
-                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Font</label>
+                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Font</label>
                 <select class="select-field" onchange="setFontFamily(this.value)" style="font-size:12px;padding:6px 8px;">
                   <option value="system">System</option>
                   <option value="mono">Monospace</option>
@@ -645,15 +645,15 @@
                 </select>
               </div>
               <div>
-                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Nav: <span id="nav-font-label">13px</span></label>
+                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Nav: <span id="nav-font-label">13px</span></label>
                 <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setNavFont(this.value)" />
               </div>
               <div>
-                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Btn: <span id="btn-font-label">13px</span></label>
+                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Btn: <span id="btn-font-label">13px</span></label>
                 <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setBtnFont(this.value)" />
               </div>
               <div>
-                <label style="color:#9ca3af;font-size:11px;display:block;margin-bottom:4px;">Meta: <span id="meta-font-label">14px</span></label>
+                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Meta: <span id="meta-font-label">14px</span></label>
                 <input type="range" min="10" max="20" value="14" class="autoscroll-slider" oninput="setMetaFont(this.value)" />
               </div>
             </div>
@@ -681,18 +681,18 @@
 <!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
 <div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(74px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;width:46px;">
   <!-- Vertical slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:46px;">
-    <span style="color:#6b7280;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
+  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:46px;">
+    <span style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
     <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:13px;font-weight:700;min-width:16px;text-align:center;">0</span>
     <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
       style="writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:28px;height:100px;accent-color:var(--chords-color);cursor:pointer;background:transparent;"
       oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
     <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
-      style="background:transparent;border:1px solid #444;color:#6b7280;font-size:9px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;letter-spacing:0.05em;">STOP</button>
+      style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:9px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;letter-spacing:0.05em;">STOP</button>
   </div>
   <!-- FAB button — same fixed width as the container -->
   <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
-    style="width:46px;height:46px;border-radius:50%;background:#2a2a2a;border:1px solid #444;color:#9ca3af;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;flex-shrink:0;">
+    style="width:46px;height:46px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;flex-shrink:0;">
     <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
   </button>
 </div>
@@ -706,41 +706,41 @@
 <!-- PROFILE VIEW OVERLAY -->
 <div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;transition:opacity 0.25s ease,transform 0.25s ease;opacity:0;transform:translateX(100%);">
   <!-- Header bar -->
-  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid #2a2a2a;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;">
-    <button onclick="closeProfileView()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;display:flex;align-items:center;padding:4px;">
+  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);background:var(--nav-bg);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;">
+    <button onclick="closeProfileView()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:4px;">
       <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
     </button>
-    <span style="color:#fff;font-size:16px;font-weight:600;">My Profile</span>
+    <span style="color:var(--lyrics-color);font-size:16px;font-weight:600;">My Profile</span>
   </div>
 
   <!-- Hero section -->
   <div style="padding:32px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:0;background:linear-gradient(180deg,#1a1a1a 0%,var(--canvas-bg) 100%);">
     <div style="position:relative;margin-bottom:16px;">
       <img id="profile-view-pic" src="" alt="Profile"
-        style="width:96px;height:96px;border-radius:50%;object-fit:cover;background:#333;border:3px solid var(--chords-color);box-shadow:0 0 0 6px rgba(251,191,36,0.1);" />
+        style="width:96px;height:96px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--chords-color);box-shadow:0 0 0 6px rgba(251,191,36,0.1);" />
     </div>
     <!-- Name row with edit pencil -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      <span id="profile-view-name" style="color:#fff;font-size:20px;font-weight:700;letter-spacing:0.01em;"></span>
+      <span id="profile-view-name" style="color:var(--lyrics-color);font-size:20px;font-weight:700;letter-spacing:0.01em;"></span>
       <button onclick="openNameEditModal()" title="Edit name"
-        style="background:#2a2a2a;border:1px solid #444;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
+        style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
         <iconify-icon icon="mdi:pencil" style="font-size:16px;"></iconify-icon>
       </button>
     </div>
     <!-- Role | Instruments row -->
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
       <span id="profile-view-role-badge"></span>
-      <span id="profile-view-instruments-inline" style="color:#9ca3af;font-size:13px;"></span>
+      <span id="profile-view-instruments-inline" style="color:var(--text-secondary);font-size:13px;"></span>
     </div>
   </div>
 
   <!-- Settings card -->
   <div style="padding:0 16px 12px;">
-    <div style="background:#1e1e1e;border-radius:12px;overflow:hidden;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #2a2a2a;">
+    <div style="background:var(--surface-1);border-radius:12px;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color);">
         <div style="display:flex;align-items:center;gap:10px;">
-          <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:#6b7280;"></iconify-icon>
-          <span style="color:#e5e7eb;font-size:14px;">Tutorial on Song Open</span>
+          <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
+          <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
         </div>
         <label class="toggle-switch">
           <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
@@ -754,7 +754,7 @@
   <div style="padding:0 16px 12px;">
     <div class="section-label" style="margin-bottom:8px;">My Setlists</div>
     <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:8px;"></div>
-    <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:#6b7280;font-size:13px;">No setlists created yet.</div>
+    <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
   </div>
 
   <!-- Sign out -->
@@ -771,20 +771,20 @@
   <div class="modal-sheet" style="max-height:92vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Add New Song</h3>
-      <button onclick="closeCreateSongModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Add New Song</h3>
+      <button onclick="closeCreateSongModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div>
-        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Song Title *</label>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Song Title *</label>
         <input type="text" class="input-field" id="new-song-title" placeholder="Enter song title" />
       </div>
       <div>
-        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Artist *</label>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Artist *</label>
         <input type="text" class="input-field" id="new-song-artist" placeholder="Enter artist name" />
       </div>
       <div>
-        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Original Key</label>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Original Key</label>
         <select class="select-field" id="new-song-key">
           <option>C</option><option>C#</option><option>D</option><option>D#</option>
           <option>E</option><option>F</option><option>F#</option><option>G</option>
@@ -809,7 +809,7 @@
           </div>
         </div>
         <div id="intake-camera-area" style="display:none;">
-          <div style="background:#1e1e1e;border-radius:10px;padding:16px;text-align:center;">
+          <div style="background:var(--surface-1);border-radius:10px;padding:16px;text-align:center;">
             <button class="camera-btn" style="width:100%;justify-content:center;" onclick="openCamera()">
               <iconify-icon icon="mdi:camera" style="font-size:20px;"></iconify-icon>
               Open Camera for OCR
@@ -817,7 +817,7 @@
             <video id="camera-video" style="display:none;width:100%;border-radius:8px;margin-top:10px;" autoplay playsinline></video>
             <canvas id="camera-canvas" style="display:none;"></canvas>
             <button id="capture-btn" style="display:none;margin-top:8px;" class="btn-primary btn-text" onclick="capturePhoto()">Capture & Extract Text</button>
-            <div id="ocr-result" style="margin-top:10px;color:#9ca3af;font-size:12px;"></div>
+            <div id="ocr-result" style="margin-top:10px;color:var(--text-secondary);font-size:12px;"></div>
           </div>
         </div>
       </div>
@@ -831,30 +831,30 @@
   <div class="modal-sheet" style="max-height:92vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Create Setlist</h3>
-      <button onclick="closeCreateSetlistModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Create Setlist</h3>
+      <button onclick="closeCreateSetlistModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div>
-        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Setlist Name *</label>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Setlist Name *</label>
         <input type="text" class="input-field" id="new-setlist-name" placeholder="e.g., Sunday Morning Service" />
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="color:#e5e7eb;font-size:14px;">Private Setlist</span>
+        <span style="color:var(--lyrics-color);font-size:14px;">Private Setlist</span>
         <label class="toggle-switch"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
       </div>
       <div id="custom-group-section">
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span style="color:#e5e7eb;font-size:14px;">Custom-Group Setlist</span>
+          <span style="color:var(--lyrics-color);font-size:14px;">Custom-Group Setlist</span>
           <label class="toggle-switch"><input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span></label>
         </div>
         <div id="custom-group-users-section" style="display:none;margin-top:10px;">
-          <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:6px;">Select Members</label>
+          <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:6px;">Select Members</label>
           <div style="position:relative;margin-bottom:8px;">
-            <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#6b7280;"></iconify-icon>
+            <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);"></iconify-icon>
             <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="custom-group-search" placeholder="Search users..." oninput="filterCustomGroupUsers()" />
           </div>
-          <div id="custom-group-users-list" style="max-height:140px;overflow-y:auto;background:#111;border-radius:8px;"></div>
+          <div id="custom-group-users-list" style="max-height:140px;overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
           <div id="selected-custom-members" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
         </div>
       </div>
@@ -867,7 +867,7 @@
 <div id="key-modal" class="modal-overlay" style="display:none;">
   <div class="modal-sheet key-modal">
     <div class="modal-handle"></div>
-    <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:12px;">Select Key</h3>
+    <h3 style="color:var(--lyrics-color);font-size:15px;font-weight:700;margin-bottom:12px;">Select Key</h3>
     <div class="key-grid" id="key-grid-container"></div>
     <button onclick="closeKeyModal()" style="width:100%;margin-top:12px;" class="btn-secondary">Cancel</button>
   </div>
@@ -877,19 +877,19 @@
 <div id="user-edit-modal" class="modal-overlay center" style="display:none;">
   <div class="modal-sheet center-card" style="max-width:440px;border-radius:16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Edit User</h3>
-      <button onclick="closeUserEditModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Edit User</h3>
+      <button onclick="closeUserEditModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-        <img id="edit-user-pic" src="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;background:#333;" />
+        <img id="edit-user-pic" src="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--surface-2);" />
         <div>
-          <p id="edit-user-name" style="color:#fff;font-size:15px;font-weight:600;margin:0;"></p>
-          <p id="edit-user-email" style="color:#6b7280;font-size:12px;margin:0;"></p>
+          <p id="edit-user-name" style="color:var(--lyrics-color);font-size:15px;font-weight:600;margin:0;"></p>
+          <p id="edit-user-email" style="color:var(--text-muted);font-size:12px;margin:0;"></p>
         </div>
       </div>
       <div id="edit-role-section">
-        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Role (Admin Only)</label>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Role (Admin Only)</label>
         <select class="select-field" id="edit-user-role">
           <option value="Musician">Musician</option>
           <option value="Singer">Singer</option>
@@ -901,27 +901,27 @@
       <div>
         <div class="section-label" style="margin-bottom:8px;">Instruments</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <label style="display:flex;align-items:center;gap:8px;color:#e5e7eb;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
             <input type="checkbox" class="checkbox-custom" id="edit-guitar"> Guitar
           </label>
-          <label style="display:flex;align-items:center;gap:8px;color:#e5e7eb;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
             <input type="checkbox" class="checkbox-custom" id="edit-keyboard"> Keyboard
           </label>
-          <label style="display:flex;align-items:center;gap:8px;color:#e5e7eb;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
             <input type="checkbox" class="checkbox-custom" id="edit-djembe"> Djembe
           </label>
         </div>
       </div>
       <div>
-        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Max Setlist Override</label>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Max Setlist Override</label>
         <input type="number" class="input-field" id="edit-max-setlists" placeholder="Leave blank for default" min="0" />
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <label style="display:flex;align-items:center;justify-content:space-between;color:#e5e7eb;font-size:14px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;color:var(--lyrics-color);font-size:14px;">
           Can Delete Songs
           <label class="toggle-switch"><input type="checkbox" id="edit-can-delete"><span class="toggle-slider"></span></label>
         </label>
-        <label style="display:flex;align-items:center;justify-content:space-between;color:#e5e7eb;font-size:14px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;color:var(--lyrics-color);font-size:14px;">
           Can Add Songs
           <label class="toggle-switch"><input type="checkbox" id="edit-can-add"><span class="toggle-slider"></span></label>
         </label>
@@ -938,8 +938,8 @@
 <div id="name-edit-modal" class="modal-overlay center" style="display:none;">
   <div class="modal-sheet center-card" style="max-width:380px;border-radius:16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Edit Display Name</h3>
-      <button onclick="closeNameEditModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Edit Display Name</h3>
+      <button onclick="closeNameEditModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <input type="text" class="input-field" id="new-display-name" placeholder="Your display name" style="margin-bottom:12px;" />
     <div style="display:flex;gap:8px;">
@@ -951,22 +951,22 @@
 
 <!-- TUTORIAL MODAL -->
 <div id="tutorial-modal" class="tutorial-overlay" style="display:none;">
-  <div style="background:#1a1a1a;border-radius:16px;padding:24px;max-width:360px;width:100%;">
+  <div style="background:var(--surface-1);border-radius:16px;padding:24px;max-width:360px;width:100%;">
     <div style="text-align:center;margin-bottom:16px;">
       <iconify-icon icon="mdi:gesture-pinch" style="font-size:48px;color:var(--chords-color);display:block;margin:0 auto 12px;"></iconify-icon>
-      <h3 style="color:#fff;font-size:17px;font-weight:700;margin:0 0 8px;">Resize the Song Sheet</h3>
+      <h3 style="color:var(--lyrics-color);font-size:17px;font-weight:700;margin:0 0 8px;">Resize the Song Sheet</h3>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
       <div style="display:flex;align-items:flex-start;gap:10px;">
-        <iconify-icon icon="mdi:cellphone" style="font-size:22px;color:#6b7280;flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:#d1d5db;font-size:13px;margin:0;line-height:1.5;"><strong style="color:#fff;">Touch Devices:</strong> Use two fingers to pinch and zoom directly on the song sheet to resize text.</p>
+        <iconify-icon icon="mdi:cellphone" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Touch Devices:</strong> Use two fingers to pinch and zoom directly on the song sheet to resize text.</p>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;">
-        <iconify-icon icon="mdi:monitor" style="font-size:22px;color:#6b7280;flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:#d1d5db;font-size:13px;margin:0;line-height:1.5;"><strong style="color:#fff;">Desktop:</strong> Use the <strong style="color:var(--chords-color);">A+</strong> and <strong style="color:var(--chords-color);">A-</strong> buttons in the bottom-left corner to adjust text size.</p>
+        <iconify-icon icon="mdi:monitor" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Desktop:</strong> Use the <strong style="color:var(--chords-color);">A+</strong> and <strong style="color:var(--chords-color);">A-</strong> buttons in the bottom-left corner to adjust text size.</p>
       </div>
     </div>
-    <label style="display:flex;align-items:center;gap:8px;color:#9ca3af;font-size:13px;cursor:pointer;margin-bottom:16px;">
+    <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;cursor:pointer;margin-bottom:16px;">
       <input type="checkbox" class="checkbox-custom" id="dont-show-tutorial" />
       Don't show this again
     </label>
@@ -979,11 +979,11 @@
   <div class="modal-sheet" style="max-height:80vh;">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <h3 style="color:#fff;font-size:15px;font-weight:700;margin:0;">Add Song to Setlist</h3>
-      <button onclick="closeSongSelectorModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <h3 style="color:var(--lyrics-color);font-size:15px;font-weight:700;margin:0;">Add Song to Setlist</h3>
+      <button onclick="closeSongSelectorModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <div style="position:relative;margin-bottom:10px;">
-      <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#6b7280;pointer-events:none;"></iconify-icon>
+      <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
       <input type="text" class="search-input" placeholder="Search songs..." id="song-selector-search" oninput="filterSongSelector()" />
     </div>
     <div id="song-selector-list" style="overflow-y:auto;max-height:calc(80vh - 120px);"></div>
@@ -995,8 +995,8 @@
   <div class="modal-sheet center-card" style="max-width:360px;border-radius:16px;">
     <div style="text-align:center;padding:8px 0;">
       <iconify-icon id="alert-icon" icon="mdi:information" style="font-size:40px;color:var(--chords-color);display:block;margin:0 auto 12px;"></iconify-icon>
-      <h3 id="alert-title" style="color:#fff;font-size:16px;font-weight:700;margin:0 0 8px;"></h3>
-      <p id="alert-message" style="color:#9ca3af;font-size:13px;margin:0 0 16px;line-height:1.5;"></p>
+      <h3 id="alert-title" style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0 0 8px;"></h3>
+      <p id="alert-message" style="color:var(--text-secondary);font-size:13px;margin:0 0 16px;line-height:1.5;"></p>
       <button class="btn-primary" style="width:100%;" onclick="closeAlertModal()">OK</button>
     </div>
   </div>
@@ -1008,11 +1008,11 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <iconify-icon icon="mdi:playlist-remove" style="font-size:22px;color:#ef4444;"></iconify-icon>
-        <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Setlist Limit Reached</h3>
+        <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Setlist Limit Reached</h3>
       </div>
-      <button onclick="closeSetlistLimitModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <button onclick="closeSetlistLimitModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
-    <p id="setlist-limit-msg" style="color:#9ca3af;font-size:13px;margin:0 0 14px;line-height:1.5;"></p>
+    <p id="setlist-limit-msg" style="color:var(--text-secondary);font-size:13px;margin:0 0 14px;line-height:1.5;"></p>
     <div class="section-label" style="margin-bottom:8px;">Your Setlists</div>
     <div id="setlist-limit-list" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;"></div>
     <button onclick="closeSetlistLimitModal()" class="btn-secondary" style="width:100%;margin-top:14px;">Cancel</button>
@@ -1184,17 +1184,17 @@ function showAuthView() {
     const chip = document.getElementById('prev-account-chip');
     if (prev && prev.email && chip) {
       const picHtml = prev.photoURL
-        ? `<img src="${escHtml(prev.photoURL)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.style.background='#374151'" />`
-        : `<div style="width:32px;height:32px;border-radius:50%;background:#374151;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><iconify-icon icon="mdi:account" style="font-size:18px;color:#9ca3af;"></iconify-icon></div>`;
+        ? `<img src="${escHtml(prev.photoURL)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />`
+        : `<div style="width:32px;height:32px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><iconify-icon icon="mdi:account" style="font-size:18px;color:var(--text-secondary);"></iconify-icon></div>`;
       chip.innerHTML = `
-        <p style="color:#6b7280;font-size:11px;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.08em;">Previously used</p>
-        <button onclick="quickSignIn()" style="display:flex;align-items:center;gap:10px;background:#1e1e1e;border:1px solid #333;border-radius:12px;padding:10px 14px;cursor:pointer;width:100%;max-width:320px;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='#1e1e1e'">
+        <p style="color:var(--text-muted);font-size:11px;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.08em;">Previously used</p>
+        <button onclick="quickSignIn()" style="display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:10px 14px;cursor:pointer;width:100%;max-width:320px;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='var(--surface-1)'">
           ${picHtml}
           <div style="flex:1;min-width:0;">
-            <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(prev.displayName||'Unknown')}</p>
-            <p style="color:#6b7280;font-size:11px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(prev.email)}</p>
+            <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(prev.displayName||'Unknown')}</p>
+            <p style="color:var(--text-muted);font-size:11px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(prev.email)}</p>
           </div>
-          <iconify-icon icon="mdi:chevron-right" style="font-size:18px;color:#6b7280;flex-shrink:0;"></iconify-icon>
+          <iconify-icon icon="mdi:chevron-right" style="font-size:18px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
         </button>`;
       chip.style.display = 'flex';
       chip.style.flexDirection = 'column';
@@ -1495,7 +1495,7 @@ function buildNav() {
   const profileBtn = `<button class="bottom-nav-btn nav-text${isProfileActive ? ' active' : ''}" id="nav-profile" onclick="openProfileView()">
     <div class="nav-icon-wrap">
       <img src="${photoURL}" alt="Profile"
-        style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:#333;border:2px solid ${isProfileActive ? 'var(--chords-color)' : '#555'};"
+        style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid ${isProfileActive ? 'var(--chords-color)' : '#555'};"
         onerror="this.style.background='#374151';this.src=''"
       />
     </div>
@@ -1510,12 +1510,12 @@ function buildNav() {
   // Also populate desktop sidebar nav
   const sidebarNav = document.getElementById('sidebar-nav');
   if (sidebarNav) {
-    const sidebarProfileBtn = `<button onclick="openProfileView()" style="display:flex;align-items:center;gap:10px;background:transparent;border:none;color:#6b7280;cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='#1e1e1e'" onmouseout="this.style.background='transparent'">
-      <img src="${photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#333;border:2px solid #444;" onerror="this.style.background='#374151'" />
+    const sidebarProfileBtn = `<button onclick="openProfileView()" style="display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
+      <img src="${photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid var(--border-subtle);" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
       <span style="font-size:13px;font-weight:500;">Profile</span>
     </button>`;
     sidebarNav.innerHTML = tabs.map(t => `
-      <button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}')" style="display:flex;align-items:center;gap:10px;background:${t.id===activeTab?'#2a2a2a':'transparent'};border:none;color:${t.id===activeTab?'var(--chords-color)':'#6b7280'};cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='#1e1e1e'" onmouseout="this.style.background='${t.id===activeTab?'#2a2a2a':'transparent'}'">
+      <button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}')" style="display:flex;align-items:center;gap:10px;background:${t.id===activeTab?'#2a2a2a':'transparent'};border:none;color:${t.id===activeTab?'var(--chords-color)':'#6b7280'};cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='${t.id===activeTab?'#2a2a2a':'transparent'}'">
         <iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>
         <span style="font-size:13px;font-weight:500;">${t.label}</span>
       </button>
@@ -1791,15 +1791,15 @@ function renderSongsList() {
     <div class="song-card" onclick="openSongSheet('${song.id}')">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
-          <p style="color:#fff;font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
-          <p style="color:#6b7280;font-size:12px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.artist||'')}</p>
+          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
+          <p style="color:var(--text-muted);font-size:12px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.artist||'')}</p>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          ${song.key ? `<span style="background:#2a1f00;color:#FBBF24;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${escHtml(song.key)}</span>` : ''}
+          ${song.key ? `<span style="background:var(--accent-glow);color:var(--chords-color);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${escHtml(song.key)}</span>` : ''}
           <button onclick="event.stopPropagation();toggleFavourite('${song.id}')" style="background:transparent;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;" title="${fav ? 'Remove from Favourites' : 'Add to Favourites'}">
             <iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:18px;color:${fav ? '#ef4444' : '#6b7280'};"></iconify-icon>
           </button>
-          ${canDeleteSong() ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:16px;"></iconify-icon></button>` : ''}
+          ${canDeleteSong() ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:16px;"></iconify-icon></button>` : ''}
         </div>
       </div>
     </div>
@@ -2380,17 +2380,17 @@ function renderSetlistsList() {
     <div class="setlist-card" onclick="openSetlistDetail('${setlist.id}')" style="cursor:pointer;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
-          <p style="color:#fff;font-size:14px;font-weight:600;margin:0;">${escHtml(setlist.name)}</p>
+          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;">${escHtml(setlist.name)}</p>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;">
             <span class="privacy-badge ${setlist.isPrivate ? 'badge-private' : 'badge-public'}">${setlist.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
             ${setlist.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom Group</span>' : ''}
-            <span style="color:#6b7280;font-size:11px;">${setlist.songs ? setlist.songs.length : 0} songs</span>
+            <span style="color:var(--text-muted);font-size:11px;">${setlist.songs ? setlist.songs.length : 0} songs</span>
           </div>
           ${setlist.isCustomGroup && setlist.whitelist && setlist.whitelist.length > 0 ? renderWhitelistAvatars(setlist.whitelist) : ''}
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
-          ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:#6b7280;padding:4px;"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
 
         </div>
       </div>
@@ -2452,7 +2452,7 @@ function renderSetlistDetail(setlist) {
     <div style="margin-bottom:12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div>
-          <h2 style="color:#fff;font-size:16px;font-weight:700;margin:0;">${escHtml(setlist.name)}</h2>
+          <h2 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">${escHtml(setlist.name)}</h2>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
             <span class="privacy-badge ${setlist.isPrivate ? 'badge-private' : 'badge-public'}">${setlist.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
             ${setlist.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom Group</span>' : ''}
@@ -2463,15 +2463,15 @@ function renderSetlistDetail(setlist) {
 
     </div>
     <div id="setlist-songs-container">
-      ${songs.length === 0 ? '<p style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0;">No songs in this setlist yet.</p>' : songs.map((song, i) => `
+      ${songs.length === 0 ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No songs in this setlist yet.</p>' : songs.map((song, i) => `
         <div class="setlist-song-item" onclick="openSongSheet('${song.id}', true)" style="cursor:pointer;">
-          <span style="color:#6b7280;font-size:12px;width:20px;text-align:center;">${i+1}</span>
+          <span style="color:var(--text-muted);font-size:12px;width:20px;text-align:center;">${i+1}</span>
           <div style="flex:1;min-width:0;">
-            <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
-            <p style="color:#6b7280;font-size:11px;margin:2px 0 0;">${escHtml(song.artist||'')}</p>
+            <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
+            <p style="color:var(--text-muted);font-size:11px;margin:2px 0 0;">${escHtml(song.artist||'')}</p>
           </div>
 
-          ${canEdit ? `<button onclick="event.stopPropagation();removeSongFromSetlist('${song.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canEdit ? `<button onclick="event.stopPropagation();removeSongFromSetlist('${song.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       `).join('')}
     </div>
@@ -2492,11 +2492,11 @@ async function loadSetlistCreator(uid) {
     const isCustomGroup = setlist?.isCustomGroup;
     document.getElementById('setlist-creator-info').innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;">
-        <img src="${escHtml(d.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#333;" />
-        <span style="font-size:11px;color:#6b7280;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(d.displayName||'')}</span>
+        <img src="${escHtml(d.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);" />
+        <span style="font-size:11px;color:var(--text-muted);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(d.displayName||'')}</span>
         ${isCustomGroup && canManage ? `<button onclick="openManageMembersModal()" title="Manage Members"
-          style="background:#2a2a2a;border:1px solid #444;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.15s;"
-          onmouseover="this.style.background='#3a3a3a'" onmouseout="this.style.background='#2a2a2a'">
+          style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.15s;"
+          onmouseover="this.style.background='#3a3a3a'" onmouseout="this.style.background='var(--surface-2)'">
           <iconify-icon icon="mdi:account-multiple-plus" style="font-size:16px;color:var(--chords-color);"></iconify-icon>
         </button>` : ''}
       </div>
@@ -2526,18 +2526,18 @@ function renderManageCurrentMembers() {
   const whitelist = setlist?.whitelist || [];
   const container = document.getElementById('manage-current-members');
   if (whitelist.length === 0) {
-    container.innerHTML = '<p style="color:#6b7280;font-size:12px;text-align:center;padding:10px 0;">No members yet.</p>';
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:12px;text-align:center;padding:10px 0;">No members yet.</p>';
     return;
   }
   container.innerHTML = whitelist.map(uid => {
     const u = allUsers.find(x => x.uid === uid);
     const name = u ? escHtml(u.displayName || u.email || uid) : uid;
     const photo = u?.photoURL || '';
-    return `<div style="display:flex;align-items:center;gap:8px;background:#252525;border-radius:8px;padding:8px 10px;">
-      <img src="${escHtml(photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#374151;flex-shrink:0;" onerror="this.style.background='#374151'" />
-      <span style="color:#e5e7eb;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
+    return `<div style="display:flex;align-items:center;gap:8px;background:var(--surface-3);border-radius:8px;padding:8px 10px;">
+      <img src="${escHtml(photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
+      <span style="color:var(--lyrics-color);font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
       <button onclick="removeMemberFromSetlist('${uid}')"
-        style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;"
+        style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;"
         title="Remove">
         <iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon>
       </button>
@@ -2561,17 +2561,17 @@ function renderManageAddList(query) {
   );
   const container = document.getElementById('manage-add-members-list');
   if (available.length === 0) {
-    container.innerHTML = '<p style="color:#6b7280;font-size:12px;text-align:center;padding:12px;">No more users to add.</p>';
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:12px;text-align:center;padding:12px;">No more users to add.</p>';
     return;
   }
   container.innerHTML = available.map(u => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #1a1a1a;cursor:pointer;transition:background 0.15s;"
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border-subtle);cursor:pointer;transition:background 0.15s;"
       onclick="addMemberToSetlist('${u.uid}')"
       onmouseover="this.style.background='#1a2a1a'" onmouseout="this.style.background='transparent'">
-      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#374151;flex-shrink:0;" onerror="this.style.background='#374151'" />
+      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
       <div style="flex:1;min-width:0;">
-        <p style="color:#e5e7eb;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
-        <p style="color:#6b7280;font-size:11px;margin:0;">${escHtml(u.email||'')}</p>
+        <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
+        <p style="color:var(--text-muted);font-size:11px;margin:0;">${escHtml(u.email||'')}</p>
       </div>
       <iconify-icon icon="mdi:plus-circle" style="font-size:20px;color:var(--chords-color);flex-shrink:0;"></iconify-icon>
     </div>`).join('');
@@ -2664,13 +2664,13 @@ function renderSongSelectorList(query) {
     return;
   }
   container.innerHTML = available.length === 0
-    ? '<p style="color:#6b7280;font-size:13px;text-align:center;padding:16px;">No songs available.</p>'
+    ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:16px;">No songs available.</p>'
     : available.map(s => `
       <div class="song-selector-row" onclick="addSongToSetlist('${s.id}')">
         <iconify-icon icon="mdi:plus-circle" style="font-size:18px;color:var(--chords-color);flex-shrink:0;"></iconify-icon>
         <div style="flex:1;min-width:0;">
-          <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.title)}</p>
-          <p style="color:#6b7280;font-size:11px;margin:0;">${escHtml(s.artist||'')}</p>
+          <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.title)}</p>
+          <p style="color:var(--text-muted);font-size:11px;margin:0;">${escHtml(s.artist||'')}</p>
         </div>
       </div>
     `).join('');
@@ -2731,9 +2731,9 @@ function renderCustomGroupUsers(query) {
   container.innerHTML = filtered.map(u => {
     const selected = selectedCustomMembers.includes(u.uid);
     return `
-    <div onclick="toggleCustomMember('${u.uid}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid #1a1a1a;background:${selected?'#1a2a1a':'transparent'};">
-      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#333;" />
-      <span style="color:#e5e7eb;font-size:13px;flex:1;">${escHtml(u.displayName||u.email||'')}</span>
+    <div onclick="toggleCustomMember('${u.uid}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--border-subtle);background:${selected?'var(--surface-2)':'transparent'};">
+      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);" />
+      <span style="color:var(--lyrics-color);font-size:13px;flex:1;">${escHtml(u.displayName||u.email||'')}</span>
       ${selected ? '<iconify-icon icon="mdi:check" style="font-size:16px;color:#34d399;"></iconify-icon>' : ''}
     </div>`;
   }).join('');
@@ -2751,7 +2751,7 @@ function toggleCustomMember(uid) {
   container.innerHTML = selectedCustomMembers.map(uid => {
     const u = allUsers.find(u => u.uid === uid);
     if (!u) return '';
-    return `<span style="display:flex;align-items:center;gap:4px;background:#1a2a3a;border-radius:999px;padding:3px 10px 3px 6px;font-size:12px;color:#93c5fd;">
+    return `<span style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px 10px 3px 6px;font-size:12px;color:var(--text-secondary);">
       <img src="${escHtml(u.photoURL||'')}" style="width:18px;height:18px;border-radius:50%;" />
       ${escHtml(u.displayName||'')}
     </span>`;
@@ -2819,12 +2819,12 @@ function renderUsersList() {
     const canDelete = role === 'Admin' && !isAdminUser;
     return `
     <div class="user-row" onclick="openUserDetail('${u.uid}')" style="cursor:pointer;">
-      <img src="${escHtml(u.photoURL||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#333;flex-shrink:0;" onerror="this.style.background='#374151'" />
+      <img src="${escHtml(u.photoURL||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
       <div style="flex:1;min-width:0;">
-        <p style="color:#fff;font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
+        <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;">
           <span class="role-badge ${getRoleBadgeClass(u.role)}">${escHtml(u.role||'')}</span>
-          ${instruments ? `<span style="color:#6b7280;font-size:11px;">${escHtml(instruments)}</span>` : ''}
+          ${instruments ? `<span style="color:var(--text-muted);font-size:11px;">${escHtml(instruments)}</span>` : ''}
         </div>
       </div>
       ${canEdit ? `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
@@ -2852,15 +2852,15 @@ function renderWhitelistAvatars(uids) {
     const u = allUsers.find(x => x.uid === uid);
     const marginLeft = i === 0 ? '0' : '-7px';
     const zIndex = visible.length - i;
-    const base = `position:relative;z-index:${zIndex};display:inline-block;width:24px;height:24px;border-radius:50%;flex-shrink:0;margin-left:${marginLeft};border:2px solid #1e1e1e;overflow:hidden;background:#374151;vertical-align:middle;`;
+    const base = `position:relative;z-index:${zIndex};display:inline-block;width:24px;height:24px;border-radius:50%;flex-shrink:0;margin-left:${marginLeft};border:2px solid var(--canvas-bg);overflow:hidden;background:var(--surface-2);vertical-align:middle;`;
     if (!u || !u.photoURL) {
-      return `<div style="${base}display:flex;align-items:center;justify-content:center;"><iconify-icon icon="mdi:account" style="font-size:13px;color:#9ca3af;"></iconify-icon></div>`;
+      return `<div style="${base}display:flex;align-items:center;justify-content:center;"><iconify-icon icon="mdi:account" style="font-size:13px;color:var(--text-secondary);"></iconify-icon></div>`;
     }
     return `<img src="${escHtml(u.photoURL)}" title="${escHtml(u.displayName||uid)}"
-      style="${base}" onerror="this.style.background='#374151'" />`;
+      style="${base}" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />`;
   }).join('');
   const extra = uids.length > 7
-    ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#2a2a2a;border:2px solid #1e1e1e;font-size:9px;color:#9ca3af;font-weight:700;margin-left:-7px;flex-shrink:0;vertical-align:middle;">+${uids.length-7}</span>`
+    ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--surface-2);border:2px solid var(--canvas-bg);font-size:9px;color:var(--text-secondary);font-weight:700;margin-left:-7px;flex-shrink:0;vertical-align:middle;">+${uids.length-7}</span>`
     : '';
   return `<div style="display:flex;align-items:center;margin-top:6px;flex-wrap:nowrap;">${avatars}${extra}</div>`;
 }
@@ -2879,13 +2879,13 @@ function openUserDetail(uid) {
   const instruments = (u.instruments||[]).join(', ');
   const detail = document.getElementById('user-detail-view');
   detail.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #2a2a2a;">
-      <img src="${escHtml(u.photoURL||'')}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;background:#333;flex-shrink:0;" />
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border-color);">
+      <img src="${escHtml(u.photoURL||'')}" style="width:54px;height:54px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" />
       <div style="flex:1;min-width:0;">
-        <p style="color:#fff;font-size:16px;font-weight:700;margin:0;">${escHtml(u.displayName||'')}</p>
+        <p style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">${escHtml(u.displayName||'')}</p>
         <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">
           <span class="role-badge ${getRoleBadgeClass(u.role)}">${escHtml(u.role||'')}</span>
-          ${instruments ? `<span style="color:#6b7280;font-size:11px;">${escHtml(instruments)}</span>` : ''}
+          ${instruments ? `<span style="color:var(--text-muted);font-size:11px;">${escHtml(instruments)}</span>` : ''}
         </div>
       </div>
       ${canEdit ? `<div style="display:flex;gap:6px;flex-shrink:0;">
@@ -2899,14 +2899,14 @@ function openUserDetail(uid) {
     </div>
     <div class="section-label" style="margin-bottom:8px;">Setlists Created (${userSetlists.length})</div>
     ${userSetlists.length === 0
-      ? '<p style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0;">No visible setlists.</p>'
+      ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No visible setlists.</p>'
       : userSetlists.map(s => `
         <div class="setlist-card" onclick="openSetlistDetail('${s.id}')" style="cursor:pointer;margin-bottom:8px;">
-          <p style="color:#fff;font-size:13px;font-weight:600;margin:0 0 4px;">${escHtml(s.name)}</p>
+          <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0 0 4px;">${escHtml(s.name)}</p>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <span class="privacy-badge ${s.isPrivate ? 'badge-private' : 'badge-public'}">${s.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
             ${s.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom</span>' : ''}
-            <span style="color:#6b7280;font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
+            <span style="color:var(--text-muted);font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
             ${s.isCustomGroup && s.whitelist && s.whitelist.length ? renderWhitelistAvatars(s.whitelist) : ''}
           </div>
         </div>`).join('')}
@@ -3076,14 +3076,14 @@ function renderProfileSetlists() {
     <div class="setlist-card" style="cursor:pointer;" onclick="closeProfileAndOpenSetlist('${s.id}')">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
-          <p style="color:#fff;font-size:13px;font-weight:600;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
+          <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <span class="privacy-badge ${s.isPrivate ? 'badge-private' : 'badge-public'}">${s.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
             ${s.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom</span>' : ''}
-            <span style="color:#6b7280;font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
+            <span style="color:var(--text-muted);font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
           </div>
         </div>
-        <button onclick="event.stopPropagation();deleteSetlist('${s.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;">
+        <button onclick="event.stopPropagation();deleteSetlist('${s.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
           <iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon>
         </button>
       </div>
@@ -3260,7 +3260,7 @@ function updateThemeCarousel(activeKey) {
       btn.style.boxShadow = '0 0 0 3px ' + s.glow;
       btn.style.transform = 'scale(1.05)';
     } else {
-      btn.style.border = '2px solid #333';
+      btn.style.border = '2px solid var(--border-subtle)';
       btn.style.boxShadow = 'none';
       btn.style.transform = 'scale(1)';
     }
@@ -3578,10 +3578,10 @@ function showSetlistLimitModal(maxAllowed) {
     `You've reached your limit of ${maxAllowed} setlist${maxAllowed !== 1 ? 's' : ''}. Delete one below to create a new one.`;
   const listEl = document.getElementById('setlist-limit-list');
   listEl.innerHTML = mySetlists.map(s => `
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#252525;border-radius:8px;padding:10px 12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface-3);border-radius:8px;padding:10px 12px;">
       <div style="flex:1;min-width:0;">
-        <p style="color:#fff;font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
-        <p style="color:#6b7280;font-size:11px;margin:2px 0 0;">
+        <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
+        <p style="color:var(--text-muted);font-size:11px;margin:2px 0 0;">
           ${s.isCustomGroup ? '⚡ Custom' : s.isPrivate ? '🔒 Private' : '🌐 Public'}
           · ${s.songs ? s.songs.length : 0} song${s.songs && s.songs.length !== 1 ? 's' : ''}
         </p>
@@ -3634,17 +3634,17 @@ window.addEventListener('load', () => {
 <div id="logo-change-modal" class="modal-overlay center" style="display:none;">
   <div class="modal-sheet center-card" style="max-width:380px;border-radius:16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Change App Logo</h3>
-      <button onclick="closeLogoChangeModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Change App Logo</h3>
+      <button onclick="closeLogoChangeModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div style="text-align:center;margin-bottom:4px;">
         <img id="logo-modal-preview" src="icons/logo.png" alt="Preview"
-          style="width:80px;height:80px;border-radius:16px;object-fit:cover;background:#2a2a2a;border:2px dashed #444;"
+          style="width:80px;height:80px;border-radius:16px;object-fit:cover;background:var(--surface-2);border:2px dashed var(--border-subtle);"
           onerror="this.style.background='linear-gradient(135deg,#7c3aed,#FBBF24)'" />
       </div>
       <div>
-        <label style="color:#9ca3af;font-size:12px;display:block;margin-bottom:4px;">Logo URL or Path</label>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Logo URL or Path</label>
         <input type="text" class="input-field" id="logo-url-input" placeholder="icons/logo.png or https://..." oninput="previewLogoInput()" />
       </div>
       <div style="display:flex;gap:8px;">
@@ -3661,8 +3661,8 @@ window.addEventListener('load', () => {
   <div class="modal-sheet" style="max-height:88vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <h3 style="color:#fff;font-size:16px;font-weight:700;margin:0;">Manage Members</h3>
-      <button onclick="closeManageMembersModal()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;font-size:20px;">✕</button>
+      <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Manage Members</h3>
+      <button onclick="closeManageMembersModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <!-- Current members -->
     <div style="margin-bottom:14px;">
@@ -3670,52 +3670,52 @@ window.addEventListener('load', () => {
       <div id="manage-current-members" style="display:flex;flex-direction:column;gap:6px;"></div>
     </div>
     <!-- Divider -->
-    <div style="height:1px;background:#2a2a2a;margin-bottom:14px;"></div>
+    <div style="height:1px;background:var(--surface-2);margin-bottom:14px;"></div>
     <!-- Add members -->
     <div>
       <div class="section-label" style="margin-bottom:8px;">Add Members</div>
       <div style="position:relative;margin-bottom:8px;">
-        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#6b7280;pointer-events:none;"></iconify-icon>
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="manage-members-search"
           placeholder="Search users to add..." oninput="filterManageMembers()" />
       </div>
-      <div id="manage-add-members-list" style="max-height:200px;overflow-y:auto;background:#111;border-radius:8px;"></div>
+      <div id="manage-add-members-list" style="max-height:200px;overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
     </div>
   </div>
 </div>
 
 
 <!-- USER FILTER PORTAL MENU -->
-<div id="user-filter-menu" style="display:none;position:fixed;background:#1e1e1e;border:1px solid #444;border-radius:12px;padding:6px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
-  <div style="padding:6px 10px 4px;border-bottom:1px solid #2a2a2a;margin-bottom:4px;">
-    <span style="color:#6b7280;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
+<div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
+  <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
+    <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
   </div>
-  <button onclick="setUserFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:account-group" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+  <button onclick="setUserFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:account-group" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>All Roles</span>
   </button>
-  <button onclick="setUserFilter('Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:crown" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+  <button onclick="setUserFilter('Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:crown" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>Admin</span>
   </button>
-  <button onclick="setUserFilter('Sub-Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:account-tie" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+  <button onclick="setUserFilter('Sub-Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:account-tie" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>Sub-Admin</span>
   </button>
-  <button onclick="setUserFilter('Lead')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:account-star" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+  <button onclick="setUserFilter('Lead')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:account-star" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>Lead</span>
   </button>
-  <button onclick="setUserFilter('Musician')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:guitar-electric" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+  <button onclick="setUserFilter('Musician')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:guitar-electric" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>Musician</span>
   </button>
-  <button onclick="setUserFilter('Singer')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:microphone" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+  <button onclick="setUserFilter('Singer')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:microphone" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>Singer</span>
   </button>
-  <button onclick="setUserFilter('Tech')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:#e5e7eb;padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:monitor" style="font-size:16px;color:#9ca3af;flex-shrink:0;"></iconify-icon>
+  <button onclick="setUserFilter('Tech')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+    <iconify-icon icon="mdi:monitor" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>Tech</span>
   </button>
 </div>
