@@ -110,9 +110,9 @@
     .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
     input:checked + .toggle-slider { background: var(--chords-color); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
-    .fab { position: fixed; bottom: 80px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--chords-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.15s; }
+    .fab { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--chords-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.15s; }
     .fab:active { transform: scale(0.92); }
-    .desktop-font-btns { position: fixed; bottom: 80px; left: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 500; }
+    .desktop-font-btns { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); left: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 500; }
     .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
     .autoscroll-slider { width: 100%; accent-color: var(--chords-color); }
     input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
@@ -343,7 +343,7 @@
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
-  <div id="top-nav" style="position:sticky;top:0;left:0;right:0;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin:0;">
+  <div id="top-nav" style="position:sticky;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin:0;box-sizing:border-box;flex-shrink:0;padding-top:calc(8px + env(safe-area-inset-top,0px));">
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -362,7 +362,7 @@
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch;">
 
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:10px;">
@@ -387,6 +387,10 @@
             <iconify-icon icon="mdi:account-music" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
             By Artist
           </button>
+          <button onclick="setSongSort('favourites')" style="display:block;width:100%;background:transparent;border:none;color:#e5e7eb;padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:heart" style="font-size:14px;margin-right:6px;vertical-align:middle;color:#ef4444;"></iconify-icon>
+            Favourites
+          </button>
         </div>
       </div>
         <div id="songs-list" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -404,7 +408,9 @@
               <h2 id="sheet-song-title" style="color:#fff;font-size:16px;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
               <p id="sheet-song-artist" style="color:#9ca3af;font-size:13px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
             </div>
-
+            <button id="sheet-heart-btn" onclick="toggleFavouriteSheet()" style="background:transparent;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;" title="Add to Favourites">
+              <iconify-icon icon="mdi:heart-outline" style="font-size:22px;color:#6b7280;"></iconify-icon>
+            </button>
           </div>
           <!-- MUSICIAN/LEAD/SUBADMIN/ADMIN CONTROLS -->
           <div id="musician-controls" style="margin-top:8px;">
@@ -668,14 +674,14 @@
 <button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
 
 <!-- ADD SONG FAB (inside setlist detail) -->
-<button id="add-song-fab" style="display:none;position:fixed;bottom:80px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--chords-color);color:#000;flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;z-index:500;border:none;transition:transform 0.15s;" onclick="openSongSelectorModal()" title="Add Song">
+<button id="add-song-fab" style="display:none;position:fixed;bottom:calc(74px + env(safe-area-inset-bottom,0px));right:20px;width:52px;height:52px;border-radius:50%;background:var(--chords-color);color:#000;flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;z-index:500;border:none;transition:transform 0.15s;" onclick="openSongSelectorModal()" title="Add Song">
   <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
 </button>
 
 <!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:80px;right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;">
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(74px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;width:46px;">
   <!-- Vertical slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:#1e1e1e;border:1px solid #333;border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:46px;">
     <span style="color:#6b7280;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
     <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:13px;font-weight:700;min-width:16px;text-align:center;">0</span>
     <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
@@ -684,9 +690,9 @@
     <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
       style="background:transparent;border:1px solid #444;color:#6b7280;font-size:9px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;letter-spacing:0.05em;">STOP</button>
   </div>
-  <!-- FAB button -->
+  <!-- FAB button — same fixed width as the container -->
   <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
-    style="width:46px;height:46px;border-radius:50%;background:#2a2a2a;border:1px solid #444;color:#9ca3af;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;">
+    style="width:46px;height:46px;border-radius:50%;background:#2a2a2a;border:1px solid #444;color:#9ca3af;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;flex-shrink:0;">
     <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
   </button>
 </div>
@@ -700,7 +706,7 @@
 <!-- PROFILE VIEW OVERLAY -->
 <div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;transition:opacity 0.25s ease,transform 0.25s ease;opacity:0;transform:translateX(100%);">
   <!-- Header bar -->
-  <div style="padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #2a2a2a;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;">
+  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid #2a2a2a;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;">
     <button onclick="closeProfileView()" style="background:transparent;border:none;color:#6b7280;cursor:pointer;display:flex;align-items:center;padding:4px;">
       <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
     </button>
@@ -752,7 +758,7 @@
   </div>
 
   <!-- Sign out -->
-  <div style="padding:12px 16px 32px;">
+  <div style="padding:12px 16px calc(32px + env(safe-area-inset-bottom,0px));">
     <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
       <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
       Sign Out
@@ -1699,7 +1705,7 @@ function toggleSongFilterMenu() {
 function setSongSort(mode) {
   currentSongSort = mode;
   const label = document.getElementById('song-filter-label');
-  const labelMap = { az: 'A–Z', za: 'Z–A', artist: 'By Artist' };
+  const labelMap = { az: 'A–Z', za: 'Z–A', artist: 'By Artist', favourites: '♥ Favourites' };
   if (label) label.textContent = labelMap[mode] || mode;
   toggleSongFilterMenu();
   renderSongsList();
@@ -1726,15 +1732,49 @@ function filterSetlists() {
   renderSetlistsList();
 }
 
+function getFavourites() {
+  if (!currentUser) return [];
+  try { return JSON.parse(localStorage.getItem(`rccm_favs_${currentUser.uid}`) || '[]'); } catch(e) { return []; }
+}
+function setFavourites(favs) {
+  if (!currentUser) return;
+  try { localStorage.setItem(`rccm_favs_${currentUser.uid}`, JSON.stringify(favs)); } catch(e) {}
+}
+function isFavourite(songId) {
+  return getFavourites().includes(songId);
+}
+function toggleFavourite(songId) {
+  let favs = getFavourites();
+  if (favs.includes(songId)) {
+    favs = favs.filter(id => id !== songId);
+  } else {
+    favs.push(songId);
+  }
+  setFavourites(favs);
+  renderSongsList();
+  // If song sheet is open for this song, update the heart button there too
+  if (currentSongId === songId) updateSongSheetHeartBtn();
+}
+function updateSongSheetHeartBtn() {
+  const btn = document.getElementById('sheet-heart-btn');
+  if (!btn) return;
+  const fav = isFavourite(currentSongId);
+  btn.innerHTML = `<iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:20px;color:${fav ? '#ef4444' : '#6b7280'};"></iconify-icon>`;
+}
+
 function renderSongsList() {
   let songs = [...allSongs];
+  if (currentSongSort === 'favourites') {
+    const favs = getFavourites();
+    songs = songs.filter(s => favs.includes(s.id));
+  }
   if (songSearchQuery) {
     songs = songs.filter(s =>
       (s.title||'').toLowerCase().includes(songSearchQuery) ||
       (s.artist||'').toLowerCase().includes(songSearchQuery)
     );
   }
-  if (currentSongSort === 'az') songs.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+  if (currentSongSort === 'az' || currentSongSort === 'favourites') songs.sort((a,b) => (a.title||'').localeCompare(b.title||''));
   else if (currentSongSort === 'za') songs.sort((a,b) => (b.title||'').localeCompare(a.title||''));
   else if (currentSongSort === 'artist') songs.sort((a,b) => (a.artist||'').localeCompare(b.artist||''));
   const listEl = document.getElementById('songs-list');
@@ -1745,7 +1785,9 @@ function renderSongsList() {
     return;
   }
   emptyEl.style.display = 'none';
-  listEl.innerHTML = songs.map(song => `
+  listEl.innerHTML = songs.map(song => {
+    const fav = isFavourite(song.id);
+    return `
     <div class="song-card" onclick="openSongSheet('${song.id}')">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
@@ -1754,11 +1796,14 @@ function renderSongsList() {
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           ${song.key ? `<span style="background:#2a1f00;color:#FBBF24;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${escHtml(song.key)}</span>` : ''}
+          <button onclick="event.stopPropagation();toggleFavourite('${song.id}')" style="background:transparent;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;" title="${fav ? 'Remove from Favourites' : 'Add to Favourites'}">
+            <iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:18px;color:${fav ? '#ef4444' : '#6b7280'};"></iconify-icon>
+          </button>
           ${canDeleteSong() ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" style="background:transparent;border:none;color:#6b7280;cursor:pointer;padding:4px;" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:16px;"></iconify-icon></button>` : ''}
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function canDeleteSong() {
@@ -1775,13 +1820,24 @@ async function deleteSong(id) {
 // SONG SHEET ENGINE
 // ============================================================
 let openedFromSetlist = false;
+function toggleFavouriteSheet() {
+  if (!currentSongId) return;
+  toggleFavourite(currentSongId);
+  updateSongSheetHeartBtn();
+}
+
 function openSongSheet(songId, fromSetlist) {
   const song = allSongs.find(s => s.id === songId);
   if (!song) return;
   currentSongId = songId;
   openedFromSetlist = !!fromSetlist;
   originalKey = song.key || 'C';
-  localKey = originalKey;
+  // Restore the user's last chosen key for this song
+  let savedKey = null;
+  if (currentUser) {
+    try { savedKey = localStorage.getItem(`rccm_key_${currentUser.uid}_${songId}`); } catch(e) {}
+  }
+  localKey = savedKey || originalKey;
   lyricsOnlyMode = false;
   if (openedFromSetlist) {
     // Switch to songs tab to render the song sheet, but setlist detail stays in memory
@@ -1803,6 +1859,7 @@ function openSongSheet(songId, fromSetlist) {
   renderSheetContent(song.content || '', localKey, originalKey);
   setupSongControls();
   updateHomeBtn(true);
+  updateSongSheetHeartBtn();
   if (tutorialEnabled && (currentUserProfile?.showTutorial !== false)) {
     setTimeout(showTutorialModal, 500);
   }
@@ -1977,6 +2034,13 @@ function selectKey(key) {
   updateCapoDisplay();
   const song = allSongs.find(s => s.id === currentSongId);
   if (song) renderSheetContent(song.content || '', localKey, originalKey);
+  // Save the chosen key for this user+song combo
+  if (currentUser && currentSongId) {
+    try {
+      const storageKey = `rccm_key_${currentUser.uid}_${currentSongId}`;
+      localStorage.setItem(storageKey, key);
+    } catch(e) {}
+  }
   closeKeyModal();
 }
 
