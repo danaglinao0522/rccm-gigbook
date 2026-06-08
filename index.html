@@ -87,7 +87,7 @@
     .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
     .bottom-nav-btn.active span { font-weight: 700; }
     .bottom-nav-btn img { flex-shrink: 0; }
-    .song-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background 0.15s; }
+    .song-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: background 0.15s; }
     .song-card:hover { background: var(--surface-2); }
     .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
@@ -102,8 +102,8 @@
     .badge-musician { background: #d97706; color:var(--lyrics-color); }
     .badge-singer { background: #db2777; color:var(--lyrics-color); }
     .badge-tech { background: #0891b2; color:var(--lyrics-color); }
-    .setlist-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
-    .user-row { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .setlist-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; }
+    .user-row { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s; }
@@ -186,7 +186,7 @@
     .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: var(--text-secondary); }
     .song-selector-row { padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
     .song-selector-row:hover { background: var(--surface-2); }
-    .setlist-song-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface-3); border-radius: 8px; margin-bottom: 6px; }
+    .setlist-song-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 8px; }
     .color-input-wrapper { display: flex; align-items: center; gap: 8px; }
     .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -364,9 +364,9 @@
   <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));padding-top:calc(58px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
 
     <!-- SONGS TAB -->
-    <div id="tab-songs" class="tab-panel active" style="padding:10px;">
+    <div id="tab-songs" class="tab-panel active" style="padding:12px;">
     <div id="songs-list-view">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;">
         <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search songs..." id="song-search-input" oninput="filterSongs()" style="flex:1;" />
         <button id="song-filter-btn" onclick="toggleSongFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;">
@@ -436,9 +436,9 @@
     </div>
 
     <!-- SETLISTS TAB -->
-    <div id="tab-setlists" class="tab-panel" style="padding:10px;">
+    <div id="tab-setlists" class="tab-panel" style="padding:12px;">
       <div id="setlists-list-view">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;">
         <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search setlists..." id="setlist-search-input" oninput="filterSetlists()" style="flex:1;" />
         <button id="setlist-filter-btn" onclick="toggleSetlistFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;">
@@ -474,9 +474,9 @@
     </div>
 
     <!-- USERS TAB -->
-    <div id="tab-users" class="tab-panel" style="padding:10px;">
+    <div id="tab-users" class="tab-panel" style="padding:12px;">
       <div id="users-list-panel">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;position:relative;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;">
         <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search users..." id="user-search-input" oninput="filterUsers()" style="flex:1;" />
         <button id="user-filter-btn" onclick="toggleUserFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;position:relative;z-index:1;">
@@ -490,7 +490,7 @@
     </div>
 
     <!-- ADMIN PANEL TAB -->
-    <div id="tab-admin" class="tab-panel" style="padding:10px;">
+    <div id="tab-admin" class="tab-panel" style="padding:12px;">
       <!-- Sync broadcast toast -->
       <div id="sync-toast" style="display:none;position:fixed;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--surface-1);border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
         <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
@@ -2535,7 +2535,7 @@ function renderManageCurrentMembers() {
     const u = allUsers.find(x => x.uid === uid);
     const name = u ? escHtml(u.displayName || u.email || uid) : uid;
     const photo = u?.photoURL || '';
-    return `<div style="display:flex;align-items:center;gap:8px;background:var(--surface-3);border-radius:8px;padding:8px 10px;">
+    return `<div style="display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-color);border-radius:12px;padding:12px 14px;">
       <img src="${escHtml(photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
       <span style="color:var(--lyrics-color);font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
       <button onclick="removeMemberFromSetlist('${uid}')"
@@ -2567,13 +2567,13 @@ function renderManageAddList(query) {
     return;
   }
   container.innerHTML = available.map(u => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border-subtle);cursor:pointer;transition:background 0.15s;"
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background 0.15s;"
       onclick="addMemberToSetlist('${u.uid}')"
-      onmouseover="this.style.background='#1a2a1a'" onmouseout="this.style.background='transparent'">
-      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
+      onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+      <img src="${escHtml(u.photoURL||'')}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
       <div style="flex:1;min-width:0;">
-        <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
-        <p style="color:var(--text-muted);font-size:11px;margin:0;">${escHtml(u.email||'')}</p>
+        <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
+        <p style="color:var(--text-muted);font-size:12px;margin:2px 0 0;">${escHtml(u.email||'')}</p>
       </div>
       <iconify-icon icon="mdi:plus-circle" style="font-size:20px;color:var(--chords-color);flex-shrink:0;"></iconify-icon>
     </div>`).join('');
@@ -2902,16 +2902,16 @@ function openUserDetail(uid) {
     <div class="section-label" style="margin-bottom:8px;">Setlists Created (${userSetlists.length})</div>
     ${userSetlists.length === 0
       ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No visible setlists.</p>'
-      : userSetlists.map(s => `
-        <div class="setlist-card" onclick="openSetlistDetail('${s.id}')" style="cursor:pointer;margin-bottom:8px;">
-          <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0 0 4px;">${escHtml(s.name)}</p>
+      : `<div style="display:flex;flex-direction:column;gap:8px;">` + userSetlists.map(s => `
+        <div class="setlist-card" onclick="openSetlistDetail('${s.id}')" style="cursor:pointer;">
+          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0 0 6px;">${escHtml(s.name)}</p>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <span class="privacy-badge ${s.isPrivate ? 'badge-private' : 'badge-public'}">${s.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
             ${s.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom</span>' : ''}
             <span style="color:var(--text-muted);font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
             ${s.isCustomGroup && s.whitelist && s.whitelist.length ? renderWhitelistAvatars(s.whitelist) : ''}
           </div>
-        </div>`).join('')}
+        </div>`).join('') + `</div>`}
   `;
   document.getElementById('users-list-panel').style.display = 'none';
   detail.style.display = 'block';
@@ -3583,7 +3583,7 @@ function showSetlistLimitModal(maxAllowed) {
     `You've reached your limit of ${maxAllowed} setlist${maxAllowed !== 1 ? 's' : ''}. Delete one below to create a new one.`;
   const listEl = document.getElementById('setlist-limit-list');
   listEl.innerHTML = mySetlists.map(s => `
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface-3);border-radius:8px;padding:10px 12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface-1);border:1px solid var(--border-color);border-radius:12px;padding:12px 14px;">
       <div style="flex:1;min-width:0;">
         <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
         <p style="color:var(--text-muted);font-size:11px;margin:2px 0 0;">
@@ -3672,7 +3672,7 @@ window.addEventListener('load', () => {
     <!-- Current members -->
     <div style="margin-bottom:14px;">
       <div class="section-label" style="margin-bottom:8px;">Current Members</div>
-      <div id="manage-current-members" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <div id="manage-current-members" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
     <!-- Divider -->
     <div style="height:1px;background:var(--surface-2);margin-bottom:14px;"></div>
