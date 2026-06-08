@@ -16,6 +16,12 @@
   <style>
     :root {
       --canvas-bg: #121212;
+      --surface-1: #1e1e1e;
+      --surface-2: #2a2a2a;
+      --surface-3: #252525;
+      --border-color: #2a2a2a;
+      --border-subtle: #333;
+      --nav-bg: rgba(14,14,14,0.96);
       --lyrics-color: #FFFFFF;
       --chords-color: #FBBF24;
       --sheet-font-size: 15px;
@@ -74,11 +80,11 @@
     .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
     .bottom-nav-btn.active span { font-weight: 700; }
     .bottom-nav-btn img { flex-shrink: 0; }
-    .song-card { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background 0.15s; }
-    .song-card:hover { background: #2a2a2a; }
+    .song-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background 0.15s; }
+    .song-card:hover { background: var(--surface-2); }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
-    .modal-sheet { background: #1a1a1a; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 16px; }
+    .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 16px; }
     .modal-sheet.center-card { border-radius: 16px; max-height: 85vh; }
     .modal-sheet.key-modal { max-height: 50vh; }
     .modal-handle { width: 40px; height: 4px; background: #444; border-radius: 2px; margin: 0 auto 12px; }
@@ -89,8 +95,8 @@
     .badge-musician { background: #d97706; color: #fff; }
     .badge-singer { background: #db2777; color: #fff; }
     .badge-tech { background: #0891b2; color: #fff; }
-    .setlist-card { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
-    .user-row { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .setlist-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+    .user-row { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider { position: absolute; inset: 0; background: #374151; border-radius: 12px; cursor: pointer; transition: 0.3s; }
@@ -100,7 +106,7 @@
     .fab { position: fixed; bottom: 80px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--chords-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.15s; }
     .fab:active { transform: scale(0.92); }
     .desktop-font-btns { position: fixed; bottom: 80px; left: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 500; }
-    .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: #2a2a2a; border: 1px solid #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border-color); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
     .autoscroll-slider { width: 100%; accent-color: var(--chords-color); }
     input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: #374151; outline: none; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--chords-color); cursor: pointer; }
@@ -108,11 +114,11 @@
     .drag-zone.dragover { border-color: var(--chords-color); color: var(--chords-color); }
     .btn-primary { background: var(--chords-color); color: #000; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s; }
     .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary { background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 8px 16px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); }
+    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 16px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); }
     .btn-danger { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); }
-    .input-field { background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 8px 12px; color: #fff; width: 100%; font-size: 14px; outline: none; }
+    .input-field { background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: #fff; width: 100%; font-size: 14px; outline: none; }
     .input-field:focus { border-color: var(--chords-color); }
-    .select-field { background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 8px 12px; color: #fff; width: 100%; font-size: 14px; outline: none; }
+    .select-field { background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: #fff; width: 100%; font-size: 14px; outline: none; }
     .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; margin-bottom: 6px; }
     .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #333; }
     .theme-preset-btn { border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
@@ -170,20 +176,20 @@
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #555; appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
     .checkbox-custom:checked { background: var(--chords-color); border-color: var(--chords-color); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
-    .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: #2a2a2a; border: 1px solid #444; border-radius: 999px; font-size: 11px; color: #9ca3af; }
-    .song-selector-row { padding: 10px 12px; border-bottom: 1px solid #2a2a2a; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
-    .song-selector-row:hover { background: #2a2a2a; }
-    .setlist-song-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #252525; border-radius: 8px; margin-bottom: 6px; }
+    .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: #9ca3af; }
+    .song-selector-row { padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+    .song-selector-row:hover { background: var(--surface-2); }
+    .setlist-song-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface-3); border-radius: 8px; margin-bottom: 6px; }
     .color-input-wrapper { display: flex; align-items: center; gap: 8px; }
     .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
     .key-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .key-btn { padding: 10px 4px; border-radius: 8px; text-align: center; cursor: pointer; background: #2a2a2a; border: 2px solid transparent; color: #fff; font-weight: 600; font-size: 15px; transition: all 0.15s; }
+    .key-btn { padding: 10px 4px; border-radius: 8px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: #fff; font-weight: 600; font-size: 15px; transition: all 0.15s; }
     .key-btn.active { border-color: var(--chords-color); color: var(--chords-color); }
     .key-btn:hover { background: #333; }
     .spinner { width: 28px; height: 28px; border: 3px solid #333; border-top-color: var(--chords-color); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .onboarding-btn { padding: 12px 20px; border-radius: 12px; border: 2px solid #444; background: #1e1e1e; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .onboarding-btn { padding: 12px 20px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--surface-1); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
     .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--chords-color); background: #2a1f00; color: var(--chords-color); }
     .no-select { user-select: none; -webkit-user-select: none; }
     .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
@@ -192,13 +198,13 @@
     .badge-custom { background: #1e1b4b; color: #818cf8; }
     textarea.input-field { resize: vertical; min-height: 120px; }
     .camera-btn { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 13px; }
-    .progress-bar-track { width: 100%; height: 3px; background: #2a2a2a; border-radius: 2px; overflow: hidden; }
+    .progress-bar-track { width: 100%; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
     .progress-bar-fill { height: 100%; background: var(--chords-color); border-radius: 2px; transition: width 0.1s linear; }
-    .search-input { background: #1e1e1e; border: 1px solid #333; border-radius: 8px; padding: 7px 12px 7px 36px; color: #fff; font-size: 13px; width: 100%; outline: none; }
+    .search-input { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 7px 12px 7px 36px; color: #fff; font-size: 13px; width: 100%; outline: none; }
     .search-input:focus { border-color: var(--chords-color); }
-    .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid #444; background: #1e1e1e; color: #9ca3af; cursor: pointer; white-space: nowrap; }
+    .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: #9ca3af; cursor: pointer; white-space: nowrap; }
     .filter-chip.active { background: var(--chords-color); color: #000; border-color: var(--chords-color); }
-    .sort-select { background: #1e1e1e; border: 1px solid #333; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 13px; outline: none; }
+    .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 13px; outline: none; }
 
     /* ── Sync bar ── */
     #sync-bar {
@@ -330,7 +336,7 @@
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
-  <div id="top-nav" style="position:sticky;top:0;z-index:400;background:rgba(18,18,18,0.95);backdrop-filter:blur(10px);border-bottom:1px solid #2a2a2a;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;max-width:100%;position:relative;">
+  <div id="top-nav" style="position:sticky;top:0;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;">
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -609,6 +615,14 @@
                 <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
                 <label style="color:#9ca3af;font-size:12px;">Chords</label>
               </div>
+              <div class="color-input-wrapper">
+                <input type="color" id="custom-surface1" value="#1e1e1e" oninput="applyCustomTheme()" />
+                <label style="color:#9ca3af;font-size:12px;">Cards</label>
+              </div>
+              <div class="color-input-wrapper">
+                <input type="color" id="custom-border" value="#2a2a2a" oninput="applyCustomTheme()" />
+                <label style="color:#9ca3af;font-size:12px;">Borders</label>
+              </div>
               <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;">Apply & Save</button>
             </div>
           </div>
@@ -646,7 +660,7 @@
   </div>
 
   <!-- BOTTOM NAV -->
-  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:rgba(14,14,14,0.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 24px rgba(0,0,0,0.4);">
+  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 24px rgba(0,0,0,0.4);">
     <!-- Dynamically built by buildNav() -->
   </div>
 </div>
@@ -1453,6 +1467,7 @@ function buildNav() {
 function switchTab(tab) {
   closeSongSheet();
   closeSetlistDetail();
+  closeAllDropdowns();
   activeTab = tab;
   document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
   const panel = document.getElementById('tab-' + tab);
@@ -1616,9 +1631,16 @@ function filterSongs() {
   renderSongsList();
 }
 
+function closeAllDropdowns() {
+  const ids = ['song-filter-menu','setlist-filter-menu','user-filter-menu'];
+  ids.forEach(id => { const m = document.getElementById(id); if (m) m.style.display = 'none'; });
+}
+
 function toggleSongFilterMenu() {
   const menu = document.getElementById('song-filter-menu');
-  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  const isOpen = menu.style.display === 'block';
+  closeAllDropdowns();
+  if (!isOpen) menu.style.display = 'block';
 }
 
 function setSongSort(mode) {
@@ -1632,7 +1654,9 @@ function setSongSort(mode) {
 
 function toggleSetlistFilterMenu() {
   const menu = document.getElementById('setlist-filter-menu');
-  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  const isOpen = menu.style.display === 'block';
+  closeAllDropdowns();
+  if (!isOpen) menu.style.display = 'block';
 }
 
 function setSetlistSort(mode) {
@@ -1739,6 +1763,7 @@ function openSongSheet(songId, fromSetlist) {
   document.getElementById('autoscroll-fab').style.display = 'flex';
   const addSongFabEl = document.getElementById('add-song-fab');
   if (addSongFabEl) addSongFabEl.style.display = 'none';
+  document.getElementById('fab-btn').style.display = 'none';
   updateAutoscrollFabPosition();
 }
 
@@ -2787,8 +2812,7 @@ function toggleUserFilterMenu() {
   const btn = document.getElementById('user-filter-btn');
   if (!menu || !btn) return;
   const isOpen = menu.style.display === 'block';
-  // Close any open menus
-  document.querySelectorAll('#user-filter-menu').forEach(m => m.style.display = 'none');
+  closeAllDropdowns();
   if (!isOpen) {
     // Position the portal below the button
     const rect = btn.getBoundingClientRect();
@@ -2800,15 +2824,22 @@ function toggleUserFilterMenu() {
     menu.style.left = left + 'px';
   }
 }
-// Close filter menu when clicking outside
+// Close all filter dropdowns when clicking outside
 document.addEventListener('click', function(e) {
-  const menu = document.getElementById('user-filter-menu');
-  const btn = document.getElementById('user-filter-btn');
-  if (menu && menu.style.display === 'block') {
-    if (!menu.contains(e.target) && !btn.contains(e.target)) {
-      menu.style.display = 'none';
+  const dropdowns = [
+    { menu: 'song-filter-menu', btn: 'song-filter-btn' },
+    { menu: 'setlist-filter-menu', btn: 'setlist-filter-btn' },
+    { menu: 'user-filter-menu', btn: 'user-filter-btn' }
+  ];
+  dropdowns.forEach(({ menu: mid, btn: bid }) => {
+    const m = document.getElementById(mid);
+    const b = document.getElementById(bid);
+    if (m && m.style.display === 'block') {
+      if (!m.contains(e.target) && (!b || !b.contains(e.target))) {
+        m.style.display = 'none';
+      }
     }
-  }
+  });
 });
 
 function setUserFilter(filter) {
@@ -3123,11 +3154,11 @@ function updateThemeCarousel(activeKey) {
 // THEME ENGINE
 // ============================================================
 const THEMES = {
-  gigbook:  { bg: '#121212', lyrics: '#FFFFFF', chords: '#FBBF24' },
-  nordic:   { bg: '#1E293B', lyrics: '#F8FAFC', chords: '#34D399' },
-  parchment:{ bg: '#FDFBF7', lyrics: '#1F2937', chords: '#B91C1C' },
-  cyber:    { bg: '#0F172A', lyrics: '#EC4899', chords: '#06B6D4' },
-  charcoal: { bg: '#1F2937', lyrics: '#9CA3AF', chords: '#38BDF8' }
+  gigbook:  { bg: '#121212', lyrics: '#FFFFFF', chords: '#FBBF24', s1: '#1e1e1e', s2: '#2a2a2a', s3: '#252525', border: '#2a2a2a', borderSubtle: '#333', navBg: 'rgba(14,14,14,0.96)' },
+  nordic:   { bg: '#1E293B', lyrics: '#F8FAFC', chords: '#34D399', s1: '#263548', s2: '#334155', s3: '#2d3f52', border: '#334155', borderSubtle: '#3d4f63', navBg: 'rgba(20,30,48,0.96)' },
+  parchment:{ bg: '#FDFBF7', lyrics: '#1F2937', chords: '#B91C1C', s1: '#F3EFE8', s2: '#E8E0D4', s3: '#EDE7DC', border: '#D6CCBF', borderSubtle: '#CABFB0', navBg: 'rgba(243,239,232,0.97)' },
+  cyber:    { bg: '#0F172A', lyrics: '#EC4899', chords: '#06B6D4', s1: '#1a2540', s2: '#243050', s3: '#1f2d48', border: '#2a3a5c', borderSubtle: '#304470', navBg: 'rgba(10,18,38,0.97)' },
+  charcoal: { bg: '#1F2937', lyrics: '#9CA3AF', chords: '#38BDF8', s1: '#283548', s2: '#374151', s3: '#303d4e', border: '#374151', borderSubtle: '#3f4f62', navBg: 'rgba(22,30,42,0.96)' }
 };
 
 function applyTheme(key) {
@@ -3140,28 +3171,66 @@ function applyTheme(key) {
 }
 
 function applyThemeData(theme) {
-  document.documentElement.style.setProperty('--canvas-bg', theme.bg);
-  document.documentElement.style.setProperty('--lyrics-color', theme.lyrics);
-  document.documentElement.style.setProperty('--chords-color', theme.chords);
-  document.getElementById('custom-bg').value = theme.bg;
-  document.getElementById('custom-lyrics').value = theme.lyrics;
-  document.getElementById('custom-chords').value = theme.chords;
+  const root = document.documentElement;
+  root.style.setProperty('--canvas-bg', theme.bg);
+  root.style.setProperty('--lyrics-color', theme.lyrics);
+  root.style.setProperty('--chords-color', theme.chords);
+  root.style.setProperty('--surface-1', theme.s1 || adjustBrightness(theme.bg, 12));
+  root.style.setProperty('--surface-2', theme.s2 || adjustBrightness(theme.bg, 22));
+  root.style.setProperty('--surface-3', theme.s3 || adjustBrightness(theme.bg, 17));
+  root.style.setProperty('--border-color', theme.border || adjustBrightness(theme.bg, 22));
+  root.style.setProperty('--border-subtle', theme.borderSubtle || adjustBrightness(theme.bg, 30));
+  root.style.setProperty('--nav-bg', theme.navBg || (theme.bg + 'f5'));
+  const customBg = document.getElementById('custom-bg');
+  const customLyrics = document.getElementById('custom-lyrics');
+  const customChords = document.getElementById('custom-chords');
+  const customS1 = document.getElementById('custom-surface1');
+  const customBorder = document.getElementById('custom-border');
+  if (customBg) customBg.value = theme.bg;
+  if (customLyrics) customLyrics.value = theme.lyrics;
+  if (customChords) customChords.value = theme.chords;
+  if (customS1) customS1.value = theme.s1 || adjustBrightness(theme.bg, 12);
+  if (customBorder) customBorder.value = theme.border || adjustBrightness(theme.bg, 22);
+}
+
+// Helper: lighten/darken a hex color by amount (positive = lighter)
+function adjustBrightness(hex, amount) {
+  const num = parseInt(hex.replace('#',''), 16);
+  const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amount));
+  const b = Math.min(255, Math.max(0, (num & 0xff) + amount));
+  return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
 
 function applyCustomTheme() {
+  const root = document.documentElement;
   const bg = document.getElementById('custom-bg').value;
   const lyrics = document.getElementById('custom-lyrics').value;
   const chords = document.getElementById('custom-chords').value;
-  document.documentElement.style.setProperty('--canvas-bg', bg);
-  document.documentElement.style.setProperty('--lyrics-color', lyrics);
-  document.documentElement.style.setProperty('--chords-color', chords);
+  const s1 = document.getElementById('custom-surface1')?.value || adjustBrightness(bg, 12);
+  const border = document.getElementById('custom-border')?.value || adjustBrightness(bg, 22);
+  root.style.setProperty('--canvas-bg', bg);
+  root.style.setProperty('--lyrics-color', lyrics);
+  root.style.setProperty('--chords-color', chords);
+  root.style.setProperty('--surface-1', s1);
+  root.style.setProperty('--surface-2', adjustBrightness(s1, 10));
+  root.style.setProperty('--surface-3', adjustBrightness(s1, 5));
+  root.style.setProperty('--border-color', border);
+  root.style.setProperty('--border-subtle', adjustBrightness(border, 10));
+  root.style.setProperty('--nav-bg', bg + 'f5');
 }
 
 function saveCustomTheme() {
+  const bg = document.getElementById('custom-bg').value;
+  const s1 = document.getElementById('custom-surface1')?.value || adjustBrightness(bg, 12);
+  const border = document.getElementById('custom-border')?.value || adjustBrightness(bg, 22);
   const theme = {
-    bg: document.getElementById('custom-bg').value,
+    bg,
     lyrics: document.getElementById('custom-lyrics').value,
-    chords: document.getElementById('custom-chords').value
+    chords: document.getElementById('custom-chords').value,
+    s1, s2: adjustBrightness(s1, 10), s3: adjustBrightness(s1, 5),
+    border, borderSubtle: adjustBrightness(border, 10),
+    navBg: bg + 'f5'
   };
   showSyncToast();
   saveThemeToDb(theme).then(() => { hideSyncToast(); showAlert('Theme Saved', 'Custom theme applied to all users.', 'mdi:palette'); });
