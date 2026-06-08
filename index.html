@@ -343,26 +343,25 @@
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
-  <div id="top-nav" style="position:fixed;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin:0;box-sizing:border-box;flex-shrink:0;padding-top:calc(8px + env(safe-area-inset-top,0px));">
+  <div id="top-nav" style="position:fixed;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;margin:0;box-sizing:border-box;flex-shrink:0;">
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px 6px 4px 0;align-items:center;">
-        <iconify-icon icon="mdi:arrow-left" style="font-size:20px;"></iconify-icon>
-      </button>
-      <span id="top-nav-title" style="color:var(--lyrics-color);font-size:15px;font-weight:600;display:none;"></span>
-      <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;">RCCM Gigbook</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <img src="icons/logo.png" alt="Logo" onclick="goHome()" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-      <div onclick="goHome()" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;">
-        <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
-      </div>
+    <!-- Back button (shown when drilling into song/setlist/user) -->
+    <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;">
+      <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
+    </button>
+    <!-- Title / App name -->
+    <span id="top-nav-title" style="color:var(--lyrics-color);font-size:16px;font-weight:600;display:none;flex:1;"></span>
+    <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;flex:1;">RCCM Gigbook</span>
+    <!-- Logo on the right -->
+    <img src="icons/logo.png" alt="Logo" onclick="goHome()" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+    <div onclick="goHome()" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+      <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
     </div>
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));padding-top:calc(52px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));padding-top:calc(58px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
 
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:10px;">
@@ -493,7 +492,7 @@
     <!-- ADMIN PANEL TAB -->
     <div id="tab-admin" class="tab-panel" style="padding:10px;">
       <!-- Sync broadcast toast -->
-      <div id="sync-toast" style="display:none;position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--surface-1);border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+      <div id="sync-toast" style="display:none;position:fixed;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--surface-1);border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
         <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
         <span style="color:#34d399;font-size:13px;font-weight:600;">Applying to all users…</span>
       </div>
@@ -706,11 +705,14 @@
 <!-- PROFILE VIEW OVERLAY -->
 <div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;transition:opacity 0.25s ease,transform 0.25s ease;opacity:0;transform:translateX(100%);">
   <!-- Header bar -->
-  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);background:var(--nav-bg);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;">
-    <button onclick="closeProfileView()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:4px;">
+  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 16px rgba(0,0,0,0.4);position:sticky;top:0;z-index:10;">
+    <button onclick="closeProfileView()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:4px;flex-shrink:0;">
       <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
     </button>
-    <span style="color:var(--lyrics-color);font-size:16px;font-weight:600;">My Profile</span>
+    <span style="color:var(--lyrics-color);font-size:16px;font-weight:600;flex:1;">My Profile</span>
+    <button id="profile-admin-btn" onclick="closeProfileView();switchTab('admin');" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;align-items:center;padding:4px;flex-shrink:0;" title="Admin Panel">
+      <iconify-icon icon="mdi:cog" style="font-size:22px;"></iconify-icon>
+    </button>
   </div>
 
   <!-- Hero section -->
@@ -3051,6 +3053,9 @@ function openProfileView() {
   if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
   document.getElementById('tutorial-toggle').checked = p.showTutorial !== false;
   tutorialEnabled = p.showTutorial !== false;
+  // Show Admin Panel shortcut only for Admins
+  const adminBtn = document.getElementById('profile-admin-btn');
+  if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
   renderProfileSetlists();
   const profileView = document.getElementById('profile-view');
   profileView.style.display = 'flex';
