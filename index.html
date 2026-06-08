@@ -9,8 +9,6 @@
   <title>RCCM Gigbook</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flyonui@1.1.0/dist/js/flyonui.js" defer></script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -1066,15 +1064,18 @@ window.addEventListener('beforeinstallprompt', (e) => {
     btn.style.display = 'flex';
   }
 });
-document.getElementById('install-app-btn').addEventListener('click', async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  const { outcome } = await deferredInstallPrompt.userChoice;
-  if (outcome === 'accepted') document.getElementById('install-app-btn').style.display = 'none';
-  deferredInstallPrompt = null;
-});
-if (window.matchMedia('(display-mode: standalone)').matches) {
-  document.getElementById('install-app-btn').style.display = 'none';
+const _installBtn = document.getElementById('install-app-btn');
+if (_installBtn) {
+  _installBtn.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') _installBtn.style.display = 'none';
+    deferredInstallPrompt = null;
+  });
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    _installBtn.style.display = 'none';
+  }
 }
 
 // ============================================================
@@ -1088,58 +1089,57 @@ window.addEventListener('popstate', () => {
   pushState();
   handleBackButton();
 });
+function _isVisible(id) {
+  const el = document.getElementById(id);
+  return el && el.style.display !== 'none';
+}
 function handleBackButton() {
-  // Modals first (highest priority)
-  if (document.getElementById('manage-members-modal').style.display !== 'none') { closeManageMembersModal(); return; }
-  if (document.getElementById('logo-change-modal').style.display !== 'none') { closeLogoChangeModal(); return; }
-  if (document.getElementById('create-song-modal').style.display !== 'none') { closeCreateSongModal(); return; }
-  if (document.getElementById('create-setlist-modal').style.display !== 'none') { closeCreateSetlistModal(); return; }
-  if (document.getElementById('key-modal').style.display !== 'none') { closeKeyModal(); return; }
-  if (document.getElementById('user-edit-modal').style.display !== 'none') { closeUserEditModal(); return; }
-  if (document.getElementById('name-edit-modal').style.display !== 'none') { closeNameEditModal(); return; }
-  if (document.getElementById('song-selector-modal').style.display !== 'none') { closeSongSelectorModal(); return; }
-  if (document.getElementById('tutorial-modal').style.display !== 'none') { closeTutorialModal(); return; }
-  if (document.getElementById('alert-modal').style.display !== 'none') { closeAlertModal(); return; }
-  if (document.getElementById('setlist-limit-modal').style.display !== 'none') { closeSetlistLimitModal(); return; }
-  // Profile overlay
-  if (document.getElementById('profile-view').style.display !== 'none') { closeProfileView(); return; }
-  // Song sheet (inside song tab or from setlist)
-  const sheetView = document.getElementById('song-sheet-view');
-  if (sheetView && sheetView.style.display !== 'none') { closeSongSheet(); return; }
-  // Setlist detail
-  if (currentSetlistId !== null) { closeSetlistDetail(); return; }
-  // User detail
-  if (currentDetailUserId !== null) { closeUserDetail(); return; }
-  // No detail open — stay on current tab (don't auto-switch to songs)
+  try {
+    if (_isVisible('manage-members-modal')) { closeManageMembersModal(); return; }
+    if (_isVisible('logo-change-modal')) { closeLogoChangeModal(); return; }
+    if (_isVisible('create-song-modal')) { closeCreateSongModal(); return; }
+    if (_isVisible('create-setlist-modal')) { closeCreateSetlistModal(); return; }
+    if (_isVisible('key-modal')) { closeKeyModal(); return; }
+    if (_isVisible('user-edit-modal')) { closeUserEditModal(); return; }
+    if (_isVisible('name-edit-modal')) { closeNameEditModal(); return; }
+    if (_isVisible('song-selector-modal')) { closeSongSelectorModal(); return; }
+    if (_isVisible('tutorial-modal')) { closeTutorialModal(); return; }
+    if (_isVisible('alert-modal')) { closeAlertModal(); return; }
+    if (_isVisible('setlist-limit-modal')) { closeSetlistLimitModal(); return; }
+    if (_isVisible('profile-view')) { closeProfileView(); return; }
+    if (_isVisible('song-sheet-view')) { closeSongSheet(); return; }
+    if (currentSetlistId !== null) { closeSetlistDetail(); return; }
+    if (currentDetailUserId !== null) { closeUserDetail(); return; }
+  } catch(e) { console.error('handleBackButton error:', e); }
 }
 
 // ============================================================
 // AUTH STATE LISTENER — BOOT GATE
 // ============================================================
-// Safety: if splash is still showing after 8s, go to auth
+// Safety: if splash is still showing after 5s, go to auth
 let _splashTimer = setTimeout(() => {
   if (document.getElementById('splash-screen').style.display !== 'none') {
     console.warn('Auth timeout — forcing auth view');
     showAuthView();
   }
-}, 8000);
+}, 5000);
 
 auth.onAuthStateChanged(async (user) => {
-  clearTimeout(_splashTimer);
-  // Don't react during sign-out teardown
-  if (_signingOut) return;
+  clearTimeout(_splashTimer); // Cancel fallback timer
+  if (_signingOut) return;    // Ignore during explicit sign-out
   if (user) {
     currentUser = user;
     try {
       await initApp(user);
     } catch(err) {
-      console.error('Auth state initApp error:', err);
+      console.error('initApp error:', err);
+      currentUser = null;
       showAuthView();
     }
   } else {
     currentUser = null;
     currentUserProfile = null;
-    if (!_signingOut) showAuthView();
+    showAuthView();
   }
 });
 
@@ -1253,7 +1253,8 @@ async function initApp(user) {
 // ============================================================
 // GOOGLE SIGN IN / SIGN OUT
 // ============================================================
-document.getElementById('google-signin-btn').addEventListener('click', async () => {
+const _gSignInBtn = document.getElementById('google-signin-btn');
+if (_gSignInBtn) _gSignInBtn.addEventListener('click', async () => {
   const btn = document.getElementById('google-signin-btn');
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;margin:0 auto;"></div>';
