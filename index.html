@@ -3026,7 +3026,7 @@ async function toggleRoleLimits() {
   }
 }
 
-function saveRoleLimits() {
+async function saveRoleLimits() {
   const role = currentUserProfile?.role || '';
   if (role !== 'Admin') return;
   const limits = {
