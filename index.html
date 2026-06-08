@@ -64,10 +64,15 @@
     .tab-panel.active { display: block; }
     .tab-panel.active.tab-visible { opacity: 1; transform: translateY(0); }
     #app-root { display: none; }
-    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 4px; cursor: pointer; transition: color 0.2s; color: #6b7280; gap: 2px; }
+    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 4px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color: #6b7280; gap: 3px; background: transparent; border: none; position: relative; }
+    .bottom-nav-btn:active { transform: scale(0.92); }
     .bottom-nav-btn.active { color: var(--chords-color); }
-    .bottom-nav-btn iconify-icon { font-size: 22px; flex-shrink: 0; }
-    .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--chords-color); border-radius: 0 0 3px 3px; box-shadow: 0 0 8px rgba(251,191,36,0.5); }
+    .bottom-nav-btn .nav-icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 28px; border-radius: 10px; transition: background 0.2s; }
+    .bottom-nav-btn.active .nav-icon-wrap { background: rgba(251,191,36,0.12); }
+    .bottom-nav-btn iconify-icon { font-size: 21px; flex-shrink: 0; }
+    .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
+    .bottom-nav-btn.active span { font-weight: 700; }
     .bottom-nav-btn img { flex-shrink: 0; }
     .song-card { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background 0.15s; }
     .song-card:hover { background: #2a2a2a; }
@@ -641,7 +646,7 @@
   </div>
 
   <!-- BOTTOM NAV -->
-  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:rgba(18,18,18,0.97);border-top:1px solid #2a2a2a;display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(60px + env(safe-area-inset-bottom,0px));">
+  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:rgba(14,14,14,0.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 24px rgba(0,0,0,0.4);">
     <!-- Dynamically built by buildNav() -->
   </div>
 </div>
@@ -1413,17 +1418,20 @@ function buildNav() {
     ];
   }
   const photoURL = escHtml(currentUserProfile?.photoURL || '');
-  const profileBtn = `<button class="bottom-nav-btn nav-text" onclick="openProfileView()" style="flex:0 0 auto;width:58px;">
-    <img src="${photoURL}" alt="Profile"
-      style="width:26px;height:26px;border-radius:50%;object-fit:cover;background:#333;border:2px solid #444;"
-      onerror="this.style.background='#374151';this.src=''"
-    />
-    <span style="font-size:var(--nav-font-size);">Profile</span>
+  const isProfileActive = activeTab === 'profile';
+  const profileBtn = `<button class="bottom-nav-btn nav-text${isProfileActive ? ' active' : ''}" id="nav-profile" onclick="openProfileView()">
+    <div class="nav-icon-wrap">
+      <img src="${photoURL}" alt="Profile"
+        style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:#333;border:2px solid ${isProfileActive ? 'var(--chords-color)' : '#555'};"
+        onerror="this.style.background='#374151';this.src=''"
+      />
+    </div>
+    <span>Profile</span>
   </button>`;
   nav.innerHTML = tabs.map(t => `
     <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" onclick="switchTab('${t.id}')">
-      <iconify-icon icon="${t.icon}"></iconify-icon>
-      <span style="font-size:var(--nav-font-size);">${t.label}</span>
+      <div class="nav-icon-wrap"><iconify-icon icon="${t.icon}"></iconify-icon></div>
+      <span>${t.label}</span>
     </button>
   `).join('') + profileBtn;
   // Also populate desktop sidebar nav
