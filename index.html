@@ -99,9 +99,9 @@
     .song-card:hover { background: var(--surface-2); }
     .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
-    .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 16px; }
-    .modal-sheet.center-card { border-radius: 16px; max-height: 85vh; }
-    .modal-sheet.key-modal { max-height: 50vh; }
+    .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 16px; transition: height 0.05s linear, max-height 0.05s linear; }
+    .modal-sheet.center-card { border-radius: 16px; max-height: 88vh; }
+    .modal-sheet.key-modal { max-height: 55vh; }
     .modal-handle { width: 40px; height: 4px; background: var(--border-subtle); border-radius: 2px; margin: 0 auto 12px; cursor: ns-resize; touch-action: none; }
     .modal-handle:hover { background: var(--chords-color); opacity: 0.7; }
     /* Resizable modal sheet */
@@ -145,9 +145,15 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
-    /* Scrollbar only visible within scrollable content, not under navbars */
+    /* Main content scrollbar — clipped so it never appears under top/bottom nav */
+    #main-content { scrollbar-gutter: stable; }
     #main-content::-webkit-scrollbar { width: 4px; }
-    #main-content::-webkit-scrollbar-track { background: transparent; margin-top: calc(58px + env(safe-area-inset-top,0px)); margin-bottom: calc(62px + env(safe-area-inset-bottom,0px)); }
+    #main-content::-webkit-scrollbar-track {
+      background: transparent;
+      /* push the track inward so it only appears within the content viewport */
+      margin-top: calc(58px + env(safe-area-inset-top, 0px));
+      margin-bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+    }
     #main-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
     .swipe-container { touch-action: pan-y; }
     /* ── Responsive layout ─────────────────────────────── */
@@ -223,8 +229,44 @@
     .camera-btn { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 13px; }
     .progress-bar-track { width: 100%; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
     .progress-bar-fill { height: 100%; background: var(--chords-color); border-radius: 2px; transition: width 0.1s linear; }
-    .search-input { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 7px 12px 7px 36px; color: var(--lyrics-color); font-size: 13px; width: 100%; outline: none; }
+    /* ── Universal layout tokens ── */
+    :root {
+      --search-row-height: 36px;        /* height of search input + filter button */
+      --search-row-mb: 12px;            /* gap below every search/filter row */
+      --list-gap: 8px;                  /* gap between list cards (songs, setlists, users) */
+      --tab-padding: 12px;              /* side+top padding inside every tab panel */
+    }
+    /* Enforce uniform search input height */
+    .search-input {
+      height: var(--search-row-height);
+      background: var(--surface-1); border: 1px solid var(--border-subtle);
+      border-radius: 8px; padding: 0 12px 0 36px;
+      color: var(--lyrics-color); font-size: 13px; width: 100%; outline: none;
+      box-sizing: border-box;
+    }
     .search-input:focus { border-color: var(--chords-color); }
+    /* Uniform filter button */
+    .filter-btn {
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+      background: var(--surface-2); border: 1px solid var(--border-subtle);
+      border-radius: 8px; padding: 0 10px;
+      height: var(--search-row-height);
+      color: var(--text-secondary); cursor: pointer; font-size: 13px;
+      white-space: nowrap;
+    }
+    /* Uniform search row wrapper */
+    .search-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: var(--search-row-mb); position: relative;
+    }
+    .search-row .search-icon {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; color: var(--text-muted); pointer-events: none;
+    }
+    /* Uniform list gaps */
+    .songs-list-wrap, .setlists-list-wrap, .users-list-wrap {
+      display: flex; flex-direction: column; gap: var(--list-gap);
+    }
     .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
     .filter-chip.active { background: var(--chords-color); color: #000; border-color: var(--chords-color); }
     .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px; color: var(--lyrics-color); font-size: 13px; outline: none; }
@@ -395,33 +437,29 @@
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:12px;">
     <div id="songs-list-view">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;">
-        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
+      <div class="search-row">
+        <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search songs..." id="song-search-input" oninput="filterSongs()" style="flex:1;" />
-        <button id="song-filter-btn" onclick="toggleSongFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:7px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;height:36px;">
+        <button id="song-filter-btn" class="filter-btn" onclick="toggleSongFilterMenu()">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="song-filter-label">A–Z</span>
         </button>
-        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
           <button onclick="setSongSort('az')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            A–Z
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>A–Z
           </button>
           <button onclick="setSongSort('za')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Z–A
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Z–A
           </button>
           <button onclick="setSongSort('artist')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:account-music" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            By Artist
+            <iconify-icon icon="mdi:account-music" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>By Artist
           </button>
           <button onclick="setSongSort('favourites')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:heart" style="font-size:14px;margin-right:6px;vertical-align:middle;color:#ef4444;"></iconify-icon>
-            Favourites
+            <iconify-icon icon="mdi:heart" style="font-size:14px;margin-right:6px;vertical-align:middle;color:#ef4444;"></iconify-icon>Favourites
           </button>
         </div>
       </div>
-        <div id="songs-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="songs-list" class="songs-list-wrap"></div>
         <div id="songs-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:music-off" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No songs yet.</p>
@@ -476,33 +514,29 @@
     <!-- SETLISTS TAB -->
     <div id="tab-setlists" class="tab-panel" style="padding:12px;">
       <div id="setlists-list-view">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;">
-        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
+      <div class="search-row">
+        <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search setlists..." id="setlist-search-input" oninput="filterSetlists()" style="flex:1;" />
-        <button id="setlist-filter-btn" onclick="toggleSetlistFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;">
+        <button id="setlist-filter-btn" class="filter-btn" onclick="toggleSetlistFilterMenu()">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="setlist-filter-label">Newest</span>
         </button>
-        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
           <button onclick="setSetlistSort('newest')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Newest First
+            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Newest First
           </button>
           <button onclick="setSetlistSort('oldest')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Oldest First
+            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Oldest First
           </button>
           <button onclick="setSetlistSort('az')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            A–Z
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>A–Z
           </button>
           <button onclick="setSetlistSort('za')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>
-            Z–A
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Z–A
           </button>
         </div>
       </div>
-        <div id="setlists-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="setlists-list" class="setlists-list-wrap"></div>
         <div id="setlists-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:playlist-music" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No setlists yet.</p>
@@ -514,15 +548,15 @@
     <!-- USERS TAB -->
     <div id="tab-users" class="tab-panel" style="padding:12px;">
       <div id="users-list-panel">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;">
-        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
+      <div class="search-row">
+        <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search users..." id="user-search-input" oninput="filterUsers()" style="flex:1;" />
-        <button id="user-filter-btn" onclick="toggleUserFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;position:relative;z-index:1;">
+        <button id="user-filter-btn" class="filter-btn" onclick="toggleUserFilterMenu()" style="position:relative;z-index:1;">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="user-filter-label">All</span>
         </button>
       </div>
-      <div id="users-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="users-list" class="users-list-wrap"></div>
       </div><!-- /users-list-panel -->
       <div id="user-detail-view" style="display:none;"></div>
     </div>
@@ -831,7 +865,7 @@
           <option>G#</option><option>A</option><option>A#</option><option>B</option>
         </select>
       </div>
-      <div>
+      <div id="intake-method-section">
         <div class="section-label" style="margin-bottom:8px;">Intake Method</div>
         <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
           <button onclick="setIntakeMode('text')" id="intake-text-btn" class="btn-primary btn-text" style="flex:1;min-width:80px;">Text</button>
@@ -860,6 +894,11 @@
             <div id="ocr-result" style="margin-top:10px;color:var(--text-secondary);font-size:12px;"></div>
           </div>
         </div>
+      </div>
+      <!-- Edit mode: plain textarea without intake switcher -->
+      <div id="edit-content-section" style="display:none;">
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Song Content</label>
+        <textarea class="input-field" id="edit-song-content-mirror" placeholder="Edit chord sheet..." style="min-height:200px;font-family:monospace;font-size:13px;"></textarea>
       </div>
       <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;">Save Song</button>
     </div>
@@ -1174,8 +1213,13 @@ function handleBackButton() {
     if (_isVisible('setlist-limit-modal')) { closeSetlistLimitModal(); return; }
     if (_isVisible('profile-view')) { closeProfileView(); return; }
     if (_isVisible('song-sheet-view')) { closeSongSheet(); return; }
+    // Setlist opened from user detail → go back to user detail
+    if (currentSetlistId !== null && _setlistOpenedFromUserDetail) { closeSetlistFromUserDetail(); return; }
     if (currentSetlistId !== null) { closeSetlistDetail(); return; }
     if (currentDetailUserId !== null) { closeUserDetail(); return; }
+    // If not on songs tab, navigate there first instead of closing the app
+    if (activeTab !== 'songs') { switchTab('songs'); return; }
+    // Already at root of songs tab — let the browser handle (app close)
   } catch(e) { console.error('handleBackButton error:', e); }
 }
 
@@ -1361,19 +1405,53 @@ function signOut() {
   if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
   if (adminSettingsUnsubscribe) { adminSettingsUnsubscribe(); adminSettingsUnsubscribe = null; }
   allSongs = []; allSetlists = []; allUsers = [];
-  currentUser = null; currentUserProfile = null; currentSongId = null; currentSetlistId = null;
-  document.getElementById('app-root').style.display = 'none';
-  document.getElementById('profile-view').style.display = 'none';
+  currentUser = null; currentUserProfile = null;
+  currentSongId = null; currentSetlistId = null; currentDetailUserId = null;
+  openedFromSetlist = false; _setlistOpenedFromUserDetail = null;
+  // ── Reset tab state so the next user always starts on Songs ──
+  activeTab = 'songs';
+  // Reset all tab panels back to initial state
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.remove('active', 'tab-visible');
+  });
+  const songsPanel = document.getElementById('tab-songs');
+  if (songsPanel) { songsPanel.classList.add('active', 'tab-visible'); }
+  // Close any open views within tabs
+  const songSheet = document.getElementById('song-sheet-view');
+  if (songSheet) songSheet.style.display = 'none';
+  const songsListView = document.getElementById('songs-list-view');
+  if (songsListView) songsListView.style.display = 'block';
+  const setlistDetail = document.getElementById('setlist-detail-view');
+  if (setlistDetail) setlistDetail.style.display = 'none';
+  const setlistsListView = document.getElementById('setlists-list-view');
+  if (setlistsListView) setlistsListView.style.display = 'block';
+  const userDetail = document.getElementById('user-detail-view');
+  if (userDetail) userDetail.style.display = 'none';
+  const usersListPanel = document.getElementById('users-list-panel');
+  if (usersListPanel) usersListPanel.style.display = 'block';
+  // Close any open modals
+  ['create-song-modal','create-setlist-modal','user-edit-modal','key-modal',
+   'song-selector-modal','manage-members-modal','alert-modal','setlist-limit-modal',
+   'tutorial-modal','name-edit-modal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // Reset nav buttons — Songs active
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  const navSongs = document.getElementById('nav-songs');
+  if (navSongs) navSongs.classList.add('active');
+  // Hide top-nav back arrow and title
+  updateHomeBtn(false);
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) navTitle.style.display = 'none';
+  // Hide FABs
   document.getElementById('fab-btn').style.display = 'none';
   document.getElementById('add-song-fab').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
+  document.getElementById('app-root').style.display = 'none';
+  document.getElementById('profile-view').style.display = 'none';
   auth.signOut().then(() => {
     _signingOut = false;
-    // Save last used account for quick re-sign-in
-    try {
-      const prev = JSON.parse(localStorage.getItem('rccm_prev_account') || 'null');
-      // Already saved on sign-in; just show it
-    } catch(e) {}
     showAuthView();
   }).catch(err => {
     _signingOut = false;
@@ -1630,17 +1708,26 @@ function handleFabClick() {
 
 function updateHomeBtn(show) {
   const btn = document.getElementById('home-btn');
-  btn.style.display = show ? 'flex' : 'none';
+  // Never show back arrow when we're at the root of the songs tab with nothing open
+  const atSongsRoot = activeTab === 'songs' && !currentSongId && !currentSetlistId && !currentDetailUserId;
+  const shouldShow = show && !atSongsRoot;
+  btn.style.display = shouldShow ? 'flex' : 'none';
   const appName = document.getElementById('top-nav-appname');
-  if (appName) appName.style.display = show ? 'none' : 'inline';
+  if (appName) appName.style.display = shouldShow ? 'none' : 'inline';
 }
 
 function goHome() {
   // goHome is called by the back arrow button in the top nav
   if (currentSongId) { closeSongSheet(); return; }
+  // If setlist was opened from user detail, go back to that user detail
+  if (currentSetlistId && _setlistOpenedFromUserDetail) {
+    closeSetlistFromUserDetail();
+    return;
+  }
   if (currentSetlistId) { closeSetlistDetail(); return; }
   if (currentDetailUserId) { closeUserDetail(); return; }
-  // Fallback: stay on current tab
+  // If not on songs tab, go to songs tab first
+  if (activeTab !== 'songs') { switchTab('songs'); return; }
 }
 
 // ============================================================
@@ -1967,21 +2054,31 @@ function openSongSheet(songId, fromSetlist) {
   currentSongId = songId;
   openedFromSetlist = !!fromSetlist;
   originalKey = song.key || 'C';
-  // Restore the user's last chosen key for this song
-  let savedKey = null;
-  if (currentUser) {
-    try { savedKey = localStorage.getItem(`rccm_key_${currentUser.uid}_${songId}`); } catch(e) {}
-  }
-  localKey = savedKey || originalKey;
-  // If opened from a setlist, prefer setlist-specific key override
+  // Determine which key to use:
+  // 1. If opened from a setlist and there's a setlist-specific override → use that
+  // 2. Else if the song is a favourite and the user saved a custom key → use that
+  // 3. Otherwise always use the song's original key
+  localKey = originalKey;
   if (fromSetlist && currentSetlistId && currentUser) {
     try {
       const setlistKey = localStorage.getItem(`rccm_setlistkey_${currentUser.uid}_${currentSetlistId}_${songId}`);
       if (setlistKey) localKey = setlistKey;
     } catch(e) {}
+  } else if (isFavourite(songId) && currentUser) {
+    try {
+      const favKey = localStorage.getItem(`rccm_key_${currentUser.uid}_${songId}`);
+      if (favKey) localKey = favKey;
+    } catch(e) {}
   }
   lyricsOnlyMode = getLyricsOnlyPref();
   applyLyricsOnlyUI();
+  // Sync key button disabled state with lyricsOnly preference
+  const keyBtn = document.getElementById('key-selector-btn');
+  if (keyBtn) {
+    keyBtn.disabled = lyricsOnlyMode;
+    keyBtn.style.opacity = lyricsOnlyMode ? '0.4' : '1';
+    keyBtn.style.cursor = lyricsOnlyMode ? 'not-allowed' : 'pointer';
+  }
   if (openedFromSetlist) {
     // Switch to songs tab to render the song sheet, but setlist detail stays in memory
     document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
@@ -2240,6 +2337,13 @@ function toggleLyricsOnly() {
   lyricsOnlyMode = !lyricsOnlyMode;
   saveLyricsOnlyPref(lyricsOnlyMode);
   applyLyricsOnlyUI();
+  // Disable key selector in lyrics-only mode (no chords to transpose)
+  const keyBtn = document.getElementById('key-selector-btn');
+  if (keyBtn) {
+    keyBtn.disabled = lyricsOnlyMode;
+    keyBtn.style.opacity = lyricsOnlyMode ? '0.4' : '1';
+    keyBtn.style.cursor = lyricsOnlyMode ? 'not-allowed' : 'pointer';
+  }
   const song = allSongs.find(s => s.id === currentSongId);
   if (song) renderSheetContent(song.content || '', localKey, originalKey);
 }
@@ -2439,11 +2543,13 @@ function openCreateSongModal() {
   document.getElementById('new-song-title').value = '';
   document.getElementById('new-song-artist').value = '';
   document.getElementById('new-song-content').value = '';
-  // Clear any edit state
   const modal = document.getElementById('create-song-modal');
   modal.dataset.editId = '';
-  const header = modal.querySelector('h3') || modal.querySelector('[data-modal-title]');
-  if (header) header.textContent = 'Add New Song';
+  // Show intake method, hide edit-only section
+  document.getElementById('intake-method-section').style.display = 'block';
+  document.getElementById('edit-content-section').style.display = 'none';
+  const headers = modal.querySelectorAll('h3');
+  if (headers.length > 0) headers[0].textContent = 'Add New Song';
   const saveBtn = document.getElementById('save-song-btn');
   if (saveBtn) saveBtn.textContent = 'Save Song';
   modal.style.display = 'flex';
@@ -2457,15 +2563,19 @@ function openEditSongModal(songId) {
   document.getElementById('new-song-title').value = song.title || '';
   document.getElementById('new-song-artist').value = song.artist || '';
   document.getElementById('new-song-content').value = song.content || '';
+  // Mirror content into the edit textarea
+  const mirrorEl = document.getElementById('edit-song-content-mirror');
+  if (mirrorEl) mirrorEl.value = song.content || '';
   const modal = document.getElementById('create-song-modal');
   modal.dataset.editId = songId;
-  // Change modal header + button text to reflect edit mode
+  // Hide intake method switcher, show plain textarea
+  document.getElementById('intake-method-section').style.display = 'none';
+  document.getElementById('edit-content-section').style.display = 'block';
   const headers = modal.querySelectorAll('h3');
   if (headers.length > 0) headers[0].textContent = 'Edit Song';
   const saveBtn = document.getElementById('save-song-btn');
   if (saveBtn) saveBtn.textContent = 'Update Song';
   modal.style.display = 'flex';
-  setIntakeMode('text');
   pushState();
 }
 function closeCreateSongModal() {
@@ -2537,14 +2647,16 @@ dragZone.addEventListener('drop', e => {
 async function saveSong() {
   const title = document.getElementById('new-song-title').value.trim();
   const artist = document.getElementById('new-song-artist').value.trim();
-  const content = document.getElementById('new-song-content').value;
   const key = document.getElementById('new-song-key').value;
   if (!title) { showAlert('Missing Info', 'Please enter a song title.', 'mdi:alert-circle'); return; }
   const modal = document.getElementById('create-song-modal');
   const editId = modal?.dataset?.editId || '';
+  // In edit mode, read from the mirror textarea; in create mode from intake textarea
+  const content = editId
+    ? (document.getElementById('edit-song-content-mirror')?.value || document.getElementById('new-song-content').value)
+    : document.getElementById('new-song-content').value;
   try {
     if (editId) {
-      // Update existing song
       await db.collection('songs').doc(editId).update({ title, artist, content, key });
       const idx = allSongs.findIndex(s => s.id === editId);
       if (idx !== -1) Object.assign(allSongs[idx], { title, artist, content, key });
@@ -3112,29 +3224,35 @@ function getRoleBadgeClass(role) {
 
 // Build smart badge list: show instruments, singer, tech — NOT Musician badge
 function renderUserBadges(u) {
-  const role = u.role || '';
+  const primaryRole = u.role || '';
+  // Support multi-role array saved by edit modal
+  const allRoles = Array.isArray(u.roles) ? u.roles : (primaryRole ? [primaryRole] : []);
   const instruments = u.instruments || [];
-  const canSing = u.canSing;
-  const isAlsoTech = u.isAlsoTech;
+  // canSing: explicit flag OR Singer in roles
+  const canSing = u.canSing || allRoles.includes('Singer');
+  // isAlsoTech: explicit flag OR Tech in roles
+  const isAlsoTech = u.isAlsoTech || allRoles.includes('Tech');
   let badges = [];
   // Admin / Sub-Admin / Lead always show their role badge
-  if (['Admin','Sub-Admin','Lead'].includes(role)) {
-    badges.push(`<span class="role-badge ${getRoleBadgeClass(role)}">${escHtml(role)}</span>`);
-  }
+  ['Admin','Sub-Admin','Lead'].forEach(r => {
+    if (allRoles.includes(r)) {
+      badges.push(`<span class="role-badge ${getRoleBadgeClass(r)}">${escHtml(r)}</span>`);
+    }
+  });
   // Instruments as tags
   instruments.forEach(inst => {
     const icons = { Guitar: 'mdi:guitar-electric', Keyboard: 'mdi:piano', Djembe: 'mdi:drum' };
     badges.push(`<span class="instrument-tag"><iconify-icon icon="${icons[inst]||'mdi:music'}" style="font-size:11px;margin-right:3px;"></iconify-icon>${escHtml(inst)}</span>`);
   });
   // Singer badge
-  if (role === 'Singer' || canSing) {
+  if (canSing) {
     badges.push(`<span class="role-badge badge-singer"><iconify-icon icon="mdi:microphone" style="font-size:10px;margin-right:3px;"></iconify-icon>Singer</span>`);
   }
   // Tech badge
-  if (role === 'Tech' || isAlsoTech) {
+  if (isAlsoTech) {
     badges.push(`<span class="role-badge badge-tech"><iconify-icon icon="mdi:monitor" style="font-size:10px;margin-right:3px;"></iconify-icon>Tech</span>`);
   }
-  if (badges.length === 0) badges.push(`<span class="role-badge badge-musician">${escHtml(role||'Musician')}</span>`);
+  if (badges.length === 0) badges.push(`<span class="role-badge badge-musician">${escHtml(primaryRole||'Musician')}</span>`);
   return badges.join('');
 }
 
@@ -3219,20 +3337,84 @@ function openUserDetail(uid) {
 }
 
 function openSetlistDetailFromUser(setlistId) {
-  // Close user detail first, then switch to setlists tab and open the setlist
-  closeUserDetail();
-  // Switch to setlists tab
-  activeTab = 'setlists';
-  document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
-  const setlistsPanel = document.getElementById('tab-setlists');
-  setlistsPanel.classList.add('active');
-  requestAnimationFrame(() => requestAnimationFrame(() => setlistsPanel.classList.add('tab-visible')));
-  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  const navBtn = document.getElementById('nav-setlists');
-  if (navBtn) navBtn.classList.add('active');
-  // Now open the setlist detail
-  setTimeout(() => openSetlistDetail(setlistId), 50);
+  // Remember we came from a user detail so back returns there
+  _setlistOpenedFromUserDetail = currentDetailUserId;
+  const setlist = allSetlists.find(s => s.id === setlistId);
+  if (!setlist) return;
+  currentSetlistId = setlistId;
+  currentSetlistSongs = setlist.songs ? [...setlist.songs] : [];
+  // Animate: slide the user detail out and setlist in, all within users tab
+  const detail = document.getElementById('user-detail-view');
+  const setlistView = document.getElementById('setlist-detail-view');
+  // Temporarily show the setlist view inside the users tab area
+  const usersTab = document.getElementById('tab-users');
+  // Hide user detail with a slide-out
+  detail.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+  detail.style.opacity = '0';
+  detail.style.transform = 'translateX(-20px)';
+  setTimeout(() => {
+    detail.style.display = 'none';
+    detail.style.opacity = '';
+    detail.style.transform = '';
+    detail.style.transition = '';
+    // Move setlist detail view into users tab temporarily
+    usersTab.appendChild(setlistView);
+    setlistView.style.display = 'block';
+    setlistView.style.opacity = '0';
+    setlistView.style.transform = 'translateX(20px)';
+    setlistView.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    renderSetlistDetail(setlist);
+    loadSetlistCreator(setlist.createdBy);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      setlistView.style.opacity = '1';
+      setlistView.style.transform = 'translateX(0)';
+    }));
+    setTimeout(() => {
+      setlistView.style.transition = '';
+    }, 250);
+    updateHomeBtn(true);
+    updateFAB();
+    pushState();
+  }, 180);
 }
+
+let _setlistOpenedFromUserDetail = null;
+function closeSetlistFromUserDetail() {
+  const uid = _setlistOpenedFromUserDetail;
+  _setlistOpenedFromUserDetail = null;
+  currentSetlistId = null;
+  const setlistView = document.getElementById('setlist-detail-view');
+  const detail = document.getElementById('user-detail-view');
+  const usersTab = document.getElementById('tab-users');
+  const usersListPanel = document.getElementById('users-list-panel');
+  // Animate setlist out
+  setlistView.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+  setlistView.style.opacity = '0';
+  setlistView.style.transform = 'translateX(20px)';
+  setTimeout(() => {
+    setlistView.style.display = 'none';
+    setlistView.style.opacity = '';
+    setlistView.style.transform = '';
+    setlistView.style.transition = '';
+    // Move setlist-detail-view back to setlists tab
+    const setlistsPanel = document.getElementById('tab-setlists');
+    setlistsPanel.appendChild(setlistView);
+    // Restore user detail
+    detail.style.display = 'block';
+    detail.style.opacity = '0';
+    detail.style.transform = 'translateX(-20px)';
+    detail.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      detail.style.opacity = '1';
+      detail.style.transform = 'translateX(0)';
+    }));
+    setTimeout(() => { detail.style.transition = ''; }, 250);
+    usersListPanel.style.display = 'none';
+    updateHomeBtn(true);
+    updateFAB();
+  }, 180);
+}
+
 function closeUserDetail() {
   document.getElementById('user-detail-view').style.display = 'none';
   document.getElementById('users-list-panel').style.display = 'block';
@@ -3314,21 +3496,16 @@ function openUserEditModal(uid) {
   document.getElementById('edit-user-email').textContent = user.email || '';
   const isAdminTarget = user.email === ADMIN_EMAIL;
   const canEditRole = role === 'Admin' && !isAdminTarget;
+  // Initialise selected roles from the user's current roles array (or single role field)
+  const userRoles = Array.isArray(user.roles) ? user.roles
+    : (user.role ? [user.role] : ['Musician']);
+  _selectedEditRoles = new Set(userRoles);
   // Build role toggle buttons
   const roleSection = document.getElementById('edit-role-section');
   if (roleSection) roleSection.style.display = canEditRole ? 'block' : 'none';
   const rolesContainer = document.getElementById('edit-role-toggles');
   if (rolesContainer && canEditRole) {
-    const roleOptions = ['Musician','Singer','Tech','Lead','Sub-Admin'];
-    rolesContainer.innerHTML = roleOptions.map(r => {
-      const isActive = (user.role || 'Musician') === r;
-      const colorMap = { Musician:'#d97706', Singer:'#db2777', Tech:'#0891b2', Lead:'#059669', 'Sub-Admin':'#2563eb' };
-      const col = colorMap[r] || '#6b7280';
-      return `<button onclick="selectEditRole('${r}')" id="edit-role-btn-${r.replace('-','_')}"
-        style="padding:6px 12px;border-radius:999px;border:2px solid ${isActive ? col : 'var(--border-color)'};background:${isActive ? col + '22' : 'transparent'};color:${isActive ? col : 'var(--text-secondary)'};font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;">
-        ${r}
-      </button>`;
-    }).join('');
+    _renderEditRoleToggles();
   }
   document.getElementById('edit-guitar').checked = (user.instruments||[]).includes('Guitar');
   document.getElementById('edit-keyboard').checked = (user.instruments||[]).includes('Keyboard');
@@ -3340,21 +3517,47 @@ function openUserEditModal(uid) {
   pushState();
 }
 
-let _selectedEditRole = null;
-function selectEditRole(role) {
-  _selectedEditRole = role;
-  const roleOptions = ['Musician','Singer','Tech','Lead','Sub-Admin'];
+let _selectedEditRoles = new Set(['Musician']);
+
+function _renderEditRoleToggles() {
+  const rolesContainer = document.getElementById('edit-role-toggles');
+  if (!rolesContainer) return;
+  const roleOptions = ['Musician', 'Singer', 'Tech', 'Lead', 'Sub-Admin'];
   const colorMap = { Musician:'#d97706', Singer:'#db2777', Tech:'#0891b2', Lead:'#059669', 'Sub-Admin':'#2563eb' };
-  roleOptions.forEach(r => {
-    const btn = document.getElementById('edit-role-btn-' + r.replace('-','_'));
-    if (!btn) return;
+  rolesContainer.innerHTML = roleOptions.map(r => {
+    const isActive = _selectedEditRoles.has(r);
     const col = colorMap[r] || '#6b7280';
-    const isActive = r === role;
-    btn.style.borderColor = isActive ? col : 'var(--border-color)';
-    btn.style.background = isActive ? col + '22' : 'transparent';
-    btn.style.color = isActive ? col : 'var(--text-secondary)';
-  });
+    return `<button onclick="selectEditRole('${r}')" id="edit-role-btn-${r.replace('-','_')}"
+      style="padding:6px 14px;border-radius:999px;border:2px solid ${isActive ? col : 'var(--border-color)'};background:${isActive ? col + '22' : 'transparent'};color:${isActive ? col : 'var(--text-secondary)'};font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;">
+      ${isActive ? '<iconify-icon icon="mdi:check" style="font-size:11px;margin-right:4px;vertical-align:middle;"></iconify-icon>' : ''}${r}
+    </button>`;
+  }).join('');
+  // Show / hide the "at least one role" warning
+  let warn = document.getElementById('edit-role-warning');
+  if (!warn) {
+    warn = document.createElement('p');
+    warn.id = 'edit-role-warning';
+    warn.style.cssText = 'color:#ef4444;font-size:12px;margin:6px 0 0;display:none;';
+    warn.textContent = '⚠ At least one role must be selected.';
+    rolesContainer.parentElement.appendChild(warn);
+  }
 }
+
+function selectEditRole(r) {
+  if (_selectedEditRoles.has(r)) {
+    // Don't allow deselecting the last role
+    if (_selectedEditRoles.size <= 1) {
+      const warn = document.getElementById('edit-role-warning');
+      if (warn) { warn.style.display = 'block'; setTimeout(() => { warn.style.display = 'none'; }, 2500); }
+      return;
+    }
+    _selectedEditRoles.delete(r);
+  } else {
+    _selectedEditRoles.add(r);
+  }
+  _renderEditRoleToggles();
+}
+
 function closeUserEditModal() { document.getElementById('user-edit-modal').style.display = 'none'; }
 
 async function saveUserEdit() {
@@ -3362,6 +3565,12 @@ async function saveUserEdit() {
   const user = allUsers.find(u => u.uid === currentEditUserId);
   const myRole = currentUserProfile?.role || '';
   const isAdminTarget = user?.email === ADMIN_EMAIL;
+  // Validate: at least one role
+  if (myRole === 'Admin' && !isAdminTarget && _selectedEditRoles.size === 0) {
+    const warn = document.getElementById('edit-role-warning');
+    if (warn) warn.style.display = 'block';
+    return;
+  }
   const instruments = [];
   if (document.getElementById('edit-guitar').checked) instruments.push('Guitar');
   if (document.getElementById('edit-keyboard').checked) instruments.push('Keyboard');
@@ -3374,7 +3583,13 @@ async function saveUserEdit() {
     maxSetlistsOverride: maxVal ? parseInt(maxVal) : null
   };
   if (myRole === 'Admin' && !isAdminTarget) {
-    updates.role = _selectedEditRole || user?.role || 'Musician';
+    const rolesArr = [..._selectedEditRoles];
+    // Primary role = first in array (for badge display); store full array too
+    updates.role = rolesArr[0];
+    updates.roles = rolesArr;
+    // Derive convenience flags from roles
+    updates.canSing = rolesArr.includes('Singer');
+    updates.isAlsoTech = rolesArr.includes('Tech');
   }
   try {
     await db.collection('users').doc(currentEditUserId).update(updates);
@@ -3996,22 +4211,37 @@ function handleModalDragStart(e) {
   const startY = e.touches ? e.touches[0].clientY : e.clientY;
   const startH = sheet.offsetHeight;
   _modalDragState = { sheet, startY, startH };
+  sheet.classList.add('resizable');
+
   const move = (ev) => {
     if (!_modalDragState) return;
+    if (ev.cancelable) ev.preventDefault();
     const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
-    const dy = _modalDragState.startY - y;
-    const maxH = Math.floor(window.innerHeight * 0.75);
-    const newH = Math.min(maxH, Math.max(200, _modalDragState.startH + dy));
+    const dy = _modalDragState.startY - y;   // positive = dragging up (taller)
+    const screenH = window.innerHeight;
+    const threeQuarters = Math.floor(screenH * 0.75);
+    const rawH = _modalDragState.startH + dy;
+    // If dragged above 3/4 threshold → snap to full device height
+    const newH = rawH >= threeQuarters ? screenH : Math.max(160, rawH);
     _modalDragState.sheet.style.maxHeight = newH + 'px';
-    _modalDragState.sheet.style.height = newH + 'px';
+    _modalDragState.sheet.style.height   = newH + 'px';
+    // Remove bottom-radius when full-screen
+    if (newH >= screenH) {
+      _modalDragState.sheet.style.borderRadius = '0';
+    } else {
+      _modalDragState.sheet.style.borderRadius = '';
+    }
   };
+
   const up = () => {
+    if (_modalDragState) _modalDragState.sheet.classList.remove('resizable');
     _modalDragState = null;
     document.removeEventListener('touchmove', move);
     document.removeEventListener('mousemove', move);
     document.removeEventListener('touchend', up);
     document.removeEventListener('mouseup', up);
   };
+
   document.addEventListener('touchmove', move, { passive: false });
   document.addEventListener('mousemove', move);
   document.addEventListener('touchend', up);
