@@ -208,7 +208,8 @@
     .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: var(--text-secondary); }
     .song-selector-row { padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
     .song-selector-row:hover { background: var(--surface-2); }
-    .setlist-song-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; }
+    .setlist-song-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; transition: background 0.15s; }
+    .setlist-song-item:hover { background: var(--surface-2); }
     .color-input-wrapper { display: flex; align-items: center; gap: 8px; }
     .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -900,6 +901,8 @@
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Song Content</label>
         <textarea class="input-field" id="edit-song-content-mirror" placeholder="Edit chord sheet..." style="flex:1;min-height:220px;height:100%;font-family:monospace;font-size:13px;resize:none;"></textarea>
       </div>
+    </div>
+    <div style="flex-shrink:0;padding-top:12px;">
       <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;">Save Song</button>
     </div>
   </div>
@@ -922,26 +925,28 @@
         <span style="color:var(--lyrics-color);font-size:14px;">Private Setlist</span>
         <label class="toggle-switch"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
       </div>
-      <div id="custom-group-section">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div id="custom-group-section" style="display:flex;flex-direction:column;flex:1;min-height:0;gap:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
           <span style="color:var(--lyrics-color);font-size:14px;">Custom-Group Setlist</span>
           <label class="toggle-switch"><input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span></label>
         </div>
-        <div id="custom-group-users-section" style="display:none;margin-top:10px;">
-          <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:6px;">Select Members</label>
-          <div style="position:relative;margin-bottom:8px;">
+        <div id="custom-group-users-section" style="display:none;flex-direction:column;flex:1;min-height:0;margin-top:0;">
+          <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:6px;flex-shrink:0;">Select Members</label>
+          <div style="position:relative;margin-bottom:8px;flex-shrink:0;">
             <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);"></iconify-icon>
             <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="custom-group-search" placeholder="Search users..." oninput="filterCustomGroupUsers()" />
           </div>
-          <div id="custom-group-users-list" style="flex:1;min-height:120px;max-height:calc(92vh - 280px);overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
-          <div id="selected-custom-members" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+          <div id="custom-group-users-list" style="flex:1;min-height:80px;overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
+          <div id="selected-custom-members" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;flex-shrink:0;"></div>
         </div>
       </div>
-      <button class="btn-primary" onclick="saveSetlist()" style="width:100%;">Create Setlist</button>
-      <p style="color:var(--text-muted);font-size:11px;text-align:center;margin:0;line-height:1.5;">
+      <p style="color:var(--text-muted);font-size:11px;text-align:center;margin:0;line-height:1.5;flex-shrink:0;">
         <iconify-icon icon="mdi:information-outline" style="font-size:12px;vertical-align:middle;margin-right:3px;"></iconify-icon>
         If Private and Custom-Group are not selected, this setlist will be visible to all users.
       </p>
+    </div>
+    <div style="flex-shrink:0;padding-top:12px;">
+      <button class="btn-primary" onclick="saveSetlist()" style="width:100%;">Create Setlist</button>
     </div>
   </div>
 </div>
@@ -3094,14 +3099,15 @@ function openCreateSetlistModal() {
   // Only Admin, Sub-Admin, Lead can create custom group setlists
   const canCustom = ['Admin','Sub-Admin','Lead'].includes(role);
   const cgSection = document.getElementById('custom-group-section');
-  if (cgSection) cgSection.style.display = canCustom ? 'block' : 'none';
+  if (cgSection) cgSection.style.display = canCustom ? 'flex' : 'none';
   document.getElementById('create-setlist-modal').style.display = 'flex';
   pushState();
 }
 function closeCreateSetlistModal() { document.getElementById('create-setlist-modal').style.display = 'none'; }
 
 function toggleCustomGroupUI(checked) {
-  document.getElementById('custom-group-users-section').style.display = checked ? 'block' : 'none';
+  const section = document.getElementById('custom-group-users-section');
+  section.style.display = checked ? 'flex' : 'none';
   if (checked) renderCustomGroupUsers('');
 }
 
@@ -4236,22 +4242,30 @@ function handleModalDragStart(e) {
     const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
     const dy = _modalDragState.startY - y;   // positive = dragging up (taller)
     const screenH = window.innerHeight;
-    const threeQuarters = Math.floor(screenH * 0.75);
     const rawH = _modalDragState.startH + dy;
-    // If dragged above 3/4 threshold → snap to full device height
-    const newH = rawH >= threeQuarters ? screenH : Math.max(160, rawH);
+    // During drag: clamp between 160px and 92vh — no auto-snap to full screen yet
+    const newH = Math.min(Math.floor(screenH * 0.92), Math.max(160, rawH));
     _modalDragState.sheet.style.maxHeight = newH + 'px';
     _modalDragState.sheet.style.height   = newH + 'px';
-    // Remove bottom-radius when full-screen
-    if (newH >= screenH) {
-      _modalDragState.sheet.style.borderRadius = '0';
-    } else {
-      _modalDragState.sheet.style.borderRadius = '';
-    }
+    _modalDragState.sheet.style.borderRadius = '';
+    // Track current height for snap decision on release
+    _modalDragState.currentH = newH;
   };
 
   const up = () => {
-    if (_modalDragState) _modalDragState.sheet.classList.remove('resizable');
+    if (_modalDragState) {
+      const screenH = window.innerHeight;
+      const threeQuarters = Math.floor(screenH * 0.75);
+      const sheet = _modalDragState.sheet;
+      const currentH = _modalDragState.currentH || _modalDragState.startH;
+      // Only snap to full screen after user releases and height exceeds 3/4 of screen
+      if (currentH >= threeQuarters) {
+        sheet.style.maxHeight = screenH + 'px';
+        sheet.style.height    = screenH + 'px';
+        sheet.style.borderRadius = '0';
+      }
+      sheet.classList.remove('resizable');
+    }
     _modalDragState = null;
     document.removeEventListener('touchmove', move);
     document.removeEventListener('mousemove', move);
