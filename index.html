@@ -208,7 +208,7 @@
     .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: var(--text-secondary); }
     .song-selector-row { padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
     .song-selector-row:hover { background: var(--surface-2); }
-    .setlist-song-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 8px; }
+    .setlist-song-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; }
     .color-input-wrapper { display: flex; align-items: center; gap: 8px; }
     .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -306,15 +306,6 @@
     #theme-carousel::-webkit-scrollbar { display: none; }
     /* Admin branding logo hover */
     #admin-logo-preview:hover { opacity: 0.85; }
-    /* Vintage Parchment — white button text for visibility */
-    [data-theme="parchment"] .btn-primary,
-    [data-theme="parchment"] .btn-secondary,
-    [data-theme="parchment"] .btn-danger {
-      color: #ffffff !important;
-    }
-    [data-theme="parchment"] .btn-primary {
-      background: #9b1c1c;
-    }
   </style>
 </head>
 <body class="no-select">
@@ -427,7 +418,7 @@
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
     <!-- Back button (shown when drilling into song/setlist/user) -->
-    <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;">
+    <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;align-items:center;flex-shrink:0;">
       <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
     </button>
     <!-- Title / App name -->
@@ -708,8 +699,7 @@
                 <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
                 <label style="color:var(--text-secondary);font-size:12px;">Chords</label>
               </div>
-              <button class="btn-secondary" onclick="applyCustomTheme()" style="font-size:12px;padding:7px 10px;margin-top:4px;">Preview</button>
-              <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;margin-top:4px;">Save as Preset</button>
+              <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;margin-top:4px;">Apply & Save</button>
             </div>
           </div>
           <!-- Typography -->
@@ -795,10 +785,6 @@
     <button id="profile-admin-btn" onclick="closeProfileView();switchTab('admin');" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;align-items:center;padding:4px;flex-shrink:0;" title="Admin Panel">
       <iconify-icon icon="mdi:cog" style="font-size:22px;"></iconify-icon>
     </button>
-    <img id="profile-view-logo" src="icons/logo.png" alt="Logo" style="height:34px;width:34px;border-radius:8px;object-fit:cover;flex-shrink:0;margin-left:auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-    <div id="profile-view-logo-fallback" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;flex-shrink:0;margin-left:auto;">
-      <iconify-icon icon="mdi:music-note" style="font-size:18px;color:#fff;"></iconify-icon>
-    </div>
   </div>
 
   <!-- Hero section -->
@@ -841,7 +827,7 @@
   <!-- My Setlists -->
   <div style="padding:0 16px 12px;">
     <div class="section-label" style="margin-bottom:8px;">My Setlists</div>
-    <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
     <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
   </div>
 
@@ -856,13 +842,13 @@
 
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-sheet" style="max-height:92vh;overflow-y:auto;">
-    <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+  <div class="modal-sheet" style="max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-handle" style="flex-shrink:0;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
       <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Add New Song</h3>
       <button onclick="closeCreateSongModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="display:flex;flex-direction:column;gap:12px;flex:1;overflow-y:auto;min-height:0;">
       <div>
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Song Title *</label>
         <input type="text" class="input-field" id="new-song-title" placeholder="Enter song title" />
@@ -886,8 +872,8 @@
           <button onclick="setIntakeMode('file')" id="intake-file-btn" class="btn-secondary btn-text" style="flex:1;min-width:80px;">File</button>
           <button onclick="setIntakeMode('camera')" id="intake-camera-btn" class="btn-secondary btn-text" style="flex:1;min-width:80px;">Camera</button>
         </div>
-        <div id="intake-text-area">
-          <textarea class="input-field" id="new-song-content" placeholder="Paste chord sheet here...&#10;&#10;VERSE 1&#10;G    D    Em   C&#10;Great is Thy faithfulness..." style="min-height:160px;font-family:monospace;font-size:13px;"></textarea>
+        <div id="intake-text-area" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+          <textarea class="input-field" id="new-song-content" placeholder="Paste chord sheet here...&#10;&#10;VERSE 1&#10;G    D    Em   C&#10;Great is Thy faithfulness..." style="flex:1;min-height:180px;height:100%;font-family:monospace;font-size:13px;resize:none;"></textarea>
         </div>
         <div id="intake-file-area" style="display:none;">
           <div class="drag-zone" id="drag-zone" onclick="document.getElementById('file-input').click()">
@@ -910,9 +896,9 @@
         </div>
       </div>
       <!-- Edit mode: plain textarea without intake switcher -->
-      <div id="edit-content-section" style="display:none;">
+      <div id="edit-content-section" style="display:none;flex-direction:column;flex:1;min-height:0;">
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Song Content</label>
-        <textarea class="input-field" id="edit-song-content-mirror" placeholder="Edit chord sheet..." style="min-height:200px;font-family:monospace;font-size:13px;"></textarea>
+        <textarea class="input-field" id="edit-song-content-mirror" placeholder="Edit chord sheet..." style="flex:1;min-height:220px;height:100%;font-family:monospace;font-size:13px;resize:none;"></textarea>
       </div>
       <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;">Save Song</button>
     </div>
@@ -921,13 +907,13 @@
 
 <!-- CREATE SETLIST MODAL -->
 <div id="create-setlist-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-sheet" style="max-height:92vh;overflow-y:auto;">
-    <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+  <div class="modal-sheet" style="max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-handle" style="flex-shrink:0;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
       <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Create Setlist</h3>
       <button onclick="closeCreateSetlistModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="display:flex;flex-direction:column;gap:12px;flex:1;overflow-y:auto;min-height:0;">
       <div>
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Setlist Name *</label>
         <input type="text" class="input-field" id="new-setlist-name" placeholder="e.g., Sunday Morning Service" />
@@ -947,7 +933,7 @@
             <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);"></iconify-icon>
             <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="custom-group-search" placeholder="Search users..." oninput="filterCustomGroupUsers()" />
           </div>
-          <div id="custom-group-users-list" style="max-height:140px;overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
+          <div id="custom-group-users-list" style="flex:1;min-height:120px;max-height:calc(92vh - 280px);overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
           <div id="selected-custom-members" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
         </div>
       </div>
@@ -1549,8 +1535,6 @@ function mountApp() {
   seedSongsIfEmpty();
   loadAdminSettings();
   checkForUpdates();
-  // Render any saved custom themes in the carousel
-  renderCustomThemeCards();
   // Ensure FAB is visible on first load
   setTimeout(updateFAB, 100);
 }
@@ -1729,7 +1713,13 @@ function updateHomeBtn(show) {
   const shouldShow = show && !atSongsRoot;
   btn.style.display = shouldShow ? 'flex' : 'none';
   const appName = document.getElementById('top-nav-appname');
-  if (appName) appName.style.display = shouldShow ? 'none' : 'inline';
+  const navTitle = document.getElementById('top-nav-title');
+  if (appName) appName.style.display = shouldShow ? 'none' : 'flex';
+  // Always keep a flex:1 spacer visible so the logo stays pushed to the far-right
+  if (navTitle) {
+    navTitle.style.display = shouldShow ? 'flex' : 'none';
+    navTitle.style.flex = '1';
+  }
 }
 
 function goHome() {
@@ -1967,7 +1957,7 @@ function renderSongsList() {
         </div>
       </div>
     </div>`;
-    if (!isAdmin) return cardInner;
+    if (!isAdmin) return `<div style="margin-bottom:6px;">${cardInner}</div>`;
     return `
     <div class="song-swipe-wrapper" data-song-id="${song.id}">
       <div class="song-swipe-bg-edit">
@@ -2601,11 +2591,18 @@ function closeCreateSongModal() {
 function setIntakeMode(mode) {
   currentIntakeMode = mode;
   ['text','file','camera'].forEach(m => {
-    document.getElementById(`intake-${m}-area`).style.display = m === mode ? 'block' : 'none';
+    const area = document.getElementById(`intake-${m}-area`);
+    // text area uses flex to allow textarea to grow
+    area.style.display = m === mode ? (m === 'text' ? 'flex' : 'block') : 'none';
     const btn = document.getElementById(`intake-${m}-btn`);
     btn.className = m === mode ? 'btn-primary btn-text' : 'btn-secondary btn-text';
     btn.style.flex = '1'; btn.style.minWidth = '80px';
   });
+  // Also toggle edit-content-section
+  const editSection = document.getElementById('edit-content-section');
+  if (editSection && editSection.style.display !== 'none') {
+    editSection.style.display = 'flex';
+  }
   if (mode !== 'camera') stopCamera();
 }
 
@@ -2782,6 +2779,8 @@ function openSetlistDetail(setlistId) {
   const detailView = document.getElementById('setlist-detail-view');
   detailView.style.display = 'block';
   renderSetlistDetail(setlist);
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) navTitle.textContent = setlist.name || 'Setlist';
   updateHomeBtn(true);
   updateFAB();
   pushState();
@@ -2821,7 +2820,7 @@ function renderSetlistDetail(setlist) {
       </div>
 
     </div>
-    <div id="setlist-songs-container">
+    <div id="setlist-songs-container" style="display:flex;flex-direction:column;gap:var(--list-gap);">
       ${songs.length === 0 ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No songs in this setlist yet.</p>' : songs.map((song, i) => `
         <div class="setlist-song-item" onclick="openSongSheet('${song.id}', true)" style="cursor:pointer;">
           <span style="color:var(--text-muted);font-size:12px;width:20px;text-align:center;">${i+1}</span>
@@ -3328,7 +3327,7 @@ function openUserDetail(uid) {
     <div class="section-label" style="margin-bottom:8px;">Setlists Created (${userSetlists.length})</div>
     ${userSetlists.length === 0
       ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No visible setlists.</p>'
-      : `<div style="display:flex;flex-direction:column;gap:8px;">` + userSetlists.map(s => {
+      : `<div style="display:flex;flex-direction:column;gap:var(--list-gap);">` + userSetlists.map(s => {
           const isPublic = !s.isPrivate && !s.isCustomGroup;
           const badgeHtml = s.isCustomGroup
             ? `<span class="privacy-badge badge-custom">⚡ Custom Group</span>`
@@ -3348,6 +3347,8 @@ function openUserDetail(uid) {
   `;
   document.getElementById('users-list-panel').style.display = 'none';
   detail.style.display = 'block';
+  const navTitleU = document.getElementById('top-nav-title');
+  if (navTitleU) navTitleU.textContent = u.displayName || 'User';
   updateHomeBtn(true);
   pushState();
 }
@@ -3831,7 +3832,6 @@ function updateThemeCarousel(activeKey) {
     cyber:     { bg: '#0F172A', border: '#06B6D4', glow: 'rgba(6,182,212,0.3)', color: '#06B6D4' },
     charcoal:  { bg: '#1F2937', border: '#38BDF8', glow: 'rgba(56,189,248,0.3)', color: '#38BDF8' }
   };
-  // Deactivate all built-in cards
   keys.forEach(k => {
     const btn = document.getElementById('theme-btn-' + k);
     if (!btn) return;
@@ -3846,21 +3846,6 @@ function updateThemeCarousel(activeKey) {
       btn.style.transform = 'scale(1)';
     }
   });
-  // Deactivate / activate custom cards
-  document.querySelectorAll('.custom-theme-card').forEach(card => {
-    const key = card.id.replace('theme-btn-', '');
-    const customTheme = getCustomThemes().find(t => t._key === key);
-    if (!customTheme) return;
-    if (key === activeKey) {
-      card.style.border = '2px solid ' + customTheme.chords;
-      card.style.boxShadow = '0 0 0 3px ' + hexToRgba(customTheme.chords, 0.3);
-      card.style.transform = 'scale(1.05)';
-    } else {
-      card.style.border = '2px solid ' + customTheme.border;
-      card.style.boxShadow = 'none';
-      card.style.transform = 'scale(1)';
-    }
-  });
 }
 
 // ============================================================
@@ -3868,7 +3853,6 @@ function updateThemeCarousel(activeKey) {
 // ============================================================
 const THEMES = {
   gigbook:  {
-    _key:'gigbook',
     bg:'#121212', lyrics:'#FFFFFF', chords:'#FBBF24',
     s1:'#1e1e1e', s2:'#2a2a2a', s3:'#252525', sInput:'#2a2a2a',
     border:'#2a2a2a', borderSubtle:'#333',
@@ -3878,7 +3862,6 @@ const THEMES = {
     scrollbar:'#444', accentGlow:'rgba(251,191,36,0.15)'
   },
   nordic: {
-    _key:'nordic',
     bg:'#0f1e2d', lyrics:'#e2f0f7', chords:'#34D399',
     s1:'#162636', s2:'#1e3347', s3:'#1a2d40', sInput:'#1e3347',
     border:'#1e3347', borderSubtle:'#254056',
@@ -3888,7 +3871,6 @@ const THEMES = {
     scrollbar:'#254056', accentGlow:'rgba(52,211,153,0.15)'
   },
   parchment: {
-    _key:'parchment',
     bg:'#f5ede0', lyrics:'#2c1810', chords:'#9b1c1c',
     s1:'#ede0ce', s2:'#e0d0ba', s3:'#e8d8c4', sInput:'#e0d0ba',
     border:'#c9b89a', borderSubtle:'#bba882',
@@ -3898,7 +3880,6 @@ const THEMES = {
     scrollbar:'#bba882', accentGlow:'rgba(155,28,28,0.12)'
   },
   cyber: {
-    _key:'cyber',
     bg:'#060d1a', lyrics:'#e0f0ff', chords:'#00e5ff',
     s1:'#0d1b2e', s2:'#122236', s3:'#0f1f32', sInput:'#122236',
     border:'#1a3050', borderSubtle:'#1e3a60',
@@ -3908,7 +3889,6 @@ const THEMES = {
     scrollbar:'#1e3a60', accentGlow:'rgba(0,229,255,0.15)'
   },
   charcoal: {
-    _key:'charcoal',
     bg:'#161e28', lyrics:'#c8d4e0', chords:'#38BDF8',
     s1:'#1e2a38', s2:'#263446', s3:'#223040', sInput:'#263446',
     border:'#2e3e52', borderSubtle:'#364a60',
@@ -3922,16 +3902,14 @@ const THEMES = {
 function applyTheme(key) {
   const theme = THEMES[key];
   if (!theme) return;
-  applyThemeData(theme, key);
+  applyThemeData(theme);
   updateThemeCarousel(key);
   showSyncToast();
   saveThemeToDb(theme).then(() => hideSyncToast());
 }
 
-function applyThemeData(theme, themeKey) {
+function applyThemeData(theme) {
   const root = document.documentElement;
-  // Set data-theme for CSS targeting (e.g. parchment button overrides)
-  root.setAttribute('data-theme', themeKey || theme._key || 'custom');
   const ab = adjustBrightness;
   root.style.setProperty('--canvas-bg',      theme.bg);
   root.style.setProperty('--lyrics-color',   theme.lyrics);
@@ -4008,19 +3986,6 @@ function saveCustomTheme() {
   const bg = document.getElementById('custom-bg').value;
   const lyrics = document.getElementById('custom-lyrics').value;
   const chords = document.getElementById('custom-chords').value;
-
-  // Check limit before prompting
-  const existing = getCustomThemes();
-  if (existing.length >= 5) {
-    showAlert('Limit Reached', 'You can save a maximum of 5 custom themes. Delete one to save a new one.', 'mdi:palette');
-    return;
-  }
-
-  // Prompt for a name
-  const themeName = window.prompt('Enter a name for this custom theme (max 24 chars):');
-  if (!themeName || !themeName.trim()) return;
-  const name = themeName.trim().substring(0, 24);
-
   const ab = adjustBrightness;
   const isDark = isColorDark(bg);
   const s1 = ab(bg, isDark ? 12 : -10);
@@ -4029,8 +3994,6 @@ function saveCustomTheme() {
   const border = ab(bg, isDark ? 24 : -20);
   const borderSubtle = ab(bg, isDark ? 32 : -28);
   const theme = {
-    _key: 'custom_' + Date.now(),
-    _name: name,
     bg, lyrics, chords, s1, s2, s3, sInput: s2,
     border, borderSubtle, navBg: bg,
     textMuted: isDark ? '#6b7280' : '#6b5a40',
@@ -4039,72 +4002,8 @@ function saveCustomTheme() {
     toggleTrack: border, scrollbar: borderSubtle,
     accentGlow: hexToRgba(chords, 0.15)
   };
-
-  // Save to localStorage
-  const themes = getCustomThemes();
-  themes.push(theme);
-  setCustomThemes(themes);
-
-  // Apply theme + sync to DB
-  applyThemeData(theme, theme._key);
-  updateThemeCarousel(theme._key);
-  renderCustomThemeCards();
   showSyncToast();
-  saveThemeToDb(theme).then(() => {
-    hideSyncToast();
-    showAlert('Theme Saved', `"${name}" saved and applied to all users.`, 'mdi:palette');
-  });
-}
-
-function getCustomThemes() {
-  try { return JSON.parse(localStorage.getItem('rccm_custom_themes') || '[]'); } catch(e) { return []; }
-}
-function setCustomThemes(themes) {
-  try { localStorage.setItem('rccm_custom_themes', JSON.stringify(themes)); } catch(e) {}
-}
-
-function deleteCustomTheme(key) {
-  if (!confirm('Delete this custom theme?')) return;
-  const themes = getCustomThemes().filter(t => t._key !== key);
-  setCustomThemes(themes);
-  renderCustomThemeCards();
-  // If currently active, fall back to gigbook
-  if (document.documentElement.getAttribute('data-theme') === key) {
-    applyTheme('gigbook');
-  }
-}
-
-function renderCustomThemeCards() {
-  const carousel = document.getElementById('theme-carousel');
-  if (!carousel) return;
-  // Remove old custom theme cards
-  carousel.querySelectorAll('.custom-theme-card').forEach(el => el.remove());
-  const themes = getCustomThemes();
-  const activeKey = document.documentElement.getAttribute('data-theme') || '';
-  themes.forEach(theme => {
-    const isActive = activeKey === theme._key;
-    const card = document.createElement('button');
-    card.className = 'theme-preset-card custom-theme-card';
-    card.id = 'theme-btn-' + theme._key;
-    card.style.cssText = `background:${theme.bg};border:2px solid ${isActive ? theme.chords : theme.border};border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;position:relative;${isActive ? 'box-shadow:0 0 0 3px ' + hexToRgba(theme.chords, 0.3) + ';transform:scale(1.05);' : ''}`;
-    card.innerHTML = `
-      <div style="display:flex;gap:4px;">
-        <div style="width:12px;height:12px;border-radius:3px;background:${theme.chords};"></div>
-        <div style="width:12px;height:12px;border-radius:3px;background:${theme.lyrics};"></div>
-      </div>
-      <span style="color:${theme.chords};font-size:11px;font-weight:700;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;">${escHtml(theme._name || 'Custom')}</span>
-      <button onclick="event.stopPropagation();deleteCustomTheme('${theme._key}')" title="Delete" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.4);border:none;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;">
-        <iconify-icon icon="mdi:close" style="font-size:12px;color:#fff;"></iconify-icon>
-      </button>`;
-    card.addEventListener('click', () => {
-      applyThemeData(theme, theme._key);
-      updateThemeCarousel(theme._key);
-      renderCustomThemeCards();
-      showSyncToast();
-      saveThemeToDb(theme).then(() => hideSyncToast());
-    });
-    carousel.appendChild(card);
-  });
+  saveThemeToDb(theme).then(() => { hideSyncToast(); showAlert('Theme Saved', 'Custom theme applied to all users.', 'mdi:palette'); });
 }
 
 async function saveThemeToDb(theme) {
@@ -4404,7 +4303,7 @@ function handleModalDragStart(e) {
     <!-- Current members -->
     <div style="margin-bottom:14px;">
       <div class="section-label" style="margin-bottom:8px;">Current Members</div>
-      <div id="manage-current-members" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="manage-current-members" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
     </div>
     <!-- Divider -->
     <div style="height:1px;background:var(--surface-2);margin-bottom:14px;"></div>
