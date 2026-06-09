@@ -842,16 +842,16 @@
 
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-sheet" style="max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
+  <div class="modal-sheet" style="min-height:420px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
     <div class="modal-handle" style="flex-shrink:0;"></div>
 
-    <!-- Header -->
+    <!-- Fixed header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-shrink:0;">
       <h3 id="song-modal-title" style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Add New Song</h3>
       <button onclick="closeCreateSongModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
 
-    <!-- Fixed fields: always visible, never scroll -->
+    <!-- Fixed fields -->
     <div style="flex-shrink:0;display:flex;flex-direction:column;gap:10px;">
       <div style="display:flex;gap:10px;">
         <div style="flex:1;min-width:0;">
@@ -871,7 +871,7 @@
           <option>G#</option><option>A</option><option>A#</option><option>B</option>
         </select>
       </div>
-      <!-- Intake switcher: Add mode only, hidden in Edit mode -->
+      <!-- Intake switcher — Add mode only -->
       <div id="intake-method-section">
         <div class="section-label" style="margin-bottom:8px;">Intake Method</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -882,28 +882,28 @@
       </div>
     </div>
 
-    <!-- Expanding content zone: fills all remaining height between fields and button -->
+    <!-- Expanding zone: fills all remaining height, textarea grows/shrinks with modal -->
     <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:10px;">
 
-      <!-- ADD mode: text -->
+      <!-- Add mode: text intake -->
       <div id="intake-text-area" style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <textarea class="input-field" id="new-song-content"
           placeholder="Paste chord sheet here...&#10;&#10;VERSE 1&#10;G    D    Em   C&#10;Great is Thy faithfulness..."
-          style="flex:1;min-height:0;font-family:monospace;font-size:13px;resize:none;"></textarea>
+          style="flex:1;min-height:120px;font-family:monospace;font-size:13px;resize:none;"></textarea>
       </div>
 
-      <!-- ADD mode: file -->
-      <div id="intake-file-area" style="display:none;flex:1;flex-direction:column;">
+      <!-- Add mode: file intake -->
+      <div id="intake-file-area" style="display:none;flex:1;flex-direction:column;min-height:0;">
         <div class="drag-zone" id="drag-zone" onclick="document.getElementById('file-input').click()"
-          style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          style="flex:1;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           <iconify-icon icon="mdi:file-upload" style="font-size:32px;margin-bottom:8px;"></iconify-icon>
           <p style="margin:0;font-size:13px;">Drop a .txt or .pdf file here, or tap to browse</p>
           <input type="file" id="file-input" accept=".txt,.pdf" style="display:none;" onchange="handleFileInput(this)" />
         </div>
       </div>
 
-      <!-- ADD mode: camera -->
-      <div id="intake-camera-area" style="display:none;flex:1;overflow-y:auto;">
+      <!-- Add mode: camera intake -->
+      <div id="intake-camera-area" style="display:none;flex:1;overflow-y:auto;min-height:80px;">
         <div style="background:var(--surface-1);border-radius:10px;padding:16px;text-align:center;">
           <button class="camera-btn" style="width:100%;justify-content:center;" onclick="openCamera()">
             <iconify-icon icon="mdi:camera" style="font-size:20px;"></iconify-icon>
@@ -916,16 +916,16 @@
         </div>
       </div>
 
-      <!-- EDIT mode: single textarea, no intake switcher -->
+      <!-- Edit mode: single textarea, no intake switcher -->
       <div id="edit-content-section" style="display:none;flex:1;flex-direction:column;min-height:0;">
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;flex-shrink:0;">Song Content</label>
         <textarea class="input-field" id="edit-song-content-mirror" placeholder="Edit chord sheet..."
-          style="flex:1;min-height:0;font-family:monospace;font-size:13px;resize:none;"></textarea>
+          style="flex:1;min-height:120px;font-family:monospace;font-size:13px;resize:none;"></textarea>
       </div>
 
     </div>
 
-    <!-- Fixed footer button: always anchored at bottom -->
+    <!-- Fixed footer -->
     <div style="flex-shrink:0;padding-top:10px;">
       <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;">Save Song</button>
     </div>
@@ -935,42 +935,61 @@
 
 <!-- CREATE SETLIST MODAL -->
 <div id="create-setlist-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-sheet" style="max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
+  <div class="modal-sheet" style="min-height:300px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
     <div class="modal-handle" style="flex-shrink:0;"></div>
+
+    <!-- Fixed header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
       <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Create Setlist</h3>
       <button onclick="closeCreateSetlistModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;flex:1;overflow-y:auto;min-height:0;">
-      <div>
-        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Setlist Name *</label>
-        <input type="text" class="input-field" id="new-setlist-name" placeholder="e.g., Sunday Morning Service" />
-      </div>
+
+    <!-- Fixed: setlist name -->
+    <div style="flex-shrink:0;margin-bottom:12px;">
+      <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Setlist Name *</label>
+      <input type="text" class="input-field" id="new-setlist-name" placeholder="e.g., Sunday Morning Service" />
+    </div>
+
+    <!-- Fixed: private toggle -->
+    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <span style="color:var(--lyrics-color);font-size:14px;">Private Setlist</span>
+      <label class="toggle-switch"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
+    </div>
+
+    <!-- Fixed: custom-group toggle -->
+    <div id="custom-group-section" style="flex-shrink:0;">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="color:var(--lyrics-color);font-size:14px;">Private Setlist</span>
-        <label class="toggle-switch"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
+        <span style="color:var(--lyrics-color);font-size:14px;">Custom-Group Setlist</span>
+        <label class="toggle-switch"><input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span></label>
       </div>
-      <div id="custom-group-section">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span style="color:var(--lyrics-color);font-size:14px;">Custom-Group Setlist</span>
-          <label class="toggle-switch"><input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span></label>
-        </div>
-        <div id="custom-group-users-section" style="display:none;margin-top:10px;">
-          <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:6px;">Select Members</label>
-          <div style="position:relative;margin-bottom:8px;">
-            <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);"></iconify-icon>
-            <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="custom-group-search" placeholder="Search users..." oninput="filterCustomGroupUsers()" />
-          </div>
-          <div id="custom-group-users-list" style="flex:1;min-height:120px;max-height:calc(92vh - 280px);overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
-          <div id="selected-custom-members" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
-        </div>
+    </div>
+
+    <!-- Expanding zone: only visible when custom-group is ON -->
+    <div id="custom-group-users-section" style="display:none;flex:1;flex-direction:column;min-height:0;margin-top:10px;">
+      <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:6px;flex-shrink:0;">Select Members</label>
+      <!-- Search -->
+      <div style="position:relative;margin-bottom:8px;flex-shrink:0;">
+        <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);"></iconify-icon>
+        <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="custom-group-search" placeholder="Search users..." oninput="filterCustomGroupUsers()" />
       </div>
+      <!-- Members list — grows/shrinks with modal height -->
+      <div id="custom-group-users-list" style="flex:1;min-height:80px;overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
+      <!-- Selected chips -->
+      <div id="selected-custom-members" style="flex-shrink:0;display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+    </div>
+
+    <!-- Spacer that collapses when custom-group is open -->
+    <div id="setlist-spacer" style="flex:1;min-height:0;"></div>
+
+    <!-- Fixed footer -->
+    <div style="flex-shrink:0;padding-top:10px;">
       <button class="btn-primary" onclick="saveSetlist()" style="width:100%;">Create Setlist</button>
-      <p style="color:var(--text-muted);font-size:11px;text-align:center;margin:0;line-height:1.5;">
+      <p style="color:var(--text-muted);font-size:11px;text-align:center;margin:8px 0 0;line-height:1.5;">
         <iconify-icon icon="mdi:information-outline" style="font-size:12px;vertical-align:middle;margin-right:3px;"></iconify-icon>
         If Private and Custom-Group are not selected, this setlist will be visible to all users.
       </p>
     </div>
+
   </div>
 </div>
 
@@ -2584,7 +2603,6 @@ function openCreateSongModal() {
   const editSec = document.getElementById('edit-content-section');
   editSec.style.display = 'none';
   editSec.style.flex = '';
-  // Update title
   const titleEl = document.getElementById('song-modal-title');
   if (titleEl) titleEl.textContent = 'Add New Song';
   else { const h = modal.querySelector('h3'); if (h) h.textContent = 'Add New Song'; }
@@ -2605,17 +2623,16 @@ function openEditSongModal(songId) {
   if (mirrorEl) mirrorEl.value = song.content || '';
   const modal = document.getElementById('create-song-modal');
   modal.dataset.editId = songId;
-  // Hide intake switcher, show edit textarea as flex so it fills the expanding zone
+  // Hide intake switcher + all intake content areas
   document.getElementById('intake-method-section').style.display = 'none';
-  // Also hide all intake content areas
   ['intake-text-area','intake-file-area','intake-camera-area'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    if (el) { el.style.display = 'none'; el.style.flex = ''; }
   });
+  // Show edit textarea as the sole flex:1 growing element
   const editSec = document.getElementById('edit-content-section');
   editSec.style.display = 'flex';
   editSec.style.flex = '1';
-  // Update title
   const titleEl = document.getElementById('song-modal-title');
   if (titleEl) titleEl.textContent = 'Edit Song';
   else { const h = modal.querySelector('h3'); if (h) h.textContent = 'Edit Song'; }
@@ -2632,8 +2649,9 @@ function setIntakeMode(mode) {
   currentIntakeMode = mode;
   ['text','file','camera'].forEach(m => {
     const area = document.getElementById(`intake-${m}-area`);
-    // All intake areas are flex containers
-    area.style.display = m === mode ? 'flex' : 'none';
+    // All intake areas use flex so textarea/drag-zone fills height properly
+    if (m === mode) { area.style.display = 'flex'; area.style.flex = '1'; }
+    else { area.style.display = 'none'; area.style.flex = ''; }
     const btn = document.getElementById(`intake-${m}-btn`);
     btn.className = m === mode ? 'btn-primary btn-text' : 'btn-secondary btn-text';
     btn.style.flex = '1'; btn.style.minWidth = '80px';
@@ -3123,6 +3141,8 @@ function openCreateSetlistModal() {
   document.getElementById('new-setlist-private').checked = false;
   document.getElementById('new-setlist-custom').checked = false;
   document.getElementById('custom-group-users-section').style.display = 'none';
+  const spacer = document.getElementById('setlist-spacer');
+  if (spacer) spacer.style.display = 'block';
   selectedCustomMembers = [];
   const scm = document.getElementById('selected-custom-members');
   if (scm) scm.innerHTML = '';
@@ -3136,7 +3156,10 @@ function openCreateSetlistModal() {
 function closeCreateSetlistModal() { document.getElementById('create-setlist-modal').style.display = 'none'; }
 
 function toggleCustomGroupUI(checked) {
-  document.getElementById('custom-group-users-section').style.display = checked ? 'block' : 'none';
+  const section = document.getElementById('custom-group-users-section');
+  const spacer  = document.getElementById('setlist-spacer');
+  section.style.display = checked ? 'flex' : 'none';
+  if (spacer) spacer.style.display = checked ? 'none' : 'block';
   if (checked) renderCustomGroupUsers('');
 }
 
@@ -4263,15 +4286,10 @@ function handleModalDragStart(e) {
   const startY = e.touches ? e.touches[0].clientY : e.clientY;
   const startH = sheet.offsetHeight;
 
-  // Compute min height: measure all direct flex-shrink:0 children so buttons never get hidden
-  let fixedH = 32; // sheet padding top+bottom
-  Array.from(sheet.children).forEach(child => {
-    const cs = window.getComputedStyle(child);
-    if (parseFloat(cs.flexGrow || 0) === 0) {
-      fixedH += child.offsetHeight + parseFloat(cs.marginTop || 0) + parseFloat(cs.marginBottom || 0);
-    }
-  });
-  const minH = Math.max(200, fixedH + 16); // 16px buffer
+  // Read the CSS min-height from the sheet's inline style as the drag floor.
+  // Falls back to 200px if not set. This respects the per-modal minimum.
+  const cssMin = parseInt(sheet.style.minHeight) || 200;
+  const minH = Math.max(cssMin, 200);
 
   _modalDragState = { sheet, startY, startH, minH, currentH: startH };
   sheet.classList.add('resizable');
@@ -4280,10 +4298,10 @@ function handleModalDragStart(e) {
     if (!_modalDragState) return;
     if (ev.cancelable) ev.preventDefault();
     const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
-    const dy = _modalDragState.startY - y;   // positive = dragging up (taller)
+    const dy = _modalDragState.startY - y;  // positive = dragging up (taller)
     const screenH = window.innerHeight;
     const rawH = _modalDragState.startH + dy;
-    // Clamp: minH at bottom, 92vh at top — NO snap during drag
+    // Clamp between minH floor and 92vh ceiling — NO snap during drag
     const newH = Math.min(Math.floor(screenH * 0.92), Math.max(_modalDragState.minH, rawH));
     _modalDragState.sheet.style.maxHeight = newH + 'px';
     _modalDragState.sheet.style.height = newH + 'px';
@@ -4296,7 +4314,7 @@ function handleModalDragStart(e) {
       const screenH = window.innerHeight;
       const sheet = _modalDragState.sheet;
       const currentH = _modalDragState.currentH;
-      // Snap to full screen only on release if dragged past 3/4 of screen
+      // Snap to full screen only on release if dragged past 3/4 screen height
       if (currentH >= Math.floor(screenH * 0.75)) {
         sheet.style.maxHeight = screenH + 'px';
         sheet.style.height = screenH + 'px';
