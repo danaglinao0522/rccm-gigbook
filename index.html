@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="theme-color" content="#121212" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -87,6 +90,11 @@
     .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
     .bottom-nav-btn.active span { font-weight: 700; }
     .bottom-nav-btn img { flex-shrink: 0; }
+    /* Song swipe actions (admin) */
+    .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 6px; }
+    .song-swipe-bg-edit { position: absolute; inset: 0; background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%); display: flex; align-items: center; padding-left: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+    .song-swipe-bg-delete { position: absolute; inset: 0; background: linear-gradient(270deg, #dc2626 0%, #991b1b 100%); display: flex; align-items: center; justify-content: flex-end; padding-right: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+    .song-swipe-item { position: relative; z-index: 1; touch-action: pan-y; will-change: transform; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); background: var(--surface-1); border-radius: 12px; }
     .song-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: background 0.15s; }
     .song-card:hover { background: var(--surface-2); }
     .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
@@ -94,8 +102,12 @@
     .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 16px; }
     .modal-sheet.center-card { border-radius: 16px; max-height: 85vh; }
     .modal-sheet.key-modal { max-height: 50vh; }
-    .modal-handle { width: 40px; height: 4px; background: var(--border-subtle); border-radius: 2px; margin: 0 auto 12px; }
+    .modal-handle { width: 40px; height: 4px; background: var(--border-subtle); border-radius: 2px; margin: 0 auto 12px; cursor: ns-resize; touch-action: none; }
+    .modal-handle:hover { background: var(--chords-color); opacity: 0.7; }
+    /* Resizable modal sheet */
+    .modal-sheet.resizable { transition: none; }
     .role-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .instrument-tag { display: inline-flex; align-items: center; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
     .badge-admin { background: #7c3aed; color:var(--lyrics-color); }
     .badge-subadmin { background: #2563eb; color:var(--lyrics-color); }
     .badge-lead { background: #059669; color:var(--lyrics-color); }
@@ -133,6 +145,10 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    /* Scrollbar only visible within scrollable content, not under navbars */
+    #main-content::-webkit-scrollbar { width: 4px; }
+    #main-content::-webkit-scrollbar-track { background: transparent; margin-top: calc(58px + env(safe-area-inset-top,0px)); margin-bottom: calc(62px + env(safe-area-inset-bottom,0px)); }
+    #main-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
     .swipe-container { touch-action: pan-y; }
     /* ── Responsive layout ─────────────────────────────── */
     /* Mobile base (< 640px): single column, full width modals */
@@ -285,46 +301,59 @@
     <div class="modal-handle"></div>
     <h2 style="color:var(--lyrics-color);font-size:18px;font-weight:700;margin-bottom:4px;">Welcome to RCCM Gigbook</h2>
     <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Tell us your role to get started</p>
-    <em style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:18px;line-height:1.5;">"If you're a musician/singer but also work in Tech Team, Don't click the Tech button."</em>
+    <div style="background:var(--surface-2);border:1px solid var(--border-color);border-radius:10px;padding:10px 14px;margin-bottom:16px;">
+      <p style="color:var(--chords-color);font-size:12px;font-weight:600;margin:0 0 3px;">📌 Heads up!</p>
+      <p style="color:var(--text-secondary);font-size:12px;margin:0;line-height:1.5;">If you play an instrument or sing but also help with Tech, select your musical role — you can indicate Tech involvement below. Only select Tech if that's your <em>only</em> function.</p>
+    </div>
     <div id="onboarding-role-selector" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
       <button class="onboarding-btn" onclick="selectOnboardingRole('Musician')">
-        <iconify-icon icon="mdi:guitar" style="font-size:24px;display:block;margin:0 auto 6px;"></iconify-icon>
+        <iconify-icon icon="mdi:guitar-electric" style="font-size:26px;display:block;margin:0 auto 6px;color:var(--chords-color);"></iconify-icon>
         Musician
       </button>
       <button class="onboarding-btn" onclick="selectOnboardingRole('Singer')">
-        <iconify-icon icon="mdi:microphone" style="font-size:24px;display:block;margin:0 auto 6px;"></iconify-icon>
+        <iconify-icon icon="mdi:microphone" style="font-size:26px;display:block;margin:0 auto 6px;color:#db2777;"></iconify-icon>
         Singer
       </button>
       <button class="onboarding-btn" onclick="selectOnboardingRole('Tech')">
-        <iconify-icon icon="mdi:monitor" style="font-size:24px;display:block;margin:0 auto 6px;"></iconify-icon>
+        <iconify-icon icon="mdi:monitor-dashboard" style="font-size:26px;display:block;margin:0 auto 6px;color:#0891b2;"></iconify-icon>
         Tech
       </button>
     </div>
     <div id="musician-options" style="display:none;">
-      <div class="section-label">Your Instruments</div>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
-        <label style="display:flex;align-items:center;gap:10px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
-          <input type="checkbox" class="checkbox-custom" id="ob-guitar" value="Guitar"> Guitar
+      <div class="section-label" style="margin-bottom:8px;">Your Instruments <span style="color:#ef4444;">*</span> <span style="color:var(--text-muted);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;">(required)</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
+          <input type="checkbox" class="checkbox-custom" id="ob-guitar" value="Guitar"> 
+          <iconify-icon icon="mdi:guitar-electric" style="font-size:16px;color:var(--chords-color);"></iconify-icon> Guitar
         </label>
-        <label style="display:flex;align-items:center;gap:10px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
-          <input type="checkbox" class="checkbox-custom" id="ob-keyboard" value="Keyboard"> Keyboard
+        <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
+          <input type="checkbox" class="checkbox-custom" id="ob-keyboard" value="Keyboard"> 
+          <iconify-icon icon="mdi:piano" style="font-size:16px;color:var(--chords-color);"></iconify-icon> Keyboard
         </label>
-        <label style="display:flex;align-items:center;gap:10px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
-          <input type="checkbox" class="checkbox-custom" id="ob-djembe" value="Djembe"> Djembe
+        <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
+          <input type="checkbox" class="checkbox-custom" id="ob-djembe" value="Djembe"> 
+          <iconify-icon icon="mdi:drum" style="font-size:16px;color:var(--chords-color);"></iconify-icon> Djembe
         </label>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+      <div id="ob-instrument-error" style="display:none;color:#ef4444;font-size:12px;margin-bottom:10px;">⚠ Please select at least one instrument.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
         <label style="display:flex;align-items:center;justify-content:space-between;color:var(--lyrics-color);font-size:14px;">
-          Can you also sing?
+          <span>
+            <iconify-icon icon="mdi:microphone" style="font-size:15px;vertical-align:middle;margin-right:6px;color:#db2777;"></iconify-icon>
+            Do you also sing?
+          </span>
           <label class="toggle-switch"><input type="checkbox" id="ob-can-sing"><span class="toggle-slider"></span></label>
         </label>
         <label style="display:flex;align-items:center;justify-content:space-between;color:var(--lyrics-color);font-size:14px;">
-          Are you part of the Tech Team too?
+          <span>
+            <iconify-icon icon="mdi:monitor-dashboard" style="font-size:15px;vertical-align:middle;margin-right:6px;color:#0891b2;"></iconify-icon>
+            Do you also help with Tech?
+          </span>
           <label class="toggle-switch"><input type="checkbox" id="ob-is-tech"><span class="toggle-slider"></span></label>
         </label>
       </div>
     </div>
-    <button id="onboarding-confirm-btn" style="display:none;" class="btn-primary" style="width:100%;" onclick="confirmOnboarding()">
+    <button id="onboarding-confirm-btn" style="display:none;width:100%;" class="btn-primary" onclick="confirmOnboarding()">
       Confirm & Continue
     </button>
   </div>
@@ -354,8 +383,8 @@
     <span id="top-nav-title" style="color:var(--lyrics-color);font-size:16px;font-weight:600;display:none;flex:1;"></span>
     <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;flex:1;">RCCM Gigbook</span>
     <!-- Logo on the right -->
-    <img src="icons/logo.png" alt="Logo" onclick="goHome()" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-    <div onclick="goHome()" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+    <img src="icons/logo.png" alt="Logo" onclick="switchTab('songs')" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+    <div onclick="switchTab('songs')" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
       <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
     </div>
   </div>
@@ -369,7 +398,7 @@
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;">
         <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="search-input" placeholder="Search songs..." id="song-search-input" oninput="filterSongs()" style="flex:1;" />
-        <button id="song-filter-btn" onclick="toggleSongFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;">
+        <button id="song-filter-btn" onclick="toggleSongFilterMenu()" style="display:flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:7px 10px;color:var(--text-secondary);cursor:pointer;font-size:13px;height:36px;">
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="song-filter-label">A–Z</span>
         </button>
@@ -429,7 +458,16 @@
             </div>
           </div>
           <!-- SINGER/TECH CONTROLS -->
-          <div id="singer-controls" style="display:none;margin-top:8px;"></div>
+          <div id="singer-controls" style="display:none;margin-top:8px;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div id="tech-copy-btn-wrap" style="display:none;">
+                <button onclick="copySheetToClipboard()" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:12px;">
+                  <iconify-icon icon="mdi:content-copy" style="font-size:16px;"></iconify-icon>
+                  <span id="copy-btn-label">Copy</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div id="song-sheet-content" class="song-sheet-content swipe-container" style="overflow-x:hidden;max-width:100%;word-wrap:break-word;padding-bottom:20px;line-height:1.6;"></div>
       </div>
@@ -823,7 +861,7 @@
           </div>
         </div>
       </div>
-      <button class="btn-primary" onclick="saveSong()" style="width:100%;">Save Song</button>
+      <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;">Save Song</button>
     </div>
   </div>
 </div>
@@ -861,6 +899,10 @@
         </div>
       </div>
       <button class="btn-primary" onclick="saveSetlist()" style="width:100%;">Create Setlist</button>
+      <p style="color:var(--text-muted);font-size:11px;text-align:center;margin:0;line-height:1.5;">
+        <iconify-icon icon="mdi:information-outline" style="font-size:12px;vertical-align:middle;margin-right:3px;"></iconify-icon>
+        If Private and Custom-Group are not selected, this setlist will be visible to all users.
+      </p>
     </div>
   </div>
 </div>
@@ -891,18 +933,12 @@
         </div>
       </div>
       <div id="edit-role-section">
-        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Role (Admin Only)</label>
-        <select class="select-field" id="edit-user-role">
-          <option value="Musician">Musician</option>
-          <option value="Singer">Singer</option>
-          <option value="Tech">Tech</option>
-          <option value="Lead">Lead</option>
-          <option value="Sub-Admin">Sub-Admin</option>
-        </select>
+        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:8px;">Role</label>
+        <div id="edit-role-toggles" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
       <div>
         <div class="section-label" style="margin-bottom:8px;">Instruments</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
           <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
             <input type="checkbox" class="checkbox-custom" id="edit-guitar"> Guitar
           </label>
@@ -1180,6 +1216,12 @@ function showAuthView() {
   const authView = document.getElementById('auth-view');
   authView.style.display = 'flex';
   authView.classList.add('fade-in');
+  // Reset Google sign-in button to original state (fix stuck loading)
+  const signInBtn = document.getElementById('google-signin-btn');
+  if (signInBtn) {
+    signInBtn.disabled = false;
+    signInBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Sign In with Google`;
+  }
   // Show previously used account chip
   try {
     const prev = JSON.parse(localStorage.getItem('rccm_prev_account') || 'null');
@@ -1362,6 +1404,13 @@ async function confirmOnboarding() {
   if (document.getElementById('ob-guitar').checked) instruments.push('Guitar');
   if (document.getElementById('ob-keyboard').checked) instruments.push('Keyboard');
   if (document.getElementById('ob-djembe').checked) instruments.push('Djembe');
+  // Require at least one instrument for Musician role
+  if (selectedOnboardingRole === 'Musician' && instruments.length === 0) {
+    const errEl = document.getElementById('ob-instrument-error');
+    if (errEl) { errEl.style.display = 'block'; errEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    return;
+  }
+  if (document.getElementById('ob-instrument-error')) document.getElementById('ob-instrument-error').style.display = 'none';
   const profileData = {
     uid: currentUser.uid, email: currentUser.email,
     displayName: currentUser.displayName, photoURL: currentUser.photoURL,
@@ -1408,6 +1457,8 @@ function mountApp() {
   seedSongsIfEmpty();
   loadAdminSettings();
   checkForUpdates();
+  // Ensure FAB is visible on first load
+  setTimeout(updateFAB, 100);
 }
 
 function checkDesktop() {
@@ -1477,8 +1528,7 @@ function buildNav() {
     tabs = [
       { id: 'songs', icon: 'mdi:music-note', label: 'Songs' },
       { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' },
-      { id: 'users', icon: 'mdi:account-group', label: 'Users' },
-      { id: 'admin', icon: 'mdi:cog', label: 'Admin' }
+      { id: 'users', icon: 'mdi:account-group', label: 'Users' }
     ];
   } else if (role === 'Sub-Admin' || role === 'Lead') {
     tabs = [
@@ -1787,30 +1837,113 @@ function renderSongsList() {
     return;
   }
   emptyEl.style.display = 'none';
+  const isAdmin = (currentUserProfile?.role || '') === 'Admin';
   listEl.innerHTML = songs.map(song => {
     const fav = isFavourite(song.id);
-    return `
-    <div class="song-card" onclick="openSongSheet('${song.id}')">
+    // Show the user's saved key for this song if it exists
+    let displayKey = song.key || '';
+    if (currentUser) {
+      try {
+        const saved = localStorage.getItem(`rccm_key_${currentUser.uid}_${song.id}`);
+        if (saved) displayKey = saved;
+      } catch(e) {}
+    }
+    const cardInner = `
+    <div class="song-card${isAdmin ? ' song-swipe-item' : ''}" onclick="openSongSheet('${song.id}')">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
           <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
           <p style="color:var(--text-muted);font-size:12px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.artist||'')}</p>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          ${song.key ? `<span style="background:var(--accent-glow);color:var(--chords-color);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${escHtml(song.key)}</span>` : ''}
+          ${displayKey ? `<span style="background:var(--accent-glow);color:var(--chords-color);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${escHtml(displayKey)}</span>` : ''}
           <button onclick="event.stopPropagation();toggleFavourite('${song.id}')" style="background:transparent;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;" title="${fav ? 'Remove from Favourites' : 'Add to Favourites'}">
             <iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:18px;color:${fav ? '#ef4444' : '#6b7280'};"></iconify-icon>
           </button>
-          ${canDeleteSong() ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:16px;"></iconify-icon></button>` : ''}
+          ${canDeleteSong() && !isAdmin ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:16px;"></iconify-icon></button>` : ''}
         </div>
       </div>
-    </div>
-  `}).join('');
+    </div>`;
+    if (!isAdmin) return `<div style="margin-bottom:6px;">${cardInner}</div>`;
+    return `
+    <div class="song-swipe-wrapper" data-song-id="${song.id}">
+      <div class="song-swipe-bg-edit">
+        <iconify-icon icon="mdi:pencil" style="font-size:22px;color:#fff;"></iconify-icon>
+        <span style="color:#fff;font-size:13px;font-weight:600;margin-left:8px;">Edit</span>
+      </div>
+      <div class="song-swipe-bg-delete">
+        <span style="color:#fff;font-size:13px;font-weight:600;margin-right:8px;">Delete</span>
+        <iconify-icon icon="mdi:delete" style="font-size:22px;color:#fff;"></iconify-icon>
+      </div>
+      ${cardInner}
+    </div>`;
+  }).join('');
+  // Attach swipe handlers for admin
+  if (isAdmin) initSongSwipe();
 }
 
 function canDeleteSong() {
   const role = currentUserProfile?.role || '';
   return role === 'Admin' || role === 'Sub-Admin' || currentUserProfile?.canDeleteSongs === true;
+}
+
+// ─── ADMIN SONG SWIPE GESTURE ───────────────────────────────────────────────
+function initSongSwipe() {
+  const SWIPE_THRESHOLD = 72;
+  document.querySelectorAll('.song-swipe-wrapper').forEach(wrapper => {
+    const item = wrapper.querySelector('.song-swipe-item');
+    const bgEdit = wrapper.querySelector('.song-swipe-bg-edit');
+    const bgDel = wrapper.querySelector('.song-swipe-bg-delete');
+    const songId = wrapper.dataset.songId;
+    if (!item) return;
+    let startX = 0, startY = 0, dx = 0, dragging = false, committed = false;
+    const onStart = (e) => {
+      const t = e.touches ? e.touches[0] : e;
+      startX = t.clientX; startY = t.clientY;
+      dx = 0; dragging = true; committed = false;
+      item.style.transition = 'none';
+    };
+    const onMove = (e) => {
+      if (!dragging) return;
+      const t = e.touches ? e.touches[0] : e;
+      dx = t.clientX - startX;
+      const dy = Math.abs(t.clientY - startY);
+      // Cancel if vertical scroll
+      if (dy > Math.abs(dx) && Math.abs(dx) < 10) { dragging = false; return; }
+      if (Math.abs(dx) > 8) e.preventDefault();
+      const capped = Math.max(-SWIPE_THRESHOLD * 1.2, Math.min(SWIPE_THRESHOLD * 1.2, dx));
+      item.style.transform = `translateX(${capped}px)`;
+      const ratio = Math.min(1, Math.abs(dx) / SWIPE_THRESHOLD);
+      if (dx > 0) { bgEdit.style.opacity = ratio; bgDel.style.opacity = 0; }
+      else { bgDel.style.opacity = ratio; bgEdit.style.opacity = 0; }
+    };
+    const onEnd = () => {
+      if (!dragging) return;
+      dragging = false;
+      item.style.transition = '';
+      item.style.transform = '';
+      bgEdit.style.opacity = 0;
+      bgDel.style.opacity = 0;
+      if (committed) return;
+      if (dx >= SWIPE_THRESHOLD) {
+        committed = true;
+        // Swipe right → Edit
+        openEditSongModal(songId);
+      } else if (dx <= -SWIPE_THRESHOLD) {
+        committed = true;
+        // Swipe left → Delete confirmation
+        if (confirm('Delete this song? This cannot be undone.')) deleteSong(songId);
+      }
+    };
+    item.addEventListener('touchstart', onStart, { passive: true });
+    item.addEventListener('touchmove', onMove, { passive: false });
+    item.addEventListener('touchend', onEnd);
+    // Mouse fallback
+    item.addEventListener('mousedown', onStart);
+    item.addEventListener('mousemove', onMove);
+    item.addEventListener('mouseup', onEnd);
+    item.addEventListener('mouseleave', () => { if (dragging) onEnd(); });
+  });
 }
 
 async function deleteSong(id) {
@@ -1840,7 +1973,15 @@ function openSongSheet(songId, fromSetlist) {
     try { savedKey = localStorage.getItem(`rccm_key_${currentUser.uid}_${songId}`); } catch(e) {}
   }
   localKey = savedKey || originalKey;
-  lyricsOnlyMode = false;
+  // If opened from a setlist, prefer setlist-specific key override
+  if (fromSetlist && currentSetlistId && currentUser) {
+    try {
+      const setlistKey = localStorage.getItem(`rccm_setlistkey_${currentUser.uid}_${currentSetlistId}_${songId}`);
+      if (setlistKey) localKey = setlistKey;
+    } catch(e) {}
+  }
+  lyricsOnlyMode = getLyricsOnlyPref();
+  applyLyricsOnlyUI();
   if (openedFromSetlist) {
     // Switch to songs tab to render the song sheet, but setlist detail stays in memory
     document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
@@ -1883,13 +2024,36 @@ function setupSongControls() {
   const role = currentUserProfile?.role || '';
   const musicianCtrl = document.getElementById('musician-controls');
   const singerCtrl = document.getElementById('singer-controls');
+  const techCopyWrap = document.getElementById('tech-copy-btn-wrap');
   if (role === 'Singer' || role === 'Tech') {
     musicianCtrl.style.display = 'none';
     singerCtrl.style.display = 'block';
+    if (techCopyWrap) techCopyWrap.style.display = role === 'Tech' ? 'block' : 'none';
   } else {
     musicianCtrl.style.display = 'block';
     singerCtrl.style.display = 'none';
+    if (techCopyWrap) techCopyWrap.style.display = 'none';
   }
+}
+
+function copySheetToClipboard() {
+  const song = allSongs.find(s => s.id === currentSongId);
+  if (!song) return;
+  const text = `${song.title}${song.artist ? ' - ' + song.artist : ''}\n\n${song.content || ''}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const label = document.getElementById('copy-btn-label');
+    if (label) { label.textContent = 'Copied!'; setTimeout(() => { label.textContent = 'Copy'; }, 2000); }
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const label = document.getElementById('copy-btn-label');
+    if (label) { label.textContent = 'Copied!'; setTimeout(() => { label.textContent = 'Copy'; }, 2000); }
+  });
 }
 
 // loadCreatorInfo removed — creator info no longer shown on song sheet
@@ -2042,6 +2206,17 @@ function selectKey(key) {
       const storageKey = `rccm_key_${currentUser.uid}_${currentSongId}`;
       localStorage.setItem(storageKey, key);
     } catch(e) {}
+    // If opened from a setlist, also save a setlist-specific key override
+    if (openedFromSetlist && currentSetlistId) {
+      try {
+        const setlistKeyKey = `rccm_setlistkey_${currentUser.uid}_${currentSetlistId}_${currentSongId}`;
+        localStorage.setItem(setlistKeyKey, key);
+      } catch(e) {}
+    }
+    // If this song is a favourite, re-render the song list so the key badge updates
+    if (isFavourite(currentSongId)) {
+      renderSongsList();
+    }
   }
   closeKeyModal();
 }
@@ -2049,10 +2224,22 @@ function selectKey(key) {
 // ============================================================
 // LYRICS ONLY TOGGLE
 // ============================================================
-function toggleLyricsOnly() {
-  lyricsOnlyMode = !lyricsOnlyMode;
+function getLyricsOnlyPref() {
+  if (!currentUser) return false;
+  try { return localStorage.getItem(`rccm_lyricsonly_${currentUser.uid}`) === '1'; } catch(e) { return false; }
+}
+function saveLyricsOnlyPref(val) {
+  if (!currentUser) return;
+  try { localStorage.setItem(`rccm_lyricsonly_${currentUser.uid}`, val ? '1' : '0'); } catch(e) {}
+}
+function applyLyricsOnlyUI() {
   const btn = document.getElementById('lyrics-toggle-label');
   if (btn) btn.textContent = lyricsOnlyMode ? 'Show Chords' : 'Lyrics Only';
+}
+function toggleLyricsOnly() {
+  lyricsOnlyMode = !lyricsOnlyMode;
+  saveLyricsOnlyPref(lyricsOnlyMode);
+  applyLyricsOnlyUI();
   const song = allSongs.find(s => s.id === currentSongId);
   if (song) renderSheetContent(song.content || '', localKey, originalKey);
 }
@@ -2252,7 +2439,32 @@ function openCreateSongModal() {
   document.getElementById('new-song-title').value = '';
   document.getElementById('new-song-artist').value = '';
   document.getElementById('new-song-content').value = '';
-  document.getElementById('create-song-modal').style.display = 'flex';
+  // Clear any edit state
+  const modal = document.getElementById('create-song-modal');
+  modal.dataset.editId = '';
+  const header = modal.querySelector('h3') || modal.querySelector('[data-modal-title]');
+  if (header) header.textContent = 'Add New Song';
+  const saveBtn = document.getElementById('save-song-btn');
+  if (saveBtn) saveBtn.textContent = 'Save Song';
+  modal.style.display = 'flex';
+  setIntakeMode('text');
+  pushState();
+}
+
+function openEditSongModal(songId) {
+  const song = allSongs.find(s => s.id === songId);
+  if (!song) return;
+  document.getElementById('new-song-title').value = song.title || '';
+  document.getElementById('new-song-artist').value = song.artist || '';
+  document.getElementById('new-song-content').value = song.content || '';
+  const modal = document.getElementById('create-song-modal');
+  modal.dataset.editId = songId;
+  // Change modal header + button text to reflect edit mode
+  const headers = modal.querySelectorAll('h3');
+  if (headers.length > 0) headers[0].textContent = 'Edit Song';
+  const saveBtn = document.getElementById('save-song-btn');
+  if (saveBtn) saveBtn.textContent = 'Update Song';
+  modal.style.display = 'flex';
   setIntakeMode('text');
   pushState();
 }
@@ -2328,12 +2540,22 @@ async function saveSong() {
   const content = document.getElementById('new-song-content').value;
   const key = document.getElementById('new-song-key').value;
   if (!title) { showAlert('Missing Info', 'Please enter a song title.', 'mdi:alert-circle'); return; }
+  const modal = document.getElementById('create-song-modal');
+  const editId = modal?.dataset?.editId || '';
   try {
-    await db.collection('songs').add({
-      title, artist, content, key,
-      createdBy: currentUser.uid,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    if (editId) {
+      // Update existing song
+      await db.collection('songs').doc(editId).update({ title, artist, content, key });
+      const idx = allSongs.findIndex(s => s.id === editId);
+      if (idx !== -1) Object.assign(allSongs[idx], { title, artist, content, key });
+      renderSongsList();
+    } else {
+      await db.collection('songs').add({
+        title, artist, content, key,
+        createdBy: currentUser.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
     closeCreateSongModal();
   } catch(e) { console.error(e); showAlert('Error', 'Failed to save song.', 'mdi:alert-circle'); }
 }
@@ -2378,14 +2600,18 @@ function renderSetlistsList() {
     const isOwner = setlist.createdBy === currentUser?.uid;
     const role = currentUserProfile?.role || '';
     const canEdit = isOwner || ['Admin','Sub-Admin'].includes(role);
+    const badgeHtml = setlist.isCustomGroup
+      ? `<span class="privacy-badge badge-custom">⚡ Custom Group</span>`
+      : setlist.isPrivate
+        ? `<span class="privacy-badge badge-private">🔒 Private</span>`
+        : `<span class="privacy-badge badge-public">🌐 Public</span>`;
     return `
     <div class="setlist-card" onclick="openSetlistDetail('${setlist.id}')" style="cursor:pointer;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
           <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;">${escHtml(setlist.name)}</p>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;">
-            <span class="privacy-badge ${setlist.isPrivate ? 'badge-private' : 'badge-public'}">${setlist.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
-            ${setlist.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom Group</span>' : ''}
+            ${badgeHtml}
             <span style="color:var(--text-muted);font-size:11px;">${setlist.songs ? setlist.songs.length : 0} songs</span>
           </div>
           ${setlist.isCustomGroup && setlist.whitelist && setlist.whitelist.length > 0 ? renderWhitelistAvatars(setlist.whitelist) : ''}
@@ -2393,7 +2619,6 @@ function renderSetlistsList() {
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
           ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
-
         </div>
       </div>
     </div>`;
@@ -2450,14 +2675,18 @@ function renderSetlistDetail(setlist) {
   const canEdit = isOwner || ['Admin','Sub-Admin','Lead'].includes(role);
   const detail = document.getElementById('setlist-detail-view');
   const songs = currentSetlistSongs.map(sid => allSongs.find(s => s.id === sid)).filter(Boolean);
+  const isTech = (currentUserProfile?.role || '') === 'Tech';
   detail.innerHTML = `
     <div style="margin-bottom:12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div>
           <h2 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">${escHtml(setlist.name)}</h2>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
-            <span class="privacy-badge ${setlist.isPrivate ? 'badge-private' : 'badge-public'}">${setlist.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
-            ${setlist.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom Group</span>' : ''}
+            ${setlist.isCustomGroup
+              ? '<span class="privacy-badge badge-custom">⚡ Custom Group</span>'
+              : setlist.isPrivate
+                ? '<span class="privacy-badge badge-private">🔒 Private</span>'
+                : '<span class="privacy-badge badge-public">🌐 Public</span>'}
           </div>
         </div>
         <div id="setlist-creator-info" style="display:flex;align-items:center;gap:6px;"></div>
@@ -2472,7 +2701,7 @@ function renderSetlistDetail(setlist) {
             <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
             <p style="color:var(--text-muted);font-size:11px;margin:2px 0 0;">${escHtml(song.artist||'')}</p>
           </div>
-
+          ${isTech ? `<button onclick="event.stopPropagation();copySetlistSong('${song.id}')" title="Copy" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;display:flex;align-items:center;" ><iconify-icon icon="mdi:content-copy" style="font-size:16px;"></iconify-icon></button>` : ''}
           ${canEdit ? `<button onclick="event.stopPropagation();removeSongFromSetlist('${song.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       `).join('')}
@@ -2566,17 +2795,23 @@ function renderManageAddList(query) {
     container.innerHTML = '<p style="color:var(--text-muted);font-size:12px;text-align:center;padding:12px;">No more users to add.</p>';
     return;
   }
-  container.innerHTML = available.map(u => `
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background 0.15s;"
+  container.innerHTML = available.map(u => {
+    const instruments = u.instruments || [];
+    const infoTags = [];
+    instruments.forEach(inst => infoTags.push(`<span style="background:var(--surface-2);border:1px solid var(--border-color);border-radius:999px;padding:1px 6px;font-size:10px;color:var(--text-secondary);">${escHtml(inst)}</span>`));
+    if (u.role === 'Singer' || u.canSing) infoTags.push(`<span style="background:#831843;color:#f9a8d4;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:600;">Singer</span>`);
+    if (u.role === 'Tech' || u.isAlsoTech) infoTags.push(`<span style="background:#164e63;color:#67e8f9;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:600;">Tech</span>`);
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background 0.15s;"
       onclick="addMemberToSetlist('${u.uid}')"
       onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
       <img src="${escHtml(u.photoURL||'')}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
       <div style="flex:1;min-width:0;">
-        <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
-        <p style="color:var(--text-muted);font-size:12px;margin:2px 0 0;">${escHtml(u.email||'')}</p>
+        <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
+        ${infoTags.length ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">${infoTags.join('')}</div>` : ''}
       </div>
       <iconify-icon icon="mdi:plus-circle" style="font-size:20px;color:var(--chords-color);flex-shrink:0;"></iconify-icon>
-    </div>`).join('');
+    </div>`}).join('');
 }
 
 function filterManageMembers() {
@@ -2614,6 +2849,19 @@ async function addMemberToSetlist(uid) {
     renderSetlistDetail(setlist);
     loadSetlistCreator(setlist.createdBy);
   } catch(e) { console.error(e); showAlert('Error', 'Failed to add member.', 'mdi:alert-circle'); }
+}
+
+function copySetlistSong(songId) {
+  const song = allSongs.find(s => s.id === songId);
+  if (!song) return;
+  const text = `${song.title}${song.artist ? ' - ' + song.artist : ''}\n\n${song.content || ''}`;
+  navigator.clipboard.writeText(text).then(() => {
+    showAlert('Copied!', `"${song.title}" copied to clipboard.`, 'mdi:content-copy');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showAlert('Copied!', `"${song.title}" copied to clipboard.`, 'mdi:content-copy');
+  });
 }
 
 async function removeSongFromSetlist(songId) {
@@ -2694,7 +2942,9 @@ async function addSongToSetlist(songId) {
     await db.collection('setlists').doc(currentSetlistId).update({ songs: currentSetlistSongs });
     const setlist = allSetlists.find(s => s.id === currentSetlistId);
     if (setlist) { setlist.songs = currentSetlistSongs; renderSetlistDetail(setlist); }
-    closeSongSelectorModal();
+    // Refresh song selector list (don't close)
+    renderSongSelectorList(document.getElementById('song-selector-search')?.value || '');
+    updateFAB();
   } catch(e) { console.error(e); }
 }
 
@@ -2702,6 +2952,11 @@ async function addSongToSetlist(songId) {
 // CREATE SETLIST MODAL
 // ============================================================
 function openCreateSetlistModal() {
+  const role = currentUserProfile?.role || '';
+  if (role === 'Tech') {
+    showAlert('Permission Denied', 'Tech team members cannot create setlists.', 'mdi:lock');
+    return;
+  }
   document.getElementById('new-setlist-name').value = '';
   document.getElementById('new-setlist-private').checked = false;
   document.getElementById('new-setlist-custom').checked = false;
@@ -2710,7 +2965,6 @@ function openCreateSetlistModal() {
   const scm = document.getElementById('selected-custom-members');
   if (scm) scm.innerHTML = '';
   // Only Admin, Sub-Admin, Lead can create custom group setlists
-  const role = currentUserProfile?.role || '';
   const canCustom = ['Admin','Sub-Admin','Lead'].includes(role);
   const cgSection = document.getElementById('custom-group-section');
   if (cgSection) cgSection.style.display = canCustom ? 'block' : 'none';
@@ -2728,15 +2982,26 @@ function renderCustomGroupUsers(query) {
   const container = document.getElementById('custom-group-users-list');
   const filtered = allUsers.filter(u =>
     u.uid !== currentUser?.uid &&
+    u.role !== 'Admin' &&
     (u.displayName||'').toLowerCase().includes(query.toLowerCase())
   );
   container.innerHTML = filtered.map(u => {
     const selected = selectedCustomMembers.includes(u.uid);
+    // Build info tags: instruments, singer, tech
+    const instruments = u.instruments || [];
+    const infoTags = [];
+    instruments.forEach(inst => infoTags.push(`<span style="background:var(--surface-2);border:1px solid var(--border-color);border-radius:999px;padding:1px 7px;font-size:10px;color:var(--text-secondary);">${escHtml(inst)}</span>`));
+    if (u.role === 'Singer' || u.canSing) infoTags.push(`<span style="background:#831843;color:#f9a8d4;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:600;">Singer</span>`);
+    if (u.role === 'Tech' || u.isAlsoTech) infoTags.push(`<span style="background:#164e63;color:#67e8f9;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:600;">Tech</span>`);
+    if (['Sub-Admin','Lead'].includes(u.role)) infoTags.push(`<span class="role-badge ${getRoleBadgeClass(u.role)}" style="font-size:10px;">${escHtml(u.role)}</span>`);
     return `
     <div onclick="toggleCustomMember('${u.uid}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--border-subtle);background:${selected?'var(--surface-2)':'transparent'};">
-      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);" />
-      <span style="color:var(--lyrics-color);font-size:13px;flex:1;">${escHtml(u.displayName||u.email||'')}</span>
-      ${selected ? '<iconify-icon icon="mdi:check" style="font-size:16px;color:#34d399;"></iconify-icon>' : ''}
+      <img src="${escHtml(u.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" />
+      <div style="flex:1;min-width:0;">
+        <span style="color:var(--lyrics-color);font-size:13px;display:block;">${escHtml(u.displayName||u.email||'')}</span>
+        ${infoTags.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;">${infoTags.join('')}</div>` : ''}
+      </div>
+      ${selected ? '<iconify-icon icon="mdi:check" style="font-size:16px;color:#34d399;flex-shrink:0;"></iconify-icon>' : ''}
     </div>`;
   }).join('');
 }
@@ -2817,7 +3082,7 @@ function renderUsersList() {
   listEl.innerHTML = users.map(u => {
     const instruments = (u.instruments||[]).join(', ');
     const isAdminUser = u.email === ADMIN_EMAIL;
-    const canEdit = role === 'Admin' || role === 'Sub-Admin';
+    const canEdit = (role === 'Admin' || role === 'Sub-Admin') && !isAdminUser;
     const canDelete = role === 'Admin' && !isAdminUser;
     return `
     <div class="user-row" onclick="openUserDetail('${u.uid}')" style="cursor:pointer;">
@@ -2825,8 +3090,7 @@ function renderUsersList() {
       <div style="flex:1;min-width:0;">
         <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;">
-          <span class="role-badge ${getRoleBadgeClass(u.role)}">${escHtml(u.role||'')}</span>
-          ${instruments ? `<span style="color:var(--text-muted);font-size:11px;">${escHtml(instruments)}</span>` : ''}
+          ${renderUserBadges(u)}
         </div>
       </div>
       ${canEdit ? `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
@@ -2844,6 +3108,34 @@ function renderUsersList() {
 function getRoleBadgeClass(role) {
   const map = { 'Admin':'badge-admin','Sub-Admin':'badge-subadmin','Lead':'badge-lead','Musician':'badge-musician','Singer':'badge-singer','Tech':'badge-tech' };
   return map[role] || 'badge-musician';
+}
+
+// Build smart badge list: show instruments, singer, tech — NOT Musician badge
+function renderUserBadges(u) {
+  const role = u.role || '';
+  const instruments = u.instruments || [];
+  const canSing = u.canSing;
+  const isAlsoTech = u.isAlsoTech;
+  let badges = [];
+  // Admin / Sub-Admin / Lead always show their role badge
+  if (['Admin','Sub-Admin','Lead'].includes(role)) {
+    badges.push(`<span class="role-badge ${getRoleBadgeClass(role)}">${escHtml(role)}</span>`);
+  }
+  // Instruments as tags
+  instruments.forEach(inst => {
+    const icons = { Guitar: 'mdi:guitar-electric', Keyboard: 'mdi:piano', Djembe: 'mdi:drum' };
+    badges.push(`<span class="instrument-tag"><iconify-icon icon="${icons[inst]||'mdi:music'}" style="font-size:11px;margin-right:3px;"></iconify-icon>${escHtml(inst)}</span>`);
+  });
+  // Singer badge
+  if (role === 'Singer' || canSing) {
+    badges.push(`<span class="role-badge badge-singer"><iconify-icon icon="mdi:microphone" style="font-size:10px;margin-right:3px;"></iconify-icon>Singer</span>`);
+  }
+  // Tech badge
+  if (role === 'Tech' || isAlsoTech) {
+    badges.push(`<span class="role-badge badge-tech"><iconify-icon icon="mdi:monitor" style="font-size:10px;margin-right:3px;"></iconify-icon>Tech</span>`);
+  }
+  if (badges.length === 0) badges.push(`<span class="role-badge badge-musician">${escHtml(role||'Musician')}</span>`);
+  return badges.join('');
 }
 
 // Render small horizontal avatars for custom group whitelist
@@ -2874,8 +3166,9 @@ function openUserDetail(uid) {
   if (!u) return;
   currentDetailUserId = uid;
   const myRole = currentUserProfile?.role || '';
-  const canEdit = myRole === 'Admin' || myRole === 'Sub-Admin';
-  const canDelete = myRole === 'Admin' && u.email !== ADMIN_EMAIL;
+  const isAdminUser = u.email === ADMIN_EMAIL;
+  const canEdit = (myRole === 'Admin' || myRole === 'Sub-Admin') && !isAdminUser;
+  const canDelete = myRole === 'Admin' && !isAdminUser;
   // Setlists created by this user that the current viewer can see
   const userSetlists = allSetlists.filter(s => s.createdBy === uid && canSeeSetlist(s));
   const instruments = (u.instruments||[]).join(', ');
@@ -2886,8 +3179,7 @@ function openUserDetail(uid) {
       <div style="flex:1;min-width:0;">
         <p style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">${escHtml(u.displayName||'')}</p>
         <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">
-          <span class="role-badge ${getRoleBadgeClass(u.role)}">${escHtml(u.role||'')}</span>
-          ${instruments ? `<span style="color:var(--text-muted);font-size:11px;">${escHtml(instruments)}</span>` : ''}
+          ${renderUserBadges(u)}
         </div>
       </div>
       ${canEdit ? `<div style="display:flex;gap:6px;flex-shrink:0;">
@@ -2902,21 +3194,44 @@ function openUserDetail(uid) {
     <div class="section-label" style="margin-bottom:8px;">Setlists Created (${userSetlists.length})</div>
     ${userSetlists.length === 0
       ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No visible setlists.</p>'
-      : `<div style="display:flex;flex-direction:column;gap:8px;">` + userSetlists.map(s => `
-        <div class="setlist-card" onclick="openSetlistDetail('${s.id}')" style="cursor:pointer;">
-          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0 0 6px;">${escHtml(s.name)}</p>
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="privacy-badge ${s.isPrivate ? 'badge-private' : 'badge-public'}">${s.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
-            ${s.isCustomGroup ? '<span class="privacy-badge badge-custom">⚡ Custom</span>' : ''}
-            <span style="color:var(--text-muted);font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
-            ${s.isCustomGroup && s.whitelist && s.whitelist.length ? renderWhitelistAvatars(s.whitelist) : ''}
-          </div>
-        </div>`).join('') + `</div>`}
+      : `<div style="display:flex;flex-direction:column;gap:8px;">` + userSetlists.map(s => {
+          const isPublic = !s.isPrivate && !s.isCustomGroup;
+          const badgeHtml = s.isCustomGroup
+            ? `<span class="privacy-badge badge-custom">⚡ Custom Group</span>`
+            : s.isPrivate
+              ? `<span class="privacy-badge badge-private">🔒 Private</span>`
+              : `<span class="privacy-badge badge-public">🌐 Public</span>`;
+          return `
+          <div class="setlist-card" onclick="openSetlistDetailFromUser('${s.id}')" style="cursor:pointer;">
+            <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0 0 6px;">${escHtml(s.name)}</p>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              ${badgeHtml}
+              <span style="color:var(--text-muted);font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
+              ${s.isCustomGroup && s.whitelist && s.whitelist.length ? renderWhitelistAvatars(s.whitelist) : ''}
+            </div>
+          </div>`;
+        }).join('') + `</div>`}
   `;
   document.getElementById('users-list-panel').style.display = 'none';
   detail.style.display = 'block';
   updateHomeBtn(true);
   pushState();
+}
+
+function openSetlistDetailFromUser(setlistId) {
+  // Close user detail first, then switch to setlists tab and open the setlist
+  closeUserDetail();
+  // Switch to setlists tab
+  activeTab = 'setlists';
+  document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
+  const setlistsPanel = document.getElementById('tab-setlists');
+  setlistsPanel.classList.add('active');
+  requestAnimationFrame(() => requestAnimationFrame(() => setlistsPanel.classList.add('tab-visible')));
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('nav-setlists');
+  if (navBtn) navBtn.classList.add('active');
+  // Now open the setlist detail
+  setTimeout(() => openSetlistDetail(setlistId), 50);
 }
 function closeUserDetail() {
   document.getElementById('user-detail-view').style.display = 'none';
@@ -2997,11 +3312,24 @@ function openUserEditModal(uid) {
   document.getElementById('edit-user-pic').src = user.photoURL || '';
   document.getElementById('edit-user-name').textContent = user.displayName || '';
   document.getElementById('edit-user-email').textContent = user.email || '';
-  const roleSelect = document.getElementById('edit-user-role');
-  roleSelect.value = user.role || 'Musician';
   const isAdminTarget = user.email === ADMIN_EMAIL;
   const canEditRole = role === 'Admin' && !isAdminTarget;
-  roleSelect.disabled = !canEditRole;
+  // Build role toggle buttons
+  const roleSection = document.getElementById('edit-role-section');
+  if (roleSection) roleSection.style.display = canEditRole ? 'block' : 'none';
+  const rolesContainer = document.getElementById('edit-role-toggles');
+  if (rolesContainer && canEditRole) {
+    const roleOptions = ['Musician','Singer','Tech','Lead','Sub-Admin'];
+    rolesContainer.innerHTML = roleOptions.map(r => {
+      const isActive = (user.role || 'Musician') === r;
+      const colorMap = { Musician:'#d97706', Singer:'#db2777', Tech:'#0891b2', Lead:'#059669', 'Sub-Admin':'#2563eb' };
+      const col = colorMap[r] || '#6b7280';
+      return `<button onclick="selectEditRole('${r}')" id="edit-role-btn-${r.replace('-','_')}"
+        style="padding:6px 12px;border-radius:999px;border:2px solid ${isActive ? col : 'var(--border-color)'};background:${isActive ? col + '22' : 'transparent'};color:${isActive ? col : 'var(--text-secondary)'};font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;">
+        ${r}
+      </button>`;
+    }).join('');
+  }
   document.getElementById('edit-guitar').checked = (user.instruments||[]).includes('Guitar');
   document.getElementById('edit-keyboard').checked = (user.instruments||[]).includes('Keyboard');
   document.getElementById('edit-djembe').checked = (user.instruments||[]).includes('Djembe');
@@ -3010,6 +3338,22 @@ function openUserEditModal(uid) {
   document.getElementById('edit-can-add').checked = user.canAddSongs || false;
   document.getElementById('user-edit-modal').style.display = 'flex';
   pushState();
+}
+
+let _selectedEditRole = null;
+function selectEditRole(role) {
+  _selectedEditRole = role;
+  const roleOptions = ['Musician','Singer','Tech','Lead','Sub-Admin'];
+  const colorMap = { Musician:'#d97706', Singer:'#db2777', Tech:'#0891b2', Lead:'#059669', 'Sub-Admin':'#2563eb' };
+  roleOptions.forEach(r => {
+    const btn = document.getElementById('edit-role-btn-' + r.replace('-','_'));
+    if (!btn) return;
+    const col = colorMap[r] || '#6b7280';
+    const isActive = r === role;
+    btn.style.borderColor = isActive ? col : 'var(--border-color)';
+    btn.style.background = isActive ? col + '22' : 'transparent';
+    btn.style.color = isActive ? col : 'var(--text-secondary)';
+  });
 }
 function closeUserEditModal() { document.getElementById('user-edit-modal').style.display = 'none'; }
 
@@ -3030,7 +3374,7 @@ async function saveUserEdit() {
     maxSetlistsOverride: maxVal ? parseInt(maxVal) : null
   };
   if (myRole === 'Admin' && !isAdminTarget) {
-    updates.role = document.getElementById('edit-user-role').value;
+    updates.role = _selectedEditRole || user?.role || 'Musician';
   }
   try {
     await db.collection('users').doc(currentEditUserId).update(updates);
@@ -3632,7 +3976,47 @@ function escHtml(str) {
 // Initialize history on load
 window.addEventListener('load', () => {
   pushState();
+  initModalDragResize();
 });
+
+// ============================================================
+// MODAL DRAG-RESIZE
+// ============================================================
+function initModalDragResize() {
+  document.addEventListener('touchstart', handleModalDragStart, { passive: false });
+  document.addEventListener('mousedown', handleModalDragStart);
+}
+let _modalDragState = null;
+function handleModalDragStart(e) {
+  const handle = e.target.closest('.modal-handle');
+  if (!handle) return;
+  const sheet = handle.closest('.modal-sheet');
+  if (!sheet) return;
+  e.preventDefault();
+  const startY = e.touches ? e.touches[0].clientY : e.clientY;
+  const startH = sheet.offsetHeight;
+  _modalDragState = { sheet, startY, startH };
+  const move = (ev) => {
+    if (!_modalDragState) return;
+    const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
+    const dy = _modalDragState.startY - y;
+    const maxH = Math.floor(window.innerHeight * 0.75);
+    const newH = Math.min(maxH, Math.max(200, _modalDragState.startH + dy));
+    _modalDragState.sheet.style.maxHeight = newH + 'px';
+    _modalDragState.sheet.style.height = newH + 'px';
+  };
+  const up = () => {
+    _modalDragState = null;
+    document.removeEventListener('touchmove', move);
+    document.removeEventListener('mousemove', move);
+    document.removeEventListener('touchend', up);
+    document.removeEventListener('mouseup', up);
+  };
+  document.addEventListener('touchmove', move, { passive: false });
+  document.addEventListener('mousemove', move);
+  document.addEventListener('touchend', up);
+  document.addEventListener('mouseup', up);
+}
 </script>
 
 <!-- LOGO CHANGE MODAL -->
