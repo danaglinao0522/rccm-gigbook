@@ -97,8 +97,77 @@
     .song-swipe-bg-edit span, .song-swipe-bg-delete span { color: #fff; font-size: 14px; font-weight: 800; letter-spacing: 0.04em; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
     .song-swipe-bg-edit iconify-icon, .song-swipe-bg-delete iconify-icon { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
     .song-swipe-item { position: relative; z-index: 1; touch-action: pan-y; will-change: transform; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); background: var(--surface-1); border-radius: 12px; }
-    .song-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: background 0.15s; }
-    .song-card:hover { background: var(--surface-2); }
+    /* ═══════════════════════════════════════════════════════
+       UNIFIED LIST ITEM DESIGN SYSTEM
+       All list rows share the same base: padding, radius, gap
+    ═══════════════════════════════════════════════════════ */
+    .list-item {
+      background: var(--surface-1);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .list-item:hover { background: var(--surface-2); }
+    /* Bare icon button — matches lock icon style: no box, just icon */
+    .list-icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      border-radius: 6px;
+      transition: color 0.15s;
+    }
+    .list-icon-btn:hover { color: var(--lyrics-color); }
+    .list-icon-btn.danger:hover { color: #ef4444; }
+    .list-icon-btn iconify-icon { font-size: 18px; }
+    /* All action buttons in list rows are bare icon buttons */
+    .song-card, .setlist-card, .user-row, .setlist-song-item {
+      background: var(--surface-1);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 11px 14px;
+      transition: background 0.15s;
+    }
+    .song-card:hover, .setlist-card:hover, .user-row:hover, .setlist-song-item:hover {
+      background: var(--surface-2);
+    }
+    /* Line layout mode — remove card borders/radius, just dividers */
+    body.layout-line .song-card,
+    body.layout-line .setlist-card,
+    body.layout-line .user-row,
+    body.layout-line .setlist-song-item,
+    body.layout-line .song-swipe-item {
+      border-radius: 0 !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-top: none !important;
+      border-bottom: 1px solid var(--border-color) !important;
+      background: var(--canvas-bg) !important;
+    }
+    body.layout-line .song-card:last-child,
+    body.layout-line .setlist-card:last-child,
+    body.layout-line .user-row:last-child,
+    body.layout-line .setlist-song-item:last-child { border-bottom: none !important; }
+    body.layout-line .songs-list-wrap,
+    body.layout-line .setlists-list-wrap,
+    body.layout-line .users-list-wrap { gap: 0 !important; }
+    body.layout-line .song-swipe-wrapper {
+      border-radius: 0 !important;
+      margin-bottom: 0 !important;
+      border-bottom: 1px solid var(--border-color);
+    }
+    body.layout-line .song-swipe-bg-edit,
+    body.layout-line .song-swipe-bg-delete { border-radius: 0 !important; }
     .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
     .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; min-height: 280px; max-height: 92vh; overflow-y: auto; padding: 16px; transition: height 0.05s linear, max-height 0.05s linear; }
@@ -116,8 +185,6 @@
     .badge-musician { background: #d97706; color:var(--lyrics-color); }
     .badge-singer { background: #db2777; color:var(--lyrics-color); }
     .badge-tech { background: #0891b2; color:var(--lyrics-color); }
-    .setlist-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; }
-    .user-row { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s; }
@@ -223,6 +290,7 @@
     .onboarding-btn { padding: 12px 20px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--surface-1); color: var(--lyrics-color); font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
     .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--chords-color); background: var(--accent-glow); color: var(--chords-color); }
     .no-select { user-select: none; -webkit-user-select: none; }
+    .setlist-song-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
     .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
     .badge-public { background: #064e3b; color: #34d399; }
     .badge-private { background: #431407; color: #fb923c; }
@@ -238,25 +306,11 @@
     /* Apply component overrides */
     .btn-primary { background: var(--btn-primary-bg) !important; color: var(--btn-primary-text) !important; }
     /* Line layout mode */
-    body.layout-line .song-card,
-    body.layout-line .setlist-card,
-    body.layout-line .user-row {
-      border-radius: 0 !important;
-      border-left: none !important;
-      border-right: none !important;
-      border-top: none !important;
-      margin-bottom: 0 !important;
-    }
-    body.layout-line .songs-list-wrap,
-    body.layout-line .setlists-list-wrap,
-    body.layout-line .users-list-wrap {
-      gap: 0 !important;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    body.layout-line .song-swipe-wrapper { border-radius: 0 !important; margin-bottom: 0 !important; }
-    body.layout-line .song-swipe-item { border-radius: 0 !important; }
+    /* Active filter/sort indicator dot on filter button */
+    .filter-btn.has-active-filter { color: var(--chords-color); border-color: var(--chords-color); }
+    .filter-btn.has-active-filter iconify-icon { color: var(--chords-color); }
+    /* Active checkmark in filter menu items */
+    .filter-menu-item-active { color: var(--chords-color) !important; font-weight: 700 !important; }
     .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
     .camera-btn { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 13px; }
     .progress-bar-track { width: 100%; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
@@ -476,18 +530,18 @@
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="song-filter-label">A–Z</span>
         </button>
-        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
-          <button onclick="setSongSort('az')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>A–Z
+        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:148px;z-index:200;">
+          <button id="song-sort-az" onclick="setSongSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
           </button>
-          <button onclick="setSongSort('za')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Z–A
+          <button id="song-sort-za" onclick="setSongSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon id="song-sort-za-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
           </button>
-          <button onclick="setSongSort('artist')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:account-music" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>By Artist
+          <button id="song-sort-artist" onclick="setSongSort('artist')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:account-music" style="font-size:14px;"></iconify-icon><span style="flex:1;">By Artist</span><iconify-icon id="song-sort-artist-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
           </button>
-          <button onclick="setSongSort('favourites')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:heart" style="font-size:14px;margin-right:6px;vertical-align:middle;color:#ef4444;"></iconify-icon>Favourites
+          <button id="song-sort-favourites" onclick="setSongSort('favourites')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:heart" style="font-size:14px;color:#ef4444;"></iconify-icon><span style="flex:1;">Favourites</span><iconify-icon id="song-sort-favourites-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
           </button>
         </div>
       </div>
@@ -553,36 +607,36 @@
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="setlist-filter-label">Newest</span>
         </button>
-        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:160px;z-index:200;">
+        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:168px;z-index:200;">
           <div style="padding:4px 8px 6px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
             <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort</span>
           </div>
-          <button onclick="setSetlistSort('newest')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Newest First
+          <button id="setlist-sort-newest" onclick="setSetlistSort('newest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Newest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="newest"></iconify-icon>
           </button>
-          <button onclick="setSetlistSort('oldest')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Oldest First
+          <button id="setlist-sort-oldest" onclick="setSetlistSort('oldest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Oldest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="oldest"></iconify-icon>
           </button>
-          <button onclick="setSetlistSort('az')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>A–Z
+          <button id="setlist-sort-az" onclick="setSetlistSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="az"></iconify-icon>
           </button>
-          <button onclick="setSetlistSort('za')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Z–A
+          <button id="setlist-sort-za" onclick="setSetlistSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="za"></iconify-icon>
           </button>
           <div style="padding:6px 8px 4px;border-top:1px solid var(--border-color);margin-top:4px;">
             <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter</span>
           </div>
-          <button onclick="setSetlistFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:playlist-music" style="font-size:14px;color:var(--text-secondary);"></iconify-icon>All Types
+          <button id="setlist-filter-all" onclick="setSetlistFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:playlist-music" style="font-size:14px;color:var(--text-secondary);"></iconify-icon><span style="flex:1;">All Types</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="all"></iconify-icon>
           </button>
-          <button onclick="setSetlistFilter('public')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:earth" style="font-size:14px;color:#34d399;"></iconify-icon>Public
+          <button id="setlist-filter-public" onclick="setSetlistFilter('public')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:earth" style="font-size:14px;color:#34d399;"></iconify-icon><span style="flex:1;">Public</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="public"></iconify-icon>
           </button>
-          <button onclick="setSetlistFilter('private')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:lock" style="font-size:14px;color:#fb923c;"></iconify-icon>Private
+          <button id="setlist-filter-private" onclick="setSetlistFilter('private')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:lock" style="font-size:14px;color:#fb923c;"></iconify-icon><span style="flex:1;">Private</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="private"></iconify-icon>
           </button>
-          <button onclick="setSetlistFilter('custom')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:#818cf8;"></iconify-icon>Custom Group
+          <button id="setlist-filter-custom" onclick="setSetlistFilter('custom')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:#818cf8;"></iconify-icon><span style="flex:1;">Custom Group</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="custom"></iconify-icon>
           </button>
         </div>
       </div>
@@ -2040,14 +2094,22 @@ function toggleSongFilterMenu() {
   const menu = document.getElementById('song-filter-menu');
   const isOpen = menu.style.display === 'block';
   closeAllDropdowns();
-  if (!isOpen) menu.style.display = 'block';
+  if (!isOpen) { menu.style.display = 'block'; _updateSongMenuMarkers(); }
 }
 
 function setSongSort(mode) {
   currentSongSort = mode;
   const label = document.getElementById('song-filter-label');
-  const labelMap = { az: 'A–Z', za: 'Z–A', artist: 'By Artist', favourites: '♥ Favourites' };
+  const labelMap = { az: 'A–Z', za: 'Z–A', artist: 'By Artist', favourites: '♥ Favs' };
   if (label) label.textContent = labelMap[mode] || mode;
+  // Mark filter button active if not default
+  const btn = document.getElementById('song-filter-btn');
+  if (btn) btn.classList.toggle('has-active-filter', mode !== 'az');
+  // Mark active menu item
+  ['az','za','artist','favourites'].forEach(m => {
+    const el = document.getElementById('song-sort-' + m);
+    if (el) el.classList.toggle('filter-menu-item-active', m === mode);
+  });
   toggleSongFilterMenu();
   renderSongsList();
 }
@@ -2056,24 +2118,52 @@ function toggleSetlistFilterMenu() {
   const menu = document.getElementById('setlist-filter-menu');
   const isOpen = menu.style.display === 'block';
   closeAllDropdowns();
-  if (!isOpen) menu.style.display = 'block';
+  if (!isOpen) { menu.style.display = 'block'; _updateSetlistMenuMarkers(); }
+}
+
+function _updateSetlistFilterBtn() {
+  const btn = document.getElementById('setlist-filter-btn');
+  if (!btn) return;
+  const sortIsDefault = currentSetlistSort === 'newest';
+  const filterIsDefault = currentSetlistFilter === 'all';
+  btn.classList.toggle('has-active-filter', !sortIsDefault || !filterIsDefault);
+  // Update label to show most relevant active state
+  const label = document.getElementById('setlist-filter-label');
+  if (!label) return;
+  const sortMap = { newest: 'Newest', oldest: 'Oldest', az: 'A–Z', za: 'Z–A' };
+  const filterMap = { all: '', public: 'Public', private: 'Private', custom: 'Custom' };
+  if (!filterIsDefault) label.textContent = filterMap[currentSetlistFilter];
+  else label.textContent = sortMap[currentSetlistSort] || 'Newest';
+}
+
+function _updateSetlistMenuMarkers() {
+  // Sort checkmarks
+  document.querySelectorAll('#setlist-filter-menu .sort-chk').forEach(el => {
+    el.style.opacity = el.dataset.for === currentSetlistSort ? '1' : '0';
+  });
+  // Filter checkmarks
+  document.querySelectorAll('#setlist-filter-menu .filter-chk').forEach(el => {
+    el.style.opacity = el.dataset.for === currentSetlistFilter ? '1' : '0';
+  });
+}
+
+function _updateSongMenuMarkers() {
+  ['az','za','artist','favourites'].forEach(m => {
+    const chk = document.getElementById('song-sort-' + m + '-chk');
+    if (chk) chk.style.opacity = m === currentSongSort ? '1' : '0';
+  });
 }
 
 function setSetlistSort(mode) {
   currentSetlistSort = mode;
-  const label = document.getElementById('setlist-filter-label');
-  const labelMap = { newest: 'Newest', oldest: 'Oldest', az: 'A–Z', za: 'Z–A' };
-  if (label) label.textContent = labelMap[mode] || mode;
+  _updateSetlistFilterBtn();
   toggleSetlistFilterMenu();
   renderSetlistsList();
 }
 
 function setSetlistFilter(filter) {
   currentSetlistFilter = filter;
-  const label = document.getElementById('setlist-filter-label');
-  const filterLabelMap = { all: 'All', public: 'Public', private: 'Private', custom: 'Custom' };
-  if (label && filter !== 'all') label.textContent = filterLabelMap[filter];
-  else if (label) label.textContent = 'Newest';
+  _updateSetlistFilterBtn();
   toggleSetlistFilterMenu();
   renderSetlistsList();
 }
@@ -2154,16 +2244,16 @@ function renderSongsList() {
           <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
           <p style="color:var(--text-muted);font-size:12px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.artist||'')}</p>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          ${displayKey ? `<span style="background:var(--accent-glow);color:var(--chords-color);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">${escHtml(displayKey)}</span>` : ''}
-          <button onclick="event.stopPropagation();toggleFavourite('${song.id}')" style="background:transparent;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;" title="${fav ? 'Remove from Favourites' : 'Add to Favourites'}">
-            <iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:18px;color:${fav ? '#ef4444' : '#6b7280'};"></iconify-icon>
+        <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
+          ${displayKey ? `<span style="background:var(--accent-glow);color:var(--chords-color);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:4px;">${escHtml(displayKey)}</span>` : ''}
+          <button onclick="event.stopPropagation();toggleFavourite('${song.id}')" class="list-icon-btn" title="${fav ? 'Remove from Favourites' : 'Add to Favourites'}">
+            <iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:18px;color:${fav ? '#ef4444' : 'var(--text-muted)'};"></iconify-icon>
           </button>
-          ${canDeleteSong() && !isAdmin ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:16px;"></iconify-icon></button>` : ''}
+          ${canDeleteSong() && !isAdmin ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" class="list-icon-btn danger" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       </div>
     </div>`;
-    if (!isAdmin) return `<div style="margin-bottom:6px;">${cardInner}</div>`;
+    if (!isAdmin) return cardInner;
     return `
     <div class="song-swipe-wrapper" data-song-id="${song.id}">
       <div class="song-swipe-bg-edit">
@@ -2974,18 +3064,18 @@ function renderSetlistsList() {
         : `<span class="privacy-badge badge-public">🌐 Public</span>`;
     return `
     <div class="setlist-card" onclick="openSetlistDetail('${setlist.id}')" style="cursor:pointer;">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
-          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;">${escHtml(setlist.name)}</p>
+          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(setlist.name)}</p>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;">
             ${badgeHtml}
             <span style="color:var(--text-muted);font-size:11px;">${setlist.songs ? setlist.songs.length : 0} songs</span>
           </div>
           ${setlist.isCustomGroup && setlist.whitelist && setlist.whitelist.length > 0 ? renderWhitelistAvatars(setlist.whitelist) : ''}
         </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
-          ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" class="btn-danger btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;" title="Delete Setlist"><iconify-icon icon="mdi:delete" style="font-size:14px;"></iconify-icon></button>` : ''}
+        <div style="display:flex;align-items:center;gap:0px;flex-shrink:0;">
+          ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" class="list-icon-btn" title="${setlist.isPrivate ? 'Make Public' : 'Make Private'}"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" class="list-icon-btn danger" title="Delete Setlist"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       </div>
     </div>`;
@@ -3063,15 +3153,15 @@ function renderSetlistDetail(setlist) {
 
     </div>
     <div id="setlist-songs-container" style="display:flex;flex-direction:column;gap:var(--list-gap);">
-      ${songs.length === 0 ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No songs in this setlist yet.</p>' : songs.map((song, i) => `
-        <div class="setlist-song-item" onclick="openSongSheet('${song.id}', true)" style="cursor:pointer;">
-          <span style="color:var(--text-muted);font-size:12px;width:20px;text-align:center;">${i+1}</span>
+    ${songs.length === 0 ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">No songs in this setlist yet.</p>' : songs.map((song, i) => `
+        <div class="setlist-song-item" onclick="openSongSheet('${song.id}', true)">
+          <span style="color:var(--text-muted);font-size:12px;width:20px;text-align:center;flex-shrink:0;">${i+1}</span>
           <div style="flex:1;min-width:0;">
             <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
             <p style="color:var(--text-muted);font-size:11px;margin:2px 0 0;">${escHtml(song.artist||'')}</p>
           </div>
-          ${isTech ? `<button onclick="event.stopPropagation();copySetlistSong('${song.id}')" title="Copy" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;display:flex;align-items:center;" ><iconify-icon icon="mdi:content-copy" style="font-size:16px;"></iconify-icon></button>` : ''}
-          ${canEdit ? `<button onclick="event.stopPropagation();removeSongFromSetlist('${song.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${isTech ? `<button onclick="event.stopPropagation();copySetlistSong('${song.id}')" class="list-icon-btn" title="Copy"><iconify-icon icon="mdi:content-copy" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canEdit ? `<button onclick="event.stopPropagation();removeSongFromSetlist('${song.id}')" class="list-icon-btn danger" title="Remove"><iconify-icon icon="mdi:close" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       `).join('')}
     </div>
@@ -3469,7 +3559,7 @@ function renderUsersList() {
     const canEdit = (role === 'Admin' || role === 'Sub-Admin') && !isAdminUser;
     const canDelete = role === 'Admin' && !isAdminUser;
     return `
-    <div class="user-row" onclick="openUserDetail('${u.uid}')" style="cursor:pointer;">
+    <div class="user-row" onclick="openUserDetail('${u.uid}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;">
       <img src="${escHtml(u.photoURL||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
       <div style="flex:1;min-width:0;">
         <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
@@ -3477,12 +3567,12 @@ function renderUsersList() {
           ${renderUserBadges(u)}
         </div>
       </div>
-      ${canEdit ? `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
-        <button onclick="openUserEditModal('${u.uid}')" class="btn-secondary btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;">
-          <iconify-icon icon="mdi:pencil" style="font-size:14px;"></iconify-icon>
+      ${canEdit ? `<div style="display:flex;align-items:center;gap:0;flex-shrink:0;" onclick="event.stopPropagation()">
+        <button onclick="openUserEditModal('${u.uid}')" class="list-icon-btn" title="Edit User">
+          <iconify-icon icon="mdi:pencil" style="font-size:18px;"></iconify-icon>
         </button>
-        ${canDelete ? `<button onclick="deleteUser('${u.uid}')" class="btn-danger btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;">
-          <iconify-icon icon="mdi:delete" style="font-size:14px;"></iconify-icon>
+        ${canDelete ? `<button onclick="deleteUser('${u.uid}')" class="list-icon-btn danger" title="Delete User">
+          <iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon>
         </button>` : ''}
       </div>` : ''}
     </div>`;
@@ -3572,12 +3662,12 @@ function openUserDetail(uid) {
           ${renderUserBadges(u)}
         </div>
       </div>
-      ${canEdit ? `<div style="display:flex;gap:6px;flex-shrink:0;">
-        <button onclick="openUserEditModal('${u.uid}')" class="btn-secondary btn-text" style="padding:6px 10px;">
-          <iconify-icon icon="mdi:pencil" style="font-size:14px;"></iconify-icon>
+      ${canEdit ? `<div style="display:flex;gap:2px;flex-shrink:0;">
+        <button onclick="openUserEditModal('${u.uid}')" class="list-icon-btn" title="Edit">
+          <iconify-icon icon="mdi:pencil" style="font-size:18px;"></iconify-icon>
         </button>
-        ${canDelete ? `<button onclick="deleteUser('${u.uid}')" class="btn-danger btn-text" style="padding:6px 10px;">
-          <iconify-icon icon="mdi:delete" style="font-size:14px;"></iconify-icon>
+        ${canDelete ? `<button onclick="deleteUser('${u.uid}')" class="list-icon-btn danger" title="Delete">
+          <iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon>
         </button>` : ''}
       </div>` : ''}
     </div>
@@ -3935,7 +4025,7 @@ function renderProfileSetlists() {
   if (empty) empty.style.display = 'none';
   if (container) container.innerHTML = mySetlists.map(s => `
     <div class="setlist-card" style="cursor:pointer;" onclick="closeProfileAndOpenSetlist('${s.id}')">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
           <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -3944,7 +4034,7 @@ function renderProfileSetlists() {
             <span style="color:var(--text-muted);font-size:11px;">${s.songs ? s.songs.length : 0} songs</span>
           </div>
         </div>
-        <button onclick="event.stopPropagation();deleteSetlist('${s.id}')" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
+        <button onclick="event.stopPropagation();deleteSetlist('${s.id}')" class="list-icon-btn danger" title="Delete Setlist">
           <iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon>
         </button>
       </div>
