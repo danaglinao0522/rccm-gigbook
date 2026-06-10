@@ -41,7 +41,7 @@
       --meta-font-size: 14px;
       --app-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       /* Unified view side padding — used by ALL tab content areas */
-      --view-px: 14px;
+      --view-px: 6px;
     }
     html, body {
       overscroll-behavior-y: contain;
@@ -3022,7 +3022,11 @@ function handleCameraCapture(input) {
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 4096,
@@ -3093,13 +3097,25 @@ async function _readPdfAsText(file) {
   return pages.join('\n\n').replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\x00/g, '');
 }
 
+function _resetDragZone() {
+  const dragZoneEl = document.getElementById('drag-zone');
+  if (!dragZoneEl) return;
+  dragZoneEl.onclick = () => document.getElementById('file-input').click();
+  dragZoneEl.innerHTML = `
+    <iconify-icon icon="mdi:file-upload" style="font-size:32px;margin-bottom:8px;"></iconify-icon>
+    <p style="margin:0;font-size:13px;">Drop a .txt, .pdf, or image file here, or tap to browse</p>
+    <input type="file" id="file-input" accept=".txt,.pdf,image/*" style="display:none;" onchange="handleFileInput(this)" />`;
+}
+
 function handleFileInput(input) {
   const file = input.files[0];
   if (!file) return;
-  input.value = '';
+  // Clear AFTER we've captured the file reference so it can be re-used immediately
+  setTimeout(() => { try { input.value = ''; } catch(e) {} }, 300);
 
   const dragZoneEl = document.getElementById('drag-zone');
   if (dragZoneEl) {
+    dragZoneEl.onclick = null; // prevent double-trigger while processing
     dragZoneEl.innerHTML = `<div class="spinner" style="margin:0 auto;"></div><p style="margin:8px 0 0;font-size:13px;color:var(--text-muted);">Reading file…</p>`;
   }
 
@@ -3114,6 +3130,7 @@ function handleFileInput(input) {
       document.getElementById('new-song-content').value = text;
       _updateSaveSongBtn();
     }).catch(() => {
+      _resetDragZone();
       setIntakeMode('text');
       document.getElementById('new-song-content').value = '';
       showAlert('PDF Error', 'Could not read the PDF. Try saving it as a .txt file first.', 'mdi:alert-circle');
@@ -3133,7 +3150,11 @@ function handleFileInput(input) {
         const mediaType = file.type || 'image/jpeg';
         const response = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
             max_tokens: 4096,
@@ -3154,10 +3175,7 @@ function handleFileInput(input) {
         _updateSaveSongBtn();
       } catch(err) {
         console.error('Image OCR error:', err);
-        // Reset drag zone
-        if (dragZoneEl) {
-          dragZoneEl.innerHTML = `<iconify-icon icon="mdi:file-upload" style="font-size:32px;margin-bottom:8px;"></iconify-icon><p style="margin:0;font-size:13px;">Drop a file here, or tap to browse</p><input type="file" id="file-input" accept=".txt,.pdf,image/*" style="display:none;" onchange="handleFileInput(this)" />`;
-        }
+        _resetDragZone();
         showAlert('Image Error', 'Could not extract text from the image. Please try a .txt file instead.', 'mdi:alert-circle');
       }
     };
@@ -3174,6 +3192,7 @@ function handleFileInput(input) {
     _updateSaveSongBtn();
   };
   reader.onerror = () => {
+    _resetDragZone();
     setIntakeMode('text');
     document.getElementById('new-song-content').value = '';
     showAlert('File Error', 'Could not read the file. Please try a plain .txt file.', 'mdi:alert-circle');
