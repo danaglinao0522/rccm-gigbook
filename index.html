@@ -80,7 +80,7 @@
     .tab-panel.active { display: block; }
     .tab-panel.active.tab-visible { opacity: 1; transform: translateY(0); }
     #app-root { display: none; }
-    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 4px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color:var(--text-muted); gap: 3px; background: transparent; border: none; position: relative; }
+    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 8px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color:var(--text-muted); gap: 3px; background: transparent; border: none; position: relative; }
     .bottom-nav-btn:active { transform: scale(0.92); }
     .bottom-nav-btn.active { color: var(--chords-color); }
     .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--chords-color); border-radius: 0 0 3px 3px; box-shadow: 0 0 8px var(--accent-glow); }
@@ -94,16 +94,18 @@
     .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 6px; }
     .song-swipe-bg-edit { position: absolute; inset: 0; background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%); display: flex; align-items: center; padding-left: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
     .song-swipe-bg-delete { position: absolute; inset: 0; background: linear-gradient(270deg, #dc2626 0%, #991b1b 100%); display: flex; align-items: center; justify-content: flex-end; padding-right: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+    .song-swipe-bg-edit span, .song-swipe-bg-delete span { color: #fff; font-size: 14px; font-weight: 800; letter-spacing: 0.04em; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    .song-swipe-bg-edit iconify-icon, .song-swipe-bg-delete iconify-icon { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
     .song-swipe-item { position: relative; z-index: 1; touch-action: pan-y; will-change: transform; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); background: var(--surface-1); border-radius: 12px; }
     .song-card { background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: background 0.15s; }
     .song-card:hover { background: var(--surface-2); }
     .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
-    .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 16px; transition: height 0.05s linear, max-height 0.05s linear; }
-    .modal-sheet.center-card { border-radius: 16px; max-height: 88vh; }
-    .modal-sheet.key-modal { max-height: 55vh; }
-    .modal-handle { width: 40px; height: 4px; background: var(--border-subtle); border-radius: 2px; margin: 0 auto 12px; cursor: ns-resize; touch-action: none; }
-    .modal-handle:hover { background: var(--chords-color); opacity: 0.7; }
+    .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; min-height: 280px; max-height: 92vh; overflow-y: auto; padding: 16px; transition: height 0.05s linear, max-height 0.05s linear; }
+    .modal-sheet.center-card { border-radius: 16px; max-height: 88vh; min-height: unset; }
+    .modal-sheet.key-modal { max-height: 55vh; min-height: unset; }
+    .modal-handle { width: 48px; height: 5px; background: var(--border-subtle); border-radius: 3px; margin: 0 auto 14px; cursor: ns-resize; touch-action: none; padding: 10px 20px; box-sizing: content-box; margin-top: -10px; background-clip: content-box; }
+    .modal-handle:hover { background-color: var(--chords-color); background-clip: content-box; opacity: 0.7; }
     /* Resizable modal sheet */
     .modal-sheet.resizable { transition: none; }
     .role-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
@@ -131,10 +133,10 @@
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--chords-color); cursor: pointer; }
     .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 10px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s; }
     .drag-zone.dragover { border-color: var(--chords-color); color: var(--chords-color); }
-    .btn-primary { background: var(--chords-color); color: #000; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s; }
+    .btn-primary { background: var(--chords-color); color: #000; border: none; border-radius: 10px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s; min-height: 44px; }
     .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 16px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.15s; }
-    .btn-danger { background: #dc2626; color:var(--lyrics-color); border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); }
+    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 11px 18px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.15s; min-height: 44px; }
+    .btn-danger { background: #dc2626; color:var(--lyrics-color); border: none; border-radius: 10px; padding: 11px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); min-height: 44px; }
     .input-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
     .input-field:focus { border-color: var(--chords-color); }
     .select-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
@@ -164,7 +166,7 @@
       .modal-sheet { max-width: 520px; }
       .modal-sheet.center-card { max-width: 480px; }
       #bottom-nav { justify-content: center; }
-      .bottom-nav-btn { max-width: 100px; }
+      .bottom-nav-btn { max-width: 90px; }
     }
 
     /* Desktop (1024px+) */
@@ -226,6 +228,36 @@
     .badge-private { background: #431407; color: #fb923c; }
     .badge-custom { background: #1e1b4b; color: #818cf8; }
     textarea.input-field { resize: vertical; min-height: 120px; }
+    :root {
+      --btn-primary-bg: var(--chords-color);
+      --btn-primary-text: #000;
+      --nav-shadow: 0 1px 8px rgba(0,0,0,0.25);
+      --nav-text-color: var(--lyrics-color);
+      --nav-icon-color: var(--chords-color);
+    }
+    /* Apply component overrides */
+    .btn-primary { background: var(--btn-primary-bg) !important; color: var(--btn-primary-text) !important; }
+    /* Line layout mode */
+    body.layout-line .song-card,
+    body.layout-line .setlist-card,
+    body.layout-line .user-row {
+      border-radius: 0 !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-top: none !important;
+      margin-bottom: 0 !important;
+    }
+    body.layout-line .songs-list-wrap,
+    body.layout-line .setlists-list-wrap,
+    body.layout-line .users-list-wrap {
+      gap: 0 !important;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    body.layout-line .song-swipe-wrapper { border-radius: 0 !important; margin-bottom: 0 !important; }
+    body.layout-line .song-swipe-item { border-radius: 0 !important; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
     .camera-btn { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 13px; }
     .progress-bar-track { width: 100%; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
     .progress-bar-fill { height: 100%; background: var(--chords-color); border-radius: 2px; transition: width 0.1s linear; }
@@ -414,7 +446,7 @@
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
-  <div id="top-nav" style="position:fixed;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);box-shadow:0 2px 16px rgba(0,0,0,0.4);padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;margin:0;box-sizing:border-box;flex-shrink:0;">
+  <div id="top-nav" style="position:fixed;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);box-shadow:0 1px 8px rgba(0,0,0,0.25);padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;margin:0;box-sizing:border-box;flex-shrink:0;">
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
     <!-- Back button (shown when drilling into song/setlist/user) -->
@@ -521,7 +553,10 @@
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="setlist-filter-label">Newest</span>
         </button>
-        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:140px;z-index:200;">
+        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:160px;z-index:200;">
+          <div style="padding:4px 8px 6px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
+            <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort</span>
+          </div>
           <button onclick="setSetlistSort('newest')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Newest First
           </button>
@@ -533,6 +568,21 @@
           </button>
           <button onclick="setSetlistSort('za')" style="display:block;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;margin-right:6px;vertical-align:middle;"></iconify-icon>Z–A
+          </button>
+          <div style="padding:6px 8px 4px;border-top:1px solid var(--border-color);margin-top:4px;">
+            <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter</span>
+          </div>
+          <button onclick="setSetlistFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:playlist-music" style="font-size:14px;color:var(--text-secondary);"></iconify-icon>All Types
+          </button>
+          <button onclick="setSetlistFilter('public')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:earth" style="font-size:14px;color:#34d399;"></iconify-icon>Public
+          </button>
+          <button onclick="setSetlistFilter('private')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:lock" style="font-size:14px;color:#fb923c;"></iconify-icon>Private
+          </button>
+          <button onclick="setSetlistFilter('custom')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:#818cf8;"></iconify-icon>Custom Group
           </button>
         </div>
       </div>
@@ -562,7 +612,7 @@
     </div>
 
     <!-- ADMIN PANEL TAB -->
-    <div id="tab-admin" class="tab-panel" style="padding:12px;">
+    <div id="tab-admin" class="tab-panel" style="padding:12px;padding-top:16px;">
       <!-- Sync broadcast toast -->
       <div id="sync-toast" style="display:none;position:fixed;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--surface-1);border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
         <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
@@ -647,64 +697,155 @@
           </div><!-- /role-limits-body -->
         </div>
 
-        <!-- THEME PRESETS — Horizontal Carousel -->
+        <!-- THEME PRESETS — Collapsible -->
         <div>
-          <div class="section-label">Theme Presets</div>
-          <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
-            <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
-              <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
-                style="background:var(--canvas-bg);border:2px solid var(--chords-color);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(251,191,36,0.3);">
-                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#FBBF24;"></div><div style="width:12px;height:12px;border-radius:3px;background:#FFFFFF;"></div></div>
-                <span style="color:#FBBF24;font-size:11px;font-weight:700;white-space:nowrap;">Gigbook Classic</span>
-              </button>
-              <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
-                style="background:#1E293B;border:2px solid #334155;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#34D399;"></div><div style="width:12px;height:12px;border-radius:3px;background:#F8FAFC;"></div></div>
-                <span style="color:#34D399;font-size:11px;font-weight:700;white-space:nowrap;">Nordic Studio</span>
-              </button>
-              <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
-                style="background:#FDFBF7;border:2px solid #e5e0d5;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#B91C1C;"></div><div style="width:12px;height:12px;border-radius:3px;background:#1F2937;"></div></div>
-                <span style="color:#B91C1C;font-size:11px;font-weight:700;white-space:nowrap;">Vintage Parchment</span>
-              </button>
-              <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
-                style="background:#0F172A;border:2px solid #1e293b;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#06B6D4;"></div><div style="width:12px;height:12px;border-radius:3px;background:#EC4899;"></div></div>
-                <span style="color:#06B6D4;font-size:11px;font-weight:700;white-space:nowrap;">Cyber Neon</span>
-              </button>
-              <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
-                style="background:#1F2937;border:2px solid #374151;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#38BDF8;"></div><div style="width:12px;height:12px;border-radius:3px;background:#9CA3AF;"></div></div>
-                <span style="color:#38BDF8;font-size:11px;font-weight:700;white-space:nowrap;">Minimalist Charcoal</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('theme-presets')">
+            <div class="section-label" style="margin-bottom:0;">Theme Presets</div>
+            <iconify-icon id="theme-presets-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
+          </div>
+          <div id="theme-presets-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:200px;opacity:1;">
+            <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
+              <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
+                <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
+                  style="background:var(--canvas-bg);border:2px solid var(--chords-color);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(251,191,36,0.3);">
+                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#FBBF24;"></div><div style="width:12px;height:12px;border-radius:3px;background:#FFFFFF;"></div></div>
+                  <span style="color:#FBBF24;font-size:11px;font-weight:700;white-space:nowrap;">Gigbook Classic</span>
+                </button>
+                <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
+                  style="background:#1E293B;border:2px solid #334155;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#34D399;"></div><div style="width:12px;height:12px;border-radius:3px;background:#F8FAFC;"></div></div>
+                  <span style="color:#34D399;font-size:11px;font-weight:700;white-space:nowrap;">Nordic Studio</span>
+                </button>
+                <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
+                  style="background:#FDFBF7;border:2px solid #e5e0d5;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#B91C1C;"></div><div style="width:12px;height:12px;border-radius:3px;background:#1F2937;"></div></div>
+                  <span style="color:#B91C1C;font-size:11px;font-weight:700;white-space:nowrap;">Vintage Parchment</span>
+                </button>
+                <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
+                  style="background:#0F172A;border:2px solid #1e293b;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#06B6D4;"></div><div style="width:12px;height:12px;border-radius:3px;background:#EC4899;"></div></div>
+                  <span style="color:#06B6D4;font-size:11px;font-weight:700;white-space:nowrap;">Cyber Neon</span>
+                </button>
+                <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
+                  style="background:#1F2937;border:2px solid #374151;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#38BDF8;"></div><div style="width:12px;height:12px;border-radius:3px;background:#9CA3AF;"></div></div>
+                  <span style="color:#38BDF8;font-size:11px;font-weight:700;white-space:nowrap;">Minimalist Charcoal</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOM THEME — Collapsible, full-width advanced -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('custom-theme')">
+            <div class="section-label" style="margin-bottom:0;">Custom Theme</div>
+            <iconify-icon id="custom-theme-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
+          </div>
+          <div id="custom-theme-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:1000px;opacity:1;">
+            <div style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:14px;">
+
+              <!-- Base Colors -->
+              <div>
+                <div class="section-label" style="margin-bottom:8px;">Base Colors</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-bg" value="#121212" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Background</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-lyrics" value="#FFFFFF" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Lyrics / Text</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Chords / Accent</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div>
+                <div class="section-label" style="margin-bottom:8px;">Buttons</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-btn-bg" value="#FBBF24" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Button Background</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-btn-text" value="#000000" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Button Text</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cards & Lists -->
+              <div>
+                <div class="section-label" style="margin-bottom:8px;">Cards &amp; Lists</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-card-bg" value="#1e1e1e" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Card Background</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-list-bg" value="#2a2a2a" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">List Item Color</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Navbar -->
+              <div>
+                <div class="section-label" style="margin-bottom:8px;">Navbar</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-nav-bg" value="#0e0e0e" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Nav Background</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-nav-text" value="#FFFFFF" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Nav Text</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-nav-icon" value="#FBBF24" oninput="applyCustomTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Nav Icon (Active)</label>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:4px;">
+                    <label style="color:var(--text-secondary);font-size:11px;">Shadow Opacity: <span id="nav-shadow-label">40%</span></label>
+                    <input type="range" min="0" max="100" value="40" class="autoscroll-slider" id="custom-nav-shadow" oninput="document.getElementById('nav-shadow-label').textContent=this.value+'%';applyCustomTheme();" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Layout Toggle -->
+              <div>
+                <div class="section-label" style="margin-bottom:8px;">List Layout</div>
+                <div style="display:flex;gap:8px;">
+                  <button id="layout-card-btn" onclick="setListLayout('card')"
+                    style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--chords-color);background:var(--accent-glow);color:var(--chords-color);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;">
+                    <iconify-icon icon="mdi:card-multiple" style="font-size:16px;"></iconify-icon>Card Layout
+                  </button>
+                  <button id="layout-line-btn" onclick="setListLayout('line')"
+                    style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--border-color);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;">
+                    <iconify-icon icon="mdi:format-list-bulleted" style="font-size:16px;"></iconify-icon>Line Layout
+                  </button>
+                </div>
+              </div>
+
+              <button class="btn-primary" onclick="saveCustomTheme()" style="width:100%;">
+                <iconify-icon icon="mdi:palette" style="font-size:16px;margin-right:6px;vertical-align:middle;"></iconify-icon>Apply &amp; Save Theme
               </button>
             </div>
           </div>
         </div>
 
-        <!-- CUSTOM THEME + TYPOGRAPHY — Side by side -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;">
-          <!-- Custom Theme -->
-          <div>
-            <div class="section-label">Custom Theme</div>
-            <div style="background:var(--surface-1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
-              <div class="color-input-wrapper">
-                <input type="color" id="custom-bg" value="#121212" oninput="applyCustomTheme()" />
-                <label style="color:var(--text-secondary);font-size:12px;">Background</label>
-              </div>
-              <div class="color-input-wrapper">
-                <input type="color" id="custom-lyrics" value="#FFFFFF" oninput="applyCustomTheme()" />
-                <label style="color:var(--text-secondary);font-size:12px;">Lyrics</label>
-              </div>
-              <div class="color-input-wrapper">
-                <input type="color" id="custom-chords" value="#FBBF24" oninput="applyCustomTheme()" />
-                <label style="color:var(--text-secondary);font-size:12px;">Chords</label>
-              </div>
-              <button class="btn-primary" onclick="saveCustomTheme()" style="font-size:12px;padding:7px 10px;margin-top:4px;">Apply & Save</button>
-            </div>
+        <!-- TYPOGRAPHY — Collapsible -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('typography')">
+            <div class="section-label" style="margin-bottom:0;">Typography</div>
+            <iconify-icon id="typography-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
           </div>
-          <!-- Typography -->
-          <div>
-            <div class="section-label">Typography</div>
+          <div id="typography-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:600px;opacity:1;">
             <div style="background:var(--surface-1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
               <div>
                 <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Font</label>
@@ -736,7 +877,7 @@
   </div>
 
   <!-- BOTTOM NAV -->
-  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 24px rgba(0,0,0,0.4);">
+  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 12px rgba(0,0,0,0.25);">
     <!-- Dynamically built by buildNav() -->
   </div>
 </div>
@@ -856,11 +997,11 @@
       <div style="display:flex;gap:10px;">
         <div style="flex:1;min-width:0;">
           <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Song Title *</label>
-          <input type="text" class="input-field" id="new-song-title" placeholder="Enter song title" />
+          <input type="text" class="input-field" id="new-song-title" placeholder="Enter song title" oninput="_updateSaveSongBtn()" />
         </div>
         <div style="flex:1;min-width:0;">
           <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Artist *</label>
-          <input type="text" class="input-field" id="new-song-artist" placeholder="Enter artist name" />
+          <input type="text" class="input-field" id="new-song-artist" placeholder="Enter artist name" oninput="_updateSaveSongBtn()" />
         </div>
       </div>
       <div>
@@ -889,7 +1030,7 @@
       <div id="intake-text-area" style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <textarea class="input-field" id="new-song-content"
           placeholder="Paste chord sheet here...&#10;&#10;VERSE 1&#10;G    D    Em   C&#10;Great is Thy faithfulness..."
-          style="flex:1;min-height:120px;font-family:monospace;font-size:13px;resize:none;"></textarea>
+          style="flex:1;min-height:100px;height:1px;font-family:monospace;font-size:13px;resize:none;"></textarea>
       </div>
 
       <!-- Add mode: file intake -->
@@ -904,15 +1045,15 @@
 
       <!-- Add mode: camera intake -->
       <div id="intake-camera-area" style="display:none;flex:1;overflow-y:auto;min-height:80px;">
-        <div style="background:var(--surface-1);border-radius:10px;padding:16px;text-align:center;">
-          <button class="camera-btn" style="width:100%;justify-content:center;" onclick="openCamera()">
-            <iconify-icon icon="mdi:camera" style="font-size:20px;"></iconify-icon>
-            Open Camera for OCR
+        <div style="background:var(--surface-1);border-radius:10px;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;">
+          <iconify-icon icon="mdi:camera" style="font-size:40px;color:var(--chords-color);"></iconify-icon>
+          <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;">Your device's camera will open to capture a chord sheet. The image text will be extracted and pasted into the song content field.</p>
+          <input type="file" id="camera-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handleCameraCapture(this)" />
+          <button class="btn-primary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="document.getElementById('camera-file-input').click()">
+            <iconify-icon icon="mdi:camera" style="font-size:18px;"></iconify-icon>
+            Open Camera
           </button>
-          <video id="camera-video" style="display:none;width:100%;border-radius:8px;margin-top:10px;" autoplay playsinline></video>
-          <canvas id="camera-canvas" style="display:none;"></canvas>
-          <button id="capture-btn" style="display:none;margin-top:8px;" class="btn-primary btn-text" onclick="capturePhoto()">Capture & Extract Text</button>
-          <div id="ocr-result" style="margin-top:10px;color:var(--text-secondary);font-size:12px;"></div>
+          <div id="ocr-result" style="color:var(--text-secondary);font-size:12px;width:100%;"></div>
         </div>
       </div>
 
@@ -926,8 +1067,8 @@
     </div>
 
     <!-- Fixed footer -->
-    <div style="flex-shrink:0;padding-top:10px;">
-      <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;">Save Song</button>
+    <div style="flex-shrink:0;padding-top:10px;margin-top:auto;">
+      <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;" disabled>Save Song</button>
     </div>
 
   </div>
@@ -1024,17 +1165,24 @@
       </div>
       <div>
         <div class="section-label" style="margin-bottom:8px;">Instruments</div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;">
-          <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
-            <input type="checkbox" class="checkbox-custom" id="edit-guitar"> Guitar
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
-            <input type="checkbox" class="checkbox-custom" id="edit-keyboard"> Keyboard
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
-            <input type="checkbox" class="checkbox-custom" id="edit-djembe"> Djembe
-          </label>
+        <div id="edit-instrument-toggles" style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button onclick="toggleEditInstrument('Guitar')" id="edit-inst-btn-Guitar"
+            style="padding:6px 14px;border-radius:999px;border:2px solid var(--border-color);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px;">
+            <iconify-icon icon="mdi:guitar-electric" style="font-size:14px;"></iconify-icon>Guitar
+          </button>
+          <button onclick="toggleEditInstrument('Keyboard')" id="edit-inst-btn-Keyboard"
+            style="padding:6px 14px;border-radius:999px;border:2px solid var(--border-color);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px;">
+            <iconify-icon icon="mdi:piano" style="font-size:14px;"></iconify-icon>Keyboard
+          </button>
+          <button onclick="toggleEditInstrument('Djembe')" id="edit-inst-btn-Djembe"
+            style="padding:6px 14px;border-radius:999px;border:2px solid var(--border-color);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px;">
+            <iconify-icon icon="mdi:drum" style="font-size:14px;"></iconify-icon>Djembe
+          </button>
         </div>
+        <!-- Hidden checkboxes for form compat -->
+        <input type="checkbox" id="edit-guitar" style="display:none;">
+        <input type="checkbox" id="edit-keyboard" style="display:none;">
+        <input type="checkbox" id="edit-djembe" style="display:none;">
       </div>
       <div>
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Max Setlist Override</label>
@@ -1192,6 +1340,7 @@ let currentSongSort = 'az';
 let songSearchQuery = '';
 let setlistSearchQuery = '';
 let currentSetlistSort = 'newest';
+let currentSetlistFilter = 'all';
 let deferredInstallPrompt = null;
 let swipeStartX = 0;
 let swipeStartY = 0;
@@ -1919,6 +2068,16 @@ function setSetlistSort(mode) {
   renderSetlistsList();
 }
 
+function setSetlistFilter(filter) {
+  currentSetlistFilter = filter;
+  const label = document.getElementById('setlist-filter-label');
+  const filterLabelMap = { all: 'All', public: 'Public', private: 'Private', custom: 'Custom' };
+  if (label && filter !== 'all') label.textContent = filterLabelMap[filter];
+  else if (label) label.textContent = 'Newest';
+  toggleSetlistFilterMenu();
+  renderSetlistsList();
+}
+
 function filterSetlists() {
   setlistSearchQuery = (document.getElementById('setlist-search-input')?.value || '').toLowerCase();
   renderSetlistsList();
@@ -2087,7 +2246,6 @@ function initSongSwipe() {
 }
 
 async function deleteSong(id) {
-  if (!confirm('Delete this song?')) return;
   try { await db.collection('songs').doc(id).delete(); } catch(e) { console.error(e); }
 }
 
@@ -2589,6 +2747,16 @@ function getSortedSongs() {
 // CREATE SONG MODAL
 // ============================================================
 let currentIntakeMode = 'text';
+function _updateSaveSongBtn() {
+  const btn = document.getElementById('save-song-btn');
+  if (!btn) return;
+  const modal = document.getElementById('create-song-modal');
+  const editId = modal?.dataset?.editId || '';
+  const title = (document.getElementById('new-song-title')?.value || '').trim();
+  const artist = (document.getElementById('new-song-artist')?.value || '').trim();
+  btn.disabled = !(title && artist);
+}
+
 function openCreateSongModal() {
   const role = currentUserProfile?.role || '';
   const canAdd = role === 'Admin' || role === 'Sub-Admin' || role === 'Lead' || currentUserProfile?.canAddSongs === true;
@@ -2611,6 +2779,7 @@ function openCreateSongModal() {
   modal.style.display = 'flex';
   setIntakeMode('text');
   pushState();
+  _updateSaveSongBtn();
 }
 
 function openEditSongModal(songId) {
@@ -2640,6 +2809,7 @@ function openEditSongModal(songId) {
   if (saveBtn) saveBtn.textContent = 'Update Song';
   modal.style.display = 'flex';
   pushState();
+  _updateSaveSongBtn();
 }
 function closeCreateSongModal() {
   document.getElementById('create-song-modal').style.display = 'none';
@@ -2659,43 +2829,53 @@ function setIntakeMode(mode) {
   if (mode !== 'camera') stopCamera();
 }
 
-let cameraStream = null;
-async function openCamera() {
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    const video = document.getElementById('camera-video');
-    video.srcObject = cameraStream;
-    video.style.display = 'block';
-    document.getElementById('capture-btn').style.display = 'block';
-  } catch(e) {
-    document.getElementById('ocr-result').textContent = 'Camera access denied.';
-  }
+function handleCameraCapture(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const resultEl = document.getElementById('ocr-result');
+  resultEl.textContent = 'Processing image...';
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Read image as text fallback - switch to text mode with placeholder note
+    setIntakeMode('text');
+    resultEl.textContent = '';
+    document.getElementById('new-song-content').value = '';
+    document.getElementById('new-song-content').placeholder = 'Image captured. Paste or type your chord sheet here.\n\nNote: For best results, type or paste the chord sheet text directly.';
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
 }
+
 function stopCamera() {
-  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-  const video = document.getElementById('camera-video');
-  if (video) { video.style.display = 'none'; video.srcObject = null; }
-  const capBtn = document.getElementById('capture-btn');
-  if (capBtn) capBtn.style.display = 'none';
-}
-function capturePhoto() {
-  const video = document.getElementById('camera-video');
-  const canvas = document.getElementById('camera-canvas');
-  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  document.getElementById('ocr-result').textContent = 'OCR requires Tesseract.js. Captured frame — paste extracted text manually.';
-  stopCamera();
+  // No-op - we no longer use inline camera stream
 }
 
 function handleFileInput(input) {
   const file = input.files[0];
   if (!file) return;
+  const dragZoneEl = document.getElementById('drag-zone');
+  if (dragZoneEl) {
+    dragZoneEl.innerHTML = `<div class="spinner" style="margin:0 auto;"></div><p style="margin:8px 0 0;font-size:13px;">Reading file...</p>`;
+  }
   const reader = new FileReader();
   reader.onload = e => {
+    const raw = e.target.result;
+    // Clean up the text: normalize line endings, remove null bytes
+    const cleaned = (typeof raw === 'string' ? raw : new TextDecoder('utf-8').decode(raw))
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/\x00/g, '');
     setIntakeMode('text');
-    document.getElementById('new-song-content').value = e.target.result;
+    document.getElementById('new-song-content').value = cleaned;
   };
-  reader.readAsText(file);
+  reader.onerror = () => {
+    setIntakeMode('text');
+    document.getElementById('new-song-content').value = '';
+    showAlert('File Error', 'Could not read the file. Please try a plain .txt file.', 'mdi:alert-circle');
+  };
+  // Read as text with UTF-8 encoding
+  reader.readAsText(file, 'UTF-8');
+  input.value = '';
 }
 
 const dragZone = document.getElementById('drag-zone');
@@ -2706,8 +2886,13 @@ dragZone.addEventListener('drop', e => {
   const file = e.dataTransfer.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = ev => { setIntakeMode('text'); document.getElementById('new-song-content').value = ev.target.result; };
-  reader.readAsText(file);
+  reader.onload = ev => {
+    const raw = ev.target.result;
+    const cleaned = (typeof raw === 'string' ? raw : new TextDecoder('utf-8').decode(raw))
+      .replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\x00/g, '');
+    setIntakeMode('text'); document.getElementById('new-song-content').value = cleaned;
+  };
+  reader.readAsText(file, 'UTF-8');
 });
 
 async function saveSong() {
@@ -2762,6 +2947,10 @@ function renderSetlistsList() {
   if (setlistSearchQuery) {
     setlists = setlists.filter(s => (s.name||'').toLowerCase().includes(setlistSearchQuery));
   }
+  // Apply type filter
+  if (currentSetlistFilter === 'public') setlists = setlists.filter(s => !s.isPrivate && !s.isCustomGroup);
+  else if (currentSetlistFilter === 'private') setlists = setlists.filter(s => s.isPrivate && !s.isCustomGroup);
+  else if (currentSetlistFilter === 'custom') setlists = setlists.filter(s => s.isCustomGroup);
   if (currentSetlistSort === 'az') setlists.sort((a,b) => (a.name||'').localeCompare(b.name||''));
   else if (currentSetlistSort === 'za') setlists.sort((a,b) => (b.name||'').localeCompare(a.name||''));
   else if (currentSetlistSort === 'newest') setlists.sort((a,b) => (b.createdAt?.toDate?.() || new Date(0)) - (a.createdAt?.toDate?.() || new Date(0)));
@@ -2796,7 +2985,7 @@ function renderSetlistsList() {
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           ${canEdit && isOwner ? `<button onclick="event.stopPropagation();toggleSetlistPrivacy('${setlist.id}',${setlist.isPrivate})" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><iconify-icon icon="${setlist.isPrivate ? 'mdi:lock-open' : 'mdi:lock'}" style="font-size:18px;"></iconify-icon></button>` : ''}
-          ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);padding:4px;"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canEdit ? `<button onclick="event.stopPropagation();deleteSetlist('${setlist.id}')" class="btn-danger btn-text" style="padding:6px 10px;display:flex;align-items:center;gap:4px;" title="Delete Setlist"><iconify-icon icon="mdi:delete" style="font-size:14px;"></iconify-icon></button>` : ''}
         </div>
       </div>
     </div>`;
@@ -2890,6 +3079,13 @@ function renderSetlistDetail(setlist) {
   loadSetlistCreator(setlist.createdBy);
 }
 
+function openCreatorProfile(uid) {
+  // If it's the current user's own profile, open profile view
+  if (uid === currentUser?.uid) { openProfileView(); return; }
+  // Otherwise open user detail
+  openUserDetail(uid);
+}
+
 async function loadSetlistCreator(uid) {
   if (!uid) return;
   try {
@@ -2903,8 +3099,11 @@ async function loadSetlistCreator(uid) {
     const isCustomGroup = setlist?.isCustomGroup;
     document.getElementById('setlist-creator-info').innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;">
-        <img src="${escHtml(d.photoURL||'')}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);" />
-        <span style="font-size:11px;color:var(--text-muted);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(d.displayName||'')}</span>
+        <img src="${escHtml(d.photoURL||'')}" title="${escHtml(d.displayName||'')}"
+          style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--surface-2);cursor:pointer;border:2px solid var(--border-subtle);transition:border-color 0.2s;"
+          onclick="openCreatorProfile('${uid}')"
+          onmouseover="this.style.borderColor='var(--chords-color)'"
+          onmouseout="this.style.borderColor='var(--border-subtle)'" />
         ${isCustomGroup && canManage ? `<button onclick="openManageMembersModal()" title="Manage Members"
           style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.15s;"
           onmouseover="this.style.background='#3a3a3a'" onmouseout="this.style.background='var(--surface-2)'">
@@ -3568,7 +3767,7 @@ function openUserEditModal(uid) {
   const role = currentUserProfile?.role || '';
   document.getElementById('edit-user-pic').src = user.photoURL || '';
   document.getElementById('edit-user-name').textContent = user.displayName || '';
-  document.getElementById('edit-user-email').textContent = user.email || '';
+  document.getElementById('edit-user-email').textContent = maskEmail(user.email || '');
   const isAdminTarget = user.email === ADMIN_EMAIL;
   const canEditRole = role === 'Admin' && !isAdminTarget;
   // Initialise selected roles from the user's current roles array (or single role field)
@@ -3585,11 +3784,34 @@ function openUserEditModal(uid) {
   document.getElementById('edit-guitar').checked = (user.instruments||[]).includes('Guitar');
   document.getElementById('edit-keyboard').checked = (user.instruments||[]).includes('Keyboard');
   document.getElementById('edit-djembe').checked = (user.instruments||[]).includes('Djembe');
+  _renderEditInstrumentToggles();
   document.getElementById('edit-max-setlists').value = user.maxSetlistsOverride ?? '';
   document.getElementById('edit-can-delete').checked = user.canDeleteSongs || false;
   document.getElementById('edit-can-add').checked = user.canAddSongs || false;
   document.getElementById('user-edit-modal').style.display = 'flex';
   pushState();
+}
+
+function toggleEditInstrument(inst) {
+  const cb = document.getElementById('edit-' + inst.toLowerCase());
+  if (cb) cb.checked = !cb.checked;
+  _renderEditInstrumentToggles();
+}
+
+function _renderEditInstrumentToggles() {
+  const instruments = ['Guitar', 'Keyboard', 'Djembe'];
+  const icons = { Guitar: 'mdi:guitar-electric', Keyboard: 'mdi:piano', Djembe: 'mdi:drum' };
+  const color = '#d97706';
+  instruments.forEach(inst => {
+    const cb = document.getElementById('edit-' + inst.toLowerCase());
+    const btn = document.getElementById('edit-inst-btn-' + inst);
+    if (!btn || !cb) return;
+    const isActive = cb.checked;
+    btn.style.border = `2px solid ${isActive ? color : 'var(--border-color)'}`;
+    btn.style.background = isActive ? color + '22' : 'transparent';
+    btn.style.color = isActive ? color : 'var(--text-secondary)';
+    btn.innerHTML = `${isActive ? '<iconify-icon icon="mdi:check" style="font-size:11px;margin-right:2px;vertical-align:middle;"></iconify-icon>' : ''}<iconify-icon icon="${icons[inst]}" style="font-size:14px;"></iconify-icon>${inst}`;
+  });
 }
 
 let _selectedEditRoles = new Set(['Musician']);
@@ -3730,12 +3952,16 @@ function renderProfileSetlists() {
 }
 
 function closeProfileAndOpenSetlist(id) {
-  closeProfileView();
-  // Wait for animation then open
+  const profileView = document.getElementById('profile-view');
+  profileView.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+  profileView.style.opacity = '0';
+  profileView.style.transform = 'translateX(100%)';
   setTimeout(() => {
+    profileView.style.display = 'none';
+    profileView.style.transition = '';
     switchTab('setlists');
     openSetlistDetail(id);
-  }, 240);
+  }, 200);
 }
 
 function closeProfileView() {
@@ -3801,6 +4027,42 @@ async function saveAdminSettings() {
     hideSyncToast();
     showAlert('Saved', 'Branding saved and pushed to all users.', 'mdi:check-circle');
   } catch(e) { hideSyncToast(); console.error(e); }
+}
+
+let _currentListLayout = 'card';
+function setListLayout(mode) {
+  _currentListLayout = mode;
+  document.body.classList.toggle('layout-line', mode === 'line');
+  document.body.classList.toggle('layout-card', mode === 'card');
+  const cardBtn = document.getElementById('layout-card-btn');
+  const lineBtn = document.getElementById('layout-line-btn');
+  if (cardBtn) {
+    cardBtn.style.border = mode === 'card' ? '2px solid var(--chords-color)' : '2px solid var(--border-color)';
+    cardBtn.style.background = mode === 'card' ? 'var(--accent-glow)' : 'transparent';
+    cardBtn.style.color = mode === 'card' ? 'var(--chords-color)' : 'var(--text-secondary)';
+  }
+  if (lineBtn) {
+    lineBtn.style.border = mode === 'line' ? '2px solid var(--chords-color)' : '2px solid var(--border-color)';
+    lineBtn.style.background = mode === 'line' ? 'var(--accent-glow)' : 'transparent';
+    lineBtn.style.color = mode === 'line' ? 'var(--chords-color)' : 'var(--text-secondary)';
+  }
+}
+
+function toggleAdminSection(id) {
+  const body = document.getElementById(id + '-body');
+  const chevron = document.getElementById(id + '-chevron');
+  if (!body) return;
+  const collapsed = body.style.maxHeight === '0px';
+  if (collapsed) {
+    body.style.maxHeight = body.dataset.maxH || '1000px';
+    body.style.opacity = '1';
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  } else {
+    body.dataset.maxH = body.style.maxHeight || '1000px';
+    body.style.maxHeight = '0px';
+    body.style.opacity = '0';
+    if (chevron) chevron.style.transform = 'rotate(-90deg)';
+  }
 }
 
 async function toggleRoleLimits() {
@@ -3985,6 +4247,12 @@ function applyThemeData(theme) {
   root.style.setProperty('--toggle-track',   theme.toggleTrack   || '#374151');
   root.style.setProperty('--scrollbar-thumb',theme.scrollbar     || '#444');
   root.style.setProperty('--accent-glow',    theme.accentGlow    || 'rgba(251,191,36,0.15)');
+  // Extended component overrides
+  if (theme.btnBg)       root.style.setProperty('--btn-primary-bg',   theme.btnBg);
+  if (theme.btnText)     root.style.setProperty('--btn-primary-text',  theme.btnText);
+  if (theme.navShadow)   root.style.setProperty('--nav-shadow',        theme.navShadow);
+  if (theme.navTextColor)root.style.setProperty('--nav-text-color',   theme.navTextColor);
+  if (theme.navIconColor)root.style.setProperty('--nav-icon-color',   theme.navIconColor);
   // Update meta theme-color
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) metaTheme.content = theme.bg;
@@ -3993,6 +4261,10 @@ function applyThemeData(theme) {
   if (el('custom-bg'))     el('custom-bg').value     = theme.bg;
   if (el('custom-lyrics')) el('custom-lyrics').value = theme.lyrics;
   if (el('custom-chords')) el('custom-chords').value = theme.chords;
+  if (el('custom-btn-bg') && theme.btnBg)   el('custom-btn-bg').value   = theme.btnBg;
+  if (el('custom-btn-text') && theme.btnText) el('custom-btn-text').value = theme.btnText;
+  if (el('custom-card-bg') && theme.s1)    el('custom-card-bg').value  = theme.s1;
+  if (el('custom-list-bg') && theme.s2)    el('custom-list-bg').value  = theme.s2;
 }
 
 // Helper: lighten/darken a hex color by amount (positive = lighter)
@@ -4008,11 +4280,18 @@ function applyCustomTheme() {
   const bg = document.getElementById('custom-bg').value;
   const lyrics = document.getElementById('custom-lyrics').value;
   const chords = document.getElementById('custom-chords').value;
+  const btnBg = document.getElementById('custom-btn-bg')?.value || chords;
+  const btnText = document.getElementById('custom-btn-text')?.value || '#000000';
+  const cardBg = document.getElementById('custom-card-bg')?.value || null;
+  const listBg = document.getElementById('custom-list-bg')?.value || null;
+  const navBgColor = document.getElementById('custom-nav-bg')?.value || null;
+  const navTextColor = document.getElementById('custom-nav-text')?.value || lyrics;
+  const navIconColor = document.getElementById('custom-nav-icon')?.value || chords;
+  const navShadowOpacity = (parseInt(document.getElementById('custom-nav-shadow')?.value || 40) / 100).toFixed(2);
   const ab = adjustBrightness;
-  // Auto-derive all surface/nav/text from the 3 base colors
   const isDark = isColorDark(bg);
-  const s1 = ab(bg, isDark ? 12 : -10);
-  const s2 = ab(bg, isDark ? 22 : -18);
+  const s1 = cardBg || ab(bg, isDark ? 12 : -10);
+  const s2 = listBg || ab(bg, isDark ? 22 : -18);
   const s3 = ab(bg, isDark ? 17 : -14);
   const border = ab(bg, isDark ? 24 : -20);
   const borderSubtle = ab(bg, isDark ? 32 : -28);
@@ -4020,11 +4299,14 @@ function applyCustomTheme() {
   const textSecondary = isDark ? '#9ca3af' : '#8a7560';
   const modalOverlay = isDark ? 'rgba(0,0,0,0.78)' : 'rgba(40,20,10,0.55)';
   const accentGlow = hexToRgba(chords, 0.15);
+  const navBgFinal = navBgColor ? navBgColor + 'f5' : (bg + 'f5');
+  const navShadow = `0 1px 8px rgba(0,0,0,${navShadowOpacity})`;
   const theme = {
     bg, lyrics, chords, s1, s2, s3, sInput: s2,
-    border, borderSubtle, navBg: bg,
+    border, borderSubtle, navBg: navBgFinal,
     textMuted, textSecondary, modalOverlay,
-    toggleTrack: border, scrollbar: borderSubtle, accentGlow
+    toggleTrack: border, scrollbar: borderSubtle, accentGlow,
+    btnBg, btnText, navTextColor, navIconColor, navShadow
   };
   applyThemeData(theme);
 }
@@ -4044,21 +4326,31 @@ function saveCustomTheme() {
   const bg = document.getElementById('custom-bg').value;
   const lyrics = document.getElementById('custom-lyrics').value;
   const chords = document.getElementById('custom-chords').value;
+  const btnBg = document.getElementById('custom-btn-bg')?.value || chords;
+  const btnText = document.getElementById('custom-btn-text')?.value || '#000000';
+  const cardBg = document.getElementById('custom-card-bg')?.value || null;
+  const listBg = document.getElementById('custom-list-bg')?.value || null;
+  const navBgColor = document.getElementById('custom-nav-bg')?.value || null;
+  const navIconColor = document.getElementById('custom-nav-icon')?.value || chords;
+  const navShadowOpacity = (parseInt(document.getElementById('custom-nav-shadow')?.value || 40) / 100).toFixed(2);
   const ab = adjustBrightness;
   const isDark = isColorDark(bg);
-  const s1 = ab(bg, isDark ? 12 : -10);
-  const s2 = ab(bg, isDark ? 22 : -18);
+  const s1 = cardBg || ab(bg, isDark ? 12 : -10);
+  const s2 = listBg || ab(bg, isDark ? 22 : -18);
   const s3 = ab(bg, isDark ? 17 : -14);
   const border = ab(bg, isDark ? 24 : -20);
   const borderSubtle = ab(bg, isDark ? 32 : -28);
+  const navBgFinal = navBgColor ? navBgColor + 'f5' : (bg + 'f5');
   const theme = {
     bg, lyrics, chords, s1, s2, s3, sInput: s2,
-    border, borderSubtle, navBg: bg,
+    border, borderSubtle, navBg: navBgFinal,
     textMuted: isDark ? '#6b7280' : '#6b5a40',
     textSecondary: isDark ? '#9ca3af' : '#8a7560',
     modalOverlay: isDark ? 'rgba(0,0,0,0.78)' : 'rgba(40,20,10,0.55)',
     toggleTrack: border, scrollbar: borderSubtle,
-    accentGlow: hexToRgba(chords, 0.15)
+    accentGlow: hexToRgba(chords, 0.15),
+    btnBg, btnText, navIconColor,
+    navShadow: `0 1px 8px rgba(0,0,0,${navShadowOpacity})`
   };
   showSyncToast();
   saveThemeToDb(theme).then(() => { hideSyncToast(); showAlert('Theme Saved', 'Custom theme applied to all users.', 'mdi:palette'); });
@@ -4258,6 +4550,13 @@ async function deleteSetlistFromLimit(id) {
 // ============================================================
 // UTILITIES
 // ============================================================
+function maskEmail(email) {
+  if (!email) return '';
+  const [local, domain] = email.split('@');
+  if (!domain) return email;
+  return local.substring(0, 3) + '***@' + domain;
+}
+
 function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -4278,19 +4577,28 @@ function initModalDragResize() {
 }
 let _modalDragState = null;
 function handleModalDragStart(e) {
+  // Check if touch/click is on or very near a modal handle (within 20px vertically)
   const handle = e.target.closest('.modal-handle');
-  if (!handle) return;
+  if (!handle) {
+    // Also accept drags starting in the top 36px of any modal-sheet
+    const sheet = e.target.closest('.modal-sheet');
+    if (!sheet) return;
+    const rect = sheet.getBoundingClientRect();
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    if (clientY - rect.top > 44) return; // Only top 44px is drag zone
+    _startModalDrag(e, sheet);
+    return;
+  }
   const sheet = handle.closest('.modal-sheet');
   if (!sheet) return;
+  _startModalDrag(e, sheet);
+}
+function _startModalDrag(e, sheet) {
   e.preventDefault();
   const startY = e.touches ? e.touches[0].clientY : e.clientY;
   const startH = sheet.offsetHeight;
-
-  // Read the CSS min-height from the sheet's inline style as the drag floor.
-  // Falls back to 200px if not set. This respects the per-modal minimum.
   const cssMin = parseInt(sheet.style.minHeight) || 200;
   const minH = Math.max(cssMin, 200);
-
   _modalDragState = { sheet, startY, startH, minH, currentH: startH };
   sheet.classList.add('resizable');
 
@@ -4298,10 +4606,9 @@ function handleModalDragStart(e) {
     if (!_modalDragState) return;
     if (ev.cancelable) ev.preventDefault();
     const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
-    const dy = _modalDragState.startY - y;  // positive = dragging up (taller)
+    const dy = _modalDragState.startY - y;
     const screenH = window.innerHeight;
     const rawH = _modalDragState.startH + dy;
-    // Clamp between minH floor and 92vh ceiling — NO snap during drag
     const newH = Math.min(Math.floor(screenH * 0.92), Math.max(_modalDragState.minH, rawH));
     _modalDragState.sheet.style.maxHeight = newH + 'px';
     _modalDragState.sheet.style.height = newH + 'px';
@@ -4314,7 +4621,6 @@ function handleModalDragStart(e) {
       const screenH = window.innerHeight;
       const sheet = _modalDragState.sheet;
       const currentH = _modalDragState.currentH;
-      // Snap to full screen only on release if dragged past 3/4 screen height
       if (currentH >= Math.floor(screenH * 0.75)) {
         sheet.style.maxHeight = screenH + 'px';
         sheet.style.height = screenH + 'px';
@@ -4364,28 +4670,28 @@ function handleModalDragStart(e) {
 
 <!-- MANAGE MEMBERS MODAL -->
 <div id="manage-members-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-sheet" style="max-height:88vh;overflow-y:auto;">
-    <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+  <div class="modal-sheet" style="min-height:320px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-handle" style="flex-shrink:0;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
       <h3 style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">Manage Members</h3>
       <button onclick="closeManageMembersModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
     <!-- Current members -->
-    <div style="margin-bottom:14px;">
+    <div style="flex-shrink:0;margin-bottom:14px;">
       <div class="section-label" style="margin-bottom:8px;">Current Members</div>
       <div id="manage-current-members" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
     </div>
     <!-- Divider -->
-    <div style="height:1px;background:var(--surface-2);margin-bottom:14px;"></div>
+    <div style="height:1px;background:var(--surface-2);margin-bottom:14px;flex-shrink:0;"></div>
     <!-- Add members -->
-    <div>
-      <div class="section-label" style="margin-bottom:8px;">Add Members</div>
-      <div style="position:relative;margin-bottom:8px;">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
+      <div class="section-label" style="margin-bottom:8px;flex-shrink:0;">Add Members</div>
+      <div style="position:relative;margin-bottom:8px;flex-shrink:0;">
         <iconify-icon icon="mdi:magnify" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;"></iconify-icon>
         <input type="text" class="input-field" style="padding-left:32px;font-size:13px;" id="manage-members-search"
           placeholder="Search users to add..." oninput="filterManageMembers()" />
       </div>
-      <div id="manage-add-members-list" style="max-height:200px;overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
+      <div id="manage-add-members-list" style="flex:1;min-height:80px;overflow-y:auto;background:var(--canvas-bg);border-radius:8px;"></div>
     </div>
   </div>
 </div>
