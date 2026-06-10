@@ -221,11 +221,24 @@
     #main-content::-webkit-scrollbar { width: 4px; }
     #main-content::-webkit-scrollbar-track {
       background: transparent;
-      /* push the track inward so it only appears within the content viewport */
+      /* match the exact padding values used on #main-content so the track
+         never bleeds under either navbar in portrait or landscape */
       margin-top: calc(58px + env(safe-area-inset-top, 0px));
-      margin-bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+      margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     }
     #main-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    /* Landscape: safe-area insets shift to left/right on notched devices;
+       ensure top/bottom padding still fully clears both fixed navbars */
+    @media (orientation: landscape) {
+      #main-content {
+        padding-top: calc(58px + env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      #main-content::-webkit-scrollbar-track {
+        margin-top: calc(58px + env(safe-area-inset-top, 0px));
+        margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+      }
+    }
     .swipe-container { touch-action: pan-y; }
     /* ── Responsive layout ─────────────────────────────── */
     /* Mobile base (< 640px): single column, full width modals */
