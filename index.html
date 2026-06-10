@@ -195,7 +195,7 @@
     input:checked + .toggle-slider:before { transform: translateX(20px); }
     .fab { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--chords-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.15s; }
     .fab:active { transform: scale(0.92); }
-    .desktop-font-btns { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); left: 16px; display: flex; flex-direction: column; gap: 6px; z-index: 500; }
+    .desktop-font-btns { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); left: 16px; display: none; flex-direction: row; gap: 6px; z-index: 500; }
     .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
     .autoscroll-slider { width: 100%; accent-color: var(--chords-color); }
     input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
@@ -238,41 +238,29 @@
       .bottom-nav-btn { max-width: 90px; }
     }
 
-    /* Desktop (1024px+) */
-    @media (min-width: 1024px) {
-      body { background: var(--canvas-bg); overflow: hidden; }
+    /* Desktop (> 1278px): cap the app at 1278px and center it with black side margins */
+    @media (min-width: 1279px) {
+      html, body {
+        background: #000 !important;
+        overflow: hidden;
+      }
       #app-root {
-        max-width: 420px; margin: 0 auto;
-        box-shadow: 0 0 60px rgba(0,0,0,0.7);
-        border-left:1px solid var(--border-color); border-right:1px solid var(--border-color);
-        position: relative; height: 100vh;
-      }
-      /* On desktop, modals stay centered with max-width */
-      .modal-sheet { max-width: 400px; }
-      .modal-overlay { align-items: center; }
-      .modal-sheet:not(.center-card) { border-radius: 16px; }
-      /* Wider sheet font for readability */
-      .song-sheet-content { font-size: calc(var(--sheet-font-size) + 1px); }
-    }
-
-    /* Large desktop sidebar layout (1280px+) */
-    @media (min-width: 1280px) {
-      body { display: flex; align-items: stretch; justify-content: center; }
-      #desktop-sidebar {
-        display: flex !important;
-        flex-direction: column;
-        width: 220px;
-        background: var(--canvas-bg);
-        border-right:1px solid var(--border-color);
-        padding: 24px 0 80px;
-        gap: 4px;
-        position: sticky;
-        top: 0;
+        max-width: 1278px;
+        margin: 0 auto;
+        position: relative;
         height: 100vh;
-        overflow-y: auto;
+        box-shadow: 0 0 60px rgba(0,0,0,0.7);
+        border-left: 1px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
       }
-      #app-root { max-width: 420px; border-radius: 0; flex-shrink: 0; }
-      #bottom-nav { display: none !important; }
+      /* Fixed navbars must be constrained within the 1278px container */
+      #top-nav, #bottom-nav {
+        max-width: 1278px;
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        width: 100%;
+      }
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
     .checkbox-custom:checked { background: var(--chords-color); border-color: var(--chords-color); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
@@ -493,14 +481,8 @@
   </div>
 </div>
 
-<!-- DESKTOP SIDEBAR (shown at 1280px+) -->
-<div id="desktop-sidebar" style="display:none;">
-  <div style="padding:16px 20px 20px;">
-    <img src="icons/logo.png" style="width:40px;height:40px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none'" />
-    <p id="sidebar-app-name" style="color:var(--lyrics-color);font-size:15px;font-weight:700;margin:8px 0 0;">RCCM Gigbook</p>
-  </div>
-  <div id="sidebar-nav" style="display:flex;flex-direction:column;gap:2px;padding:0 10px;"></div>
-</div>
+<!-- DESKTOP SIDEBAR (removed — sidebar layout eliminated per responsive redesign) -->
+<div id="desktop-sidebar" style="display:none !important;"></div>
 
 <!-- MAIN APP ROOT -->
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
@@ -1836,10 +1818,8 @@ function mountApp() {
 }
 
 function checkDesktop() {
-  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-  if (!isTouch) {
-    document.getElementById('desktop-font-btns').style.display = 'flex';
-  }
+  // Font buttons are shown/hidden by openSongSheet/closeSongSheet based on non-touch devices
+  // Nothing to do here on initial load
 }
 
 // ============================================================
@@ -2466,6 +2446,11 @@ function openSongSheet(songId, fromSetlist) {
   if (addSongFabEl) addSongFabEl.style.display = 'none';
   document.getElementById('fab-btn').style.display = 'none';
   updateAutoscrollFabPosition();
+  // Show font size buttons on non-touch devices when inside a song sheet
+  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  if (!isTouch) {
+    document.getElementById('desktop-font-btns').style.display = 'flex';
+  }
 }
 
 function setupSongControls() {
@@ -2525,6 +2510,7 @@ function closeSongSheet() {
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('autoscroll-popup').style.display = 'none';
+  document.getElementById('desktop-font-btns').style.display = 'none';
   const navTitle = document.getElementById('top-nav-title');
   if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
