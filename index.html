@@ -1021,6 +1021,70 @@
       </div>
     </div>
   </div>
+    <div id="tab-profile" class="tab-panel" style="padding:0;">
+    
+      <!-- Hero section -->
+      <div style="padding:32px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:0;background:linear-gradient(180deg,#1a1a1a 0%,var(--canvas-bg) 100%);">
+        <div style="position:relative;margin-bottom:16px;">
+          <img id="profile-view-pic" src="" alt="Profile"
+            style="width:96px;height:96px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--chords-color);box-shadow:0 0 0 6px rgba(251,191,36,0.1);" />
+        </div>
+        <!-- Name row with edit pencil -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span id="profile-view-name" style="color:var(--lyrics-color);font-size:20px;font-weight:700;letter-spacing:0.01em;"></span>
+          <button onclick="openNameEditModal()" title="Edit name"
+            style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
+            <iconify-icon icon="mdi:pencil" style="font-size:16px;"></iconify-icon>
+          </button>
+        </div>
+        <!-- Role | Instruments row -->
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+          <span id="profile-view-role-badge"></span>
+          <span id="profile-view-instruments-inline" style="color:var(--text-secondary);font-size:13px;"></span>
+        </div>
+      </div>
+    
+      <!-- Settings card -->
+      <div style="padding:0 12px 12px;">
+        <div style="background:var(--surface-1);border-radius:12px;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
+              <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    
+      <!-- My Setlists -->
+      <div style="padding:0 11px 12px;">
+        <div class="section-label" style="margin-bottom:8px;padding-left:1px;">My Setlists</div>
+        <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
+        <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
+      </div>
+    
+      <!-- Update Available Banner (shown when a new version is detected) -->
+      <div id="profile-update-banner" style="display:none;padding:0 var(--view-px) 12px;">
+        <button onclick="showUpdateModal(window._pendingUpdateVersion||'')"
+          style="width:100%;background:linear-gradient(135deg,#065f46,#047857);border:1px solid #34d399;color:#d1fae5;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.2s;animation:pulseGreen 2s ease-in-out infinite;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+          <iconify-icon icon="mdi:update" style="font-size:20px;"></iconify-icon>
+          Update Available — Tap to Reload
+        </button>
+      </div>
+    
+      <!-- Sign out -->
+      <div style="padding:12px var(--view-px) 12px;">
+        <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
+          <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
+          Sign Out
+        </button>
+      </div>
+    </div>
+
 
   <!-- BOTTOM NAV -->
   <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 12px rgba(0,0,0,0.25);">
@@ -1062,79 +1126,7 @@
 </div>
 
 <!-- PROFILE VIEW OVERLAY -->
-<div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;transition:opacity 0.25s ease,transform 0.25s ease;opacity:0;transform:translateX(100%);">
-  <!-- Header bar -->
-  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 16px rgba(0,0,0,0.4);position:sticky;top:0;z-index:10;">
-    <button onclick="closeProfileView()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:4px;flex-shrink:0;">
-      <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
-    </button>
-    <span style="color:var(--lyrics-color);font-size:16px;font-weight:600;flex:1;">My Profile</span>
-    <button id="profile-admin-btn" onclick="closeProfileView();switchTab('admin');" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;align-items:center;padding:4px;flex-shrink:0;" title="Admin Panel">
-      <iconify-icon icon="mdi:cog" style="font-size:22px;"></iconify-icon>
-    </button>
-  </div>
 
-  <!-- Hero section -->
-  <div style="padding:32px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:0;background:linear-gradient(180deg,#1a1a1a 0%,var(--canvas-bg) 100%);">
-    <div style="position:relative;margin-bottom:16px;">
-      <img id="profile-view-pic" src="" alt="Profile"
-        style="width:96px;height:96px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--chords-color);box-shadow:0 0 0 6px rgba(251,191,36,0.1);" />
-    </div>
-    <!-- Name row with edit pencil -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      <span id="profile-view-name" style="color:var(--lyrics-color);font-size:20px;font-weight:700;letter-spacing:0.01em;"></span>
-      <button onclick="openNameEditModal()" title="Edit name"
-        style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
-        <iconify-icon icon="mdi:pencil" style="font-size:16px;"></iconify-icon>
-      </button>
-    </div>
-    <!-- Role | Instruments row -->
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
-      <span id="profile-view-role-badge"></span>
-      <span id="profile-view-instruments-inline" style="color:var(--text-secondary);font-size:13px;"></span>
-    </div>
-  </div>
-
-  <!-- Settings card -->
-  <div style="padding:0 12px 12px;">
-    <div style="background:var(--surface-1);border-radius:12px;overflow:hidden;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color);">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
-          <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <!-- My Setlists -->
-  <div style="padding:0 11px 12px;">
-    <div class="section-label" style="margin-bottom:8px;padding-left:1px;">My Setlists</div>
-    <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
-    <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
-  </div>
-
-  <!-- Update Available Banner (shown when a new version is detected) -->
-  <div id="profile-update-banner" style="display:none;padding:0 var(--view-px) 12px;">
-    <button onclick="showUpdateModal(window._pendingUpdateVersion||'')"
-      style="width:100%;background:linear-gradient(135deg,#065f46,#047857);border:1px solid #34d399;color:#d1fae5;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.2s;animation:pulseGreen 2s ease-in-out infinite;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-      <iconify-icon icon="mdi:update" style="font-size:20px;"></iconify-icon>
-      Update Available — Tap to Reload
-    </button>
-  </div>
-
-  <!-- Sign out -->
-  <div style="padding:12px var(--view-px) calc(32px + env(safe-area-inset-bottom,0px));">
-    <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
-      <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
-      Sign Out
-    </button>
-  </div>
-</div>
 
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
@@ -1568,7 +1560,7 @@ function handleBackButton() {
     if (_isVisible('tutorial-modal')) { closeTutorialModal(); return; }
     if (_isVisible('alert-modal')) { closeAlertModal(); return; }
     if (_isVisible('setlist-limit-modal')) { closeSetlistLimitModal(); return; }
-    if (_isVisible('profile-view')) { closeProfileView(); return; }
+    if (activeTab === 'profile') { closeProfileView(); return; }
     if (_isVisible('song-sheet-view')) { closeSongSheet(); return; }
     // Setlist opened from user detail → go back to user detail
     if (currentSetlistId !== null && _setlistOpenedFromUserDetail) { closeSetlistFromUserDetail(); return; }
@@ -1613,7 +1605,7 @@ auth.onAuthStateChanged(async (user) => {
 function showAuthView() {
   document.getElementById('splash-screen').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
-  document.getElementById('profile-view').style.display = 'none';
+  // profile is now a tab-panel, no separate hide needed
   const authView = document.getElementById('auth-view');
   authView.style.display = 'flex';
   authView.classList.add('fade-in');
@@ -1806,7 +1798,7 @@ function signOut() {
   document.getElementById('add-song-fab').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
-  document.getElementById('profile-view').style.display = 'none';
+  // profile is now a tab-panel, no separate hide needed
   auth.signOut().then(() => {
     _signingOut = false;
     showAuthView();
@@ -2035,8 +2027,18 @@ function switchTab(tab) {
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   const navBtn = document.getElementById('nav-' + tab);
   if (navBtn) navBtn.classList.add('active');
+  // Profile tab: show title in top nav, hide app name
+  if (tab === 'profile') {
+    const navTitle = document.getElementById('top-nav-title');
+    if (navTitle) navTitle.textContent = 'My Profile';
+    updateHomeBtn(true);
+  } else {
+    updateHomeBtn(false);
+  }
   updateFAB();
-  updateHomeBtn(false);
+  // Sync profile photo border color in nav button
+  const profImg = document.querySelector('#nav-profile img');
+  if (profImg) profImg.style.borderColor = (tab === 'profile') ? 'var(--chords-color)' : '#555';
 }
 
 function updateFAB() {
@@ -4313,18 +4315,13 @@ function openProfileView() {
   if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
   document.getElementById('tutorial-toggle').checked = p.showTutorial !== false;
   tutorialEnabled = p.showTutorial !== false;
-  // Show Admin Panel shortcut only for Admins
-  const adminBtn = document.getElementById('profile-admin-btn');
-  if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
   renderProfileSetlists();
-  const profileView = document.getElementById('profile-view');
-  profileView.style.display = 'flex';
-  profileView.style.flexDirection = 'column';
-  requestAnimationFrame(() => {
-    profileView.style.opacity = '1';
-    profileView.style.transform = 'translateX(0)';
-  });
-  pushState();
+  // Switch to profile tab like any other tab
+  switchTab('profile');
+  // Show "My Profile" in the top nav title
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) { navTitle.textContent = 'My Profile'; }
+  updateHomeBtn(true);
 }
 
 function renderProfileSetlists() {
@@ -4356,23 +4353,12 @@ function renderProfileSetlists() {
 }
 
 function closeProfileAndOpenSetlist(id) {
-  const profileView = document.getElementById('profile-view');
-  profileView.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-  profileView.style.opacity = '0';
-  profileView.style.transform = 'translateX(100%)';
-  setTimeout(() => {
-    profileView.style.display = 'none';
-    profileView.style.transition = '';
-    switchTab('setlists');
-    openSetlistDetail(id);
-  }, 200);
+  switchTab('setlists');
+  openSetlistDetail(id);
 }
 
 function closeProfileView() {
-  const profileView = document.getElementById('profile-view');
-  profileView.style.opacity = '0';
-  profileView.style.transform = 'translateX(100%)';
-  setTimeout(() => { profileView.style.display = 'none'; }, 240);
+  switchTab('songs');
 }
 
 async function saveTutorialPref(val) {
