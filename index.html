@@ -227,9 +227,10 @@
       margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     }
     #main-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
-    /* Landscape (all sizes): safe-area insets shift to left/right on notched devices;
-       ensure top/bottom padding still fully clears both fixed navbars */
-    @media (orientation: landscape) {
+    /* Landscape (portrait + landscape, phones & tablets only — below desktop breakpoint):
+       safe-area insets may shift on notched devices; ensure top/bottom padding
+       still fully clears both fixed navbars */
+    @media (orientation: landscape) and (max-width: 1278px) {
       #main-content {
         padding-top: calc(58px + env(safe-area-inset-top, 0px)) !important;
         padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
@@ -239,9 +240,8 @@
         margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
       }
     }
-    /* Tablet landscape (640px+): reinforce bottom clearance so scrollable lists
-       never slide under the bottom navbar in horizontal orientation */
-    @media (orientation: landscape) and (min-width: 640px) {
+    /* Tablet landscape (640px–1278px): reinforce bottom clearance */
+    @media (orientation: landscape) and (min-width: 640px) and (max-width: 1278px) {
       #main-content {
         padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
       }
@@ -286,22 +286,68 @@
         background: #000 !important;
         overflow: hidden;
       }
+      /* App container: centered, max 1278px, full viewport height as a flex column */
       #app-root {
         max-width: 1278px;
         margin: 0 auto;
         position: relative;
         height: 100vh;
+        display: flex !important;
+        flex-direction: column;
         box-shadow: 0 0 60px rgba(0,0,0,0.7);
         border-left: 1px solid var(--border-color);
         border-right: 1px solid var(--border-color);
+        overflow: hidden;
       }
-      /* Fixed navbars must be constrained within the 1278px container */
-      #top-nav, #bottom-nav {
-        max-width: 1278px;
-        left: 50%;
-        transform: translateX(-50%);
-        right: auto;
-        width: 100%;
+      /* Switch navbars from viewport-fixed to sticky/static within the app container
+         so they always bound the scrollable area — no content ever hides under them */
+      #top-nav {
+        position: sticky !important;
+        top: 0 !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        transform: none !important;
+        flex-shrink: 0;
+        z-index: 400;
+      }
+      #bottom-nav {
+        position: sticky !important;
+        bottom: 0 !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        transform: none !important;
+        flex-shrink: 0;
+        z-index: 400;
+        margin-top: auto;
+      }
+      /* Main content fills the remaining space between the two navbars */
+      #main-content {
+        flex: 1 !important;
+        height: 0 !important;
+        padding-top: 16px !important;
+        padding-bottom: 16px !important;
+        overflow-y: auto !important;
+      }
+      #main-content::-webkit-scrollbar-track {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      /* FABs and font buttons: absolutely positioned inside app-root, just above
+         the sticky bottom nav. Since bottom-nav is no longer fixed/overlapping,
+         we anchor to the bottom of #app-root (which ends at the top of bottom-nav). */
+      #autoscroll-fab,
+      #add-song-fab,
+      #fab-btn {
+        position: absolute !important;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        right: 16px !important;
+      }
+      .desktop-font-btns {
+        position: absolute !important;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        left: 16px !important;
       }
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
