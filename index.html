@@ -227,7 +227,7 @@
       margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     }
     #main-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
-    /* Landscape: safe-area insets shift to left/right on notched devices;
+    /* Landscape (all sizes): safe-area insets shift to left/right on notched devices;
        ensure top/bottom padding still fully clears both fixed navbars */
     @media (orientation: landscape) {
       #main-content {
@@ -236,6 +236,16 @@
       }
       #main-content::-webkit-scrollbar-track {
         margin-top: calc(58px + env(safe-area-inset-top, 0px));
+        margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+      }
+    }
+    /* Tablet landscape (640px+): reinforce bottom clearance so scrollable lists
+       never slide under the bottom navbar in horizontal orientation */
+    @media (orientation: landscape) and (min-width: 640px) {
+      #main-content {
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      #main-content::-webkit-scrollbar-track {
         margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
       }
     }
@@ -249,6 +259,25 @@
       .modal-sheet.center-card { max-width: 480px; }
       #bottom-nav { justify-content: center; }
       .bottom-nav-btn { max-width: 90px; }
+
+      /* Admin panel: 2-column grid for Song Limit, Theme Presets, Custom Theme, Typography */
+      #admin-sections-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+      /* App Branding spans the full width */
+      #admin-sections-grid > div:first-child {
+        grid-column: 1 / -1;
+      }
+      /* The four target sections each occupy one grid cell */
+      #admin-sec-songlimit,
+      #admin-sec-themepresets,
+      #admin-sec-customtheme,
+      #admin-sec-typography {
+        min-width: 0;
+      }
     }
 
     /* Desktop (> 1278px): cap the app at 1278px and center it with black side margins */
@@ -673,7 +702,7 @@
         <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
         <span style="color:#34d399;font-size:13px;font-weight:600;">Applying to all users…</span>
       </div>
-      <div style="display:flex;flex-direction:column;gap:16px;">
+      <div id="admin-sections-grid" style="display:flex;flex-direction:column;gap:16px;">
 
         <!-- APP BRANDING -->
         <div>
@@ -701,7 +730,7 @@
         </div>
 
         <!-- SONG LIMITS PER ROLE -->
-        <div>
+        <div id="admin-sec-songlimit">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleRoleLimits()">
             <div class="section-label" style="margin-bottom:0;">Song Limit Per Setlist · By Role</div>
             <iconify-icon id="role-limits-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
@@ -753,7 +782,7 @@
         </div>
 
         <!-- THEME PRESETS — Collapsible -->
-        <div>
+        <div id="admin-sec-themepresets">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('theme-presets')">
             <div class="section-label" style="margin-bottom:0;">Theme Presets</div>
             <iconify-icon id="theme-presets-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
@@ -792,7 +821,7 @@
         </div>
 
         <!-- CUSTOM THEME — Collapsible, full-width advanced -->
-        <div>
+        <div id="admin-sec-customtheme">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('custom-theme')">
             <div class="section-label" style="margin-bottom:0;">Custom Theme</div>
             <iconify-icon id="custom-theme-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
@@ -911,7 +940,7 @@
         </div>
 
         <!-- TYPOGRAPHY — Collapsible -->
-        <div>
+        <div id="admin-sec-typography">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('typography')">
             <div class="section-label" style="margin-bottom:0;">Typography</div>
             <iconify-icon id="typography-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
