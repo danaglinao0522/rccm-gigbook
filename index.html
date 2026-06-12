@@ -280,279 +280,188 @@
       }
     }
 
-    /* top-nav-title is no longer used — always hidden */
-    #top-nav-title { display: none !important; }
-
-        /* ── Desktop (≥1279px): 3-column layout ──────────────────────────────────
-       LEFT (25%)  │  CENTER (50%)  │  RIGHT (25%)
-       Nav rail    │  Tab content   │  Profile / Detail view
-    ───────────────────────────────────────────────────────────────────────── */
-
-    /* Hide desktop panels on mobile/tablet */
-    #desktop-left-rail, #desktop-right-panel { display: none; }
-
+    /* Desktop (> 1278px): 3-column layout — 80px nav | 1fr main | 360px sidebar */
     @media (min-width: 1279px) {
-      html {
-        background: #111 !important;
+      html, body {
+        background: #000 !important;
         overflow: hidden;
-        height: 100vh;
-      }
-      body {
-        background: #111 !important;
-        overflow: hidden;
-        height: 100vh;
-        display: flex !important;
-        flex-direction: row;
-        align-items: stretch;
-        margin: 0;
-        padding: 0;
       }
 
-      /* ── LEFT RAIL — at least 20% width, vertical nav ── */
-      #desktop-left-rail {
-        display: flex !important;
-        flex-direction: column;
-        flex: 0 0 20%;
-        width: 20%;
-        min-width: 200px;
-        height: 100vh;
-        background: var(--canvas-bg);
-        border-right: 1px solid var(--border-color);
-        overflow: hidden;
-        transition: flex-basis 0.2s ease, width 0.2s ease, min-width 0.2s ease;
-      }
-      #desktop-left-rail.collapsed {
-        flex: 0 0 64px;
-        width: 64px;
-        min-width: 64px;
-      }
-      /* Collapse / hide-unhide toggle — top-most, catchy pill button */
-      #dlr-collapse-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        margin: 16px auto 4px;
-        border: none;
-        border-radius: 12px;
-        background: var(--surface-1);
-        color: var(--chords-color);
-        cursor: pointer;
-        font-size: 20px;
-        flex-shrink: 0;
-        transition: background 0.15s, transform 0.15s, color 0.15s;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-      }
-      #dlr-collapse-btn:hover {
-        background: var(--surface-2);
-        color: var(--lyrics-color);
-        transform: scale(1.06);
-      }
-      #dlr-collapse-btn:active { transform: scale(0.96); }
-      /* Logo — circular */
-      #dlr-logo {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 12px 16px;
-        cursor: pointer;
-        flex-shrink: 0;
-      }
-      #dlr-logo img, #dlr-logo-fallback {
-        width: 40px; height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        flex-shrink: 0;
-      }
-      #dlr-logo-fallback {
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg,#7c3aed,#FBBF24);
-      }
-      #dlr-logo-fallback iconify-icon { font-size: 18px; color: #fff; }
-      #dlr-top {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        padding: 8px 16px 12px;
-        gap: 2px;
-        overflow-y: auto;
-        min-height: 0;
-        /* Center the tab buttons vertically */
-        justify-content: center;
-      }
-      #dlr-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        width: 100%;
-      }
-      .dlr-tab-btn {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        width: 100%;
-        padding: 12px 16px;
-        border: none;
-        border-radius: 12px;
-        background: transparent;
-        color: var(--text-muted);
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background 0.15s, color 0.15s;
-        text-align: left;
-        box-sizing: border-box;
-      }
-      .dlr-tab-btn:hover { background: var(--surface-1); color: var(--lyrics-color); }
-      .dlr-tab-btn.active { background: var(--surface-2); color: var(--chords-color); }
-      .dlr-tab-btn iconify-icon { font-size: 22px; flex-shrink: 0; }
-      /* Collapsed state: icon-only tabs, centered */
-      #desktop-left-rail.collapsed #dlr-top { padding-left: 8px; padding-right: 8px; }
-      #desktop-left-rail.collapsed .dlr-tab-btn {
-        justify-content: center;
-        padding: 12px 8px;
-      }
-      #desktop-left-rail.collapsed .dlr-tab-btn span.dlr-tab-label { display: none; }
-
-      /* Left rail bottom: profile pic + name + logout */
-      #dlr-bottom {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 16px;
-        border-top: 1px solid var(--border-color);
-        flex-shrink: 0;
-      }
-      #dlr-profile-btn {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex: 1;
-        min-width: 0;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 6px 8px;
-        border-radius: 10px;
-        transition: background 0.15s;
-      }
-      #dlr-profile-btn:hover { background: var(--surface-1); }
-      #dlr-profile-pic {
-        width: 32px; height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid var(--chords-color);
-        flex-shrink: 0;
-        background: var(--surface-2);
-      }
-      #dlr-profile-name {
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      #dlr-logout-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-muted);
-        cursor: pointer;
-        padding: 7px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        transition: background 0.15s, color 0.15s;
-        flex-shrink: 0;
-      }
-      #dlr-logout-btn:hover { background: #7f1d1d; color: #fca5a5; }
-
-      /* ── CENTER (app-root) — fills remaining space ── */
+      /* ── App root: 3-column CSS Grid ───────────────────────── */
       #app-root {
-        flex: 1 1 0%;
-        min-width: 0;
+        max-width: 1278px;
+        margin: 0 auto;
         position: relative;
         height: 100vh;
-        display: flex !important;
-        flex-direction: column;
-        overflow: hidden;
-        background: var(--canvas-bg);
+        display: grid !important;
+        grid-template-columns: 80px 1fr 360px;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "leftnav topnav sidebar"
+          "leftnav maincontent sidebar";
+        box-shadow: 0 0 60px rgba(0,0,0,0.7);
         border-left: 1px solid var(--border-color);
         border-right: 1px solid var(--border-color);
+        overflow: hidden;
       }
-      /* Hide mobile top/bottom navs */
-      #top-nav { display: none !important; }
-      #bottom-nav { display: none !important; }
-      /* Main content fills full center height */
+
+      /* ── Left sidebar nav ───────────────────────────────────── */
+      #bottom-nav {
+        grid-area: leftnav;
+        position: static !important;
+        width: 80px !important;
+        height: 100vh !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 12px 0 24px !important;
+        border-top: none !important;
+        border-right: 1px solid var(--border-color) !important;
+        box-shadow: 2px 0 12px rgba(0,0,0,0.25) !important;
+        overflow: visible;
+        gap: 4px;
+      }
+      /* Nav buttons: icon-only columns */
+      #bottom-nav .bottom-nav-btn {
+        flex: 0 0 auto !important;
+        width: 80px !important;
+        min-width: unset !important;
+        max-width: unset !important;
+        padding: 10px 0 !important;
+        flex-direction: column !important;
+        position: relative !important;
+      }
+      /* Hide text labels on desktop left nav */
+      #bottom-nav .bottom-nav-btn span {
+        display: none !important;
+      }
+      /* Active indicator: left bar instead of top bar */
+      #bottom-nav .bottom-nav-btn.active::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 0 !important;
+        transform: translateY(-50%) !important;
+        width: 3px !important;
+        height: 28px !important;
+        background: var(--chords-color) !important;
+        border-radius: 0 3px 3px 0 !important;
+        box-shadow: 0 0 8px var(--accent-glow) !important;
+      }
+      /* Tooltip on hover */
+      #bottom-nav .bottom-nav-btn::after {
+        content: attr(data-label);
+        position: absolute;
+        left: 88px;
+        top: 50%;
+        transform: translateY(-50%) translateX(-4px);
+        background: var(--surface-1);
+        border: 1px solid var(--border-subtle);
+        color: var(--lyrics-color);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        z-index: 9999;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      }
+      #bottom-nav .bottom-nav-btn:hover::after {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0px);
+      }
+
+      /* ── Top nav: bound to center column only ──────────────── */
+      #top-nav {
+        grid-area: topnav;
+        position: static !important;
+        width: 100% !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        flex-shrink: 0;
+        z-index: 400;
+        padding-top: 12px !important;
+      }
+
+      /* ── Main content: center column ───────────────────────── */
       #main-content {
-        flex: 1 !important;
-        height: 0 !important;
+        grid-area: maincontent;
+        flex: unset !important;
+        height: 100% !important;
         padding-top: 16px !important;
         padding-bottom: 16px !important;
         overflow-y: auto !important;
+        position: relative;
       }
-      #main-content::-webkit-scrollbar-track { margin-top: 0; margin-bottom: 0; }
-      /* FABs inside center */
-      #autoscroll-fab, #add-song-fab, #fab-btn {
+      #main-content::-webkit-scrollbar-track {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      /* ── Right sidebar: profile lives here by default ───────── */
+      #desktop-right-sidebar {
+        grid-area: sidebar;
+        width: 360px;
+        height: 100vh;
+        border-left: 1px solid var(--border-color);
+        background: var(--surface-1);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      /* When viewing a song/detail (is-viewing-details on app-root):
+         list panel moves to sidebar, detail opens in main content */
+      #app-root.is-viewing-details #desktop-right-sidebar {
+        /* The tab list panel is injected here by JS */
+      }
+
+      /* FABs anchored to lower-right of main content area */
+      #autoscroll-fab,
+      #add-song-fab,
+      #fab-btn {
         position: absolute !important;
-        bottom: 16px !important;
-        right: 16px !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        z-index: 500 !important;
       }
+      /* Autoscroll stacks above main FAB */
+      #autoscroll-fab {
+        bottom: 80px !important;
+      }
+
+      /* Font size buttons: lower-right of main content, hidden unless song open */
       .desktop-font-btns {
         position: absolute !important;
-        bottom: 16px !important;
-        left: 16px !important;
+        bottom: 20px !important;
+        left: auto !important;
+        right: 84px !important;
+        display: none !important; /* hidden until song sheet is open */
       }
-      /* Profile tab hidden from center — lives in right panel */
-      /* Profile tab: hidden in main-content on desktop (it gets moved into the right panel) */
-      #app-root #tab-profile { display: none !important; }
-      #desktop-right-panel #tab-profile {
+      /* Show font btns when song sheet is active (class toggled by JS) */
+      #app-root.is-viewing-details .desktop-font-btns,
+      #main-content.song-sheet-open ~ .desktop-font-btns {
+        /* handled by JS show/hide */
+      }
+
+      /* Profile-view overlay: disabled on desktop, content lives in sidebar */
+      #profile-view {
+        display: none !important;
+        pointer-events: none !important;
+      }
+
+      /* tab-profile panel shown inside #main-content on mobile;
+         on desktop it is cloned/rendered into the sidebar instead */
+      #tab-profile {
         display: block !important;
-        width: 100%;
-        box-sizing: border-box;
+        opacity: 1 !important;
+        transform: none !important;
       }
-
-      /* ── RIGHT PANEL — 25% width ── */
-      #desktop-right-panel {
-        display: flex !important;
-        flex-direction: column;
-        flex: 0 0 20%;
-        width: 20%;
-        min-width: 280px;
-        height: 100vh;
-        background: var(--canvas-bg);
-        border-left: 1px solid var(--border-color);
-        overflow: hidden;
-      }
-      #drp-inner {
-        flex: 1;
-        overflow-y: auto;
-        height: 100%;
-        min-height: 0;
-      }
-      #drp-inner::-webkit-scrollbar { width: 4px; }
-      #drp-inner::-webkit-scrollbar-track { background: transparent; }
-      #drp-inner::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
-
-      /* Detail views moved into right panel get full-width treatment */
-      #desktop-right-panel #song-sheet-view,
-      #desktop-right-panel #setlist-detail-view,
-      #desktop-right-panel #user-detail-view {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px;
-      }
-
-      /* Modals stay centered within app-root */
-      .modal-overlay { position: absolute; }
-
-      /* Hide admin cog from top nav (no top nav on desktop) */
-      #top-nav-admin-btn { display: none !important; }
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
     .checkbox-custom:checked { background: var(--chords-color); border-color: var(--chords-color); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
@@ -773,42 +682,6 @@
   </div>
 </div>
 
-
-<!-- DESKTOP LEFT RAIL (≥1279px only) -->
-<div id="desktop-left-rail">
-  <div id="dlr-top">
-    <!-- Logo -->
-    <!-- Collapse / expand toggle (top-most) -->
-    <button id="dlr-collapse-btn" onclick="toggleDesktopLeftRail()" title="Toggle sidebar">
-      <iconify-icon id="dlr-collapse-icon" icon="mdi:menu"></iconify-icon>
-    </button>
-    <!-- Logo (circle) -->
-    <div id="dlr-logo" onclick="switchTab('songs')" title="RCCM Gigbook">
-      <img src="icons/logo.png" alt="Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-      <div id="dlr-logo-fallback">
-        <iconify-icon icon="mdi:music-note"></iconify-icon>
-      </div>
-    </div>
-    <!-- Tab buttons (populated by buildNav) -->
-    <nav id="dlr-nav"></nav>
-  </div>
-  <!-- Profile pic + logout at bottom -->
-  <div id="dlr-bottom">
-    <button id="dlr-profile-btn" onclick="openProfileView()" title="Profile">
-      <img id="dlr-profile-pic" src="" alt="Profile" onerror="this.style.background='#374151';this.src=''" />
-      <span id="dlr-profile-name"></span>
-    </button>
-    <button id="dlr-logout-btn" onclick="signOut()" title="Sign Out">
-      <iconify-icon icon="mdi:logout"></iconify-icon>
-    </button>
-  </div>
-</div>
-
-<!-- DESKTOP RIGHT PANEL (≥1279px only) — shows profile tab by default, detail views when open -->
-<div id="desktop-right-panel">
-  <div id="drp-inner"></div>
-</div>
-
 <!-- DESKTOP SIDEBAR (removed — sidebar layout eliminated per responsive redesign) -->
 <div id="desktop-sidebar" style="display:none !important;"></div>
 
@@ -826,10 +699,11 @@
     <!-- Title / App name -->
     <span id="top-nav-title" style="color:var(--lyrics-color);font-size:16px;font-weight:600;display:none;flex:1;"></span>
     <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;flex:1;">RCCM Gigbook</span>
-    <!-- Admin cog (shown only for Admin role in Profile tab) — far right -->
-    <button id="top-nav-admin-btn" onclick="switchTab('admin')" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;align-items:center;flex-shrink:0;margin-left:auto;" title="Admin Panel">
-      <iconify-icon icon="mdi:cog" style="font-size:24px;"></iconify-icon>
-    </button>
+    <!-- Logo on the right -->
+    <img src="icons/logo.png" alt="Logo" onclick="switchTab('songs')" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+    <div onclick="switchTab('songs')" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+      <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
+    </div>
   </div>
 
   <!-- MAIN CONTENT AREA -->
@@ -1259,79 +1133,19 @@
 
       </div>
     </div>
-  </div>
+    <!-- PROFILE TAB (accessible from nav; content same as profile-view) -->
     <div id="tab-profile" class="tab-panel" style="padding:0;">
-    
-      <!-- Hero section -->
-      <div style="padding:12px 20px 14px;display:flex;flex-direction:column;align-items:center;gap:0;background:linear-gradient(180deg,#1a1a1a 0%,var(--canvas-bg) 100%);">
-        <div style="position:relative;margin-bottom:10px;">
-          <img id="profile-view-pic" src="" alt="Profile"
-            style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--chords-color);box-shadow:0 0 0 5px rgba(251,191,36,0.1);" />
-        </div>
-        <!-- Name row with edit pencil -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span id="profile-view-name" style="color:var(--lyrics-color);font-size:18px;font-weight:700;letter-spacing:0.01em;"></span>
-          <button onclick="openNameEditModal()" title="Edit name"
-            style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
-            <iconify-icon icon="mdi:pencil" style="font-size:14px;"></iconify-icon>
-          </button>
-        </div>
-        <!-- Role | Instruments row -->
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
-          <span id="profile-view-role-badge"></span>
-          <span id="profile-view-instruments-inline" style="color:var(--text-secondary);font-size:13px;"></span>
-        </div>
-      </div>
-    
-      <!-- Settings card -->
-      <div style="padding:0 12px 12px;">
-        <div style="background:var(--surface-1);border-radius:12px;overflow:hidden;">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color);">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
-              <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-      </div>
-    
-      <!-- Admin Panel shortcut (shown only for Admin role via JS) -->
-      <div id="profile-admin-shortcut" style="display:none;padding:0 12px 10px;">
-        <button onclick="switchTab('admin')" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface-1);border:1px solid var(--border-color);border-radius:12px;color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;">
-          <iconify-icon icon="mdi:cog" style="font-size:18px;color:var(--chords-color);"></iconify-icon>
-          Admin Panel
-        </button>
-      </div>
-
-      <!-- My Setlists -->
-      <div style="padding:0 11px 12px;">
-        <div class="section-label" style="margin-bottom:8px;padding-left:1px;">My Setlists</div>
-        <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
-        <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
-      </div>
-    
-      <!-- Update Available Banner (shown when a new version is detected) -->
-      <div id="profile-update-banner" style="display:none;padding:0 var(--view-px) 12px;">
-        <button onclick="showUpdateModal(window._pendingUpdateVersion||'')"
-          style="width:100%;background:linear-gradient(135deg,#065f46,#047857);border:1px solid #34d399;color:#d1fae5;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.2s;animation:pulseGreen 2s ease-in-out infinite;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-          <iconify-icon icon="mdi:update" style="font-size:20px;"></iconify-icon>
-          Update Available — Tap to Reload
-        </button>
-      </div>
-    
-      <!-- Sign out -->
-      <div style="padding:12px var(--view-px) 12px;">
-        <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
-          <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
-          Sign Out
-        </button>
-      </div>
+      <!-- Populated dynamically by renderProfilePanel() on desktop -->
+      <div id="tab-profile-inner"></div>
     </div>
 
+  </div><!-- /#main-content -->
+
+  <!-- RIGHT SIDEBAR (desktop only — profile lives here) -->
+  <div id="desktop-right-sidebar">
+    <div id="sidebar-profile-content" style="flex:1;overflow-y:auto;"></div>
+    <div id="sidebar-list-content" style="display:none;flex:1;overflow-y:auto;"></div>
+  </div>
 
   <!-- BOTTOM NAV -->
   <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 12px rgba(0,0,0,0.25);">
@@ -1373,7 +1187,79 @@
 </div>
 
 <!-- PROFILE VIEW OVERLAY -->
+<div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;transition:opacity 0.25s ease,transform 0.25s ease;opacity:0;transform:translateX(100%);">
+  <!-- Header bar -->
+  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 16px rgba(0,0,0,0.4);position:sticky;top:0;z-index:10;">
+    <button onclick="closeProfileView()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:4px;flex-shrink:0;">
+      <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
+    </button>
+    <span style="color:var(--lyrics-color);font-size:16px;font-weight:600;flex:1;">My Profile</span>
+    <button id="profile-admin-btn" onclick="closeProfileView();switchTab('admin');" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;align-items:center;padding:4px;flex-shrink:0;" title="Admin Panel">
+      <iconify-icon icon="mdi:cog" style="font-size:22px;"></iconify-icon>
+    </button>
+  </div>
 
+  <!-- Hero section -->
+  <div style="padding:32px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:0;background:linear-gradient(180deg,#1a1a1a 0%,var(--canvas-bg) 100%);">
+    <div style="position:relative;margin-bottom:16px;">
+      <img id="profile-view-pic" src="" alt="Profile"
+        style="width:96px;height:96px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--chords-color);box-shadow:0 0 0 6px rgba(251,191,36,0.1);" />
+    </div>
+    <!-- Name row with edit pencil -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span id="profile-view-name" style="color:var(--lyrics-color);font-size:20px;font-weight:700;letter-spacing:0.01em;"></span>
+      <button onclick="openNameEditModal()" title="Edit name"
+        style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
+        <iconify-icon icon="mdi:pencil" style="font-size:16px;"></iconify-icon>
+      </button>
+    </div>
+    <!-- Role | Instruments row -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+      <span id="profile-view-role-badge"></span>
+      <span id="profile-view-instruments-inline" style="color:var(--text-secondary);font-size:13px;"></span>
+    </div>
+  </div>
+
+  <!-- Settings card -->
+  <div style="padding:0 12px 12px;">
+    <div style="background:var(--surface-1);border-radius:12px;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
+          <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Setlists -->
+  <div style="padding:0 11px 12px;">
+    <div class="section-label" style="margin-bottom:8px;padding-left:1px;">My Setlists</div>
+    <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
+    <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
+  </div>
+
+  <!-- Update Available Banner (shown when a new version is detected) -->
+  <div id="profile-update-banner" style="display:none;padding:0 var(--view-px) 12px;">
+    <button onclick="showUpdateModal(window._pendingUpdateVersion||'')"
+      style="width:100%;background:linear-gradient(135deg,#065f46,#047857);border:1px solid #34d399;color:#d1fae5;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.2s;animation:pulseGreen 2s ease-in-out infinite;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+      <iconify-icon icon="mdi:update" style="font-size:20px;"></iconify-icon>
+      Update Available — Tap to Reload
+    </button>
+  </div>
+
+  <!-- Sign out -->
+  <div style="padding:12px var(--view-px) calc(32px + env(safe-area-inset-bottom,0px));">
+    <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
+      <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
+      Sign Out
+    </button>
+  </div>
+</div>
 
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
@@ -1790,14 +1676,6 @@ window.addEventListener('popstate', () => {
   pushState();
   handleBackButton();
 });
-window.addEventListener('resize', () => {
-  if (isDesktop()) {
-    updateDesktopLeftRail();
-    updateDesktopRightPanel();
-  } else {
-    _restoreDetailFromPanel();
-  }
-});
 function _isVisible(id) {
   const el = document.getElementById(id);
   return el && el.style.display !== 'none';
@@ -1815,7 +1693,7 @@ function handleBackButton() {
     if (_isVisible('tutorial-modal')) { closeTutorialModal(); return; }
     if (_isVisible('alert-modal')) { closeAlertModal(); return; }
     if (_isVisible('setlist-limit-modal')) { closeSetlistLimitModal(); return; }
-    if (activeTab === 'profile') { closeProfileView(); return; }
+    if (_isVisible('profile-view')) { closeProfileView(); return; }
     if (_isVisible('song-sheet-view')) { closeSongSheet(); return; }
     // Setlist opened from user detail → go back to user detail
     if (currentSetlistId !== null && _setlistOpenedFromUserDetail) { closeSetlistFromUserDetail(); return; }
@@ -1860,7 +1738,7 @@ auth.onAuthStateChanged(async (user) => {
 function showAuthView() {
   document.getElementById('splash-screen').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
-  // profile is now a tab-panel, no separate hide needed
+  document.getElementById('profile-view').style.display = 'none';
   const authView = document.getElementById('auth-view');
   authView.style.display = 'flex';
   authView.classList.add('fade-in');
@@ -2046,13 +1924,19 @@ function signOut() {
   if (navSongs) navSongs.classList.add('active');
   // Hide top-nav back arrow and title
   updateHomeBtn(false);
-  // (top-nav-title no longer used)
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) navTitle.style.display = 'none';
   // Hide FABs
   document.getElementById('fab-btn').style.display = 'none';
   document.getElementById('add-song-fab').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
-  // profile is now a tab-panel, no separate hide needed
+  document.getElementById('app-root').classList.remove('is-viewing-details');
+  document.getElementById('profile-view').style.display = 'none';
+  const sidebarList = document.getElementById('sidebar-list-content');
+  const sidebarProfile = document.getElementById('sidebar-profile-content');
+  if (sidebarList) { sidebarList.style.display = 'none'; sidebarList.innerHTML = ''; }
+  if (sidebarProfile) { sidebarProfile.style.display = 'block'; sidebarProfile.innerHTML = ''; }
   auth.signOut().then(() => {
     _signingOut = false;
     showAuthView();
@@ -2134,6 +2018,11 @@ function mountApp() {
     const initPanel = document.getElementById('tab-songs');
     if (initPanel) initPanel.classList.add('tab-visible');
   });
+  // Populate profile into sidebar on desktop after a short delay (profile data may still be loading)
+  setTimeout(() => {
+    const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
+    if (isDesktop) openProfileView();
+  }, 300);
   runTTLCleanup();
   seedSongsIfEmpty();
   loadAdminSettings();
@@ -2210,135 +2099,6 @@ function reloadApp() {
 }
 
 // ============================================================
-// DESKTOP RIGHT PANEL (≥1279px)
-// ============================================================
-function isDesktop() {
-  return window.innerWidth >= 1279;
-}
-
-function updateDesktopRightPanel() {
-  if (!isDesktop()) return;
-  const panel = document.getElementById('drp-inner');
-  if (!panel) return;
-
-  const songSheetOpen = currentSongId && document.getElementById('song-sheet-view')?.style.display !== 'none';
-  const setlistDetailOpen = !!currentSetlistId;
-  const userDetailOpen = !!currentDetailUserId;
-  const anyDetailOpen = songSheetOpen || setlistDetailOpen || userDetailOpen;
-
-  // Move the active detail element into the right panel, or show profile
-  if (anyDetailOpen) {
-    let detailEl = null;
-    if (songSheetOpen) detailEl = document.getElementById('song-sheet-view');
-    else if (setlistDetailOpen) detailEl = document.getElementById('setlist-detail-view');
-    else if (userDetailOpen) detailEl = document.getElementById('user-detail-view');
-
-    // Make sure the profile panel is moved back out first
-    _restoreDetailFromPanel(['tab-profile']);
-
-    if (detailEl && !panel.contains(detailEl)) {
-      panel.innerHTML = '';
-      detailEl._drpOrigParent = detailEl.parentNode;
-      detailEl._drpOrigNextSibling = detailEl.nextSibling;
-      panel.appendChild(detailEl);
-    }
-    detailEl.style.display = 'block';
-    // Restore songs-list-view / setlists-list-view so center shows the list
-    if (songSheetOpen) {
-      const slv = document.getElementById('songs-list-view');
-      if (slv) slv.style.display = 'block';
-    }
-  } else {
-    // Restore any detail el that was moved
-    _restoreDetailFromPanel(['song-sheet-view','setlist-detail-view','user-detail-view']);
-    // Move the real #tab-profile element into the right panel (same pattern as detail views)
-    const profileEl = document.getElementById('tab-profile');
-    if (profileEl && !panel.contains(profileEl)) {
-      panel.innerHTML = '';
-      profileEl._drpOrigParent = profileEl.parentNode;
-      profileEl._drpOrigNextSibling = profileEl.nextSibling;
-      panel.appendChild(profileEl);
-    }
-    if (profileEl) profileEl.style.display = 'block';
-    refreshProfileView();
-  }
-}
-
-function _restoreDetailFromPanel(ids) {
-  // Move any of the given elements back to their original parent if they were moved into the right panel
-  const panel = document.getElementById('drp-inner');
-  if (!panel) return;
-  (ids || ['song-sheet-view','setlist-detail-view','user-detail-view','tab-profile']).forEach(id => {
-    const el = document.getElementById(id);
-    if (el && el._drpOrigParent && panel.contains(el)) {
-      el._drpOrigParent.insertBefore(el, el._drpOrigNextSibling || null);
-      el._drpOrigParent = null;
-      el._drpOrigNextSibling = null;
-      if (id === 'tab-profile' && !isDesktop()) {
-        // Restore normal mobile tab-panel display behavior
-        el.style.display = '';
-      }
-    }
-  });
-}
-
-function toggleDesktopLeftRail() {
-  const rail = document.getElementById('desktop-left-rail');
-  if (!rail) return;
-  const collapsed = rail.classList.toggle('collapsed');
-  const icon = document.getElementById('dlr-collapse-icon');
-  if (icon) icon.setAttribute('icon', collapsed ? 'mdi:menu-open' : 'mdi:menu');
-  try { localStorage.setItem('dlrCollapsed', collapsed ? '1' : '0'); } catch (e) {}
-}
-
-function updateDesktopLeftRail() {
-  if (!isDesktop()) return;
-  const rail = document.getElementById('dlr-nav');
-  if (!rail) return;
-  const role = currentUserProfile?.role || 'Musician';
-  let tabs = [];
-  if (role === 'Admin') {
-    tabs = [
-      { id: 'songs', icon: 'mdi:music-note', label: 'Songs' },
-      { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' },
-      { id: 'users', icon: 'mdi:account-group', label: 'Users' },
-      { id: 'admin', icon: 'mdi:cog', label: 'Admin' }
-    ];
-  } else if (role === 'Sub-Admin' || role === 'Lead') {
-    tabs = [
-      { id: 'songs', icon: 'mdi:music-note', label: 'Songs' },
-      { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' },
-      { id: 'users', icon: 'mdi:account-group', label: 'Users' }
-    ];
-  } else {
-    tabs = [
-      { id: 'songs', icon: 'mdi:music-note', label: 'Songs' },
-      { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' }
-    ];
-  }
-  rail.innerHTML = tabs.map(t => `
-    <button class="dlr-tab-btn${activeTab === t.id ? ' active' : ''}" id="dlr-nav-${t.id}" onclick="switchTab('${t.id}')" title="${t.label}">
-      <iconify-icon icon="${t.icon}"></iconify-icon>
-      <span class="dlr-tab-label">${t.label}</span>
-    </button>
-  `).join('');
-  // Update profile pic + name in bottom rail
-  const p = currentUserProfile;
-  const pic = document.getElementById('dlr-profile-pic');
-  const nameEl = document.getElementById('dlr-profile-name');
-  if (pic) pic.src = p?.photoURL || '';
-  if (nameEl) nameEl.textContent = p?.displayName || '';
-  try {
-    const rail = document.getElementById('desktop-left-rail');
-    const icon = document.getElementById('dlr-collapse-icon');
-    if (rail && localStorage.getItem('dlrCollapsed') === '1') {
-      rail.classList.add('collapsed');
-      if (icon) icon.setAttribute('icon', 'mdi:menu-open');
-    }
-  } catch (e) {}
-}
-
-// ============================================================
 // NAVIGATION BUILD
 // ============================================================
 function buildNav() {
@@ -2365,7 +2125,10 @@ function buildNav() {
   }
   const photoURL = escHtml(currentUserProfile?.photoURL || '');
   const isProfileActive = activeTab === 'profile';
-  const profileBtn = `<button class="bottom-nav-btn nav-text${isProfileActive ? ' active' : ''}" id="nav-profile" onclick="openProfileView()">
+  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
+
+  // Profile button — on mobile opens overlay; on desktop switches to profile tab
+  const profileBtn = `<button class="bottom-nav-btn nav-text${isProfileActive ? ' active' : ''}" id="nav-profile" data-label="Profile" onclick="${isDesktop ? "switchTab('profile')" : "openProfileView()"}">
     <div class="nav-icon-wrap">
       <img src="${photoURL}" alt="Profile"
         style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid ${isProfileActive ? 'var(--chords-color)' : '#555'};"
@@ -2374,39 +2137,37 @@ function buildNav() {
     </div>
     <span>Profile</span>
   </button>`;
+
+  // Admin Panel button — only rendered for Admin role
+  const adminBtn = role === 'Admin'
+    ? `<button class="bottom-nav-btn nav-text${activeTab === 'admin' ? ' active' : ''}" id="nav-admin" data-label="Admin Panel" onclick="switchTab('admin')">
+        <div class="nav-icon-wrap"><iconify-icon icon="mdi:cog"></iconify-icon></div>
+        <span>Admin</span>
+      </button>`
+    : '';
+
   nav.innerHTML = tabs.map(t => `
-    <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" onclick="switchTab('${t.id}')">
+    <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" data-label="${t.label}" onclick="switchTab('${t.id}')">
       <div class="nav-icon-wrap"><iconify-icon icon="${t.icon}"></iconify-icon></div>
       <span>${t.label}</span>
     </button>
-  `).join('') + profileBtn;
-  // Also populate desktop sidebar nav
+  `).join('') + profileBtn + adminBtn;
+
+  // Populate desktop sidebar nav (legacy — now replaced by #bottom-nav left sidebar)
   const sidebarNav = document.getElementById('sidebar-nav');
   if (sidebarNav) {
-    const sidebarProfileBtn = `<button onclick="openProfileView()" style="display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
-      <img src="${photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid var(--border-subtle);" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
-      <span style="font-size:13px;font-weight:500;">Profile</span>
-    </button>`;
-    sidebarNav.innerHTML = tabs.map(t => `
-      <button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}')" style="display:flex;align-items:center;gap:10px;background:${t.id===activeTab?'#2a2a2a':'transparent'};border:none;color:${t.id===activeTab?'var(--chords-color)':'#6b7280'};cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='${t.id===activeTab?'#2a2a2a':'transparent'}'">
-        <iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>
-        <span style="font-size:13px;font-weight:500;">${t.label}</span>
-      </button>
-    `).join('') + sidebarProfileBtn;
+    sidebarNav.innerHTML = '';
   }
-  // Desktop: rebuild left rail too
-  updateDesktopLeftRail();
-  updateDesktopRightPanel();
+
+  // Render profile into the right sidebar on desktop
+  if (isDesktop) {
+    renderSidebarProfile();
+  }
 }
 
 function switchTab(tab) {
   closeSongSheet();
   closeSetlistDetail();
-  if (currentDetailUserId !== null) {
-    currentDetailUserId = null;
-    const udv = document.getElementById('user-detail-view');
-    if (udv) udv.style.display = 'none';
-  }
   closeAllDropdowns();
   activeTab = tab;
   document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
@@ -2418,25 +2179,13 @@ function switchTab(tab) {
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   const navBtn = document.getElementById('nav-' + tab);
   if (navBtn) navBtn.classList.add('active');
-  // Profile tab: show title in top nav, hide app name
-  if (tab === 'profile') {
-    updateHomeBtn(true);
-  } else {
-    updateHomeBtn(false);
-  }
   updateFAB();
-  // Sync profile photo border color in nav button
-  const profImg = document.querySelector('#nav-profile img');
-  if (profImg) profImg.style.borderColor = (tab === 'profile') ? 'var(--chords-color)' : '#555';
-  // Show admin cog on profile tab for Admin role (mobile only)
-  const adminCog = document.getElementById('top-nav-admin-btn');
-  if (adminCog && !isDesktop()) {
-    const isAdmin = currentUserProfile?.role === 'Admin';
-    adminCog.style.display = (tab === 'profile' && isAdmin) ? 'flex' : 'none';
+  updateHomeBtn(false);
+  // On desktop, if switching to profile tab, render it in main content
+  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
+  if (isDesktop && tab === 'profile') {
+    renderProfilePanel();
   }
-  // Desktop: update left rail active state and right panel
-  updateDesktopLeftRail();
-  updateDesktopRightPanel();
 }
 
 function updateFAB() {
@@ -2475,14 +2224,19 @@ function handleFabClick() {
 }
 
 function updateHomeBtn(show) {
-  // Desktop has no top nav — nothing to update
-  if (isDesktop()) return;
   const btn = document.getElementById('home-btn');
+  // Never show back arrow when we're at the root of the songs tab with nothing open
   const atSongsRoot = activeTab === 'songs' && !currentSongId && !currentSetlistId && !currentDetailUserId;
   const shouldShow = show && !atSongsRoot;
   btn.style.display = shouldShow ? 'flex' : 'none';
   const appName = document.getElementById('top-nav-appname');
+  const navTitle = document.getElementById('top-nav-title');
   if (appName) appName.style.display = shouldShow ? 'none' : 'flex';
+  // Always keep a flex:1 spacer visible so the logo stays pushed to the far-right
+  if (navTitle) {
+    navTitle.style.display = shouldShow ? 'flex' : 'none';
+    navTitle.style.flex = '1';
+  }
 }
 
 function goHome() {
@@ -2534,10 +2288,6 @@ function setupListeners() {
         updateFAB(); // refresh add-song-fab visibility
       }
     }
-    // Desktop: refresh right panel profile setlists if no detail is open
-    if (isDesktop() && !currentSetlistId && !currentSongId && !currentDetailUserId) {
-      updateDesktopRightPanel();
-    }
     hideSyncBar();
   }, err => { console.error('Setlists listener:', err); hideSyncBar(); });
 
@@ -2578,8 +2328,6 @@ function loadAdminSettings() {
         if (inp) inp.value = data.appName;
         const nameEl = document.getElementById('top-nav-appname');
         if (nameEl) nameEl.textContent = data.appName;
-        const dlrName = document.getElementById('dlr-appname');
-        if (dlrName) dlrName.textContent = data.appName;
       }
       if (data.logoURL) {
         const imgs = [document.getElementById('admin-logo-preview'),
@@ -2912,7 +2660,8 @@ function openSongSheet(songId, fromSetlist) {
   sheetView.style.opacity = '1';
   document.getElementById('sheet-song-title').textContent = song.title || '';
   document.getElementById('sheet-song-artist').textContent = song.artist || '';
-  // Top nav title not used — app name always shown
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) { navTitle.textContent = song.title || ''; navTitle.style.display = 'block'; }
   document.getElementById('current-key-display').textContent = localKey;
   updateCapoDisplay();
   renderSheetContent(song.content || '', localKey, originalKey);
@@ -2939,11 +2688,21 @@ function openSongSheet(songId, fromSetlist) {
   if (!isTouch) {
     document.getElementById('desktop-font-btns').style.display = 'flex';
   }
-  // Desktop: move song sheet into right panel
-  if (isDesktop()) {
-    updateDesktopRightPanel();
+  // Desktop: activate 3-column state 2 (detail mode)
+  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
+  if (isDesktop) {
+    document.getElementById('app-root').classList.add('is-viewing-details');
+    // Move active tab list view into sidebar-list-content
+    const activePanel = document.getElementById('tab-' + activeTab);
+    const sidebarList = document.getElementById('sidebar-list-content');
+    const sidebarProfile = document.getElementById('sidebar-profile-content');
+    if (sidebarList && activePanel) {
+      sidebarList.innerHTML = '';
+      sidebarList.appendChild(activePanel.cloneNode(true));
+      sidebarList.style.display = 'block';
+    }
+    if (sidebarProfile) sidebarProfile.style.display = 'none';
   }
-}
 
 function setupSongControls() {
   const role = currentUserProfile?.role || '';
@@ -2999,14 +2758,22 @@ function copySheetToClipboard() {
 
 function closeSongSheet() {
   stopAutoScroll();
-  if (isDesktop()) { _restoreDetailFromPanel(); }
   document.getElementById('song-sheet-view').style.display = 'none';
-  if (isDesktop()) { updateDesktopRightPanel(); }
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('autoscroll-popup').style.display = 'none';
   document.getElementById('desktop-font-btns').style.display = 'none';
-  // (top-nav-title no longer used)
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
+  // Desktop: restore State 1 layout
+  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
+  if (isDesktop) {
+    document.getElementById('app-root').classList.remove('is-viewing-details');
+    const sidebarList = document.getElementById('sidebar-list-content');
+    const sidebarProfile = document.getElementById('sidebar-profile-content');
+    if (sidebarList) { sidebarList.style.display = 'none'; sidebarList.innerHTML = ''; }
+    if (sidebarProfile) sidebarProfile.style.display = 'block';
+  }
   if (openedFromSetlist) {
     openedFromSetlist = false;
     document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
@@ -3817,16 +3584,15 @@ function openSetlistDetail(setlistId) {
   const detailView = document.getElementById('setlist-detail-view');
   detailView.style.display = 'block';
   renderSetlistDetail(setlist);
+  const navTitle = document.getElementById('top-nav-title');
+  if (navTitle) navTitle.textContent = setlist.name || 'Setlist';
   updateHomeBtn(true);
   updateFAB();
-  if (isDesktop()) updateDesktopRightPanel();
   pushState();
 }
 
 function closeSetlistDetail() {
-  if (isDesktop()) _restoreDetailFromPanel();
   document.getElementById('setlist-detail-view').style.display = 'none';
-  if (isDesktop()) updateDesktopRightPanel();
   document.getElementById('setlists-list-view').style.display = 'block';
   currentSetlistId = null;
   const addSongFab = document.getElementById('add-song-fab');
@@ -4414,8 +4180,9 @@ function openUserDetail(uid) {
   `;
   document.getElementById('users-list-panel').style.display = 'none';
   detail.style.display = 'block';
+  const navTitleU = document.getElementById('top-nav-title');
+  if (navTitleU) navTitleU.textContent = u.displayName || 'User';
   updateHomeBtn(true);
-  if (isDesktop()) updateDesktopRightPanel();
   pushState();
 }
 
@@ -4499,9 +4266,7 @@ function closeSetlistFromUserDetail() {
 }
 
 function closeUserDetail() {
-  if (isDesktop()) _restoreDetailFromPanel();
   document.getElementById('user-detail-view').style.display = 'none';
-  if (isDesktop()) updateDesktopRightPanel();
   document.getElementById('users-list-panel').style.display = 'block';
   currentDetailUserId = null;
   updateHomeBtn(false);
@@ -4708,44 +4473,36 @@ async function saveUserEdit() {
 // ============================================================
 // PROFILE VIEW
 // ============================================================
-function refreshProfileView() {
-  const p = currentUserProfile;
-  if (!p) return;
-  const pic = document.getElementById('profile-view-pic');
-  if (pic) pic.src = p.photoURL || '';
-  const nameEl = document.getElementById('profile-view-name');
-  if (nameEl) nameEl.textContent = p.displayName || '';
-  const roleBadge = document.getElementById('profile-view-role-badge');
-  if (roleBadge) {
-    roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role);
-    roleBadge.textContent = p.role || '';
-  }
-  const instInline = document.getElementById('profile-view-instruments-inline');
-  if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
-  const tutToggle = document.getElementById('tutorial-toggle');
-  if (tutToggle) tutToggle.checked = p.showTutorial !== false;
-  tutorialEnabled = p.showTutorial !== false;
-  // Show/hide admin shortcut button inside profile tab
-  const adminShortcut = document.getElementById('profile-admin-shortcut');
-  if (adminShortcut) adminShortcut.style.display = (p.role === 'Admin') ? 'block' : 'none';
-  // Show/hide admin cog in top nav (mobile only)
-  const adminCog = document.getElementById('top-nav-admin-btn');
-  if (adminCog) adminCog.style.display = (p.role === 'Admin' && !isDesktop()) ? 'flex' : 'none';
-  renderProfileSetlists();
-}
-
 function openProfileView() {
   const p = currentUserProfile;
   if (!p) return;
-  refreshProfileView();
-  if (isDesktop()) {
-    // On desktop, profile lives in the right panel — just refresh it
-    updateDesktopRightPanel();
+  document.getElementById('profile-view-pic').src = p.photoURL || '';
+  document.getElementById('profile-view-name').textContent = p.displayName || '';
+  const roleBadge = document.getElementById('profile-view-role-badge');
+  roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role);
+  roleBadge.textContent = p.role || '';
+  const instInline = document.getElementById('profile-view-instruments-inline');
+  if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
+  document.getElementById('tutorial-toggle').checked = p.showTutorial !== false;
+  tutorialEnabled = p.showTutorial !== false;
+  // Show Admin Panel shortcut only for Admins
+  const adminBtn = document.getElementById('profile-admin-btn');
+  if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
+  renderProfileSetlists();
+  // On desktop, render into the right sidebar instead of overlay
+  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
+  if (isDesktop) {
+    renderSidebarProfile();
     return;
   }
-  // Switch to profile tab like any other tab
-  switchTab('profile');
-  updateHomeBtn(true);
+  const profileView = document.getElementById('profile-view');
+  profileView.style.display = 'flex';
+  profileView.style.flexDirection = 'column';
+  requestAnimationFrame(() => {
+    profileView.style.opacity = '1';
+    profileView.style.transform = 'translateX(0)';
+  });
+  pushState();
 }
 
 function renderProfileSetlists() {
@@ -4777,12 +4534,71 @@ function renderProfileSetlists() {
 }
 
 function closeProfileAndOpenSetlist(id) {
-  switchTab('setlists');
-  openSetlistDetail(id);
+  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
+  if (isDesktop) {
+    switchTab('setlists');
+    openSetlistDetail(id);
+    return;
+  }
+  const profileView = document.getElementById('profile-view');
+  profileView.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+  profileView.style.opacity = '0';
+  profileView.style.transform = 'translateX(100%)';
+  setTimeout(() => {
+    profileView.style.display = 'none';
+    profileView.style.transition = '';
+    switchTab('setlists');
+    openSetlistDetail(id);
+  }, 200);
 }
 
 function closeProfileView() {
-  switchTab('songs');
+  const profileView = document.getElementById('profile-view');
+  profileView.style.opacity = '0';
+  profileView.style.transform = 'translateX(100%)';
+  setTimeout(() => { profileView.style.display = 'none'; }, 240);
+}
+
+// ── Desktop sidebar profile renderer ────────────────────────
+function renderSidebarProfile() {
+  const sidebarProfile = document.getElementById('sidebar-profile-content');
+  const pv = document.getElementById('profile-view');
+  if (!sidebarProfile || !pv) return;
+  // Clone the profile-view content into the sidebar
+  sidebarProfile.innerHTML = pv.innerHTML;
+  sidebarProfile.style.display = 'block';
+  // Hide the back button inside the clone (not needed in sidebar)
+  const backBtn = sidebarProfile.querySelector('button[onclick="closeProfileView()"]');
+  if (backBtn) backBtn.style.display = 'none';
+}
+
+// Renders profile content into tab-profile-inner for mobile profile tab usage
+function renderProfilePanel() {
+  const p = currentUserProfile;
+  if (!p) return;
+  const inner = document.getElementById('tab-profile-inner');
+  if (!inner) return;
+  // Populate all profile data (same as openProfileView but targeting the panel)
+  document.getElementById('profile-view-pic').src = p.photoURL || '';
+  document.getElementById('profile-view-name').textContent = p.displayName || '';
+  const roleBadge = document.getElementById('profile-view-role-badge');
+  roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role);
+  roleBadge.textContent = p.role || '';
+  const instInline = document.getElementById('profile-view-instruments-inline');
+  if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
+  document.getElementById('tutorial-toggle').checked = p.showTutorial !== false;
+  tutorialEnabled = p.showTutorial !== false;
+  const adminBtn = document.getElementById('profile-admin-btn');
+  if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
+  renderProfileSetlists();
+  // Clone profile-view content into the panel
+  const pv = document.getElementById('profile-view');
+  if (pv) {
+    inner.innerHTML = pv.innerHTML;
+    // Hide back button in the panel version
+    const backBtn = inner.querySelector('button[onclick="closeProfileView()"]');
+    if (backBtn) backBtn.style.display = 'none';
+  }
 }
 
 async function saveTutorialPref(val) {
