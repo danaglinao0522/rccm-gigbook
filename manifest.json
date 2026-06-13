@@ -1,24 +1,24 @@
 {
-  "name": "RCCM GigBook Cyber-Deck",
+  "name": "RCCM GigBook",
   "short_name": "GigBook",
-  "description": "Purple Robotic Neon-Mech Band Management SPA",
+  "description": "Premium band performance management SPA",
   "start_url": "/",
   "display": "standalone",
+  "background_color": "#09070f",
+  "theme_color": "#8b5cf6",
   "orientation": "any",
-  "background_color": "#0b0914",
-  "theme_color": "#a855f7",
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     }
   ]
 }
