@@ -19,22 +19,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     :root {
-      --canvas-bg: #121212;
-      --surface-1: #1e1e1e;
-      --surface-2: #2a2a2a;
-      --surface-3: #252525;
-      --surface-input: #2a2a2a;
-      --border-color: #2a2a2a;
-      --border-subtle: #333;
-      --nav-bg: rgba(14,14,14,0.96);
-      --text-muted: #6b7280;
-      --text-secondary: #9ca3af;
-      --modal-overlay: rgba(0,0,0,0.75);
-      --toggle-track: #374151;
-      --scrollbar-thumb: #444;
-      --accent-glow: rgba(251,191,36,0.15);
-      --lyrics-color: #FFFFFF;
-      --chords-color: #FBBF24;
+      /* ── Premium dark purple system ── */
+      --canvas-bg: #0e0c14;
+      --surface-1: #1a1726;
+      --surface-2: #241f33;
+      --surface-3: #211d2e;
+      --surface-input: #221d30;
+      --border-color: #2e2840;
+      --border-subtle: #383054;
+      --nav-bg: rgba(15,12,22,0.85);
+      --text-muted: #837e99;
+      --text-secondary: #b3aecb;
+      --modal-overlay: rgba(8,6,14,0.78);
+      --toggle-track: #3a3450;
+      --scrollbar-thumb: #4a4262;
+      --accent: #a78bfa;
+      --accent-strong: #8b5cf6;
+      --accent-soft: #c4b5fd;
+      --accent-glow: rgba(167,139,250,0.18);
+      --lyrics-color: #f5f3fa;
+      --chords-color: #c4b5fd;
       --sheet-font-size: 15px;
       --nav-font-size: 13px;
       --btn-font-size: 13px;
@@ -42,6 +46,9 @@
       --app-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       /* Unified view side padding — used by ALL tab content areas */
       --view-px: 6px;
+      --radius-card: 16px;
+      --radius-pill: 999px;
+      --ease-smooth: cubic-bezier(0.25,0.1,0.25,1);
     }
     html, body {
       overscroll-behavior-y: contain;
@@ -55,9 +62,9 @@
     * { box-sizing: border-box; }
     #app-root { background: var(--canvas-bg); height: 100vh; overflow: hidden; }
     .song-sheet-content { font-size: var(--sheet-font-size); }
-    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: monospace; }
+    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: monospace; font-weight: 600; }
     .lyric-line { color: var(--lyrics-color); white-space: pre-wrap; }
-    .section-header { color: var(--chords-color); font-weight: 700; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.75em; }
+    .section-header { color: var(--accent-soft); font-weight: 700; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.75em; }
     .nav-text { font-size: var(--nav-font-size); }
     .btn-text { font-size: var(--btn-font-size); }
     .meta-text { font-size: var(--meta-font-size); }
@@ -86,20 +93,20 @@
     .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 8px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color:var(--text-muted); gap: 3px; background: transparent; border: none; position: relative; }
     .bottom-nav-btn:active { transform: scale(0.92); }
     .bottom-nav-btn.active { color: var(--chords-color); }
-    .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--chords-color); border-radius: 0 0 3px 3px; box-shadow: 0 0 8px var(--accent-glow); }
-    .bottom-nav-btn .nav-icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 28px; border-radius: 10px; transition: background 0.2s; }
+    .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--accent); border-radius: 0 0 3px 3px; box-shadow: 0 0 10px var(--accent-glow); }
+    .bottom-nav-btn .nav-icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 28px; border-radius: 10px; transition: background 0.2s var(--ease-smooth); }
     .bottom-nav-btn.active .nav-icon-wrap { background: var(--accent-glow); }
     .bottom-nav-btn iconify-icon { font-size: 21px; flex-shrink: 0; }
     .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
     .bottom-nav-btn.active span { font-weight: 700; }
     .bottom-nav-btn img { flex-shrink: 0; }
     /* Song swipe actions (admin) */
-    .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: 12px; }
-    .song-swipe-bg-edit { position: absolute; inset: 0; background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%); display: flex; align-items: center; padding-left: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
-    .song-swipe-bg-delete { position: absolute; inset: 0; background: linear-gradient(270deg, #dc2626 0%, #991b1b 100%); display: flex; align-items: center; justify-content: flex-end; padding-right: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+    .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: var(--radius-card); }
+    .song-swipe-bg-edit { position: absolute; inset: 0; background: linear-gradient(90deg, #6366f1 0%, #4338ca 100%); display: flex; align-items: center; padding-left: 22px; border-radius: var(--radius-card); opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+    .song-swipe-bg-delete { position: absolute; inset: 0; background: linear-gradient(270deg, #dc2626 0%, #991b1b 100%); display: flex; align-items: center; justify-content: flex-end; padding-right: 22px; border-radius: var(--radius-card); opacity: 0; transition: opacity 0.12s; pointer-events: none; }
     .song-swipe-bg-edit span, .song-swipe-bg-delete span { color: #fff; font-size: 14px; font-weight: 800; letter-spacing: 0.04em; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
     .song-swipe-bg-edit iconify-icon, .song-swipe-bg-delete iconify-icon { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
-    .song-swipe-item { position: relative; z-index: 1; touch-action: pan-y; will-change: transform; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); background: var(--surface-1); border-radius: 12px; }
+    .song-swipe-item { position: relative; z-index: 1; touch-action: pan-y; will-change: transform; transition: transform 0.25s var(--ease-smooth); background: var(--surface-1); border-radius: var(--radius-card); }
     /* ═══════════════════════════════════════════════════════
        UNIFIED LIST ITEM DESIGN SYSTEM
        All list rows share the same base: padding, radius, gap
@@ -107,15 +114,15 @@
     .list-item {
       background: var(--surface-1);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 11px 14px;
+      border-radius: var(--radius-card);
+      padding: 12px 15px;
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: background 0.15s;
+      transition: background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth);
       position: relative;
     }
-    .list-item:hover { background: var(--surface-2); }
+    .list-item:hover { background: var(--surface-2); border-color: var(--border-subtle); }
     /* Bare icon button — matches lock icon style: no box, just icon */
     .list-icon-btn {
       background: transparent;
@@ -137,12 +144,17 @@
     .song-card, .setlist-card, .user-row, .setlist-song-item {
       background: var(--surface-1);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 11px 14px;
-      transition: background 0.15s;
+      border-radius: var(--radius-card);
+      padding: 12px 15px;
+      transition: background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
     }
     .song-card:hover, .setlist-card:hover, .user-row:hover, .setlist-song-item:hover {
       background: var(--surface-2);
+      border-color: var(--border-subtle);
+      box-shadow: 0 4px 20px rgba(139,92,246,0.08);
+    }
+    .song-card:active, .setlist-card:active, .user-row:active, .setlist-song-item:active {
+      transform: scale(0.985);
     }
     /* Line layout mode — remove card borders/radius, just dividers */
     body.layout-line .song-card,
@@ -170,49 +182,54 @@
     }
     body.layout-line .song-swipe-bg-edit,
     body.layout-line .song-swipe-bg-delete { border-radius: 0 !important; }
-    .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
-    .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; min-height: 280px; max-height: 92vh; overflow-y: auto; padding: 16px; transition: height 0.05s linear, max-height 0.05s linear; }
-    .modal-sheet.center-card { border-radius: 16px; max-height: 88vh; min-height: unset; }
+    .modal-sheet { background: var(--surface-1); border: 1px solid var(--border-color); border-bottom: none; border-radius: 22px 22px 0 0; width: 100%; max-width: 600px; min-height: 280px; max-height: 92vh; overflow-y: auto; padding: 18px; transition: height 0.05s linear, max-height 0.05s linear; box-shadow: 0 -8px 40px rgba(0,0,0,0.5); }
+    .modal-sheet.center-card { border: 1px solid var(--border-color); border-radius: 18px; max-height: 88vh; min-height: unset; }
     .modal-sheet.key-modal { max-height: 55vh; min-height: unset; }
-    .modal-handle { width: 48px; height: 5px; background: var(--border-subtle); border-radius: 3px; margin: 0 auto 14px; cursor: ns-resize; touch-action: none; padding: 10px 20px; box-sizing: content-box; margin-top: -10px; background-clip: content-box; }
-    .modal-handle:hover { background-color: var(--chords-color); background-clip: content-box; opacity: 0.7; }
+    .modal-handle { width: 48px; height: 5px; background: var(--border-subtle); border-radius: var(--radius-pill); margin: 0 auto 14px; cursor: ns-resize; touch-action: none; padding: 10px 20px; box-sizing: content-box; margin-top: -10px; background-clip: content-box; }
+    .modal-handle:hover { background-color: var(--accent); background-clip: content-box; opacity: 0.7; }
     /* Resizable modal sheet */
     .modal-sheet.resizable { transition: none; }
-    .role-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-    .instrument-tag { display: inline-flex; align-items: center; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
-    .badge-admin { background: #7c3aed; color:var(--lyrics-color); }
-    .badge-subadmin { background: #2563eb; color:var(--lyrics-color); }
-    .badge-lead { background: #059669; color:var(--lyrics-color); }
-    .badge-musician { background: #d97706; color:var(--lyrics-color); }
-    .badge-singer { background: #db2777; color:var(--lyrics-color); }
-    .badge-tech { background: #0891b2; color:var(--lyrics-color); }
+    .role-badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; }
+    .instrument-tag { display: inline-flex; align-items: center; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: var(--radius-pill); padding: 2px 9px; font-size: 11px; font-weight: 500; }
+    .badge-admin { background: #7c3aed; color:#fff; }
+    .badge-subadmin { background: #6366f1; color:#fff; }
+    .badge-lead { background: #059669; color:#fff; }
+    .badge-musician { background: #c026d3; color:#fff; }
+    .badge-singer { background: #db2777; color:#fff; }
+    .badge-tech { background: #0891b2; color:#fff; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s; }
-    .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
-    input:checked + .toggle-slider { background: var(--chords-color); }
+    .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s var(--ease-smooth); }
+    .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s var(--ease-smooth); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    input:checked + .toggle-slider { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
-    .fab { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--chords-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.15s; }
+    .fab { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); right: 20px; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 6px 24px rgba(139,92,246,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
     .fab:active { transform: scale(0.92); }
     .desktop-font-btns { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); left: 16px; display: none; flex-direction: row; gap: 6px; z-index: 500; }
-    .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
-    .autoscroll-slider { width: 100%; accent-color: var(--chords-color); }
+    .desktop-font-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth); }
+    .desktop-font-btn:hover { background: var(--surface-3); border-color: var(--accent); }
+    .autoscroll-slider { width: 100%; accent-color: var(--accent); }
     input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--chords-color); cursor: pointer; }
-    .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 10px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s; }
-    .drag-zone.dragover { border-color: var(--chords-color); color: var(--chords-color); }
-    .btn-primary { background: var(--chords-color); color: #000; border: none; border-radius: 10px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s; min-height: 44px; }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 11px 18px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.15s; min-height: 44px; }
-    .btn-danger { background: #dc2626; color:var(--lyrics-color); border: none; border-radius: 10px; padding: 11px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); min-height: 44px; }
-    .input-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
-    .input-field:focus { border-color: var(--chords-color); }
-    .select-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px rgba(167,139,250,0.5); }
+    .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 14px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth); }
+    .drag-zone.dragover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); min-height: 44px; box-shadow: 0 4px 16px rgba(139,92,246,0.25); }
+    .btn-primary:hover { opacity: 0.92; box-shadow: 0 6px 22px rgba(139,92,246,0.35); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 11px 18px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth); min-height: 44px; }
+    .btn-secondary:hover { background: var(--surface-3); border-color: var(--border-subtle); }
+    .btn-danger { background: #dc2626; color:#fff; border: none; border-radius: 12px; padding: 11px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); min-height: 44px; transition: opacity 0.2s var(--ease-smooth); }
+    .btn-danger:hover { opacity: 0.9; }
+    .input-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; transition: border-color 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
+    .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .select-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; transition: border-color 0.2s var(--ease-smooth); }
+    .select-field:focus { border-color: var(--accent); }
     .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
-    .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
-    .theme-preset-btn { border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
-    .theme-preset-btn.active { border-color: var(--chords-color); }
+    .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 1px solid var(--border-color); }
+    .theme-preset-btn { border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s var(--ease-smooth); }
+    .theme-preset-btn.active { border-color: var(--accent); }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
@@ -280,187 +297,74 @@
       }
     }
 
-    /* Desktop (> 1278px): 3-column layout — 80px nav | 1fr main | 360px sidebar */
+    /* Desktop (> 1278px): cap the app at 1278px and center it with black side margins */
     @media (min-width: 1279px) {
       html, body {
         background: #000 !important;
         overflow: hidden;
       }
-
-      /* ── App root: 3-column CSS Grid ───────────────────────── */
+      /* App container: centered, max 1278px, full viewport height as a flex column */
       #app-root {
         max-width: 1278px;
         margin: 0 auto;
         position: relative;
         height: 100vh;
-        display: grid !important;
-        grid-template-columns: 80px 1fr 360px;
-        grid-template-rows: auto 1fr;
-        grid-template-areas:
-          "leftnav topnav sidebar"
-          "leftnav maincontent sidebar";
+        display: flex !important;
+        flex-direction: column;
         box-shadow: 0 0 60px rgba(0,0,0,0.7);
         border-left: 1px solid var(--border-color);
         border-right: 1px solid var(--border-color);
         overflow: hidden;
       }
-
-      /* ── Left sidebar nav ───────────────────────────────────── */
-      #bottom-nav {
-        grid-area: leftnav;
-        position: static !important;
-        width: 80px !important;
-        height: 100vh !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        justify-content: flex-start !important;
-        padding: 12px 0 24px !important;
-        border-top: none !important;
-        border-right: 1px solid var(--border-color) !important;
-        box-shadow: 2px 0 12px rgba(0,0,0,0.25) !important;
-        overflow: visible;
-        gap: 4px;
-      }
-      /* Nav buttons: icon-only columns */
-      #bottom-nav .bottom-nav-btn {
-        flex: 0 0 auto !important;
-        width: 80px !important;
-        min-width: unset !important;
-        max-width: unset !important;
-        padding: 10px 0 !important;
-        flex-direction: column !important;
-        position: relative !important;
-      }
-      /* Hide text labels on desktop left nav */
-      #bottom-nav .bottom-nav-btn span {
-        display: none !important;
-      }
-      /* Active indicator: left bar instead of top bar */
-      #bottom-nav .bottom-nav-btn.active::before {
-        content: '' !important;
-        position: absolute !important;
-        top: 50% !important;
-        left: 0 !important;
-        transform: translateY(-50%) !important;
-        width: 3px !important;
-        height: 28px !important;
-        background: var(--chords-color) !important;
-        border-radius: 0 3px 3px 0 !important;
-        box-shadow: 0 0 8px var(--accent-glow) !important;
-      }
-      /* Tooltip on hover */
-      #bottom-nav .bottom-nav-btn::after {
-        content: attr(data-label);
-        position: absolute;
-        left: 88px;
-        top: 50%;
-        transform: translateY(-50%) translateX(-4px);
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
-        color: var(--lyrics-color);
-        font-size: 12px;
-        font-weight: 600;
-        padding: 5px 10px;
-        border-radius: 8px;
-        white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.15s ease, transform 0.15s ease;
-        z-index: 9999;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-      }
-      #bottom-nav .bottom-nav-btn:hover::after {
-        opacity: 1;
-        transform: translateY(-50%) translateX(0px);
-      }
-
-      /* ── Top nav: bound to center column only ──────────────── */
+      /* Switch navbars from viewport-fixed to sticky/static within the app container
+         so they always bound the scrollable area — no content ever hides under them */
       #top-nav {
-        grid-area: topnav;
-        position: static !important;
-        width: 100% !important;
+        position: sticky !important;
+        top: 0 !important;
         left: auto !important;
         right: auto !important;
+        width: 100% !important;
         transform: none !important;
         flex-shrink: 0;
         z-index: 400;
-        padding-top: 12px !important;
       }
-
-      /* ── Main content: center column ───────────────────────── */
+      #bottom-nav {
+        position: sticky !important;
+        bottom: 0 !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        transform: none !important;
+        flex-shrink: 0;
+        z-index: 400;
+        margin-top: auto;
+      }
+      /* Main content fills the remaining space between the two navbars */
       #main-content {
-        grid-area: maincontent;
-        flex: unset !important;
-        height: 100% !important;
+        flex: 1 !important;
+        height: 0 !important;
         padding-top: 16px !important;
         padding-bottom: 16px !important;
         overflow-y: auto !important;
-        position: relative;
       }
       #main-content::-webkit-scrollbar-track {
         margin-top: 0;
         margin-bottom: 0;
       }
-
-      /* ── Right sidebar: profile lives here by default ───────── */
-      #desktop-right-sidebar {
-        grid-area: sidebar;
-        width: 360px;
-        height: 100vh;
-        border-left: 1px solid var(--border-color);
-        background: var(--surface-1);
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-      }
-
-      /* When viewing a song/detail (is-viewing-details on app-root):
-         list panel moves to sidebar, detail opens in main content */
-      #app-root.is-viewing-details #desktop-right-sidebar {
-        /* The tab list panel is injected here by JS */
-      }
-
-      /* FABs anchored to lower-right of main content area */
+      /* FABs and font buttons: absolutely positioned inside app-root, just above
+         the sticky bottom nav. Since bottom-nav is no longer fixed/overlapping,
+         we anchor to the bottom of #app-root (which ends at the top of bottom-nav). */
       #autoscroll-fab,
       #add-song-fab,
       #fab-btn {
         position: absolute !important;
-        bottom: 20px !important;
-        right: 20px !important;
-        z-index: 500 !important;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        right: 16px !important;
       }
-      /* Autoscroll stacks above main FAB */
-      #autoscroll-fab {
-        bottom: 80px !important;
-      }
-
-      /* Font size buttons: lower-right of main content, hidden unless song open */
       .desktop-font-btns {
         position: absolute !important;
-        bottom: 20px !important;
-        left: auto !important;
-        right: 84px !important;
-        display: none !important; /* hidden until song sheet is open */
-      }
-      /* Show font btns when song sheet is active (class toggled by JS) */
-      #app-root.is-viewing-details .desktop-font-btns,
-      #main-content.song-sheet-open ~ .desktop-font-btns {
-        /* handled by JS show/hide */
-      }
-
-      /* Profile-view overlay: disabled on desktop, content lives in sidebar */
-      #profile-view {
-        display: none !important;
-        pointer-events: none !important;
-      }
-
-      /* tab-profile panel shown inside #main-content on mobile;
-         on desktop it is cloned/rendered into the sidebar instead */
-      #tab-profile {
-        display: block !important;
-        opacity: 1 !important;
-        transform: none !important;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        left: 16px !important;
       }
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
@@ -473,46 +377,46 @@
     .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
     .key-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .key-btn { padding: 10px 4px; border-radius: 8px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: var(--lyrics-color); font-weight: 600; font-size: 15px; transition: all 0.15s; }
-    .key-btn.active { border-color: var(--chords-color); color: var(--chords-color); }
+    .key-btn { padding: 10px 4px; border-radius: 10px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: var(--lyrics-color); font-weight: 600; font-size: 15px; transition: all 0.15s var(--ease-smooth); }
+    .key-btn.active { border-color: var(--accent); color: var(--accent-soft); background: var(--accent-glow); }
     .key-btn:hover { background: var(--surface-3); }
-    .spinner { width: 28px; height: 28px; border: 3px solid var(--surface-2); border-top-color: var(--chords-color); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    .spinner { width: 28px; height: 28px; border: 3px solid var(--surface-2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pulseGreen {
       0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
       50% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
     }
-    .onboarding-btn { padding: 12px 20px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--surface-1); color: var(--lyrics-color); font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
-    .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--chords-color); background: var(--accent-glow); color: var(--chords-color); }
+    .onboarding-btn { padding: 12px 20px; border-radius: 14px; border: 2px solid var(--border-color); background: var(--surface-1); color: var(--lyrics-color); font-weight: 600; cursor: pointer; transition: all 0.2s var(--ease-smooth); text-align: center; }
+    .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--accent); background: var(--accent-glow); color: var(--accent-soft); }
     .no-select { user-select: none; -webkit-user-select: none; }
     .setlist-song-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-    .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+    .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 600; }
     .badge-public { background: #064e3b; color: #34d399; }
     .badge-private { background: #431407; color: #fb923c; }
-    .badge-custom { background: #1e1b4b; color: #818cf8; }
+    .badge-custom { background: #2e1065; color: #c4b5fd; }
     textarea.input-field { resize: vertical; min-height: 120px; }
     :root {
-      --btn-primary-bg: var(--chords-color);
-      --btn-primary-text: #000;
+      --btn-primary-bg: linear-gradient(135deg, var(--accent-strong), var(--accent));
+      --btn-primary-text: #fff;
       --nav-shadow: 0 1px 8px rgba(0,0,0,0.25);
       --nav-text-color: var(--lyrics-color);
-      --nav-icon-color: var(--chords-color);
+      --nav-icon-color: var(--accent);
     }
     /* Apply component overrides */
     .btn-primary { background: var(--btn-primary-bg) !important; color: var(--btn-primary-text) !important; }
     /* Line layout mode */
     /* Active filter/sort indicator dot on filter button */
-    .filter-btn.has-active-filter { color: var(--chords-color); border-color: var(--chords-color); }
-    .filter-btn.has-active-filter iconify-icon { color: var(--chords-color); }
+    .filter-btn.has-active-filter { color: var(--accent-soft); border-color: var(--accent); }
+    .filter-btn.has-active-filter iconify-icon { color: var(--accent-soft); }
     /* Active checkmark in filter menu items */
-    .filter-menu-item-active { color: var(--chords-color) !important; font-weight: 700 !important; }
+    .filter-menu-item-active { color: var(--accent-soft) !important; font-weight: 700 !important; }
     .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-    .camera-btn { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 13px; }
+    .camera-btn { background: #1e2a5f; border: 1px solid #6366f1; border-radius: 10px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #a5b4fc; font-size: 13px; transition: background 0.15s var(--ease-smooth); }
     .progress-bar-track { width: 100%; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
-    .progress-bar-fill { height: 100%; background: var(--chords-color); border-radius: 2px; transition: width 0.1s linear; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-strong), var(--accent)); border-radius: 2px; transition: width 0.1s linear; }
     /* ── Universal layout tokens ── */
     :root {
-      --search-row-height: 36px;        /* height of search input + filter button */
+      --search-row-height: 38px;        /* height of search input + filter button */
       --search-row-mb: 12px;            /* gap below every search/filter row */
       --list-gap: 8px;                  /* gap between list cards (songs, setlists, users) */
       --tab-padding: 12px;              /* side+top padding inside every tab panel */
@@ -521,19 +425,33 @@
     .search-input {
       height: var(--search-row-height);
       background: var(--surface-1); border: 1px solid var(--border-subtle);
-      border-radius: 8px; padding: 0 12px 0 36px;
+      border-radius: 12px; padding: 0 12px 0 36px;
       color: var(--lyrics-color); font-size: 13px; width: 100%; outline: none;
       box-sizing: border-box;
+      transition: border-color 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
     }
-    .search-input:focus { border-color: var(--chords-color); }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
     /* Uniform filter button */
     .filter-btn {
       display: flex; align-items: center; gap: 4px; flex-shrink: 0;
       background: var(--surface-2); border: 1px solid var(--border-subtle);
-      border-radius: 8px; padding: 0 10px;
+      border-radius: 12px; padding: 0 10px;
       height: var(--search-row-height);
       color: var(--text-secondary); cursor: pointer; font-size: 13px;
       white-space: nowrap;
+      transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth);
+      position: relative;
+    }
+    /* Subtle purple status dot on filter icon when non-default sort active */
+    .filter-btn.has-active-filter::after {
+      content: '';
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      border: 1.5px solid var(--surface-2);
     }
     /* Uniform search row wrapper */
     .search-row {
@@ -548,9 +466,9 @@
     .songs-list-wrap, .setlists-list-wrap, .users-list-wrap {
       display: flex; flex-direction: column; gap: var(--list-gap);
     }
-    .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
-    .filter-chip.active { background: var(--chords-color); color: #000; border-color: var(--chords-color); }
-    .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px; color: var(--lyrics-color); font-size: 13px; outline: none; }
+    .filter-chip { padding: 4px 11px; border-radius: var(--radius-pill); font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: all 0.2s var(--ease-smooth); }
+    .filter-chip.active { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; border-color: transparent; }
+    .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 10px; color: var(--lyrics-color); font-size: 13px; outline: none; }
 
     /* ── Sync bar ── */
     #sync-bar {
@@ -568,7 +486,7 @@
       position: absolute;
       top: 0; left: -60%;
       width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent 0%, #22c55e 40%, #4ade80 60%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, var(--accent-strong) 40%, var(--accent-soft) 60%, transparent 100%);
       border-radius: 0 2px 2px 0;
       animation: syncSlide 1.4s cubic-bezier(0.4,0,0.2,1) infinite;
     }
@@ -594,7 +512,7 @@
 <!-- SPLASH SCREEN -->
 <div id="splash-screen" style="position:fixed;inset:0;background:var(--canvas-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
   <img src="icons/logo.png" alt="RCCM Gigbook" class="splash-logo-anim" style="width:100px;height:100px;border-radius:20px;object-fit:cover;" onerror="this.style.display='none';document.getElementById('splash-fallback').style.display='flex'" />
-  <div id="splash-fallback" style="display:none;width:100px;height:100px;border-radius:20px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;" class="splash-logo-anim">
+  <div id="splash-fallback" style="display:none;width:100px;height:100px;border-radius:20px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;" class="splash-logo-anim">
     <iconify-icon icon="mdi:music-note" style="font-size:50px;color:var(--lyrics-color);"></iconify-icon>
   </div>
   <p style="color:var(--text-muted);font-size:13px;margin-top:20px;letter-spacing:0.1em;">RCCM GIGBOOK</p>
@@ -603,14 +521,14 @@
 
 <!-- AUTH VIEW -->
 <div id="auth-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:8000;">
-  <img src="icons/logo.png" alt="RCCM Gigbook" style="width:90px;height:90px;border-radius:18px;object-fit:cover;margin-bottom:28px;" onerror="this.style.background='linear-gradient(135deg,#7c3aed,#FBBF24)';this.style.display='flex'" />
+  <img src="icons/logo.png" alt="RCCM Gigbook" style="width:90px;height:90px;border-radius:18px;object-fit:cover;margin-bottom:28px;" onerror="this.style.background='linear-gradient(135deg,#8b5cf6,#a78bfa)';this.style.display='flex'" />
   <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin-bottom:4px;">RCCM Gigbook</h1>
   <p style="color:var(--text-muted);font-size:13px;margin-bottom:36px;">Your performance companion</p>
   <button id="google-signin-btn" style="display:flex;align-items:center;gap:10px;background:#fff;color:#111;border:none;border-radius:12px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.3);">
     <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
     Sign In with Google
   </button>
-  <button id="install-app-btn" style="display:none;align-items:center;gap:10px;background:transparent;color:#FBBF24;border:1px solid #FBBF24;border-radius:12px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;margin-top:12px;">
+  <button id="install-app-btn" style="display:none;align-items:center;gap:10px;background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:12px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;margin-top:12px;">
     <iconify-icon icon="mdi:download" style="font-size:18px;"></iconify-icon>
     Install App
   </button>
@@ -701,7 +619,7 @@
     <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;flex:1;">RCCM Gigbook</span>
     <!-- Logo on the right -->
     <img src="icons/logo.png" alt="Logo" onclick="switchTab('songs')" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-    <div onclick="switchTab('songs')" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+    <div onclick="switchTab('songs')" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
       <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
     </div>
   </div>
@@ -874,7 +792,7 @@
                 <img id="admin-logo-preview" src="icons/logo.png" alt="Logo"
                   style="width:46px;height:46px;border-radius:8px;object-fit:cover;"
                   onerror="this.style.display='none';document.getElementById('admin-logo-fallback').style.display='flex'" />
-                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;">
+                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
                   <iconify-icon icon="mdi:music-note" style="font-size:24px;color:var(--lyrics-color);"></iconify-icon>
                 </div>
                 <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--chords-color);background:var(--surface-1);border-radius:50%;padding:1px;"></iconify-icon>
@@ -1133,18 +1051,6 @@
 
       </div>
     </div>
-    <!-- PROFILE TAB (accessible from nav; content same as profile-view) -->
-    <div id="tab-profile" class="tab-panel" style="padding:0;">
-      <!-- Populated dynamically by renderProfilePanel() on desktop -->
-      <div id="tab-profile-inner"></div>
-    </div>
-
-  </div><!-- /#main-content -->
-
-  <!-- RIGHT SIDEBAR (desktop only — profile lives here) -->
-  <div id="desktop-right-sidebar">
-    <div id="sidebar-profile-content" style="flex:1;overflow-y:auto;"></div>
-    <div id="sidebar-list-content" style="display:none;flex:1;overflow-y:auto;"></div>
   </div>
 
   <!-- BOTTOM NAV -->
@@ -1931,12 +1837,7 @@ function signOut() {
   document.getElementById('add-song-fab').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
-  document.getElementById('app-root').classList.remove('is-viewing-details');
   document.getElementById('profile-view').style.display = 'none';
-  const sidebarList = document.getElementById('sidebar-list-content');
-  const sidebarProfile = document.getElementById('sidebar-profile-content');
-  if (sidebarList) { sidebarList.style.display = 'none'; sidebarList.innerHTML = ''; }
-  if (sidebarProfile) { sidebarProfile.style.display = 'block'; sidebarProfile.innerHTML = ''; }
   auth.signOut().then(() => {
     _signingOut = false;
     showAuthView();
@@ -2018,11 +1919,6 @@ function mountApp() {
     const initPanel = document.getElementById('tab-songs');
     if (initPanel) initPanel.classList.add('tab-visible');
   });
-  // Populate profile into sidebar on desktop after a short delay (profile data may still be loading)
-  setTimeout(() => {
-    const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
-    if (isDesktop) openProfileView();
-  }, 300);
   runTTLCleanup();
   seedSongsIfEmpty();
   loadAdminSettings();
@@ -2125,10 +2021,7 @@ function buildNav() {
   }
   const photoURL = escHtml(currentUserProfile?.photoURL || '');
   const isProfileActive = activeTab === 'profile';
-  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
-
-  // Profile button — on mobile opens overlay; on desktop switches to profile tab
-  const profileBtn = `<button class="bottom-nav-btn nav-text${isProfileActive ? ' active' : ''}" id="nav-profile" data-label="Profile" onclick="${isDesktop ? "switchTab('profile')" : "openProfileView()"}">
+  const profileBtn = `<button class="bottom-nav-btn nav-text${isProfileActive ? ' active' : ''}" id="nav-profile" onclick="openProfileView()">
     <div class="nav-icon-wrap">
       <img src="${photoURL}" alt="Profile"
         style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid ${isProfileActive ? 'var(--chords-color)' : '#555'};"
@@ -2137,31 +2030,25 @@ function buildNav() {
     </div>
     <span>Profile</span>
   </button>`;
-
-  // Admin Panel button — only rendered for Admin role
-  const adminBtn = role === 'Admin'
-    ? `<button class="bottom-nav-btn nav-text${activeTab === 'admin' ? ' active' : ''}" id="nav-admin" data-label="Admin Panel" onclick="switchTab('admin')">
-        <div class="nav-icon-wrap"><iconify-icon icon="mdi:cog"></iconify-icon></div>
-        <span>Admin</span>
-      </button>`
-    : '';
-
   nav.innerHTML = tabs.map(t => `
-    <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" data-label="${t.label}" onclick="switchTab('${t.id}')">
+    <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" onclick="switchTab('${t.id}')">
       <div class="nav-icon-wrap"><iconify-icon icon="${t.icon}"></iconify-icon></div>
       <span>${t.label}</span>
     </button>
-  `).join('') + profileBtn + adminBtn;
-
-  // Populate desktop sidebar nav (legacy — now replaced by #bottom-nav left sidebar)
+  `).join('') + profileBtn;
+  // Also populate desktop sidebar nav
   const sidebarNav = document.getElementById('sidebar-nav');
   if (sidebarNav) {
-    sidebarNav.innerHTML = '';
-  }
-
-  // Render profile into the right sidebar on desktop
-  if (isDesktop) {
-    renderSidebarProfile();
+    const sidebarProfileBtn = `<button onclick="openProfileView()" style="display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
+      <img src="${photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid var(--border-subtle);" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
+      <span style="font-size:13px;font-weight:500;">Profile</span>
+    </button>`;
+    sidebarNav.innerHTML = tabs.map(t => `
+      <button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}')" style="display:flex;align-items:center;gap:10px;background:${t.id===activeTab?'#2a2a2a':'transparent'};border:none;color:${t.id===activeTab?'var(--chords-color)':'#6b7280'};cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='${t.id===activeTab?'#2a2a2a':'transparent'}'">
+        <iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>
+        <span style="font-size:13px;font-weight:500;">${t.label}</span>
+      </button>
+    `).join('') + sidebarProfileBtn;
   }
 }
 
@@ -2181,11 +2068,6 @@ function switchTab(tab) {
   if (navBtn) navBtn.classList.add('active');
   updateFAB();
   updateHomeBtn(false);
-  // On desktop, if switching to profile tab, render it in main content
-  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
-  if (isDesktop && tab === 'profile') {
-    renderProfilePanel();
-  }
 }
 
 function updateFAB() {
@@ -2688,21 +2570,7 @@ function openSongSheet(songId, fromSetlist) {
   if (!isTouch) {
     document.getElementById('desktop-font-btns').style.display = 'flex';
   }
-  // Desktop: activate 3-column state 2 (detail mode)
-  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
-  if (isDesktop) {
-    document.getElementById('app-root').classList.add('is-viewing-details');
-    // Move active tab list view into sidebar-list-content
-    const activePanel = document.getElementById('tab-' + activeTab);
-    const sidebarList = document.getElementById('sidebar-list-content');
-    const sidebarProfile = document.getElementById('sidebar-profile-content');
-    if (sidebarList && activePanel) {
-      sidebarList.innerHTML = '';
-      sidebarList.appendChild(activePanel.cloneNode(true));
-      sidebarList.style.display = 'block';
-    }
-    if (sidebarProfile) sidebarProfile.style.display = 'none';
-  }
+}
 
 function setupSongControls() {
   const role = currentUserProfile?.role || '';
@@ -2765,15 +2633,6 @@ function closeSongSheet() {
   const navTitle = document.getElementById('top-nav-title');
   if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
-  // Desktop: restore State 1 layout
-  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
-  if (isDesktop) {
-    document.getElementById('app-root').classList.remove('is-viewing-details');
-    const sidebarList = document.getElementById('sidebar-list-content');
-    const sidebarProfile = document.getElementById('sidebar-profile-content');
-    if (sidebarList) { sidebarList.style.display = 'none'; sidebarList.innerHTML = ''; }
-    if (sidebarProfile) sidebarProfile.style.display = 'block';
-  }
   if (openedFromSetlist) {
     openedFromSetlist = false;
     document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
@@ -4489,12 +4348,6 @@ function openProfileView() {
   const adminBtn = document.getElementById('profile-admin-btn');
   if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
   renderProfileSetlists();
-  // On desktop, render into the right sidebar instead of overlay
-  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
-  if (isDesktop) {
-    renderSidebarProfile();
-    return;
-  }
   const profileView = document.getElementById('profile-view');
   profileView.style.display = 'flex';
   profileView.style.flexDirection = 'column';
@@ -4534,12 +4387,6 @@ function renderProfileSetlists() {
 }
 
 function closeProfileAndOpenSetlist(id) {
-  const isDesktop = window.matchMedia('(min-width: 1279px)').matches;
-  if (isDesktop) {
-    switchTab('setlists');
-    openSetlistDetail(id);
-    return;
-  }
   const profileView = document.getElementById('profile-view');
   profileView.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
   profileView.style.opacity = '0';
@@ -4557,48 +4404,6 @@ function closeProfileView() {
   profileView.style.opacity = '0';
   profileView.style.transform = 'translateX(100%)';
   setTimeout(() => { profileView.style.display = 'none'; }, 240);
-}
-
-// ── Desktop sidebar profile renderer ────────────────────────
-function renderSidebarProfile() {
-  const sidebarProfile = document.getElementById('sidebar-profile-content');
-  const pv = document.getElementById('profile-view');
-  if (!sidebarProfile || !pv) return;
-  // Clone the profile-view content into the sidebar
-  sidebarProfile.innerHTML = pv.innerHTML;
-  sidebarProfile.style.display = 'block';
-  // Hide the back button inside the clone (not needed in sidebar)
-  const backBtn = sidebarProfile.querySelector('button[onclick="closeProfileView()"]');
-  if (backBtn) backBtn.style.display = 'none';
-}
-
-// Renders profile content into tab-profile-inner for mobile profile tab usage
-function renderProfilePanel() {
-  const p = currentUserProfile;
-  if (!p) return;
-  const inner = document.getElementById('tab-profile-inner');
-  if (!inner) return;
-  // Populate all profile data (same as openProfileView but targeting the panel)
-  document.getElementById('profile-view-pic').src = p.photoURL || '';
-  document.getElementById('profile-view-name').textContent = p.displayName || '';
-  const roleBadge = document.getElementById('profile-view-role-badge');
-  roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role);
-  roleBadge.textContent = p.role || '';
-  const instInline = document.getElementById('profile-view-instruments-inline');
-  if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
-  document.getElementById('tutorial-toggle').checked = p.showTutorial !== false;
-  tutorialEnabled = p.showTutorial !== false;
-  const adminBtn = document.getElementById('profile-admin-btn');
-  if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
-  renderProfileSetlists();
-  // Clone profile-view content into the panel
-  const pv = document.getElementById('profile-view');
-  if (pv) {
-    inner.innerHTML = pv.innerHTML;
-    // Hide back button in the panel version
-    const backBtn = inner.querySelector('button[onclick="closeProfileView()"]');
-    if (backBtn) backBtn.style.display = 'none';
-  }
 }
 
 async function saveTutorialPref(val) {
@@ -5286,7 +5091,7 @@ function _startModalDrag(e, sheet) {
       <div style="text-align:center;margin-bottom:4px;">
         <img id="logo-modal-preview" src="icons/logo.png" alt="Preview"
           style="width:80px;height:80px;border-radius:16px;object-fit:cover;background:var(--surface-2);border:2px dashed var(--border-subtle);"
-          onerror="this.style.background='linear-gradient(135deg,#7c3aed,#FBBF24)'" />
+          onerror="this.style.background='linear-gradient(135deg,#8b5cf6,#a78bfa)'" />
       </div>
       <div>
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Logo URL or Path</label>
