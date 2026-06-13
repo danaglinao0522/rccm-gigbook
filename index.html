@@ -1,1661 +1,2075 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0b0914" />
-  <title>RCCM GigBook | Cyber-Deck</title>
-  <link rel="manifest" href="manifest.json" />
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Tailwind CSS Play CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Iconify -->
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#09070f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>RCCM GigBook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  :root {
+    --canvas-bg: #09070f;
+    --lyrics-color: #f9fafb;
+    --chords-color: #ec4899;
+    --sidebar-glass: rgba(18,14,28,0.85);
+    --card-glass: rgba(18,14,28,0.6);
+    --border-subtle: rgba(255,255,255,0.06);
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --text-primary: #f9fafb;
+    --text-muted: #9ca3af;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--canvas-bg);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-primary);
+  }
+  #app { width:100%; height:100%; display:flex; flex-direction:column; overflow:hidden; }
 
-  <style>
-    :root {
-      --canvas-bg: #0b0914;
-      --lyrics-color: #f3f4f6;
-      --chords-color: #a855f7;
-      --glass-bg: rgba(20,16,36,0.65);
-      --glass-border: rgba(168,85,247,0.2);
-      --glass-inset: rgba(168,85,247,0.1);
-      --neon-purple: #a855f7;
-      --laser-magenta: #ec4899;
-      --titanium: #f3f4f6;
-      --mech-gray: #6b7280;
-    }
-    html, body { overflow: hidden; margin: 0; padding: 0; height: 100%; width: 100%; }
-    body {
-      background: var(--canvas-bg);
-      color: var(--lyrics-color);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-    h1, h2, h3, .font-orbitron { font-family: 'Orbitron', sans-serif; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.4); border-radius:999px; }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.4); border-radius: 99px; }
+  /* Glass card mixin */
+  .glass {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: var(--card-glass);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+  }
+  .glass-strong {
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    background: var(--sidebar-glass);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px -15px rgba(0,0,0,0.7);
+  }
 
-    /* Glass pane */
-    .glass {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      box-shadow: inset 0 0 12px var(--glass-inset);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-    .glass-card {
-      background: rgba(20,16,36,0.5);
-      border: 1px solid rgba(168,85,247,0.18);
-      box-shadow: inset 0 0 8px rgba(168,85,247,0.07), 0 4px 24px rgba(0,0,0,0.35);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
+  /* Sidebar */
+  #side-navbar {
+    position: fixed; top:0; left:0; height:100vh; width:280px; z-index:100;
+    transform: translateX(-100%);
+    transition: transform 300ms cubic-bezier(0.16,1,0.3,1);
+    border-radius: 0 2.5rem 2.5rem 0;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  #side-navbar.open { transform: translateX(0); }
+  #sidebar-overlay {
+    position:fixed; inset:0; z-index:99;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    opacity:0; pointer-events:none;
+    transition: opacity 300ms ease-out;
+  }
+  #sidebar-overlay.open { opacity:1; pointer-events:all; }
 
-    /* Neon glow states */
-    .neon-border { border-color: rgba(168,85,247,0.5); box-shadow: 0 0 15px rgba(168,85,247,0.35); }
-    .neon-border:focus { border-color: rgba(236,72,153,0.5); box-shadow: 0 0 15px rgba(168,85,247,0.35); outline: none; }
-    .neon-btn {
-      transition: all 0.3s ease-out;
-      box-shadow: 0 0 8px rgba(168,85,247,0.2);
-    }
-    .neon-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 20px rgba(168,85,247,0.5), 0 4px 12px rgba(0,0,0,0.4);
-    }
-    .neon-btn:active { transform: translateY(0); }
+  /* Top bar */
+  #top-bar {
+    position: fixed; top:0; left:0; right:0; z-index:50;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap:10px;
+  }
+  .top-bar-glass {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: rgba(9,7,15,0.8);
+    border-bottom: 1px solid var(--border-subtle);
+  }
 
-    /* Scanline logo animation */
-    @keyframes scanline {
-      0%   { background-position: 0 0; }
-      100% { background-position: 0 100px; }
-    }
-    .scanline-overlay::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(168,85,247,0.04) 3px,
-        rgba(168,85,247,0.04) 4px
-      );
-      animation: scanline 4s linear infinite;
-      pointer-events: none;
-      border-radius: inherit;
-    }
+  /* Buttons base */
+  .btn-circle {
+    width:48px; height:48px; border-radius:9999px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; border:none; outline:none;
+    transition: all 300ms ease-out;
+    flex-shrink:0;
+  }
+  .btn-circle:hover { transform: translateY(-1px); }
+  .btn-circle:active { transform: scale(0.95); }
+  .btn-glass {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-primary);
+  }
+  .btn-glass:hover { background: rgba(255,255,255,0.1); }
+  .btn-purple { background: var(--purple); color:#fff; box-shadow: 0 4px 20px rgba(139,92,246,0.4); }
+  .btn-purple:hover { background: #7c3aed; box-shadow: 0 6px 28px rgba(139,92,246,0.55); }
+  .btn-pink { background: var(--pink); color:#fff; box-shadow: 0 4px 20px rgba(236,72,153,0.4); }
+  .btn-pink:hover { background: #db2777; }
 
-    /* Sidenav */
-    #side-navbar {
-      transform: translateX(-100%);
-      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
-      will-change: transform;
-    }
-    #side-navbar.open { transform: translateX(0); }
+  /* Search input */
+  #search-bar-container {
+    flex:1; position:relative;
+    transition: all 300ms ease-out;
+  }
+  #search-input {
+    width:100%; height:48px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9999px;
+    padding: 0 48px 0 20px;
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: all 300ms ease-out;
+  }
+  #search-input::placeholder { color: var(--text-muted); }
+  #search-input:focus {
+    border-color: rgba(139,92,246,0.5);
+    background: rgba(139,92,246,0.08);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+  }
+  .search-icon {
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    color: var(--pink); font-size:18px; pointer-events:none;
+  }
 
-    /* Overlay */
-    #nav-overlay {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s ease-out;
-    }
-    #nav-overlay.open { opacity: 1; pointer-events: auto; }
+  /* Filter btn */
+  #filter-btn {
+    width:48px; height:48px; border-radius:9999px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    cursor:pointer; flex-shrink:0;
+    transition: all 300ms ease-out;
+  }
+  #filter-btn:hover { background: rgba(139,92,246,0.2); color: var(--purple); transform:translateY(-1px); }
+  #filter-btn.active { background: rgba(139,92,246,0.3); color: var(--purple); border-color: rgba(139,92,246,0.5); }
 
-    /* Floating header morphing */
-    #floating-header {
-      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-    }
-    #floating-header.hidden-header {
-      opacity: 0; transform: translateY(-10px); pointer-events: none;
-    }
+  /* Main content */
+  #main-content {
+    flex:1; overflow-y:auto; overflow-x:hidden;
+    padding: 76px 16px 96px;
+  }
 
-    /* Modal animations */
-    .modal-backdrop {
-      opacity: 0; transition: opacity 0.3s ease-out;
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    }
-    .modal-backdrop.open { opacity: 1; }
-    .modal-sheet {
-      transform: translateY(30px) scale(0.97);
-      opacity: 0;
-      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease-out;
-    }
-    .modal-sheet.open { transform: translateY(0) scale(1); opacity: 1; }
+  /* Song / Setlist Cards */
+  .song-card {
+    background: var(--card-glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 1.5rem;
+    padding: 16px;
+    cursor:pointer;
+    transition: all 300ms ease-out;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .song-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(139,92,246,0.3);
+    box-shadow: 0 8px 32px rgba(139,92,246,0.15);
+  }
+  .song-card:active { transform: scale(0.98); }
 
-    /* View transitions */
-    .view-panel {
-      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-    }
-    .view-panel.entering { opacity: 0; transform: translateY(8px); }
-    .view-panel.visible { opacity: 1; transform: translateY(0); }
+  /* Badge */
+  .badge {
+    display:inline-flex; align-items:center;
+    padding: 3px 10px; border-radius:9999px;
+    font-size:11px; font-weight:600; letter-spacing:0.02em;
+  }
+  .badge-purple { background: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+  .badge-pink { background: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
+  .badge-green { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .badge-amber { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .badge-gray { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.2); }
+  .badge-red { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
 
-    /* Nav pill active */
-    .nav-pill { transition: all 0.3s ease-out; border-radius: 9999px; }
-    .nav-pill:hover { background: rgba(168,85,247,0.15); transform: translateY(-1px); }
-    .nav-pill.active {
-      background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(236,72,153,0.2));
-      border: 1px solid rgba(168,85,247,0.4);
-      box-shadow: 0 0 12px rgba(168,85,247,0.25);
-    }
+  /* Nav link */
+  .nav-link {
+    display:flex; align-items:center; gap:12px;
+    padding: 12px 16px; border-radius: 9999px;
+    cursor:pointer; color: var(--text-muted);
+    font-weight:500; font-size:15px;
+    transition: all 300ms ease-out;
+    margin: 3px 0;
+  }
+  .nav-link:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+  .nav-link.active {
+    background: rgba(139,92,246,0.2);
+    color: #a78bfa;
+    box-shadow: 0 0 20px rgba(139,92,246,0.15);
+  }
+  .nav-link .nav-icon { font-size:20px; width:24px; text-align:center; }
 
-    /* Row hover */
-    .song-row, .user-card {
-      transition: all 0.3s ease-out;
-      border: 1px solid transparent;
-    }
-    .song-row:hover, .user-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(168,85,247,0.3);
-      box-shadow: 0 0 16px rgba(168,85,247,0.2);
-    }
+  /* FABs */
+  #fab-container {
+    position: fixed; bottom:24px; right:24px; z-index:40;
+    display:flex; flex-direction:column; gap:12px; align-items:flex-end;
+  }
+  .fab-btn {
+    width:56px; height:56px; border-radius:9999px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; border:none; outline:none;
+    font-size:24px; color:#fff;
+    transition: all 300ms ease-out;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .fab-btn:hover { transform: translateY(-3px) scale(1.05); }
+  .fab-btn:active { transform: scale(0.95); }
+  .fab-hidden { opacity:0; pointer-events:none; transform: translateY(16px) scale(0.85); }
+  .fab-visible { opacity:1; pointer-events:all; transform: translateY(0) scale(1); }
 
-    /* Gradient text */
-    .gradient-text {
-      background: linear-gradient(135deg, #a855f7, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+  /* Stage / Song Detail */
+  #stage-view { display:none; flex-direction:column; height:100%; overflow:hidden; }
+  #stage-view.active { display:flex; }
 
-    /* Purple glow ring */
-    .glow-ring {
-      box-shadow: 0 0 0 3px rgba(168,85,247,0.5), 0 0 12px rgba(168,85,247,0.3);
-    }
+  #song-sheet {
+    flex:1; overflow-y:auto; overflow-x:hidden;
+    padding: 80px 20px 120px;
+    line-height: 1.8;
+  }
+  .chord-span { color: var(--chords-color); font-weight:700; font-size:14px; margin-right:2px; }
+  .lyric-line { color: var(--lyrics-color); font-size:16px; }
+  .section-label {
+    color: var(--purple); font-weight:700; font-size:12px;
+    text-transform:uppercase; letter-spacing:0.1em;
+    margin: 24px 0 8px;
+  }
 
-    /* Install button pulse */
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 8px rgba(168,85,247,0.4); }
-      50% { box-shadow: 0 0 20px rgba(168,85,247,0.7), 0 0 40px rgba(236,72,153,0.3); }
-    }
-    .install-btn-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+  /* Stage toolbar */
+  #stage-toolbar {
+    position: fixed; top:0; left:0; right:0; z-index:50;
+    height:64px; padding: 8px 16px;
+    display:flex; align-items:center; gap:10px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: rgba(9,7,15,0.9);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .transposer-capsule {
+    display:flex; align-items:center; gap:6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9999px;
+    padding: 4px 8px;
+    flex-shrink:0;
+  }
+  .transposer-capsule .val {
+    min-width:40px; text-align:center;
+    font-weight:700; font-size:13px;
+    color: var(--text-primary);
+  }
+  .chip-btn {
+    width:30px; height:30px; border-radius:9999px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(139,92,246,0.25); color: #a78bfa;
+    border: none; cursor:pointer; font-size:14px; font-weight:700;
+    transition: all 200ms ease-out; flex-shrink:0;
+  }
+  .chip-btn:hover { background: rgba(139,92,246,0.45); transform:scale(1.1); }
 
-    /* Admin danger zone */
-    .danger-glow { box-shadow: 0 0 15px rgba(239,68,68,0.35); border-color: rgba(239,68,68,0.4); }
+  /* Stage bottom tray */
+  #stage-tray {
+    position: fixed; bottom:0; left:0; right:0; z-index:50;
+    height:64px; padding: 8px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: rgba(9,7,15,0.9);
+    border-top: 1px solid var(--border-subtle);
+  }
+  .speed-capsule {
+    display:flex; align-items:center; gap:8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9999px;
+    padding: 6px 14px; font-size:13px; color: var(--text-muted);
+  }
 
-    /* Segmented control */
-    .seg-btn { transition: all 0.25s ease-out; }
-    .seg-btn.seg-active {
-      background: linear-gradient(135deg, #a855f7, #ec4899);
-      color: #fff;
-      box-shadow: 0 0 12px rgba(168,85,247,0.4);
-    }
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed; inset:0; z-index:200;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display:flex; align-items:center; justify-content:center;
+    padding: 20px;
+    opacity:0; pointer-events:none;
+    transition: opacity 300ms ease-out;
+  }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal-sheet {
+    width:100%; max-width:480px;
+    background: rgba(18,14,28,0.95);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 2rem;
+    padding: 28px;
+    backdrop-filter: blur(32px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 300ms cubic-bezier(0.16,1,0.3,1);
+    max-height: 90vh; overflow-y:auto;
+  }
+  .modal-overlay.open .modal-sheet { transform: translateY(0) scale(1); }
 
-    /* Input base */
-    input, select, textarea {
-      background: rgba(20,16,36,0.7);
-      border: 1px solid rgba(168,85,247,0.25);
-      color: var(--lyrics-color);
-      border-radius: 1rem;
-      padding: 0.6rem 1rem;
-      transition: all 0.3s ease-out;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: rgba(236,72,153,0.5);
-      box-shadow: 0 0 15px rgba(168,85,247,0.35);
-    }
-    select option { background: #120d1e; color: #f3f4f6; }
+  /* Input styled */
+  .input-styled {
+    width:100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9999px;
+    padding: 12px 20px;
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size:14px; outline:none;
+    transition: all 300ms ease-out;
+  }
+  .input-styled:focus {
+    border-color: rgba(139,92,246,0.5);
+    background: rgba(139,92,246,0.08);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+  }
+  .input-styled::placeholder { color: var(--text-muted); }
+  textarea.input-styled {
+    border-radius: 1.5rem;
+    resize: vertical; min-height:120px;
+    padding: 16px 20px;
+  }
+  select.input-styled {
+    appearance:none; -webkit-appearance:none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%238b5cf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    cursor:pointer;
+  }
 
-    /* Badge */
-    .badge {
-      border-radius: 9999px;
-      padding: 2px 10px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      transition: all 0.3s ease-out;
-    }
+  /* Auth screen */
+  #auth-screen {
+    position:fixed; inset:0; z-index:300;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    background: var(--canvas-bg);
+    padding: 24px;
+    overflow-y:auto;
+  }
+  #auth-screen.hidden { display:none; }
 
-    /* Scrollable content area */
-    .scroll-area { overflow-y: auto; overflow-x: hidden; height: 100%; scroll-behavior: smooth; }
+  /* Loading */
+  #loading-screen {
+    position:fixed; inset:0; z-index:400;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--canvas-bg);
+    transition: opacity 500ms ease-out;
+  }
+  #loading-screen.fade-out { opacity:0; pointer-events:none; }
 
-    /* Circuit grid bg */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
-    #app { position: relative; z-index: 1; }
+  .spinner {
+    width:48px; height:48px; border-radius:50%;
+    border: 3px solid rgba(139,92,246,0.2);
+    border-top-color: var(--purple);
+    animation: spin 800ms linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
-    /* Verification input */
-    .verify-input {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.5rem;
-      text-align: center;
-      letter-spacing: 0.5rem;
-      background: rgba(20,16,36,0.8);
-      border: 2px solid rgba(168,85,247,0.4);
-      border-radius: 1rem;
-      color: #a855f7;
-      padding: 0.75rem 1rem;
-    }
-    .verify-input.error { border-color: rgba(239,68,68,0.6); box-shadow: 0 0 15px rgba(239,68,68,0.3); }
-    .verify-input.success { border-color: rgba(34,197,94,0.6); box-shadow: 0 0 15px rgba(34,197,94,0.3); }
+  /* Pulse ring */
+  .ring-purple { box-shadow: 0 0 0 3px rgba(139,92,246,0.5); }
 
-    /* Loading spinner */
-    @keyframes spin-neon {
-      to { transform: rotate(360deg); }
-    }
-    .spin-neon {
-      animation: spin-neon 0.8s linear infinite;
-      border: 2px solid rgba(168,85,247,0.2);
-      border-top-color: #a855f7;
-      border-radius: 9999px;
-    }
+  /* User card */
+  .user-card {
+    display:flex; align-items:center; gap:14px;
+    padding: 14px 16px; border-radius: 1.5rem;
+    background: var(--card-glass);
+    border: 1px solid var(--border-subtle);
+    backdrop-filter:blur(20px);
+    margin-bottom: 10px;
+    transition: all 300ms ease-out;
+  }
+  .user-card:hover { border-color: rgba(139,92,246,0.3); transform:translateY(-1px); }
 
-    /* Toast */
-    #toast {
-      transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
-      transform: translateY(100px);
-      opacity: 0;
-    }
-    #toast.show { transform: translateY(0); opacity: 1; }
-  </style>
+  /* Divider */
+  .divider {
+    height:1px; background: var(--border-subtle); margin: 20px 0;
+  }
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'space': '#0b0914',
-            'neon-purple': '#a855f7',
-            'laser-magenta': '#ec4899',
-          },
-          fontFamily: {
-            'orbitron': ['Orbitron', 'sans-serif'],
-            'jakarta': ['Plus Jakarta Sans', 'sans-serif'],
-          },
-          zIndex: {
-            '60': '60',
-            '70': '70',
-            '80': '80',
-            '90': '90',
-            '100': '100',
-          }
-        }
-      }
-    }
-  </script>
+  /* Admin section card */
+  .admin-section {
+    background: var(--card-glass);
+    backdrop-filter:blur(24px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 1.5rem;
+    padding: 20px; margin-bottom:16px;
+  }
+  .admin-section h3 {
+    font-size:14px; font-weight:700; color: var(--purple);
+    text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px;
+  }
+
+  /* Toast */
+  #toast-container {
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    z-index:500; display:flex; flex-direction:column; gap:8px; align-items:center;
+    pointer-events:none;
+  }
+  .toast {
+    padding: 10px 20px; border-radius: 9999px;
+    font-size:13px; font-weight:600; color:#fff;
+    backdrop-filter:blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: toastIn 300ms cubic-bezier(0.16,1,0.3,1) forwards,
+               toastOut 300ms ease-in 2500ms forwards;
+    white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis;
+  }
+  .toast-success { background: rgba(34,197,94,0.85); }
+  .toast-error { background: rgba(239,68,68,0.85); }
+  .toast-info { background: rgba(139,92,246,0.85); }
+  @keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-10px)} }
+
+  /* Scope toggle */
+  .scope-toggle {
+    display:flex; background: rgba(255,255,255,0.05);
+    border-radius:9999px; padding:4px; gap:4px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .scope-btn {
+    flex:1; padding:8px 16px; border-radius:9999px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    border:none; transition: all 300ms ease-out;
+    color: var(--text-muted); background:transparent;
+    white-space:nowrap;
+  }
+  .scope-btn.active { background: var(--purple); color:#fff; box-shadow:0 4px 16px rgba(139,92,246,0.4); }
+
+  /* Sub-tab */
+  .sub-tab {
+    padding: 8px 20px; border-radius:9999px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted); background: transparent;
+    transition: all 300ms ease-out;
+    white-space:nowrap;
+  }
+  .sub-tab.active { background: rgba(139,92,246,0.2); color:#a78bfa; border-color:rgba(139,92,246,0.4); }
+
+  /* Recent account card */
+  #recent-account-card {
+    width:100%; max-width:360px;
+    background: rgba(18,14,28,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius:1.5rem; padding:16px;
+    display:flex; align-items:center; gap:14px;
+    cursor:pointer; margin-bottom:16px;
+    transition: all 300ms ease-out;
+    backdrop-filter:blur(24px);
+  }
+  #recent-account-card:hover { border-color:rgba(139,92,246,0.5); transform:translateY(-2px); box-shadow:0 8px 32px rgba(139,92,246,0.2); }
+
+  /* Verification modal input */
+  #otp-input {
+    letter-spacing: 0.4em; text-align:center; font-size:24px; font-weight:700;
+  }
+
+  /* Color picker label */
+  .color-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 0; border-bottom:1px solid var(--border-subtle);
+  }
+  .color-row:last-child { border-bottom:none; }
+  input[type="color"] {
+    width:40px; height:40px; border-radius:9999px;
+    border: 2px solid rgba(255,255,255,0.15);
+    cursor:pointer; padding:2px; background:transparent;
+  }
+
+  /* Purge danger */
+  .danger-btn {
+    width:100%; padding:14px; border-radius:9999px;
+    font-weight:700; font-size:14px; cursor:pointer; border:none;
+    transition: all 300ms ease-out; letter-spacing:0.03em;
+  }
+  .danger-btn-red { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+  .danger-btn-red:hover { background:rgba(239,68,68,0.3); box-shadow:0 4px 20px rgba(239,68,68,0.3); }
+  .danger-btn-orange { background:rgba(249,115,22,0.15); color:#fb923c; border:1px solid rgba(249,115,22,0.3); }
+  .danger-btn-orange:hover { background:rgba(249,115,22,0.3); box-shadow:0 4px 20px rgba(249,115,22,0.3); }
+
+  /* PWA install */
+  #pwa-install-btn {
+    display:none; width:100%; max-width:360px;
+    margin-top:12px; padding:14px;
+    border-radius:9999px; font-weight:700; font-size:14px;
+    cursor:pointer; border: 1px solid rgba(139,92,246,0.4);
+    background: rgba(139,92,246,0.15); color:#a78bfa;
+    transition: all 300ms ease-out;
+    font-family:'Plus Jakarta Sans',sans-serif;
+  }
+  #pwa-install-btn:hover { background:rgba(139,92,246,0.3); transform:translateY(-2px); }
+
+  /* Chip filter */
+  .filter-chip {
+    padding: 6px 16px; border-radius:9999px;
+    font-size:12px; font-weight:600; cursor:pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted); background:transparent;
+    transition: all 300ms ease-out; white-space:nowrap;
+  }
+  .filter-chip.active { background:rgba(139,92,246,0.2); color:#a78bfa; border-color:rgba(139,92,246,0.4); }
+
+  /* Section label for admin */
+  .section-head {
+    font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.1em; color: var(--text-muted); margin-bottom:12px; margin-top:8px;
+  }
+
+  /* truncate helpers */
+  .trunc { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* empty state */
+  .empty-state {
+    text-align:center; padding:60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .mdi { font-size:48px; margin-bottom:16px; color:rgba(139,92,246,0.3); }
+
+  /* Setlist item row */
+  .setlist-song-row {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px; border-radius:9999px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--border-subtle);
+    margin-bottom:8px;
+    transition: all 200ms ease-out;
+  }
+  .setlist-song-row:hover { background:rgba(139,92,246,0.1); border-color:rgba(139,92,246,0.3); }
+
+  /* Smooth view transitions */
+  .view-panel { transition: opacity 300ms ease-out, transform 300ms ease-out; }
+  .view-panel.entering { opacity:0; transform:translateY(8px); }
+
+  /* Glow on active nav */
+  .nav-link.active .nav-icon { text-shadow:0 0 12px var(--purple); }
+
+  /* Stage lyrics only mode */
+  .lyrics-only-mode .chord-span { display:none; }
+
+  /* OTP glow error */
+  #otp-input.error {
+    border-color: rgba(239,68,68,0.7) !important;
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.2) !important;
+  }
+</style>
 </head>
-<body class="bg-[#0b0914]">
-<div id="app" class="w-screen h-screen flex flex-col overflow-hidden">
+<body>
 
-  <!-- ===== SIDE NAV OVERLAY ===== -->
-  <div id="nav-overlay" class="fixed inset-0 bg-black/50 z-40" onclick="closeSidenav()"></div>
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div style="text-align:center">
+    <div style="font-size:32px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px;">RCCM GigBook</div>
+    <div class="spinner" style="margin:0 auto;"></div>
+  </div>
+</div>
 
-  <!-- ===== SIDE NAVBAR ===== -->
-  <aside id="side-navbar" class="fixed top-0 left-0 h-full w-72 z-50 flex flex-col glass rounded-r-[2.5rem] overflow-hidden">
-    <!-- Top: Logo + Close -->
-    <div class="flex items-center justify-between p-5 pt-6">
-      <div id="navbar-logo" class="relative scanline-overlay flex items-center gap-3 glass rounded-2xl px-3 py-2 overflow-hidden">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center flex-shrink-0">
-          <iconify-icon icon="mdi:music-circle" class="text-white text-lg"></iconify-icon>
-        </div>
-        <div>
-          <p class="font-orbitron text-xs font-bold gradient-text leading-tight">RCCM</p>
-          <p class="text-[9px] text-gray-400 font-medium tracking-widest uppercase">GigBook v3</p>
+<!-- Auth Screen -->
+<div id="auth-screen" class="hidden">
+  <div style="text-align:center;width:100%;max-width:380px;">
+    <div style="font-size:36px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;">RCCM GigBook</div>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:40px;">Your band's live performance hub</p>
+
+    <!-- Recent Account Card -->
+    <div id="recent-account-card" style="display:none;" onclick="triggerGoogleSignIn()">
+      <img id="recent-photo" src="" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;" class="ring-purple" />
+      <div style="flex:1;min-width:0;text-align:left;">
+        <div id="recent-name" class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);"></div>
+        <div id="recent-email" class="trunc" style="font-size:12px;color:var(--text-muted);"></div>
+      </div>
+      <span class="mdi mdi-chevron-right" style="color:var(--purple);font-size:20px;flex-shrink:0;"></span>
+    </div>
+    <div id="recent-account-label" style="display:none;font-size:12px;color:var(--text-muted);margin-bottom:12px;">Continue as this account or sign in with another:</div>
+
+    <button onclick="triggerGoogleSignIn()" style="width:100%;padding:14px 24px;border-radius:9999px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text-primary);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 300ms ease-out;backdrop-filter:blur(20px);" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.transform=''">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+      Sign in with Google
+    </button>
+
+    <button id="pwa-install-btn" onclick="invokePWAInstall()">
+      <span class="mdi mdi-cellphone-arrow-down" style="margin-right:8px;"></span>Install GigBook App
+    </button>
+
+    <p style="margin-top:32px;font-size:12px;color:rgba(156,163,175,0.5);">Secure authentication via Firebase · RCCM © 2025</p>
+  </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- Side Navigation -->
+<nav id="side-navbar" class="glass-strong">
+  <!-- Top Block -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;">
+    <div id="navbar-logo" style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;">
+        <span class="mdi mdi-music-note" style="color:#fff;font-size:18px;"></span>
+      </div>
+      <span style="font-weight:800;font-size:17px;background:linear-gradient(135deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">GigBook</span>
+    </div>
+    <button class="btn-circle btn-glass" onclick="closeSidebar()" style="width:40px;height:40px;">
+      <span class="mdi mdi-close" style="font-size:18px;"></span>
+    </button>
+  </div>
+
+  <!-- Middle Block: Nav Links -->
+  <div style="flex:1;padding:8px 16px;overflow-y:auto;">
+    <div id="nav-song-list" class="nav-link" onclick="navigateTo('songs');closeSidebar();">
+      <span class="mdi mdi-music-note nav-icon"></span>
+      <span class="trunc">Song List</span>
+    </div>
+    <div id="nav-setlist" class="nav-link" onclick="navigateTo('setlist');closeSidebar();">
+      <span class="mdi mdi-playlist-music nav-icon"></span>
+      <span class="trunc">Setlist</span>
+    </div>
+    <div id="nav-users" class="nav-link" onclick="navigateTo('users');closeSidebar();" style="display:none;">
+      <span class="mdi mdi-account-group nav-icon"></span>
+      <span class="trunc">Users</span>
+    </div>
+    <div id="nav-admin" class="nav-link" onclick="navigateTo('admin');closeSidebar();" style="display:none;">
+      <span class="mdi mdi-shield-account nav-icon"></span>
+      <span class="trunc">Admin Panel</span>
+    </div>
+  </div>
+
+  <!-- Bottom Block: Profile Footer -->
+  <div style="padding:16px;">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:1rem;padding:14px;display:flex;align-items:center;gap:12px;">
+      <img id="nav-user-photo" src="" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;" class="ring-purple" />
+      <div style="flex:1;min-width:0;">
+        <div id="nav-user-name" class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);"></div>
+        <div id="nav-user-role" class="trunc" style="font-size:12px;color:var(--text-muted);"></div>
+      </div>
+      <button class="btn-circle btn-glass" onclick="handleSignOut()" style="width:40px;height:40px;" title="Sign Out">
+        <span class="mdi mdi-logout" style="font-size:18px;"></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- App Container -->
+<div id="app">
+
+  <!-- Top Bar -->
+  <div id="top-bar" class="top-bar-glass">
+    <button id="hamburger-btn" class="btn-circle btn-glass" onclick="openSidebar()" style="flex-shrink:0;">
+      <span class="mdi mdi-menu" style="font-size:22px;"></span>
+    </button>
+    <button id="back-btn" class="btn-circle btn-glass" onclick="handleBackBtn()" style="flex-shrink:0;display:none;">
+      <span class="mdi mdi-chevron-left" style="font-size:24px;"></span>
+    </button>
+
+    <div id="search-bar-container">
+      <input id="search-input" type="text" placeholder="Search songs, artists..." oninput="handleSearch(this.value)" autocomplete="off" />
+      <span class="mdi mdi-magnify search-icon"></span>
+    </div>
+
+    <button id="filter-btn" onclick="toggleFilterPanel()" title="Filter">
+      <span class="mdi mdi-filter-variant" style="font-size:20px;"></span>
+    </button>
+  </div>
+
+  <!-- Filter Panel (dropdown) -->
+  <div id="filter-panel" style="display:none;position:fixed;top:70px;right:16px;z-index:60;width:240px;background:rgba(18,14,28,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:1.5rem;padding:16px;backdrop-filter:blur(32px);box-shadow:0 16px 48px rgba(0,0,0,0.5);transform:translateY(-8px);opacity:0;transition:all 300ms cubic-bezier(0.16,1,0.3,1);">
+    <div style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Filter by Key</div>
+    <div id="key-filter-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Filter by Genre</div>
+    <div id="genre-filter-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    <div class="divider" style="margin:12px 0;"></div>
+    <button onclick="clearFilters()" style="width:100%;padding:10px;border-radius:9999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 200ms ease-out;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-muted)'">Clear Filters</button>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content">
+
+    <!-- SONGS VIEW -->
+    <div id="songs-view" class="view-panel" style="display:none;">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+        <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);">Song Library</h1>
+        <span id="songs-count" class="badge badge-purple"></span>
+      </div>
+      <div id="songs-list" style="padding-bottom:8px;"></div>
+    </div>
+
+    <!-- SETLIST VIEW -->
+    <div id="setlist-view" class="view-panel" style="display:none;">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+        <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);">Setlists</h1>
+        <span id="setlists-count" class="badge badge-pink"></span>
+      </div>
+      <div id="setlists-list" style="padding-bottom:8px;"></div>
+    </div>
+
+    <!-- USERS VIEW -->
+    <div id="users-view" class="view-panel" style="display:none;">
+      <div style="margin-bottom:16px;">
+        <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:12px;">User Directory</h1>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
+          <button class="sub-tab active" onclick="switchUserTab('roster',this)">Roster</button>
+          <button class="sub-tab" onclick="switchUserTab('pending',this)">Unassigned / New</button>
         </div>
       </div>
-      <button onclick="closeSidenav()" class="w-10 h-10 rounded-full glass flex items-center justify-center neon-btn hover:border-purple-400/50" title="Close">
-        <iconify-icon icon="mdi:close" class="text-gray-300 text-xl"></iconify-icon>
+      <div id="users-roster-list"></div>
+      <div id="users-pending-list" style="display:none;"></div>
+    </div>
+
+    <!-- ADMIN VIEW -->
+    <div id="admin-view" class="view-panel" style="display:none;">
+      <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:20px;">Admin Panel</h1>
+
+      <!-- App Branding -->
+      <div class="admin-section">
+        <h3><span class="mdi mdi-palette"></span> App Branding</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <input id="admin-app-name" class="input-styled" type="text" placeholder="App Display Name" />
+          <button onclick="saveAdminBranding()" style="width:100%;padding:12px;border-radius:9999px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all 300ms ease-out;" onmouseover="this.style.background='rgba(139,92,246,0.35)'" onmouseout="this.style.background='rgba(139,92,246,0.2)'">Save Branding</button>
+        </div>
+      </div>
+
+      <!-- Song Limit Guards -->
+      <div class="admin-section">
+        <h3><span class="mdi mdi-shield-lock"></span> Song Limit Guards</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:14px;color:var(--text-muted);">Max songs per setlist</span>
+            <input id="admin-max-songs" class="input-styled" type="number" min="1" max="100" value="20" style="width:80px;border-radius:9999px;text-align:center;padding:8px 12px;" />
+          </div>
+          <button onclick="saveAdminLimits()" style="width:100%;padding:12px;border-radius:9999px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all 300ms ease-out;" onmouseover="this.style.background='rgba(139,92,246,0.35)'" onmouseout="this.style.background='rgba(139,92,246,0.2)'">Save Limits</button>
+        </div>
+      </div>
+
+      <!-- Theme Laboratory -->
+      <div class="admin-section" id="admin-sec-customtheme">
+        <h3><span class="mdi mdi-flask"></span> Custom Theme Laboratory</h3>
+        <div id="theme-scope-toggle" class="scope-toggle" style="margin-bottom:16px;">
+          <button class="scope-btn active" onclick="setThemeScope('global',this)">🌐 Broadcast Globally</button>
+          <button class="scope-btn" onclick="setThemeScope('local',this)">🔒 Admin UI Lock</button>
+        </div>
+        <div class="color-row">
+          <span style="font-size:14px;color:var(--text-muted);">Canvas Background</span>
+          <input type="color" id="color-canvas-bg" value="#09070f" onchange="applyThemeColor('--canvas-bg',this.value)" />
+        </div>
+        <div class="color-row">
+          <span style="font-size:14px;color:var(--text-muted);">Lyrics Color</span>
+          <input type="color" id="color-lyrics" value="#f9fafb" onchange="applyThemeColor('--lyrics-color',this.value)" />
+        </div>
+        <div class="color-row">
+          <span style="font-size:14px;color:var(--text-muted);">Chords Color</span>
+          <input type="color" id="color-chords" value="#ec4899" onchange="applyThemeColor('--chords-color',this.value)" />
+        </div>
+        <div class="color-row" style="border-bottom:none;">
+          <span style="font-size:14px;color:var(--text-muted);">Background Blur (px)</span>
+          <input type="range" id="blur-range" min="0" max="48" value="24" style="width:120px;accent-color:var(--purple);" oninput="applyBlur(this.value)" />
+        </div>
+      </div>
+
+      <!-- System Purge -->
+      <div class="admin-section" style="border-color:rgba(239,68,68,0.2);">
+        <h3 style="color:#f87171;"><span class="mdi mdi-nuke"></span> System Purge & Reset Matrix</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Destructive operations require OTA verification. These actions are irreversible.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button id="admin-purge-trigger-btn" class="danger-btn danger-btn-red" onclick="openPurgeModal()">
+            <span class="mdi mdi-delete-sweep"></span> Open Purge Console
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETLIST DETAIL VIEW -->
+    <div id="setlist-detail-view" class="view-panel" style="display:none;">
+      <div style="margin-bottom:20px;">
+        <h1 id="setlist-detail-title" style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:6px;" class="trunc"></h1>
+        <div id="setlist-detail-meta" style="font-size:13px;color:var(--text-muted);"></div>
+      </div>
+      <div id="setlist-detail-songs"></div>
+    </div>
+
+  </div><!-- end main-content -->
+
+  <!-- Stage / Song Detail View (Full Screen) -->
+  <div id="stage-view">
+    <!-- Stage Toolbar -->
+    <div id="stage-toolbar">
+      <button class="btn-circle btn-glass" onclick="exitStageView()" style="flex-shrink:0;width:44px;height:44px;">
+        <span class="mdi mdi-chevron-left" style="font-size:24px;"></span>
+      </button>
+      <div id="stage-song-title" class="trunc" style="flex:1;font-weight:800;font-size:16px;color:var(--text-primary);"></div>
+
+      <!-- Key Transposer -->
+      <div class="transposer-capsule" title="Key">
+        <button class="chip-btn" onclick="transposeKey(-1)">♭</button>
+        <span class="val" id="stage-key-display">C</span>
+        <button class="chip-btn" onclick="transposeKey(1)">♯</button>
+      </div>
+
+      <!-- Capo -->
+      <div class="transposer-capsule" title="Capo">
+        <button class="chip-btn" onclick="adjustCapo(-1)">−</button>
+        <span class="val" id="stage-capo-display" style="font-size:11px;">Capo<br>0</span>
+        <button class="chip-btn" onclick="adjustCapo(1)">+</button>
+      </div>
+
+      <!-- Lyrics Only Toggle -->
+      <button id="lyrics-only-btn" class="chip-btn" onclick="toggleLyricsOnly()" title="Lyrics Only" style="width:36px;height:36px;">
+        <span class="mdi mdi-eye-off" style="font-size:16px;"></span>
       </button>
     </div>
 
-    <!-- Middle: Nav Links -->
-    <nav id="sidenav-links" class="flex-1 px-4 py-2 flex flex-col gap-1">
-      <!-- Populated by JS -->
-    </nav>
+    <!-- Song Sheet -->
+    <div id="song-sheet"></div>
 
-    <!-- Bottom: User Profile -->
-    <div id="sidenav-footer" class="p-4">
-      <div class="glass-card rounded-2xl p-3 flex items-center gap-3">
-        <div class="relative flex-shrink-0">
-          <img id="nav-user-photo" src="" alt="Profile" class="w-10 h-10 rounded-full glow-ring object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2E4NTVmNyIgZD0iTTEyIDJhNSA1IDAgMSAwIDAgMTAgNSA1IDAgMCAwIDAtMTB6bTAgMTJjLTUuMzMgMC04IDIuNjctOCA0djJoMTZ2LTJjMC0xLjMzLTIuNjctNC04LTR6Ii8+PC9zdmc+'"/>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p id="nav-user-name" class="text-sm font-semibold text-white truncate">Loading...</p>
-          <p id="nav-user-role" class="text-xs text-purple-400 truncate">—</p>
-        </div>
-        <button id="signout-btn" onclick="signOutUser()" class="w-9 h-9 rounded-full glass flex items-center justify-center neon-btn" title="Sign Out">
-          <iconify-icon icon="mdi:logout" class="text-gray-300 text-base"></iconify-icon>
-        </button>
+    <!-- Stage Bottom Tray -->
+    <div id="stage-tray">
+      <button id="scroll-reset-btn" class="btn-circle btn-glass" onclick="scrollReset()" style="width:40px;height:40px;" title="Restart">
+        <span class="mdi mdi-rewind-to-start" style="font-size:18px;"></span>
+      </button>
+      <div class="speed-capsule">
+        <button class="chip-btn" onclick="adjustScrollSpeed(-0.2)" style="width:26px;height:26px;font-size:12px;">−</button>
+        <span id="speed-display" style="min-width:72px;text-align:center;font-weight:700;font-size:13px;color:var(--text-primary);">Speed: 1.0x</span>
+        <button class="chip-btn" onclick="adjustScrollSpeed(0.2)" style="width:26px;height:26px;font-size:12px;">+</button>
       </div>
-    </div>
-  </aside>
-
-  <!-- ===== TOP LAYOUT LAYER ===== -->
-  <div class="flex-1 flex flex-col overflow-hidden relative">
-
-    <!-- Hamburger -->
-    <button id="hamburger-btn" onclick="openSidenav()"
-      class="fixed top-4 left-4 z-30 w-12 h-12 rounded-full glass flex items-center justify-center neon-btn"
-      style="backdrop-filter: blur(20px); border: 1px solid rgba(168,85,247,0.35); box-shadow: 0 0 12px rgba(168,85,247,0.25);">
-      <iconify-icon icon="mdi:menu" class="text-purple-300 text-2xl"></iconify-icon>
-    </button>
-
-    <!-- Floating Header (Search + Filter) -->
-    <div id="floating-header" class="fixed top-4 left-20 right-4 z-20 flex items-center gap-3">
-      <div class="flex-1 relative">
-        <iconify-icon icon="mdi:magnify" class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-400 text-lg pointer-events-none"></iconify-icon>
-        <input id="search-input" type="text" placeholder="Search songs, artists, keys…"
-          class="w-full pl-11 pr-4 py-3 rounded-full text-sm neon-border"
-          style="background:rgba(20,16,36,0.75);border:1px solid rgba(168,85,247,0.3);"
-          oninput="handleSearch()" />
-      </div>
-      <div id="filter-controls" class="flex items-center gap-2">
-        <select id="key-filter" class="rounded-full text-sm px-4 py-3 neon-border" onchange="handleSearch()"
-          style="background:rgba(20,16,36,0.75);border:1px solid rgba(168,85,247,0.3);">
-          <option value="">All Keys</option>
-        </select>
-        <select id="genre-filter" class="rounded-full text-sm px-4 py-3 neon-border hidden md:block" onchange="handleSearch()"
-          style="background:rgba(20,16,36,0.75);border:1px solid rgba(168,85,247,0.3);">
-          <option value="">All Genres</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <main id="main-content" class="flex-1 overflow-hidden flex flex-col">
-      <!-- Auth Screen -->
-      <div id="view-auth" class="scroll-area flex items-center justify-center h-full">
-        <div class="flex flex-col items-center gap-6 px-6 w-full max-w-sm">
-          <!-- Logo -->
-          <div class="text-center">
-            <div class="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-purple-700 to-pink-600 glow-ring" style="box-shadow: 0 0 40px rgba(168,85,247,0.5);">
-              <iconify-icon icon="mdi:music-circle" class="text-white text-5xl"></iconify-icon>
-            </div>
-            <h1 class="font-orbitron text-3xl font-black gradient-text tracking-wider">RCCM</h1>
-            <p class="text-gray-400 text-sm mt-1 tracking-widest uppercase font-medium">GigBook Cyber-Deck</p>
-          </div>
-
-          <!-- Sign-In Card -->
-          <div class="glass rounded-[2rem] p-8 w-full text-center">
-            <h2 class="font-orbitron text-lg font-bold text-white mb-2">Initialize Session</h2>
-            <p class="text-gray-400 text-sm mb-6">Authenticate to access the platform</p>
-            <button id="google-signin-btn" onclick="signInWithGoogle()"
-              class="w-full py-3.5 rounded-full flex items-center justify-center gap-3 font-semibold text-white neon-btn"
-              style="background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(236,72,153,0.3)); border: 1px solid rgba(168,85,247,0.5);">
-              <iconify-icon icon="flat-color-icons:google" class="text-xl"></iconify-icon>
-              Sign In with Google
-            </button>
-
-            <!-- PWA Install Button -->
-            <button id="pwa-install-btn"
-              onclick="triggerPWAInstall()"
-              class="install-btn-glow w-full mt-4 py-3 rounded-full flex items-center justify-center gap-2 font-semibold text-sm neon-btn"
-              style="display:none; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); color: #a855f7;">
-              <iconify-icon icon="mdi:download-circle-outline" class="text-lg"></iconify-icon>
-              Install Cyber-Deck App
-            </button>
-          </div>
-
-          <!-- Footer -->
-          <p class="text-xs text-gray-600 text-center">RCCM GigBook © 2025 · Purple Mech Edition</p>
-        </div>
-      </div>
-
-      <!-- App Shell (post-auth) -->
-      <div id="view-app" class="hidden flex-1 overflow-hidden flex flex-col h-full">
-
-        <!-- Songs View -->
-        <div id="view-songs" class="view-panel hidden flex-col h-full">
-          <div class="pt-24 px-4 pb-6 scroll-area h-full">
-            <div id="songs-list-container" class="flex flex-col gap-3">
-              <!-- Populated by JS -->
-            </div>
-            <div id="songs-empty" class="hidden text-center py-16">
-              <iconify-icon icon="mdi:music-off" class="text-5xl text-gray-600 mb-3"></iconify-icon>
-              <p class="text-gray-500">No songs found</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Setlist View -->
-        <div id="view-setlist" class="view-panel hidden flex-col h-full">
-          <div class="pt-24 px-4 pb-6 scroll-area h-full">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="font-orbitron text-lg font-bold gradient-text">Setlists</h2>
-              <button id="create-setlist-btn" onclick="openCreateSetlistModal()"
-                class="px-5 py-2.5 rounded-full text-sm font-semibold neon-btn"
-                style="background: linear-gradient(135deg,rgba(168,85,247,0.4),rgba(236,72,153,0.3)); border:1px solid rgba(168,85,247,0.5); color:#fff;">
-                <iconify-icon icon="mdi:plus" class="mr-1"></iconify-icon>New Setlist
-              </button>
-            </div>
-            <div id="setlist-container" class="flex flex-col gap-3"></div>
-            <div id="setlist-empty" class="hidden text-center py-16">
-              <iconify-icon icon="mdi:playlist-remove" class="text-5xl text-gray-600 mb-3"></iconify-icon>
-              <p class="text-gray-500">No setlists yet</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Users View -->
-        <div id="view-users" class="view-panel hidden flex-col h-full">
-          <div class="pt-24 px-4 pb-6 scroll-area h-full">
-            <h2 class="font-orbitron text-lg font-bold gradient-text mb-4">User Directory</h2>
-
-            <!-- Sub-tabs -->
-            <div class="flex gap-2 mb-5 glass rounded-full p-1.5 w-fit">
-              <button id="tab-roster-btn" onclick="switchUserTab('roster')"
-                class="seg-btn seg-active px-5 py-1.5 rounded-full text-sm font-semibold">Roster</button>
-              <button id="tab-pending-btn" onclick="switchUserTab('pending')"
-                class="seg-btn px-5 py-1.5 rounded-full text-sm font-semibold text-gray-400">Pending</button>
-            </div>
-
-            <!-- Roster -->
-            <div id="users-roster" class="flex flex-col gap-3"></div>
-            <!-- Pending -->
-            <div id="users-pending" class="hidden flex-col gap-3"></div>
-
-            <div id="users-empty" class="hidden text-center py-16">
-              <iconify-icon icon="mdi:account-off" class="text-5xl text-gray-600 mb-3"></iconify-icon>
-              <p class="text-gray-500">No users found</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Admin Panel View -->
-        <div id="view-admin" class="view-panel hidden flex-col h-full">
-          <div class="pt-24 px-4 pb-6 scroll-area h-full">
-            <h2 class="font-orbitron text-xl font-black gradient-text mb-6">Admin Control Matrix</h2>
-
-            <!-- Admin Sections -->
-            <div class="flex flex-col gap-5 max-w-3xl mx-auto pb-8">
-
-              <!-- App Branding -->
-              <div class="glass-card rounded-3xl p-6">
-                <h3 class="font-orbitron text-sm font-bold text-purple-300 mb-4 flex items-center gap-2">
-                  <iconify-icon icon="mdi:palette-outline"></iconify-icon> App Branding
-                </h3>
-                <div class="flex flex-col gap-3">
-                  <div>
-                    <label class="text-xs text-gray-400 mb-1 block">App Name</label>
-                    <input id="admin-app-name" type="text" placeholder="RCCM GigBook" class="w-full rounded-2xl" />
-                  </div>
-                  <div>
-                    <label class="text-xs text-gray-400 mb-1 block">Tagline</label>
-                    <input id="admin-tagline" type="text" placeholder="Cyber-Deck Edition" class="w-full rounded-2xl" />
-                  </div>
-                  <button onclick="saveBranding()" class="mt-2 px-5 py-2.5 rounded-full text-sm font-semibold neon-btn self-start"
-                    style="background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(236,72,153,0.3));border:1px solid rgba(168,85,247,0.5);color:#fff;">
-                    Save Branding
-                  </button>
-                </div>
-              </div>
-
-              <!-- Song Limit Guards -->
-              <div class="glass-card rounded-3xl p-6">
-                <h3 class="font-orbitron text-sm font-bold text-purple-300 mb-4 flex items-center gap-2">
-                  <iconify-icon icon="mdi:shield-lock-outline"></iconify-icon> Song Limit Guards
-                </h3>
-                <div class="flex flex-col gap-3">
-                  <div>
-                    <label class="text-xs text-gray-400 mb-1 block">Max Songs per Setlist</label>
-                    <input id="admin-song-limit" type="number" placeholder="20" min="1" max="100" class="w-full rounded-2xl" />
-                  </div>
-                  <button onclick="saveSongLimit()" class="mt-2 px-5 py-2.5 rounded-full text-sm font-semibold neon-btn self-start"
-                    style="background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(236,72,153,0.3));border:1px solid rgba(168,85,247,0.5);color:#fff;">
-                    Save Limit
-                  </button>
-                </div>
-              </div>
-
-              <!-- Theme Presets -->
-              <div class="glass-card rounded-3xl p-6">
-                <h3 class="font-orbitron text-sm font-bold text-purple-300 mb-4 flex items-center gap-2">
-                  <iconify-icon icon="mdi:brightness-6"></iconify-icon> Theme Presets
-                </h3>
-                <div class="flex flex-wrap gap-3">
-                  <button onclick="applyThemePreset('default')" class="px-4 py-2 rounded-full text-sm neon-btn glass" style="border:1px solid rgba(168,85,247,0.4);color:#a855f7;">Purple Mech</button>
-                  <button onclick="applyThemePreset('midnight')" class="px-4 py-2 rounded-full text-sm neon-btn glass" style="border:1px solid rgba(99,102,241,0.4);color:#6366f1;">Midnight Indigo</button>
-                  <button onclick="applyThemePreset('neon-green')" class="px-4 py-2 rounded-full text-sm neon-btn glass" style="border:1px solid rgba(34,197,94,0.4);color:#22c55e;">Neon Emerald</button>
-                  <button onclick="applyThemePreset('crimson')" class="px-4 py-2 rounded-full text-sm neon-btn glass" style="border:1px solid rgba(239,68,68,0.4);color:#ef4444;">Crimson Flux</button>
-                </div>
-              </div>
-
-              <!-- Custom Theme Lab -->
-              <div id="admin-sec-customtheme" class="glass-card rounded-3xl p-6">
-                <h3 class="font-orbitron text-sm font-bold text-purple-300 mb-4 flex items-center gap-2">
-                  <iconify-icon icon="mdi:flask-outline"></iconify-icon> Custom Theme Laboratory
-                </h3>
-                <!-- Dual Scope Toggle -->
-                <div class="glass rounded-full p-1.5 flex w-fit gap-1 mb-5" id="theme-scope-toggle">
-                  <button id="scope-global-btn" onclick="setThemeScope('global')"
-                    class="seg-btn seg-active px-5 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1.5">
-                    <iconify-icon icon="mdi:earth"></iconify-icon>Broadcast Globally
-                  </button>
-                  <button id="scope-local-btn" onclick="setThemeScope('local')"
-                    class="seg-btn px-5 py-1.5 rounded-full text-sm font-semibold text-gray-400 flex items-center gap-1.5">
-                    <iconify-icon icon="mdi:lock-outline"></iconify-icon>Admin UI Lock
-                  </button>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="text-xs text-gray-400 mb-2 block">Canvas Background</label>
-                    <div class="flex items-center gap-3">
-                      <input type="color" id="lab-canvas-bg" value="#0b0914" class="w-10 h-10 rounded-xl cursor-pointer border-0 p-0.5" style="background:transparent;" oninput="applyLabTheme()" />
-                      <span class="text-xs text-gray-500 font-mono" id="lab-canvas-bg-val">#0b0914</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="text-xs text-gray-400 mb-2 block">Lyrics Color</label>
-                    <div class="flex items-center gap-3">
-                      <input type="color" id="lab-lyrics-color" value="#f3f4f6" class="w-10 h-10 rounded-xl cursor-pointer border-0 p-0.5" style="background:transparent;" oninput="applyLabTheme()" />
-                      <span class="text-xs text-gray-500 font-mono" id="lab-lyrics-color-val">#f3f4f6</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="text-xs text-gray-400 mb-2 block">Chords/Accent Color</label>
-                    <div class="flex items-center gap-3">
-                      <input type="color" id="lab-chords-color" value="#a855f7" class="w-10 h-10 rounded-xl cursor-pointer border-0 p-0.5" style="background:transparent;" oninput="applyLabTheme()" />
-                      <span class="text-xs text-gray-500 font-mono" id="lab-chords-color-val">#a855f7</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label class="text-xs text-gray-400 mb-2 block">Glass Blur (px)</label>
-                    <input type="range" id="lab-blur" min="0" max="40" value="20" class="w-full accent-purple-500 rounded-full" oninput="applyLabTheme()" />
-                    <span class="text-xs text-gray-500 mt-1 block" id="lab-blur-val">20px</span>
-                  </div>
-                </div>
-                <button onclick="pushLabTheme()" class="mt-5 px-5 py-2.5 rounded-full text-sm font-semibold neon-btn self-start flex items-center gap-2"
-                  style="background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(236,72,153,0.3));border:1px solid rgba(168,85,247,0.5);color:#fff;">
-                  <iconify-icon icon="mdi:content-save-outline"></iconify-icon>Apply Theme
-                </button>
-              </div>
-
-              <!-- Typography & Layout -->
-              <div class="glass-card rounded-3xl p-6">
-                <h3 class="font-orbitron text-sm font-bold text-purple-300 mb-4 flex items-center gap-2">
-                  <iconify-icon icon="mdi:format-font"></iconify-icon> Typography & Layout
-                </h3>
-                <div class="flex flex-col gap-3">
-                  <div>
-                    <label class="text-xs text-gray-400 mb-1 block">Base Font Size</label>
-                    <select id="admin-font-size" class="w-full rounded-2xl" onchange="applyFontSize()">
-                      <option value="14px">Small (14px)</option>
-                      <option value="16px" selected>Medium (16px)</option>
-                      <option value="18px">Large (18px)</option>
-                      <option value="20px">X-Large (20px)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!-- System Purge & Reset -->
-              <div class="glass-card rounded-3xl p-6" style="border-color:rgba(239,68,68,0.3);">
-                <h3 class="font-orbitron text-sm font-bold text-red-400 mb-4 flex items-center gap-2">
-                  <iconify-icon icon="mdi:nuke"></iconify-icon> System Purge & Reset Matrix
-                </h3>
-                <p class="text-xs text-gray-500 mb-4">Destructive operations require OTA 2-step verification. Actions are irreversible.</p>
-                <button id="admin-purge-trigger-btn" onclick="openPurgeModal()"
-                  class="px-5 py-3 rounded-2xl text-sm font-semibold neon-btn flex items-center gap-2 danger-glow"
-                  style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#f87171;">
-                  <iconify-icon icon="mdi:alert-octagon-outline" class="text-lg"></iconify-icon>
-                  Open Purge Control Panel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /view-app -->
-    </main>
-  </div>
-
-  <!-- ===== MODALS ===== -->
-
-  <!-- Song Detail Modal -->
-  <div id="song-modal" class="modal-backdrop fixed inset-0 z-60 flex items-end sm:items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.7);">
-    <div class="modal-sheet glass rounded-[2rem] w-full max-w-2xl max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between p-5 border-b" style="border-color:rgba(168,85,247,0.15);">
-        <div>
-          <h3 id="modal-song-title" class="font-orbitron font-bold text-lg text-white"></h3>
-          <p id="modal-song-artist" class="text-sm text-gray-400"></p>
-        </div>
-        <div class="flex items-center gap-2">
-          <span id="modal-song-key" class="badge" style="background:rgba(168,85,247,0.2);color:#a855f7;border:1px solid rgba(168,85,247,0.3);"></span>
-          <button onclick="closeSongModal()" class="w-9 h-9 rounded-full glass neon-btn flex items-center justify-center">
-            <iconify-icon icon="mdi:close" class="text-gray-300"></iconify-icon>
-          </button>
-        </div>
-      </div>
-      <div class="flex-1 overflow-y-auto p-5">
-        <div id="modal-song-body" class="whitespace-pre-wrap text-sm leading-relaxed font-mono" style="color:var(--lyrics-color);"></div>
-      </div>
-      <div class="p-4 border-t flex items-center justify-between gap-3 flex-wrap" style="border-color:rgba(168,85,247,0.15);">
-        <div class="flex items-center gap-2">
-          <button onclick="transposeSong(-1)" class="px-4 py-2 rounded-full text-xs neon-btn glass">
-            <iconify-icon icon="mdi:minus" class="mr-1"></iconify-icon>Transpose
-          </button>
-          <span id="modal-current-key" class="text-xs text-purple-400 font-orbitron"></span>
-          <button onclick="transposeSong(1)" class="px-4 py-2 rounded-full text-xs neon-btn glass">
-            Transpose<iconify-icon icon="mdi:plus" class="ml-1"></iconify-icon>
-          </button>
-        </div>
-        <button id="modal-fav-btn" onclick="toggleFavorite()" class="px-4 py-2 rounded-full text-xs neon-btn glass flex items-center gap-1.5">
-          <iconify-icon id="modal-fav-icon" icon="mdi:heart-outline" class="text-pink-400"></iconify-icon>
-          <span id="modal-fav-text">Favorite</span>
-        </button>
-      </div>
+      <button id="auto-scroll-btn" class="btn-circle" onclick="toggleAutoScroll()" style="width:44px;height:44px;background:var(--purple);color:#fff;border:none;cursor:pointer;border-radius:50%;transition:all 300ms ease-out;box-shadow:0 4px 16px rgba(139,92,246,0.4);">
+        <span id="auto-scroll-icon" class="mdi mdi-play" style="font-size:20px;"></span>
+      </button>
     </div>
   </div>
 
-  <!-- Create Setlist Modal -->
-  <div id="create-setlist-modal" class="modal-backdrop fixed inset-0 z-60 flex items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.7);">
-    <div class="modal-sheet glass rounded-[2rem] w-full max-w-md p-6">
-      <div class="flex items-center justify-between mb-5">
-        <h3 class="font-orbitron font-bold text-lg gradient-text">New Setlist</h3>
-        <button onclick="closeCreateSetlistModal()" class="w-9 h-9 rounded-full glass neon-btn flex items-center justify-center">
-          <iconify-icon icon="mdi:close" class="text-gray-300"></iconify-icon>
-        </button>
-      </div>
-      <div class="flex flex-col gap-4">
-        <div>
-          <label class="text-xs text-gray-400 mb-1 block">Setlist Name</label>
-          <input id="new-setlist-name" type="text" placeholder="Sunday Morning Set…" class="w-full rounded-2xl" />
-        </div>
-        <div>
-          <label class="text-xs text-gray-400 mb-1 block">Date</label>
-          <input id="new-setlist-date" type="date" class="w-full rounded-2xl" />
-        </div>
-        <div>
-          <label class="text-xs text-gray-400 mb-1 block">Notes (optional)</label>
-          <textarea id="new-setlist-notes" rows="3" placeholder="Event details…" class="w-full rounded-2xl"></textarea>
-        </div>
-        <button onclick="createSetlist()" class="w-full py-3 rounded-full font-semibold neon-btn text-white mt-2"
-          style="background:linear-gradient(135deg,rgba(168,85,247,0.5),rgba(236,72,153,0.4));border:1px solid rgba(168,85,247,0.6);">
-          Create Setlist
-        </button>
-      </div>
+</div><!-- end app -->
+
+<!-- FAB Container -->
+<div id="fab-container">
+  <div id="fab-add-song" class="fab-btn fab-hidden" style="background:var(--purple);box-shadow:0 8px 32px rgba(139,92,246,0.5);" onclick="openAddSongModal()">
+    <span class="mdi mdi-music-note-plus"></span>
+  </div>
+  <div id="fab-add-setlist" class="fab-btn fab-hidden" style="background:var(--pink);box-shadow:0 8px 32px rgba(236,72,153,0.5);" onclick="openAddSetlistModal()">
+    <span class="mdi mdi-playlist-plus"></span>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- =================== MODALS =================== -->
+
+<!-- Add Song Modal -->
+<div id="add-song-modal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:800;">Add New Song</h2>
+      <button class="btn-circle btn-glass" onclick="closeModal('add-song-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input id="song-title-input" class="input-styled" type="text" placeholder="Song Title *" />
+      <input id="song-artist-input" class="input-styled" type="text" placeholder="Artist / Band" />
+      <select id="song-key-input" class="input-styled">
+        <option value="">Select Key</option>
+      </select>
+      <input id="song-tempo-input" class="input-styled" type="number" placeholder="Tempo (BPM)" />
+      <input id="song-genre-input" class="input-styled" type="text" placeholder="Genre / Style" />
+      <textarea id="song-lyrics-input" class="input-styled" placeholder="Paste chord+lyrics here...&#10;&#10;[Verse]&#10;[G]Amazing [D]grace how [Em]sweet the [C]sound"></textarea>
+      <button onclick="submitAddSong()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;box-shadow:0 4px 20px rgba(139,92,246,0.4);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(139,92,246,0.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(139,92,246,0.4)'">Add Song</button>
     </div>
   </div>
+</div>
 
-  <!-- Setlist Detail Modal -->
-  <div id="setlist-detail-modal" class="modal-backdrop fixed inset-0 z-60 flex items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.7);">
-    <div class="modal-sheet glass rounded-[2rem] w-full max-w-2xl max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between p-5 border-b" style="border-color:rgba(168,85,247,0.15);">
-        <div>
-          <h3 id="setlist-detail-title" class="font-orbitron font-bold text-lg text-white"></h3>
-          <p id="setlist-detail-meta" class="text-xs text-gray-400 mt-0.5"></p>
-        </div>
-        <button onclick="closeSetlistDetailModal()" class="w-9 h-9 rounded-full glass neon-btn flex items-center justify-center">
-          <iconify-icon icon="mdi:close" class="text-gray-300"></iconify-icon>
-        </button>
+<!-- Add Setlist Modal -->
+<div id="add-setlist-modal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:800;">Create New Setlist</h2>
+      <button class="btn-circle btn-glass" onclick="closeModal('add-setlist-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input id="setlist-name-input" class="input-styled" type="text" placeholder="Setlist Name *" />
+      <input id="setlist-venue-input" class="input-styled" type="text" placeholder="Venue / Event" />
+      <input id="setlist-date-input" class="input-styled" type="date" />
+      <div id="setlist-song-picker" style="max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;padding:12px;">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Pick Songs (tap to add):</div>
+        <div id="setlist-song-picker-list"></div>
       </div>
-      <div class="flex-1 overflow-y-auto p-5">
-        <div id="setlist-songs-list" class="flex flex-col gap-2 mb-4"></div>
-        <!-- Add songs to setlist -->
-        <div class="glass rounded-2xl p-4">
-          <p class="text-xs text-gray-400 mb-2 font-semibold">Add Song to Setlist</p>
-          <div class="relative mb-2">
-            <iconify-icon icon="mdi:magnify" class="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 text-base pointer-events-none"></iconify-icon>
-            <input id="setlist-song-search" type="text" placeholder="Search songs…" class="w-full pl-9 pr-3 py-2.5 rounded-2xl text-sm" oninput="searchSongsForSetlist()" />
-          </div>
-          <div id="setlist-song-results" class="flex flex-col gap-1 max-h-48 overflow-y-auto"></div>
-        </div>
-      </div>
-      <div class="p-4 border-t flex items-center gap-3" style="border-color:rgba(168,85,247,0.15);">
-        <button id="delete-setlist-btn" onclick="deleteCurrentSetlist()"
-          class="px-4 py-2 rounded-full text-xs font-semibold neon-btn danger-glow flex items-center gap-1"
-          style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#f87171;">
-          <iconify-icon icon="mdi:trash-can-outline"></iconify-icon>Delete
-        </button>
-      </div>
+      <div id="setlist-selected-songs" style="min-height:40px;"></div>
+      <button onclick="submitAddSetlist()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;box-shadow:0 4px 20px rgba(236,72,153,0.4);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Create Setlist</button>
     </div>
   </div>
+</div>
 
-  <!-- Purge Modal -->
-  <div id="purge-modal" class="modal-backdrop fixed inset-0 z-60 flex items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.8);">
-    <div class="modal-sheet glass rounded-[2rem] w-full max-w-md p-7">
-      <div class="flex items-center justify-between mb-5">
-        <h3 class="font-orbitron font-bold text-lg text-red-400 flex items-center gap-2">
-          <iconify-icon icon="mdi:alert-octagon"></iconify-icon>Purge Control
-        </h3>
-        <button onclick="closePurgeModal()" class="w-9 h-9 rounded-full glass neon-btn flex items-center justify-center">
-          <iconify-icon icon="mdi:close" class="text-gray-300"></iconify-icon>
-        </button>
-      </div>
-      <p class="text-xs text-gray-400 mb-6 leading-relaxed">Select a destructive operation. You will be required to verify via a 6-digit OTA code sent to your admin email.</p>
-      <div class="flex flex-col gap-3">
-        <button onclick="initiatePurge('setlists')"
-          class="w-full py-3.5 rounded-2xl text-sm font-semibold neon-btn flex items-center gap-3 danger-glow"
-          style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#f87171;">
-          <iconify-icon icon="mdi:playlist-remove" class="text-xl"></iconify-icon>
-          <div class="text-left">
-            <p class="font-bold">Clear All Setlists</p>
-            <p class="text-xs text-gray-500 font-normal">Permanently deletes all setlist documents</p>
-          </div>
-        </button>
-        <button onclick="initiatePurge('full')"
-          class="w-full py-3.5 rounded-2xl text-sm font-semibold neon-btn flex items-center gap-3"
-          style="background:rgba(120,0,0,0.25);border:1px solid rgba(239,68,68,0.6);color:#fca5a5;box-shadow:0 0 20px rgba(239,68,68,0.25);">
-          <iconify-icon icon="mdi:nuke" class="text-xl"></iconify-icon>
-          <div class="text-left">
-            <p class="font-bold">Deep Factory Reset</p>
-            <p class="text-xs opacity-70 font-normal">Clears setlists + all user profiles (songs retained)</p>
-          </div>
-        </button>
-      </div>
+<!-- Role Assignment Modal -->
+<div id="role-modal" class="modal-overlay">
+  <div class="modal-sheet" style="max-width:380px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:800;">Change Role</h2>
+      <button class="btn-circle btn-glass" onclick="closeModal('role-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div id="role-modal-user-info" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.04);border-radius:1.5rem;border:1px solid rgba(255,255,255,0.08);margin-bottom:4px;"></div>
+      <select id="role-select" class="input-styled">
+        <option value="Guest">Guest</option>
+        <option value="Singer">Singer</option>
+        <option value="Musician">Musician</option>
+        <option value="Lead">Lead</option>
+        <option value="Tech">Tech</option>
+        <option value="Sub-Admin">Sub-Admin</option>
+        <option value="Admin">Admin</option>
+      </select>
+      <button onclick="submitRoleChange()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Update Role</button>
     </div>
   </div>
+</div>
 
-  <!-- OTA Verification Modal -->
-  <div id="purge-verification-modal" class="modal-backdrop fixed inset-0 z-70 flex items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.85);">
-    <div class="modal-sheet glass rounded-[2rem] w-full max-w-sm p-7 text-center">
-      <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-red-700 to-orange-600" style="box-shadow:0 0 24px rgba(239,68,68,0.4);">
-        <iconify-icon icon="mdi:shield-key-outline" class="text-white text-3xl"></iconify-icon>
-      </div>
-      <h3 class="font-orbitron font-bold text-lg text-red-400 mb-1">OTA Verification</h3>
-      <p class="text-xs text-gray-400 mb-1">A 6-digit code was sent to:</p>
-      <p id="verify-email-display" class="text-xs text-purple-400 font-semibold mb-5"></p>
-      <input id="verify-code-input" type="text" maxlength="6" placeholder="000000"
-        class="verify-input w-full mb-2" oninput="validateVerifyInput(this)" />
-      <p id="verify-error-msg" class="text-xs text-red-400 mb-4 hidden">Invalid code. Operation locked.</p>
-      <div class="flex gap-3">
-        <button onclick="closePurgeVerifyModal()" class="flex-1 py-3 rounded-full text-sm font-semibold glass neon-btn" style="border:1px solid rgba(168,85,247,0.3);color:#9ca3af;">
-          Cancel
-        </button>
-        <button onclick="submitVerifyCode()"
-          class="flex-1 py-3 rounded-full text-sm font-semibold neon-btn text-white"
-          style="background:linear-gradient(135deg,rgba(239,68,68,0.5),rgba(220,38,38,0.4));border:1px solid rgba(239,68,68,0.5);">
-          Execute
-        </button>
-      </div>
-      <p class="text-xs text-gray-600 mt-4">⚠ This action is irreversible</p>
+<!-- Purge Console Modal -->
+<div id="purge-modal" class="modal-overlay">
+  <div class="modal-sheet" style="max-width:420px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:800;color:#f87171;"><span class="mdi mdi-alert-octagon"></span> Purge Console</h2>
+      <button class="btn-circle btn-glass" onclick="closeModal('purge-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Choose a destructive operation. An OTA 6-digit security code will be dispatched to your admin email before execution.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="danger-btn danger-btn-red" onclick="initiatePurge('setlists')">
+        <span class="mdi mdi-playlist-remove"></span> Clear All Setlists Only
+      </button>
+      <button class="danger-btn danger-btn-orange" onclick="initiatePurge('usersAndSetlists')">
+        <span class="mdi mdi-database-remove"></span> Deep Factory Reset (Setlists + Users)
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] glass rounded-full px-5 py-3 flex items-center gap-3 text-sm font-medium">
-    <iconify-icon id="toast-icon" icon="mdi:check-circle" class="text-green-400"></iconify-icon>
-    <span id="toast-msg">Done</span>
+<!-- OTP Verification Modal -->
+<div id="otp-modal" class="modal-overlay">
+  <div class="modal-sheet" style="max-width:380px;text-align:center;">
+    <div style="margin-bottom:20px;">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(139,92,246,0.2);border:2px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <span class="mdi mdi-email-lock" style="font-size:28px;color:var(--purple);"></span>
+      </div>
+      <h2 style="font-size:18px;font-weight:800;margin-bottom:8px;">OTA Security Verification</h2>
+      <p id="otp-desc" style="font-size:13px;color:var(--text-muted);">A 6-digit code has been logged. Enter it below to confirm the operation.</p>
+    </div>
+    <input id="otp-input" class="input-styled" type="text" maxlength="6" placeholder="000000" inputmode="numeric" pattern="[0-9]*" style="text-align:center;letter-spacing:0.4em;font-size:24px;font-weight:800;margin-bottom:16px;" />
+    <div id="otp-error" style="display:none;color:#f87171;font-size:13px;margin-bottom:12px;padding:10px;border-radius:9999px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);">
+      Invalid code. Operation blocked.
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeModal('otp-modal')" style="flex:1;padding:14px;border-radius:9999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;">Cancel</button>
+      <button onclick="verifyOTP()" style="flex:1;padding:14px;border-radius:9999px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;transition:all 300ms ease-out;" onmouseover="this.style.background='rgba(239,68,68,0.35)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'">Verify & Execute</button>
+    </div>
   </div>
+</div>
 
-</div><!-- /#app -->
+<!-- Edit Song Modal -->
+<div id="edit-song-modal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:18px;font-weight:800;">Edit Song</h2>
+      <button class="btn-circle btn-glass" onclick="closeModal('edit-song-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input id="edit-song-id" type="hidden" />
+      <input id="edit-song-title" class="input-styled" type="text" placeholder="Song Title *" />
+      <input id="edit-song-artist" class="input-styled" type="text" placeholder="Artist / Band" />
+      <select id="edit-song-key" class="input-styled"></select>
+      <input id="edit-song-tempo" class="input-styled" type="number" placeholder="Tempo (BPM)" />
+      <input id="edit-song-genre" class="input-styled" type="text" placeholder="Genre / Style" />
+      <textarea id="edit-song-lyrics" class="input-styled" placeholder="Chord+lyrics content..."></textarea>
+      <button onclick="submitEditSong()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Save Changes</button>
+    </div>
+  </div>
+</div>
 
-<!-- ===== FIREBASE ===== -->
+<!-- Firebase -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc,
-    collection, query, where, getDocs, onSnapshot, orderBy, writeBatch,
-    serverTimestamp, limit
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-  // ───── Firebase Config ─────
-  const firebaseConfig = {
-    apiKey: "AIzaSyAlE76KUY17bv8J5mM_9SBN6p23gNUyc0Y",
-    authDomain: "rccm-gigbook.firebaseapp.com",
-    projectId: "rccm-gigbook",
-    storageBucket: "rccm-gigbook.firebasestorage.app",
-    messagingSenderId: "817371493392",
-    appId: "1:817371493392:web:a7cec582390753b9104695"
-  };
+// ===== FIREBASE CONFIG =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAlE76KUY17bv8J5mM_9SBN6p23gNUyc0Y",
+  authDomain: "rccm-gigbook.firebaseapp.com",
+  projectId: "rccm-gigbook",
+  storageBucket: "rccm-gigbook.firebasestorage.app",
+  messagingSenderId: "817371493392",
+  appId: "1:817371493392:web:a7cec582390753b9104695"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
 
-  // ───── Constants ─────
-  const CHROMATIC_SCALE = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-  const ENHARMONIC_MAP = {
-    "Db":"C#","Eb":"D#","Fb":"E","Gb":"F#","Ab":"G#","Bb":"A#","Cb":"B",
-    "C#":"C#","D#":"D#","F#":"F#","G#":"G#","A#":"A#"
-  };
-  const ROLES = ["Guest","Musician","Singer","Tech","Lead","Sub-Admin","Admin"];
-  const ROLE_COLORS = {
-    Guest:"rgba(107,114,128,0.3)", Musician:"rgba(59,130,246,0.3)",
-    Singer:"rgba(236,72,153,0.3)", Tech:"rgba(34,197,94,0.3)",
-    Lead:"rgba(245,158,11,0.3)", "Sub-Admin":"rgba(168,85,247,0.3)", Admin:"rgba(239,68,68,0.3)"
-  };
-  const ROLE_TEXT = {
-    Guest:"#9ca3af", Musician:"#60a5fa", Singer:"#f472b6",
-    Tech:"#4ade80", Lead:"#fbbf24", "Sub-Admin":"#c084fc", Admin:"#f87171"
-  };
+// ===== CONSTANTS =====
+const CHROMATIC_SCALE = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const ENHARMONIC_MAP = { 'Db':'C#','Eb':'D#','Fb':'E','Gb':'F#','Ab':'G#','Bb':'A#','Cb':'B', 'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb' };
+const FLAT_KEYS = ['F','Bb','Eb','Ab','Db','Gb'];
+const ALL_KEYS = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B'];
+const ROLES = ['Guest','Singer','Musician','Lead','Tech','Sub-Admin','Admin'];
 
-  // ───── State ─────
-  let currentUser = null;
-  let currentProfile = null;
-  let allSongs = [];
-  let filteredSongs = [];
-  let allSetlists = [];
-  let allUsers = [];
-  let currentSong = null;
-  let currentTransposeKey = null;
-  let currentSetlistId = null;
-  let favorites = JSON.parse(localStorage.getItem('rccm_favorites') || '[]');
-  let activeTab = 'setlist';
-  let usersSubTab = 'roster';
-  let themeScope = 'global';
-  let pendingPurgeType = null;
-  let otaCode = null;
-  let songLimit = 20;
-  let unsubSongs = null;
-  let unsubSetlists = null;
-  let unsubUsers = null;
-  let unsubTheme = null;
-  let deferredInstallPrompt = null;
+// ===== STATE =====
+let currentUser = null;
+let currentUserData = null;
+let allSongs = [];
+let allSetlists = [];
+let allUsers = [];
+let currentView = 'songs';
+let currentSong = null;
+let currentSetlist = null;
+let stageTranspose = 0;
+let stageCapo = 0;
+let stageLyricsOnly = false;
+let autoScrollActive = false;
+let autoScrollSpeed = 1.0;
+let autoScrollRAF = null;
+let activeFilters = { key: null, genre: null };
+let searchQuery = '';
+let filterPanelOpen = false;
+let pendingPurgeType = null;
+let otpCode = null;
+let themeScope = 'global';
+let songListeners = [];
+let setlistListeners = [];
+let userListeners = [];
+let selectedSetlistSongs = [];
+let roleModalTargetUser = null;
+let deferredInstallPrompt = null;
 
-  // ───── PWA Install ─────
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    const btn = document.getElementById('pwa-install-btn');
-    if (btn) {
-      btn.style.display = 'flex';
-      btn.style.opacity = '0';
-      requestAnimationFrame(() => {
-        btn.style.transition = 'opacity 0.5s ease-out';
-        btn.style.opacity = '1';
-      });
-    }
-  });
-  window.triggerPWAInstall = async () => {
-    if (!deferredInstallPrompt) return;
+// ===== PWA INSTALL =====
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) { btn.style.display = 'block'; btn.style.opacity = '0'; setTimeout(() => { btn.style.transition = 'opacity 500ms'; btn.style.opacity = '1'; }, 100); }
+});
+
+window.invokePWAInstall = function() {
+  if (deferredInstallPrompt) {
     deferredInstallPrompt.prompt();
-    const { outcome } = await deferredInstallPrompt.userChoice;
-    if (outcome === 'accepted') {
-      document.getElementById('pwa-install-btn').style.display = 'none';
-      deferredInstallPrompt = null;
-      showToast('App installed!', 'success');
-    }
-  };
+    deferredInstallPrompt.userChoice.then(r => { if (r.outcome === 'accepted') showToast('App installed!', 'success'); deferredInstallPrompt = null; });
+  }
+};
 
-  // ───── Auth ─────
-  window.signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      // Profile creation handled in onAuthStateChanged
-    } catch(e) {
-      showToast('Sign-in failed: ' + e.message, 'error');
-    }
-  };
+// ===== AUTH =====
+window.triggerGoogleSignIn = function() {
+  signInWithPopup(auth, provider).catch(e => showToast('Sign-in failed: ' + e.message, 'error'));
+};
 
-  window.signOutUser = async () => {
-    if (unsubSongs) unsubSongs();
-    if (unsubSetlists) unsubSetlists();
-    if (unsubUsers) unsubUsers();
-    if (unsubTheme) unsubTheme();
-    await signOut(auth);
-    showView('auth');
-    currentUser = null; currentProfile = null; allSongs = []; allSetlists = []; allUsers = [];
-  };
+window.handleSignOut = async function() {
+  if (!currentUser) return;
+  localStorage.setItem('rccm_last_user', JSON.stringify({
+    displayName: currentUser.displayName,
+    email: currentUser.email,
+    photoURL: currentUser.photoURL
+  }));
+  await signOut(auth);
+};
 
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      currentUser = user;
-      await ensureUserProfile(user);
-      await loadProfile(user.uid);
-      bootstrapApp();
+onAuthStateChanged(auth, async (user) => {
+  const loadingEl = document.getElementById('loading-screen');
+  const authEl = document.getElementById('auth-screen');
+
+  if (user) {
+    currentUser = user;
+    loadingEl.classList.add('fade-out');
+    setTimeout(() => loadingEl.style.display = 'none', 500);
+    authEl.classList.add('hidden');
+    await ensureUserDoc(user);
+    await loadUserData(user.uid);
+    populateKeySelects();
+    initApp();
+  } else {
+    currentUser = null;
+    currentUserData = null;
+    cleanupListeners();
+    loadingEl.classList.add('fade-out');
+    setTimeout(() => loadingEl.style.display = 'none', 500);
+    authEl.classList.remove('hidden');
+    showRecentAccount();
+    // Load any local theme overrides
+    applyLocalTheme();
+  }
+});
+
+function showRecentAccount() {
+  const raw = localStorage.getItem('rccm_last_user');
+  if (!raw) return;
+  try {
+    const u = JSON.parse(raw);
+    if (!u || !u.email) return;
+    const card = document.getElementById('recent-account-card');
+    const label = document.getElementById('recent-account-label');
+    document.getElementById('recent-photo').src = u.photoURL || '';
+    document.getElementById('recent-name').textContent = 'Continue as ' + (u.displayName || u.email);
+    document.getElementById('recent-email').textContent = u.email;
+    card.style.display = 'flex';
+    label.style.display = 'block';
+  } catch(e) {}
+}
+
+async function ensureUserDoc(user) {
+  const ref = doc(db, 'users', user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      uid: user.uid,
+      displayName: user.displayName || '',
+      email: user.email || '',
+      photoURL: user.photoURL || '',
+      role: 'Guest',
+      createdAt: serverTimestamp()
+    });
+  } else {
+    await updateDoc(ref, {
+      displayName: user.displayName || snap.data().displayName || '',
+      photoURL: user.photoURL || snap.data().photoURL || '',
+      email: user.email || snap.data().email || ''
+    });
+  }
+}
+
+async function loadUserData(uid) {
+  const ref = doc(db, 'users', uid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) currentUserData = snap.data();
+  else currentUserData = { role: 'Guest' };
+}
+
+// ===== INIT APP =====
+function initApp() {
+  setupNavForRole();
+  setupFABForView();
+  updateSidebarProfile();
+  loadAdminTheme();
+
+  // Navigate
+  const role = currentUserData?.role || 'Guest';
+  if (role === 'Guest') navigateTo('setlist');
+  else navigateTo('songs');
+
+  // Listeners
+  listenSongs();
+  listenSetlists();
+  const adminRoles = ['Admin','Sub-Admin'];
+  if (adminRoles.includes(role)) listenUsers();
+}
+
+function updateSidebarProfile() {
+  const u = currentUser;
+  const d = currentUserData;
+  if (!u) return;
+  document.getElementById('nav-user-photo').src = u.photoURL || '';
+  document.getElementById('nav-user-name').textContent = u.displayName || u.email || '';
+  document.getElementById('nav-user-role').textContent = d?.role || 'Guest';
+}
+
+function setupNavForRole() {
+  const role = currentUserData?.role || 'Guest';
+  const isGuest = role === 'Guest';
+  const isAdmin = role === 'Admin';
+  const isSubAdmin = role === 'Sub-Admin';
+
+  document.getElementById('nav-song-list').style.display = isGuest ? 'none' : 'flex';
+  document.getElementById('nav-users').style.display = (isAdmin || isSubAdmin) ? 'flex' : 'none';
+  document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
+}
+
+// ===== NAVIGATION =====
+window.navigateTo = function(view) {
+  currentView = view;
+  const views = ['songs-view','setlist-view','users-view','admin-view','setlist-detail-view'];
+  views.forEach(v => { document.getElementById(v).style.display = 'none'; });
+
+  // Hide stage
+  document.getElementById('stage-view').classList.remove('active');
+  document.getElementById('top-bar').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'block';
+
+  // Show hamburger, hide back
+  document.getElementById('hamburger-btn').style.display = 'flex';
+  document.getElementById('back-btn').style.display = 'none';
+
+  // Show search/filter for songs
+  const showSearch = (view === 'songs' || view === 'setlist');
+  document.getElementById('search-bar-container').style.display = showSearch ? 'block' : 'none';
+  document.getElementById('filter-btn').style.display = (view === 'songs') ? 'flex' : 'none';
+
+  // Update active nav
+  ['nav-song-list','nav-setlist','nav-users','nav-admin'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const navMap = { songs: 'nav-song-list', setlist: 'nav-setlist', users: 'nav-users', admin: 'nav-admin' };
+  if (navMap[view]) document.getElementById(navMap[view]).classList.add('active');
+
+  // Show view
+  const viewMap = { songs: 'songs-view', setlist: 'setlist-view', users: 'users-view', admin: 'admin-view', 'setlist-detail': 'setlist-detail-view' };
+  if (viewMap[view]) {
+    const el = document.getElementById(viewMap[view]);
+    el.style.display = 'block';
+    el.classList.add('entering');
+    requestAnimationFrame(() => { el.classList.remove('entering'); });
+  }
+
+  setupFABForView();
+  closeFilterPanel();
+
+  if (view === 'songs') renderSongs();
+  if (view === 'setlist') renderSetlists();
+  if (view === 'users') renderUsers();
+  if (view === 'admin') renderAdminSettings();
+};
+
+// ===== SIDEBAR =====
+window.openSidebar = function() {
+  document.getElementById('side-navbar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+};
+window.closeSidebar = function() {
+  document.getElementById('side-navbar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+};
+
+// ===== FAB LOGIC =====
+function setupFABForView() {
+  const role = currentUserData?.role || 'Guest';
+  const isGuest = role === 'Guest';
+  const fabSong = document.getElementById('fab-add-song');
+  const fabSetlist = document.getElementById('fab-add-setlist');
+
+  if (isGuest) {
+    fabSong.className = 'fab-btn fab-hidden';
+    fabSetlist.className = 'fab-btn fab-hidden';
+    return;
+  }
+
+  const inStage = document.getElementById('stage-view').classList.contains('active');
+  fabSong.className = 'fab-btn ' + ((currentView === 'songs' && !inStage) ? 'fab-visible' : 'fab-hidden');
+  fabSetlist.className = 'fab-btn ' + ((currentView === 'setlist' && !inStage) ? 'fab-visible' : 'fab-hidden');
+}
+
+// ===== FIRESTORE LISTENERS =====
+function listenSongs() {
+  const q = query(collection(db, 'songs'), orderBy('title'));
+  const unsub = onSnapshot(q, snap => {
+    allSongs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (currentView === 'songs') renderSongs();
+    populateSetlistSongPicker();
+    populateFilterChips();
+  });
+  songListeners.push(unsub);
+}
+
+function listenSetlists() {
+  const q = query(collection(db, 'setlists'), orderBy('name'));
+  const unsub = onSnapshot(q, snap => {
+    allSetlists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (currentView === 'setlist') renderSetlists();
+  });
+  setlistListeners.push(unsub);
+}
+
+function listenUsers() {
+  const q = query(collection(db, 'users'), orderBy('displayName'));
+  const unsub = onSnapshot(q, snap => {
+    allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (currentView === 'users') renderUsers();
+  });
+  userListeners.push(unsub);
+}
+
+function cleanupListeners() {
+  [...songListeners, ...setlistListeners, ...userListeners].forEach(u => u && u());
+  songListeners = []; setlistListeners = []; userListeners = [];
+}
+
+// ===== RENDER SONGS =====
+function renderSongs() {
+  const list = document.getElementById('songs-list');
+  const cnt = document.getElementById('songs-count');
+  let songs = [...allSongs];
+
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    songs = songs.filter(s => (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q) || (s.genre||'').toLowerCase().includes(q));
+  }
+  if (activeFilters.key) songs = songs.filter(s => s.key === activeFilters.key);
+  if (activeFilters.genre) songs = songs.filter(s => (s.genre||'').toLowerCase() === activeFilters.genre.toLowerCase());
+
+  cnt.textContent = songs.length + ' songs';
+  if (!songs.length) { list.innerHTML = '<div class="empty-state"><div class="mdi mdi-music-note-off"></div><p>No songs found</p></div>'; return; }
+
+  const role = currentUserData?.role || 'Guest';
+  const canEdit = ['Admin','Sub-Admin','Lead'].includes(role);
+
+  list.innerHTML = '';
+  songs.forEach(song => {
+    const el = document.createElement('div');
+    el.className = 'song-card';
+    el.innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+        <div style="flex:1;min-width:0;">
+          <div class="trunc" style="font-weight:700;font-size:16px;color:var(--text-primary);margin-bottom:4px;">${esc(song.title || 'Untitled')}</div>
+          <div class="trunc" style="font-size:13px;color:var(--text-muted);">${esc(song.artist || '')}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          ${song.key ? `<span class="badge badge-purple">${esc(song.key)}</span>` : ''}
+          ${song.genre ? `<span class="badge badge-gray trunc" style="max-width:80px;">${esc(song.genre)}</span>` : ''}
+        </div>
+      </div>
+      ${song.tempo ? `<div style="margin-top:8px;font-size:12px;color:var(--text-muted);"><span class="mdi mdi-metronome"></span> ${song.tempo} BPM</div>` : ''}
+      ${canEdit ? `<div style="display:flex;gap:8px;margin-top:12px;" onclick="event.stopPropagation()">
+        <button onclick="openEditSongModal('${song.id}')" style="padding:6px 16px;border-radius:9999px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;" onmouseover="this.style.background='rgba(139,92,246,0.3)'" onmouseout="this.style.background='rgba(139,92,246,0.15)'">Edit</button>
+        <button onclick="deleteSong('${song.id}')" style="padding:6px 16px;border-radius:9999px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">Delete</button>
+      </div>` : ''}
+    `;
+    el.addEventListener('click', () => openStageView(song));
+    list.appendChild(el);
+  });
+}
+
+// ===== RENDER SETLISTS =====
+function renderSetlists() {
+  const list = document.getElementById('setlists-list');
+  const cnt = document.getElementById('setlists-count');
+  let sets = [...allSetlists];
+
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    sets = sets.filter(s => (s.name||'').toLowerCase().includes(q) || (s.venue||'').toLowerCase().includes(q));
+  }
+
+  cnt.textContent = sets.length + ' setlists';
+  if (!sets.length) { list.innerHTML = '<div class="empty-state"><div class="mdi mdi-playlist-music-outline"></div><p>No setlists yet</p></div>'; return; }
+
+  const role = currentUserData?.role || 'Guest';
+  const canEdit = ['Admin','Sub-Admin','Lead'].includes(role);
+
+  list.innerHTML = '';
+  sets.forEach(sl => {
+    const el = document.createElement('div');
+    el.className = 'song-card';
+    const songCount = (sl.songs || []).length;
+    el.innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+        <div style="flex:1;min-width:0;">
+          <div class="trunc" style="font-weight:700;font-size:16px;color:var(--text-primary);margin-bottom:4px;">${esc(sl.name || 'Unnamed Setlist')}</div>
+          <div class="trunc" style="font-size:13px;color:var(--text-muted);">${esc(sl.venue || '')}${sl.date ? ' · ' + sl.date : ''}</div>
+        </div>
+        <span class="badge badge-pink">${songCount} songs</span>
+      </div>
+      ${canEdit ? `<div style="display:flex;gap:8px;margin-top:12px;" onclick="event.stopPropagation()">
+        <button onclick="deleteSetlist('${sl.id}')" style="padding:6px 16px;border-radius:9999px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">Delete</button>
+      </div>` : ''}
+    `;
+    el.addEventListener('click', () => openSetlistDetail(sl));
+    list.appendChild(el);
+  });
+}
+
+// ===== SETLIST DETAIL =====
+window.openSetlistDetail = function(sl) {
+  currentSetlist = sl;
+  currentView = 'setlist-detail';
+  document.getElementById('setlist-view').style.display = 'none';
+  document.getElementById('setlist-detail-view').style.display = 'block';
+  document.getElementById('setlist-detail-title').textContent = sl.name || 'Setlist';
+  document.getElementById('setlist-detail-meta').textContent = (sl.venue ? sl.venue + ' · ' : '') + (sl.date || '');
+  document.getElementById('hamburger-btn').style.display = 'none';
+  document.getElementById('back-btn').style.display = 'flex';
+  document.getElementById('search-bar-container').style.display = 'none';
+  document.getElementById('filter-btn').style.display = 'none';
+  setupFABForView();
+
+  const list = document.getElementById('setlist-detail-songs');
+  const songs = sl.songs || [];
+  if (!songs.length) { list.innerHTML = '<div class="empty-state"><div class="mdi mdi-music-note-off"></div><p>No songs in this setlist</p></div>'; return; }
+
+  list.innerHTML = '';
+  songs.forEach((songRef, i) => {
+    const song = allSongs.find(s => s.id === (songRef.id || songRef));
+    if (!song) return;
+    const row = document.createElement('div');
+    row.className = 'setlist-song-row';
+    row.innerHTML = `
+      <span style="width:24px;height:24px;border-radius:50%;background:rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#a78bfa;flex-shrink:0;">${i+1}</span>
+      <div style="flex:1;min-width:0;">
+        <div class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);">${esc(song.title||'')}</div>
+        <div class="trunc" style="font-size:12px;color:var(--text-muted);">${esc(song.artist||'')}${song.key ? ' · ' + song.key : ''}</div>
+      </div>
+      <span class="mdi mdi-chevron-right" style="color:var(--text-muted);font-size:18px;flex-shrink:0;"></span>
+    `;
+    row.addEventListener('click', () => openStageView(song));
+    list.appendChild(row);
+  });
+};
+
+// ===== BACK BUTTON =====
+window.handleBackBtn = function() {
+  if (document.getElementById('stage-view').classList.contains('active')) {
+    exitStageView();
+  } else if (currentView === 'setlist-detail') {
+    navigateTo('setlist');
+  } else {
+    navigateTo('songs');
+  }
+};
+
+// ===== STAGE VIEW =====
+window.openStageView = function(song) {
+  currentSong = song;
+  stageTranspose = 0;
+  stageCapo = 0;
+  stageLyricsOnly = false;
+  document.getElementById('lyrics-only-btn').style.background = 'transparent';
+  document.getElementById('lyrics-only-btn').style.color = 'var(--text-muted)';
+
+  document.getElementById('stage-view').classList.add('active');
+  document.getElementById('top-bar').style.display = 'none';
+  document.getElementById('main-content').style.display = 'none';
+
+  document.getElementById('stage-song-title').textContent = song.title || '';
+  updateStageKeyDisplay();
+  renderSongSheet();
+  stopAutoScroll();
+
+  setupFABForView();
+};
+
+window.exitStageView = function() {
+  stopAutoScroll();
+  document.getElementById('stage-view').classList.remove('active');
+  document.getElementById('top-bar').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'block';
+  setupFABForView();
+
+  if (currentView === 'setlist-detail') {
+    document.getElementById('hamburger-btn').style.display = 'none';
+    document.getElementById('back-btn').style.display = 'flex';
+    document.getElementById('search-bar-container').style.display = 'none';
+    document.getElementById('filter-btn').style.display = 'none';
+  } else {
+    document.getElementById('hamburger-btn').style.display = 'flex';
+    document.getElementById('back-btn').style.display = 'none';
+    const showSearch = (currentView === 'songs' || currentView === 'setlist');
+    document.getElementById('search-bar-container').style.display = showSearch ? 'block' : 'none';
+    document.getElementById('filter-btn').style.display = (currentView === 'songs') ? 'flex' : 'none';
+  }
+};
+
+// ===== TRANSPOSE / CAPO =====
+function transposeChord(chord, steps) {
+  let root = chord.match(/^[A-G][#b]?/)?.[0];
+  if (!root) return chord;
+  const norm = ENHARMONIC_MAP[root] || root;
+  const idx = CHROMATIC_SCALE.indexOf(norm);
+  if (idx === -1) return chord;
+  let newIdx = ((idx + steps) % 12 + 12) % 12;
+  const useFlatKey = FLAT_KEYS.includes(CHROMATIC_SCALE[newIdx]);
+  let newRoot = CHROMATIC_SCALE[newIdx];
+  if (useFlatKey && ENHARMONIC_MAP[newRoot]) newRoot = ENHARMONIC_MAP[newRoot];
+  return chord.replace(/^[A-G][#b]?/, newRoot);
+}
+
+window.transposeKey = function(dir) {
+  stageTranspose = ((stageTranspose + dir + 12) % 24) - 12;
+  if (stageTranspose > 11) stageTranspose = 11;
+  if (stageTranspose < -11) stageTranspose = -11;
+  updateStageKeyDisplay();
+  renderSongSheet();
+};
+
+window.adjustCapo = function(dir) {
+  stageCapo = Math.max(0, Math.min(12, stageCapo + dir));
+  updateStageKeyDisplay();
+};
+
+function updateStageKeyDisplay() {
+  const origKey = currentSong?.key || 'C';
+  const norm = ENHARMONIC_MAP[origKey] || origKey;
+  const idx = CHROMATIC_SCALE.indexOf(norm);
+  let newIdx = idx === -1 ? 0 : ((idx + stageTranspose + 12) % 12);
+  let newKey = CHROMATIC_SCALE[newIdx];
+  document.getElementById('stage-key-display').textContent = newKey;
+  document.getElementById('stage-capo-display').innerHTML = `Capo<br>${stageCapo}`;
+}
+
+window.toggleLyricsOnly = function() {
+  stageLyricsOnly = !stageLyricsOnly;
+  const btn = document.getElementById('lyrics-only-btn');
+  const sheet = document.getElementById('song-sheet');
+  if (stageLyricsOnly) {
+    btn.style.background = 'var(--purple)';
+    btn.style.color = '#fff';
+    sheet.classList.add('lyrics-only-mode');
+  } else {
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--text-muted)';
+    sheet.classList.remove('lyrics-only-mode');
+  }
+};
+
+// ===== SONG SHEET RENDER =====
+function renderSongSheet() {
+  const sheet = document.getElementById('song-sheet');
+  const raw = currentSong?.lyrics || currentSong?.content || '';
+  if (!raw) { sheet.innerHTML = '<div class="empty-state"><div class="mdi mdi-text-box-outline"></div><p>No lyrics/chords available</p></div>'; return; }
+
+  const lines = raw.split('\n');
+  let html = '';
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (/^\[.*\]$/.test(trimmed)) {
+      html += `<div class="section-label">${esc(trimmed.slice(1,-1))}</div>`;
+    } else if (trimmed === '') {
+      html += `<div style="height:12px;"></div>`;
     } else {
-      showView('auth');
+      // Detect chord line (contains chord patterns)
+      const chordPattern = /\[([A-G][#b]?(?:maj|min|m|dim|aug|sus|add|[0-9]+)*(?:\/[A-G][#b]?)?)\]/g;
+      if (chordPattern.test(line)) {
+        chordPattern.lastIndex = 0;
+        let parsed = line.replace(/\[([A-G][#b]?(?:maj|min|m|dim|aug|sus|add|[0-9]+)*(?:\/[A-G][#b]?)?)\]/g, (_, ch) => {
+          const transposed = stageTranspose !== 0 ? transposeChordFull(ch, stageTranspose) : ch;
+          return `<span class="chord-span">${esc(transposed)}</span>`;
+        });
+        html += `<div class="lyric-line" style="font-size:16px;">${parsed}</div>`;
+      } else {
+        html += `<div class="lyric-line">${esc(line)}</div>`;
+      }
     }
   });
+  html += '<div style="height:80px;"></div>';
+  sheet.innerHTML = html;
+  if (stageLyricsOnly) sheet.classList.add('lyrics-only-mode');
+  else sheet.classList.remove('lyrics-only-mode');
+}
 
-  async function ensureUserProfile(user) {
-    const ref = doc(db, 'users', user.uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      // New user → Guest role, no onboarding modal
-      await setDoc(ref, {
-        uid: user.uid,
-        displayName: user.displayName || 'User',
-        email: user.email,
-        photoURL: user.photoURL || '',
-        role: 'Guest',
-        createdAt: serverTimestamp()
-      });
-    }
+function transposeChordFull(chord, steps) {
+  return chord.replace(/[A-G][#b]?/g, (root) => {
+    const norm = ENHARMONIC_MAP[root] || root;
+    const idx = CHROMATIC_SCALE.indexOf(norm);
+    if (idx === -1) return root;
+    let newIdx = ((idx + steps) % 12 + 12) % 12;
+    return CHROMATIC_SCALE[newIdx];
+  });
+}
+
+// ===== AUTO SCROLL =====
+window.toggleAutoScroll = function() {
+  autoScrollActive = !autoScrollActive;
+  const icon = document.getElementById('auto-scroll-icon');
+  const btn = document.getElementById('auto-scroll-btn');
+  if (autoScrollActive) {
+    icon.className = 'mdi mdi-pause';
+    btn.style.background = 'var(--pink)';
+    btn.style.boxShadow = '0 4px 16px rgba(236,72,153,0.4)';
+    runAutoScroll();
+  } else {
+    stopAutoScroll();
   }
+};
 
-  async function loadProfile(uid) {
-    const snap = await getDoc(doc(db, 'users', uid));
-    if (snap.exists()) currentProfile = snap.data();
-    else currentProfile = { role: 'Guest', displayName: currentUser.displayName };
-  }
+function runAutoScroll() {
+  if (!autoScrollActive) return;
+  const sheet = document.getElementById('song-sheet');
+  sheet.scrollTop += autoScrollSpeed * 0.4;
+  autoScrollRAF = requestAnimationFrame(runAutoScroll);
+}
 
-  // ───── App Bootstrap ─────
-  function bootstrapApp() {
-    showView('app');
-    updateNavUI();
-    setupNavLinks();
-    loadLocalTheme();
+function stopAutoScroll() {
+  autoScrollActive = false;
+  if (autoScrollRAF) cancelAnimationFrame(autoScrollRAF);
+  autoScrollRAF = null;
+  const icon = document.getElementById('auto-scroll-icon');
+  const btn = document.getElementById('auto-scroll-btn');
+  icon.className = 'mdi mdi-play';
+  btn.style.background = 'var(--purple)';
+  btn.style.boxShadow = '0 4px 16px rgba(139,92,246,0.4)';
+}
 
-    // Subscribe theme
-    unsubTheme = onSnapshot(doc(db, 'admin_settings', 'theme'), (snap) => {
-      if (snap.exists()) applyThemeVars(snap.data());
+window.adjustScrollSpeed = function(delta) {
+  autoScrollSpeed = Math.max(0.2, Math.min(5.0, autoScrollSpeed + delta));
+  document.getElementById('speed-display').textContent = 'Speed: ' + autoScrollSpeed.toFixed(1) + 'x';
+};
+
+window.scrollReset = function() {
+  document.getElementById('song-sheet').scrollTop = 0;
+  stopAutoScroll();
+};
+
+// ===== RENDER USERS =====
+function renderUsers() {
+  const role = currentUserData?.role || 'Guest';
+  const roster = allUsers.filter(u => u.role && u.role !== 'Guest');
+  const pending = allUsers.filter(u => !u.role || u.role === 'Guest');
+
+  renderUserList('users-roster-list', roster, role);
+  renderUserList('users-pending-list', pending, role);
+}
+
+function renderUserList(listId, users, viewerRole) {
+  const list = document.getElementById(listId);
+  if (!users.length) { list.innerHTML = '<div class="empty-state" style="padding:30px 0;"><div class="mdi mdi-account-off"></div><p>No users here</p></div>'; return; }
+  list.innerHTML = '';
+  users.forEach(u => {
+    const isProtectedAdmin = u.role === 'Admin';
+    const canEdit = viewerRole === 'Admin' || viewerRole === 'Sub-Admin';
+    const el = document.createElement('div');
+    el.className = 'user-card';
+    el.innerHTML = `
+      <img src="${esc(u.photoURL||'')}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;background:rgba(139,92,246,0.2);" />
+      <div style="flex:1;min-width:0;">
+        <div class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);">${esc(u.displayName||'Unknown')}</div>
+        <div class="trunc" style="font-size:12px;color:var(--text-muted);">${esc(u.email||'')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <span class="badge ${roleBadgeClass(u.role)}">${esc(u.role||'Guest')}</span>
+        ${canEdit && !isProtectedAdmin ? `<button onclick="openRoleModal('${u.id}')" style="padding:6px 14px;border-radius:9999px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;flex-shrink:0;" onmouseover="this.style.background='rgba(139,92,246,0.3)'" onmouseout="this.style.background='rgba(139,92,246,0.15)'">Edit</button>` : ''}
+        ${isProtectedAdmin ? `<span style="opacity:0.4;font-size:11px;color:var(--text-muted);padding:6px 10px;"><span class="mdi mdi-lock"></span> Locked</span>` : ''}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function roleBadgeClass(role) {
+  const map = { Admin: 'badge-purple', 'Sub-Admin': 'badge-pink', Lead: 'badge-amber', Singer: 'badge-green', Musician: 'badge-green', Tech: 'badge-gray', Guest: 'badge-gray' };
+  return map[role] || 'badge-gray';
+}
+
+window.switchUserTab = function(tab, btn) {
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('users-roster-list').style.display = tab === 'roster' ? 'block' : 'none';
+  document.getElementById('users-pending-list').style.display = tab === 'pending' ? 'block' : 'none';
+};
+
+// ===== ROLE MODAL =====
+window.openRoleModal = function(userId) {
+  roleModalTargetUser = allUsers.find(u => u.id === userId);
+  if (!roleModalTargetUser) return;
+  if (roleModalTargetUser.role === 'Admin') { showToast('Cannot modify Admin role', 'error'); return; }
+  const info = document.getElementById('role-modal-user-info');
+  info.innerHTML = `
+    <img src="${esc(roleModalTargetUser.photoURL||'')}" alt="" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;" />
+    <div style="min-width:0;">
+      <div class="trunc" style="font-weight:700;">${esc(roleModalTargetUser.displayName||'')}</div>
+      <div class="trunc" style="font-size:12px;color:var(--text-muted);">${esc(roleModalTargetUser.email||'')}</div>
+    </div>
+  `;
+  document.getElementById('role-select').value = roleModalTargetUser.role || 'Guest';
+  openModal('role-modal');
+};
+
+window.submitRoleChange = async function() {
+  if (!roleModalTargetUser) return;
+  if (roleModalTargetUser.role === 'Admin') { showToast('Admin role is immutable', 'error'); return; }
+  const newRole = document.getElementById('role-select').value;
+  if (newRole === 'Admin') { showToast('Cannot assign Admin role via UI', 'error'); return; }
+  try {
+    await updateDoc(doc(db, 'users', roleModalTargetUser.id), { role: newRole });
+    showToast('Role updated to ' + newRole, 'success');
+    closeModal('role-modal');
+  } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+};
+
+// ===== ADD SONG =====
+window.openAddSongModal = function() {
+  document.getElementById('song-title-input').value = '';
+  document.getElementById('song-artist-input').value = '';
+  document.getElementById('song-key-input').value = '';
+  document.getElementById('song-tempo-input').value = '';
+  document.getElementById('song-genre-input').value = '';
+  document.getElementById('song-lyrics-input').value = '';
+  openModal('add-song-modal');
+};
+
+window.submitAddSong = async function() {
+  const title = document.getElementById('song-title-input').value.trim();
+  if (!title) { showToast('Song title is required', 'error'); return; }
+  try {
+    await addDoc(collection(db, 'songs'), {
+      title,
+      artist: document.getElementById('song-artist-input').value.trim(),
+      key: document.getElementById('song-key-input').value,
+      tempo: parseInt(document.getElementById('song-tempo-input').value)||null,
+      genre: document.getElementById('song-genre-input').value.trim(),
+      lyrics: document.getElementById('song-lyrics-input').value,
+      createdBy: currentUser.uid,
+      createdAt: serverTimestamp()
     });
+    showToast('Song added!', 'success');
+    closeModal('add-song-modal');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
 
-    // Load admin settings
-    loadAdminSettings();
+// ===== EDIT SONG =====
+window.openEditSongModal = function(songId) {
+  const song = allSongs.find(s => s.id === songId);
+  if (!song) return;
+  document.getElementById('edit-song-id').value = songId;
+  document.getElementById('edit-song-title').value = song.title || '';
+  document.getElementById('edit-song-artist').value = song.artist || '';
+  document.getElementById('edit-song-key').value = song.key || '';
+  document.getElementById('edit-song-tempo').value = song.tempo || '';
+  document.getElementById('edit-song-genre').value = song.genre || '';
+  document.getElementById('edit-song-lyrics').value = song.lyrics || song.content || '';
+  openModal('edit-song-modal');
+};
 
-    const role = currentProfile?.role || 'Guest';
-
-    if (role === 'Guest') {
-      navigateTo('setlist');
-    } else {
-      navigateTo('setlist');
-    }
-
-    // Start subscriptions
-    subscribeSetlists();
-    if (role !== 'Guest') {
-      subscribeSongs();
-    }
-    if (role === 'Admin' || role === 'Sub-Admin') {
-      subscribeUsers();
-    }
-  }
-
-  // ───── Navigation ─────
-  window.navigateTo = (tab) => {
-    const role = currentProfile?.role || 'Guest';
-    // Guard
-    if (tab === 'songs' && role === 'Guest') { showToast('Access restricted for Guest accounts', 'error'); return; }
-    if (tab === 'users' && role !== 'Admin' && role !== 'Sub-Admin') return;
-    if (tab === 'admin' && role !== 'Admin') return;
-
-    activeTab = tab;
-    closeSidenav();
-    updateNavLinks();
-
-    // Floating header visibility
-    const floatHeader = document.getElementById('floating-header');
-    if (['songs','setlist','users'].includes(tab)) {
-      floatHeader.classList.remove('hidden-header');
-    } else {
-      floatHeader.classList.add('hidden-header');
-    }
-
-    // Show/hide filter controls per view
-    const filterCtrl = document.getElementById('filter-controls');
-    filterCtrl.style.display = tab === 'songs' ? 'flex' : 'none';
-
-    // Show view
-    const views = ['songs','setlist','users','admin'];
-    views.forEach(v => {
-      const el = document.getElementById(`view-${v}`);
-      if (!el) return;
-      el.classList.add('hidden');
-      el.classList.remove('flex','entering','visible');
+window.submitEditSong = async function() {
+  const id = document.getElementById('edit-song-id').value;
+  const title = document.getElementById('edit-song-title').value.trim();
+  if (!title) { showToast('Title required', 'error'); return; }
+  try {
+    await updateDoc(doc(db, 'songs', id), {
+      title, artist: document.getElementById('edit-song-artist').value.trim(),
+      key: document.getElementById('edit-song-key').value,
+      tempo: parseInt(document.getElementById('edit-song-tempo').value)||null,
+      genre: document.getElementById('edit-song-genre').value.trim(),
+      lyrics: document.getElementById('edit-song-lyrics').value
     });
+    showToast('Song updated!', 'success');
+    closeModal('edit-song-modal');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
 
-    const target = document.getElementById(`view-${tab}`);
-    if (!target) return;
-    target.classList.remove('hidden');
-    target.classList.add('flex','entering');
-    requestAnimationFrame(() => {
-      target.classList.add('visible');
-      target.classList.remove('entering');
-    });
-  };
+window.deleteSong = async function(songId) {
+  if (!confirm('Delete this song? This cannot be undone.')) return;
+  try {
+    await deleteDoc(doc(db, 'songs', songId));
+    showToast('Song deleted', 'info');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
 
-  function setupNavLinks() {
-    const role = currentProfile?.role || 'Guest';
-    const nav = document.getElementById('sidenav-links');
-    nav.innerHTML = '';
+// ===== ADD SETLIST =====
+window.openAddSetlistModal = function() {
+  document.getElementById('setlist-name-input').value = '';
+  document.getElementById('setlist-venue-input').value = '';
+  document.getElementById('setlist-date-input').value = '';
+  selectedSetlistSongs = [];
+  populateSetlistSongPicker();
+  renderSelectedSetlistSongs();
+  openModal('add-setlist-modal');
+};
 
-    const links = [
-      { id:'songs',   icon:'mdi:music-note',    label:'Song List',   roles:['Musician','Singer','Tech','Lead','Sub-Admin','Admin'] },
-      { id:'setlist', icon:'mdi:playlist-music', label:'Setlist',     roles:null },
-      { id:'users',   icon:'mdi:account-group',  label:'Users',       roles:['Admin','Sub-Admin'] },
-      { id:'admin',   icon:'mdi:shield-account', label:'Admin Panel', roles:['Admin'] },
-    ];
-
-    links.forEach(link => {
-      if (link.roles && !link.roles.includes(role)) return;
-      const btn = document.createElement('button');
-      btn.id = `nav-${link.id}`;
-      btn.className = `nav-pill w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-left`;
-      btn.innerHTML = `<iconify-icon icon="${link.icon}" class="text-xl text-purple-400 flex-shrink-0"></iconify-icon><span>${link.label}</span>`;
-      btn.onclick = () => navigateTo(link.id);
-      nav.appendChild(btn);
-    });
-    updateNavLinks();
-  }
-
-  function updateNavLinks() {
-    document.querySelectorAll('.nav-pill').forEach(el => el.classList.remove('active'));
-    const active = document.getElementById(`nav-${activeTab}`);
-    if (active) active.classList.add('active');
-  }
-
-  function updateNavUI() {
-    const photo = currentUser?.photoURL || '';
-    const name = currentProfile?.displayName || currentUser?.displayName || 'User';
-    const role = currentProfile?.role || 'Guest';
-    const img = document.getElementById('nav-user-photo');
-    const nm = document.getElementById('nav-user-name');
-    const rl = document.getElementById('nav-user-role');
-    if (img) img.src = photo;
-    if (nm) nm.textContent = name;
-    if (rl) { rl.textContent = role; rl.style.color = ROLE_TEXT[role] || '#9ca3af'; }
-  }
-
-  // ───── Songs Subscription ─────
-  function subscribeSongs() {
-    if (unsubSongs) unsubSongs();
-    const q = query(collection(db, 'songs'), orderBy('title'));
-    unsubSongs = onSnapshot(q, (snap) => {
-      allSongs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      populateFilters();
-      renderSongs(allSongs);
-    });
-  }
-
-  function populateFilters() {
-    const keys = [...new Set(allSongs.map(s => s.key).filter(Boolean))].sort();
-    const genres = [...new Set(allSongs.map(s => s.genre).filter(Boolean))].sort();
-    const kf = document.getElementById('key-filter');
-    const gf = document.getElementById('genre-filter');
-    kf.innerHTML = '<option value="">All Keys</option>' + keys.map(k => `<option value="${k}">${k}</option>`).join('');
-    gf.innerHTML = '<option value="">All Genres</option>' + genres.map(g => `<option value="${g}">${g}</option>`).join('');
-  }
-
-  function renderSongs(songs) {
-    const container = document.getElementById('songs-list-container');
-    const empty = document.getElementById('songs-empty');
-    if (!container) return;
-    container.innerHTML = '';
-    if (!songs.length) { empty.classList.remove('hidden'); return; }
-    empty.classList.add('hidden');
-    songs.forEach(song => {
-      const isFav = favorites.includes(song.id);
-      const div = document.createElement('div');
-      div.className = 'song-row glass-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer';
-      div.innerHTML = `
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,rgba(168,85,247,0.25),rgba(236,72,153,0.15));">
-          <iconify-icon icon="mdi:music-note" class="text-purple-400 text-xl"></iconify-icon>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="font-semibold text-white text-sm truncate">${song.title || 'Untitled'}</p>
-          <p class="text-xs text-gray-400 truncate">${song.artist || ''}</p>
-        </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          ${song.key ? `<span class="badge" style="background:rgba(168,85,247,0.2);color:#a855f7;border:1px solid rgba(168,85,247,0.3);">${song.key}</span>` : ''}
-          ${song.genre ? `<span class="badge hidden sm:inline-flex" style="background:rgba(236,72,153,0.15);color:#ec4899;border:1px solid rgba(236,72,153,0.2);">${song.genre}</span>` : ''}
-          <iconify-icon icon="${isFav ? 'mdi:heart' : 'mdi:heart-outline'}" class="text-pink-400 text-xl" style="transition:transform 0.3s ease-out;"></iconify-icon>
-        </div>
-      `;
-      div.onclick = () => openSongModal(song);
-      container.appendChild(div);
-    });
-  }
-
-  window.handleSearch = () => {
-    const q = (document.getElementById('search-input')?.value || '').toLowerCase();
-    const key = document.getElementById('key-filter')?.value || '';
-    const genre = document.getElementById('genre-filter')?.value || '';
-    const src = activeTab === 'songs' ? allSongs : allSongs;
-    filteredSongs = src.filter(s => {
-      const matchQ = !q || (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q);
-      const matchK = !key || s.key === key;
-      const matchG = !genre || s.genre === genre;
-      return matchQ && matchK && matchG;
-    });
-    renderSongs(filteredSongs);
-  };
-
-  // ───── Song Modal ─────
-  window.openSongModal = (song) => {
-    currentSong = song;
-    currentTransposeKey = song.key || 'C';
-    document.getElementById('modal-song-title').textContent = song.title || 'Untitled';
-    document.getElementById('modal-song-artist').textContent = song.artist || '';
-    document.getElementById('modal-song-key').textContent = song.key || '';
-    document.getElementById('modal-current-key').textContent = currentTransposeKey;
-    document.getElementById('modal-song-body').textContent = song.lyrics || song.chords || 'No content available.';
-    updateFavBtn();
-    showModal('song-modal');
-  };
-
-  window.closeSongModal = () => hideModal('song-modal');
-
-  window.transposeSong = (dir) => {
-    if (!currentSong || !currentTransposeKey) return;
-    const normalized = ENHARMONIC_MAP[currentTransposeKey] || currentTransposeKey;
-    const idx = CHROMATIC_SCALE.indexOf(normalized);
-    if (idx === -1) return;
-    const newIdx = (idx + dir + 12) % 12;
-    currentTransposeKey = CHROMATIC_SCALE[newIdx];
-    document.getElementById('modal-current-key').textContent = currentTransposeKey;
-    // Transpose lyrics
-    if (currentSong.lyrics) {
-      document.getElementById('modal-song-body').textContent = transposeText(currentSong.lyrics, dir);
-    }
-  };
-
-  function transposeText(text, dir) {
-    return text.replace(/\b([A-G][#b]?)(m|maj|min|dim|aug|sus|add|\d)*/g, (match, root) => {
-      const norm = ENHARMONIC_MAP[root] || root;
-      const idx = CHROMATIC_SCALE.indexOf(norm);
-      if (idx === -1) return match;
-      const newRoot = CHROMATIC_SCALE[(idx + dir + 12) % 12];
-      return match.replace(root, newRoot);
-    });
-  }
-
-  window.toggleFavorite = () => {
-    if (!currentSong) return;
-    const idx = favorites.indexOf(currentSong.id);
-    if (idx > -1) favorites.splice(idx, 1);
-    else favorites.push(currentSong.id);
-    localStorage.setItem('rccm_favorites', JSON.stringify(favorites));
-    updateFavBtn();
-    renderSongs(filteredSongs.length ? filteredSongs : allSongs);
-  };
-
-  function updateFavBtn() {
-    if (!currentSong) return;
-    const isFav = favorites.includes(currentSong.id);
-    document.getElementById('modal-fav-icon').setAttribute('icon', isFav ? 'mdi:heart' : 'mdi:heart-outline');
-    document.getElementById('modal-fav-text').textContent = isFav ? 'Unfavorite' : 'Favorite';
-  }
-
-  // ───── Setlists ─────
-  function subscribeSetlists() {
-    if (unsubSetlists) unsubSetlists();
-    // All setlists are public — no ownership filter
-    const q = query(collection(db, 'setlists'), orderBy('createdAt', 'desc'));
-    unsubSetlists = onSnapshot(q, (snap) => {
-      allSetlists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderSetlists();
-    }, (err) => {
-      // fallback without orderBy if index missing
-      const q2 = collection(db, 'setlists');
-      unsubSetlists = onSnapshot(q2, (snap) => {
-        allSetlists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderSetlists();
-      });
-    });
-  }
-
-  function renderSetlists() {
-    const container = document.getElementById('setlist-container');
-    const empty = document.getElementById('setlist-empty');
-    if (!container) return;
-    const q = (document.getElementById('search-input')?.value || '').toLowerCase();
-    const lists = allSetlists.filter(s => !q || (s.name||'').toLowerCase().includes(q));
-    container.innerHTML = '';
-    if (!lists.length) { empty.classList.remove('hidden'); return; }
-    empty.classList.add('hidden');
-    lists.forEach(sl => {
-      const div = document.createElement('div');
-      div.className = 'song-row glass-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer';
-      const date = sl.date || '';
-      const count = (sl.songs || []).length;
-      div.innerHTML = `
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,rgba(236,72,153,0.25),rgba(168,85,247,0.15));">
-          <iconify-icon icon="mdi:playlist-music" class="text-pink-400 text-xl"></iconify-icon>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="font-semibold text-white text-sm truncate">${sl.name || 'Untitled Setlist'}</p>
-          <p class="text-xs text-gray-400">${date} · ${count} song${count !== 1 ? 's' : ''}</p>
-        </div>
-        <iconify-icon icon="mdi:chevron-right" class="text-gray-500 text-xl flex-shrink-0"></iconify-icon>
-      `;
-      div.onclick = () => openSetlistDetail(sl);
-      container.appendChild(div);
-    });
-  }
-
-  window.openCreateSetlistModal = () => {
-    document.getElementById('new-setlist-name').value = '';
-    document.getElementById('new-setlist-date').value = '';
-    document.getElementById('new-setlist-notes').value = '';
-    showModal('create-setlist-modal');
-  };
-  window.closeCreateSetlistModal = () => hideModal('create-setlist-modal');
-
-  window.createSetlist = async () => {
-    const name = document.getElementById('new-setlist-name').value.trim();
-    if (!name) { showToast('Please enter a setlist name', 'error'); return; }
-    const date = document.getElementById('new-setlist-date').value;
-    const notes = document.getElementById('new-setlist-notes').value.trim();
-    try {
-      await addDoc(collection(db, 'setlists'), {
-        name, date, notes,
-        songs: [],
-        createdBy: currentUser.uid,
-        createdAt: serverTimestamp()
-      });
-      closeCreateSetlistModal();
-      showToast('Setlist created!', 'success');
-    } catch(e) {
-      showToast('Error: ' + e.message, 'error');
-    }
-  };
-
-  window.openSetlistDetail = (sl) => {
-    currentSetlistId = sl.id;
-    document.getElementById('setlist-detail-title').textContent = sl.name || 'Untitled Setlist';
-    document.getElementById('setlist-detail-meta').textContent = `${sl.date || 'No date'} · ${(sl.songs||[]).length} songs`;
-    renderSetlistSongs(sl.songs || []);
-    document.getElementById('setlist-song-search').value = '';
-    document.getElementById('setlist-song-results').innerHTML = '';
-    // Show/hide delete for non-guests or creator
-    const canDelete = currentProfile?.role !== 'Guest' || sl.createdBy === currentUser?.uid;
-    document.getElementById('delete-setlist-btn').style.display = canDelete ? 'flex' : 'none';
-    showModal('setlist-detail-modal');
-  };
-  window.closeSetlistDetailModal = () => hideModal('setlist-detail-modal');
-
-  function renderSetlistSongs(songs) {
-    const container = document.getElementById('setlist-songs-list');
-    container.innerHTML = '';
-    if (!songs.length) {
-      container.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">No songs yet — add some below</p>';
-      return;
-    }
-    songs.forEach((s, i) => {
-      const div = document.createElement('div');
-      div.className = 'glass-card rounded-2xl p-3 flex items-center gap-3';
-      div.innerHTML = `
-        <span class="text-xs text-gray-500 w-5 text-center font-orbitron">${i+1}</span>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-white truncate">${s.title || ''}</p>
-          <p class="text-xs text-gray-400 truncate">${s.artist || ''}</p>
-        </div>
-        ${s.key ? `<span class="badge" style="background:rgba(168,85,247,0.2);color:#a855f7;border:1px solid rgba(168,85,247,0.3);">${s.key}</span>` : ''}
-        <button onclick="removeSongFromSetlist(${i})" class="w-7 h-7 rounded-full flex items-center justify-center neon-btn" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);">
-          <iconify-icon icon="mdi:minus" class="text-red-400 text-sm"></iconify-icon>
-        </button>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  window.searchSongsForSetlist = () => {
-    const q = document.getElementById('setlist-song-search').value.toLowerCase();
-    const results = document.getElementById('setlist-song-results');
-    results.innerHTML = '';
-    if (!q) return;
-    const matches = allSongs.filter(s => (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q)).slice(0, 8);
-    matches.forEach(s => {
-      const btn = document.createElement('button');
-      btn.className = 'w-full text-left glass-card rounded-xl p-2.5 flex items-center gap-3 neon-btn';
-      btn.innerHTML = `
-        <iconify-icon icon="mdi:plus-circle" class="text-purple-400 flex-shrink-0"></iconify-icon>
-        <div class="min-w-0">
-          <p class="text-sm text-white truncate">${s.title}</p>
-          <p class="text-xs text-gray-400 truncate">${s.artist || ''}</p>
-        </div>
-        ${s.key ? `<span class="badge ml-auto" style="background:rgba(168,85,247,0.2);color:#a855f7;border:1px solid rgba(168,85,247,0.3);">${s.key}</span>` : ''}
-      `;
-      btn.onclick = () => addSongToSetlist(s);
-      results.appendChild(btn);
-    });
-    if (!matches.length) {
-      results.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">No matches</p>';
-    }
-  };
-
-  window.addSongToSetlist = async (song) => {
-    const sl = allSetlists.find(s => s.id === currentSetlistId);
-    if (!sl) return;
-    const songs = [...(sl.songs || [])];
-    if (songs.length >= songLimit) { showToast(`Setlist limit is ${songLimit} songs`, 'error'); return; }
-    songs.push({ id: song.id, title: song.title, artist: song.artist, key: song.key });
-    try {
-      await updateDoc(doc(db, 'setlists', currentSetlistId), { songs });
-      sl.songs = songs;
-      renderSetlistSongs(songs);
-      document.getElementById('setlist-detail-meta').textContent = `${sl.date || 'No date'} · ${songs.length} songs`;
-      document.getElementById('setlist-song-search').value = '';
-      document.getElementById('setlist-song-results').innerHTML = '';
-      showToast('Song added!', 'success');
-    } catch(e) { showToast('Error: ' + e.message, 'error'); }
-  };
-
-  window.removeSongFromSetlist = async (idx) => {
-    const sl = allSetlists.find(s => s.id === currentSetlistId);
-    if (!sl) return;
-    const songs = [...(sl.songs || [])];
-    songs.splice(idx, 1);
-    try {
-      await updateDoc(doc(db, 'setlists', currentSetlistId), { songs });
-      sl.songs = songs;
-      renderSetlistSongs(songs);
-      showToast('Song removed', 'success');
-    } catch(e) { showToast('Error: ' + e.message, 'error'); }
-  };
-
-  window.deleteCurrentSetlist = async () => {
-    if (!currentSetlistId) return;
-    try {
-      await deleteDoc(doc(db, 'setlists', currentSetlistId));
-      closeSetlistDetailModal();
-      showToast('Setlist deleted', 'success');
-    } catch(e) { showToast('Error: ' + e.message, 'error'); }
-  };
-
-  // ───── Users ─────
-  function subscribeUsers() {
-    if (unsubUsers) unsubUsers();
-    unsubUsers = onSnapshot(collection(db, 'users'), (snap) => {
-      allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderUsers();
-    });
-  }
-
-  window.switchUserTab = (tab) => {
-    usersSubTab = tab;
-    document.getElementById('tab-roster-btn').classList.toggle('seg-active', tab === 'roster');
-    document.getElementById('tab-pending-btn').classList.toggle('seg-active', tab === 'pending');
-    document.getElementById('tab-roster-btn').classList.toggle('text-gray-400', tab !== 'roster');
-    document.getElementById('tab-pending-btn').classList.toggle('text-gray-400', tab !== 'pending');
-    document.getElementById('users-roster').classList.toggle('hidden', tab !== 'roster');
-    document.getElementById('users-pending').classList.toggle('hidden', tab !== 'pending');
-    renderUsers();
-  };
-
-  function renderUsers() {
-    const roster = allUsers.filter(u => u.role && u.role !== 'Guest');
-    const pending = allUsers.filter(u => !u.role || u.role === 'Guest');
-
-    renderUserList('users-roster', roster);
-    renderUserList('users-pending', pending);
-  }
-
-  function renderUserList(containerId, users) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = '';
-    if (!users.length) {
-      container.innerHTML = '<p class="text-xs text-gray-500 text-center py-8">No users in this category</p>';
-      return;
-    }
-    users.forEach(u => {
-      const div = document.createElement('div');
-      div.className = 'user-card glass-card rounded-2xl p-4 flex items-center gap-4';
-      const roleBg = ROLE_COLORS[u.role] || 'rgba(107,114,128,0.2)';
-      const roleColor = ROLE_TEXT[u.role] || '#9ca3af';
-      div.innerHTML = `
-        <img src="${u.photoURL || ''}" alt="${u.displayName}" class="w-10 h-10 rounded-full object-cover flex-shrink-0" style="border:2px solid rgba(168,85,247,0.4);" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2E4NTVmNyIgZD0iTTEyIDJhNSA1IDAgMSAwIDAgMTAgNSA1IDAgMCAwIDAtMTB6bTAgMTJjLTUuMzMgMC04IDIuNjctOCA0djJoMTZ2LTJjMC0xLjMzLTIuNjctNC04LTR6Ii8+PC9zdmc+'" />
-        <div class="flex-1 min-w-0">
-          <p class="font-semibold text-white text-sm truncate">${u.displayName || 'User'}</p>
-          <p class="text-xs text-gray-500 truncate">${u.email || ''}</p>
-        </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <select onchange="updateUserRole('${u.id}', this.value)" class="rounded-2xl text-xs px-2 py-1.5" style="background:rgba(20,16,36,0.8);border:1px solid rgba(168,85,247,0.25);color:${roleColor};">
-            ${ROLES.map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${r}</option>`).join('')}
-          </select>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  window.updateUserRole = async (uid, role) => {
-    try {
-      await updateDoc(doc(db, 'users', uid), { role });
-      showToast(`Role updated to ${role}`, 'success');
-      // If updating self, reload profile
-      if (uid === currentUser?.uid) {
-        await loadProfile(currentUser.uid);
-        setupNavLinks();
-        updateNavUI();
+function populateSetlistSongPicker() {
+  const list = document.getElementById('setlist-song-picker-list');
+  if (!list) return;
+  list.innerHTML = '';
+  allSongs.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'setlist-song-row';
+    el.style.cursor = 'pointer';
+    el.innerHTML = `<span class="trunc" style="flex:1;font-size:13px;font-weight:600;">${esc(s.title||'')}</span>${s.key?`<span class="badge badge-purple" style="flex-shrink:0;">${esc(s.key)}</span>`:''}`;
+    el.addEventListener('click', () => {
+      if (!selectedSetlistSongs.find(x => x.id === s.id)) {
+        selectedSetlistSongs.push({ id: s.id, title: s.title });
+        renderSelectedSetlistSongs();
+        showToast(s.title + ' added', 'info');
+      } else {
+        showToast('Already added', 'info');
       }
-    } catch(e) { showToast('Error: ' + e.message, 'error'); }
-  };
+    });
+    list.appendChild(el);
+  });
+}
 
-  // ───── Admin Settings ─────
-  async function loadAdminSettings() {
-    const snap = await getDoc(doc(db, 'admin_settings', 'general'));
+function renderSelectedSetlistSongs() {
+  const el = document.getElementById('setlist-selected-songs');
+  if (!el) return;
+  if (!selectedSetlistSongs.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text-muted);">No songs selected yet.</p>'; return; }
+  el.innerHTML = `<div style="font-size:12px;color:var(--purple);font-weight:700;margin-bottom:6px;">${selectedSetlistSongs.length} song(s) selected:</div>` +
+    selectedSetlistSongs.map((s,i) => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;"><span style="font-size:12px;color:var(--text-muted);">${i+1}.</span><span class="trunc" style="flex:1;font-size:13px;">${esc(s.title)}</span><button onclick="removeSetlistSong('${s.id}')" style="color:#f87171;background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;">×</button></div>`).join('');
+}
+
+window.removeSetlistSong = function(id) {
+  selectedSetlistSongs = selectedSetlistSongs.filter(s => s.id !== id);
+  renderSelectedSetlistSongs();
+};
+
+window.submitAddSetlist = async function() {
+  const name = document.getElementById('setlist-name-input').value.trim();
+  if (!name) { showToast('Setlist name required', 'error'); return; }
+  try {
+    await addDoc(collection(db, 'setlists'), {
+      name,
+      venue: document.getElementById('setlist-venue-input').value.trim(),
+      date: document.getElementById('setlist-date-input').value,
+      songs: selectedSetlistSongs.map(s => ({ id: s.id })),
+      createdBy: currentUser.uid,
+      createdAt: serverTimestamp()
+    });
+    showToast('Setlist created!', 'success');
+    closeModal('add-setlist-modal');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+window.deleteSetlist = async function(id) {
+  if (!confirm('Delete this setlist?')) return;
+  try {
+    await deleteDoc(doc(db, 'setlists', id));
+    showToast('Setlist deleted', 'info');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+// ===== SEARCH & FILTER =====
+window.handleSearch = function(val) {
+  searchQuery = val;
+  if (currentView === 'songs') renderSongs();
+  if (currentView === 'setlist') renderSetlists();
+};
+
+window.toggleFilterPanel = function() {
+  filterPanelOpen = !filterPanelOpen;
+  const panel = document.getElementById('filter-panel');
+  const btn = document.getElementById('filter-btn');
+  if (filterPanelOpen) {
+    panel.style.display = 'block';
+    requestAnimationFrame(() => { panel.style.transform = 'translateY(0)'; panel.style.opacity = '1'; });
+    btn.classList.add('active');
+  } else {
+    closeFilterPanel();
+  }
+};
+
+function closeFilterPanel() {
+  filterPanelOpen = false;
+  const panel = document.getElementById('filter-panel');
+  const btn = document.getElementById('filter-btn');
+  panel.style.transform = 'translateY(-8px)'; panel.style.opacity = '0';
+  btn.classList.remove('active');
+  setTimeout(() => { if (!filterPanelOpen) panel.style.display = 'none'; }, 300);
+}
+
+function populateFilterChips() {
+  const keys = [...new Set(allSongs.map(s => s.key).filter(Boolean))];
+  const genres = [...new Set(allSongs.map(s => s.genre).filter(Boolean))];
+
+  const kc = document.getElementById('key-filter-chips');
+  const gc = document.getElementById('genre-filter-chips');
+  if (!kc || !gc) return;
+
+  kc.innerHTML = keys.map(k => `<button class="filter-chip ${activeFilters.key===k?'active':''}" onclick="setKeyFilter('${esc(k)}')">${esc(k)}</button>`).join('');
+  gc.innerHTML = genres.map(g => `<button class="filter-chip ${activeFilters.genre===g?'active':''}" onclick="setGenreFilter('${esc(g)}')">${esc(g)}</button>`).join('');
+}
+
+window.setKeyFilter = function(k) {
+  activeFilters.key = activeFilters.key === k ? null : k;
+  populateFilterChips(); renderSongs();
+};
+window.setGenreFilter = function(g) {
+  activeFilters.genre = activeFilters.genre === g ? null : g;
+  populateFilterChips(); renderSongs();
+};
+window.clearFilters = function() {
+  activeFilters = { key: null, genre: null };
+  document.getElementById('search-input').value = '';
+  searchQuery = '';
+  populateFilterChips(); renderSongs();
+  closeFilterPanel();
+};
+
+// ===== KEY SELECT POPULATE =====
+function populateKeySelects() {
+  ['song-key-input','edit-song-key'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '<option value="">Select Key</option>' + ALL_KEYS.map(k => `<option value="${k}">${k}</option>`).join('');
+  });
+}
+
+// ===== ADMIN PANEL =====
+function renderAdminSettings() {
+  loadAdminTheme();
+}
+
+window.saveAdminBranding = async function() {
+  const name = document.getElementById('admin-app-name').value.trim();
+  try {
+    await setDoc(doc(db, 'admin_settings', 'branding'), { appName: name }, { merge: true });
+    showToast('Branding saved', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+window.saveAdminLimits = async function() {
+  const max = parseInt(document.getElementById('admin-max-songs').value) || 20;
+  try {
+    await setDoc(doc(db, 'admin_settings', 'limits'), { maxSongsPerSetlist: max }, { merge: true });
+    showToast('Limits saved', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+// ===== THEME SCOPE =====
+window.setThemeScope = function(scope, btn) {
+  themeScope = scope;
+  document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+};
+
+window.applyThemeColor = function(variable, value) {
+  document.documentElement.style.setProperty(variable, value);
+  if (themeScope === 'global') {
+    saveGlobalTheme(variable, value);
+  } else {
+    saveLocalTheme(variable, value);
+  }
+};
+
+window.applyBlur = function(val) {
+  document.documentElement.style.setProperty('--blur-val', val + 'px');
+  document.querySelectorAll('.glass, .glass-strong').forEach(el => {
+    el.style.backdropFilter = `blur(${val}px)`;
+    el.style.webkitBackdropFilter = `blur(${val}px)`;
+  });
+};
+
+async function saveGlobalTheme(variable, value) {
+  try {
+    await setDoc(doc(db, 'admin_settings', 'theme'), { [variable]: value }, { merge: true });
+  } catch(e) { console.warn('Theme save failed', e); }
+}
+
+function saveLocalTheme(variable, value) {
+  const existing = JSON.parse(localStorage.getItem('rccm_admin_local_theme') || '{}');
+  existing[variable] = value;
+  localStorage.setItem('rccm_admin_local_theme', JSON.stringify(existing));
+}
+
+async function loadAdminTheme() {
+  // Local override for admin
+  const role = currentUserData?.role || 'Guest';
+  if (role === 'Admin') {
+    const local = JSON.parse(localStorage.getItem('rccm_admin_local_theme') || '{}');
+    Object.entries(local).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+  }
+  // Global theme from Firestore
+  try {
+    const snap = await getDoc(doc(db, 'admin_settings', 'theme'));
     if (snap.exists()) {
-      const d = snap.data();
-      if (d.appName) document.getElementById('admin-app-name').value = d.appName;
-      if (d.tagline) document.getElementById('admin-tagline').value = d.tagline;
-      if (d.songLimit) {
-        document.getElementById('admin-song-limit').value = d.songLimit;
-        songLimit = d.songLimit;
-      }
+      const data = snap.data();
+      const keys = ['--canvas-bg','--lyrics-color','--chords-color'];
+      keys.forEach(k => { if (data[k]) document.documentElement.style.setProperty(k, data[k]); });
+      if (data['--canvas-bg']) { document.getElementById('color-canvas-bg').value = data['--canvas-bg']; }
+      if (data['--lyrics-color']) { document.getElementById('color-lyrics').value = data['--lyrics-color']; }
+      if (data['--chords-color']) { document.getElementById('color-chords').value = data['--chords-color']; }
     }
+  } catch(e) {}
+}
+
+function applyLocalTheme() {
+  try {
+    const local = JSON.parse(localStorage.getItem('rccm_admin_local_theme') || '{}');
+    Object.entries(local).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
+  } catch(e) {}
+}
+
+// ===== PURGE SYSTEM =====
+window.openPurgeModal = function() { openModal('purge-modal'); };
+
+window.initiatePurge = function(type) {
+  pendingPurgeType = type;
+  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  closeModal('purge-modal');
+  document.getElementById('otp-input').value = '';
+  document.getElementById('otp-input').classList.remove('error');
+  document.getElementById('otp-error').style.display = 'none';
+  const desc = type === 'setlists'
+    ? `Code dispatched for: Clear All Setlists. Code for demo: ${otpCode}`
+    : `Code dispatched for: Deep Factory Reset. Code for demo: ${otpCode}`;
+  document.getElementById('otp-desc').textContent = desc;
+  openModal('otp-modal');
+  console.log('[RCCM PURGE OTP]', otpCode); // In production, email this
+};
+
+window.verifyOTP = async function() {
+  const entered = document.getElementById('otp-input').value.trim();
+  if (entered !== otpCode) {
+    document.getElementById('otp-input').classList.add('error');
+    document.getElementById('otp-error').style.display = 'block';
+    setTimeout(() => document.getElementById('otp-input').classList.remove('error'), 3000);
+    return;
   }
+  closeModal('otp-modal');
+  showToast('Code verified. Executing purge...', 'info');
+  try {
+    if (pendingPurgeType === 'setlists') await purgeSetlists();
+    else if (pendingPurgeType === 'usersAndSetlists') await purgeUsersAndSetlists();
+    showToast('Purge complete.', 'success');
+  } catch(e) { showToast('Purge failed: ' + e.message, 'error'); }
+};
 
-  window.saveBranding = async () => {
-    const appName = document.getElementById('admin-app-name').value.trim();
-    const tagline = document.getElementById('admin-tagline').value.trim();
-    try {
-      await setDoc(doc(db, 'admin_settings', 'general'), { appName, tagline }, { merge: true });
-      if (appName) document.title = `${appName} | Cyber-Deck`;
-      showToast('Branding saved!', 'success');
-    } catch(e) { showToast('Error: ' + e.message, 'error'); }
-  };
+async function purgeSetlists() {
+  const snap = await getDocs(collection(db, 'setlists'));
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+}
 
-  window.saveSongLimit = async () => {
-    const val = parseInt(document.getElementById('admin-song-limit').value);
-    if (isNaN(val) || val < 1) { showToast('Invalid limit', 'error'); return; }
-    try {
-      await setDoc(doc(db, 'admin_settings', 'general'), { songLimit: val }, { merge: true });
-      songLimit = val;
-      showToast(`Song limit set to ${val}`, 'success');
-    } catch(e) { showToast('Error: ' + e.message, 'error'); }
-  };
+async function purgeUsersAndSetlists() {
+  await purgeSetlists();
+  const snap = await getDocs(collection(db, 'users'));
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => {
+    if (d.data().role !== 'Admin') batch.delete(d.ref);
+  });
+  await batch.commit();
+}
 
-  // ───── Theme ─────
-  const THEME_PRESETS = {
-    default: { '--canvas-bg':'#0b0914','--lyrics-color':'#f3f4f6','--chords-color':'#a855f7' },
-    midnight: { '--canvas-bg':'#08081a','--lyrics-color':'#e0e7ff','--chords-color':'#6366f1' },
-    'neon-green': { '--canvas-bg':'#04120a','--lyrics-color':'#f0fdf4','--chords-color':'#22c55e' },
-    crimson: { '--canvas-bg':'#130507','--lyrics-color':'#fef2f2','--chords-color':'#ef4444' },
-  };
+// ===== MODAL HELPERS =====
+window.openModal = function(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.closeModal = function(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('open');
+  document.body.style.overflow = '';
+};
 
-  window.applyThemePreset = (preset) => {
-    const vars = THEME_PRESETS[preset];
-    if (!vars) return;
-    applyThemeVars(vars);
-    showToast('Theme applied!', 'success');
-  };
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
 
-  function applyThemeVars(vars) {
-    const root = document.documentElement;
-    if (vars['--canvas-bg']) { root.style.setProperty('--canvas-bg', vars['--canvas-bg']); document.body.style.background = vars['--canvas-bg']; }
-    if (vars['--lyrics-color']) root.style.setProperty('--lyrics-color', vars['--lyrics-color']);
-    if (vars['--chords-color']) root.style.setProperty('--chords-color', vars['--chords-color']);
-    if (vars['blur']) {
-      document.querySelectorAll('.glass, .glass-card').forEach(el => {
-        el.style.backdropFilter = `blur(${vars['blur']})`;
-      });
-    }
+// ===== TOAST =====
+window.showToast = function(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+};
+
+// ===== ESCAPE HELPER =====
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeSidebar();
+    document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
   }
+});
 
-  window.setThemeScope = (scope) => {
-    themeScope = scope;
-    document.getElementById('scope-global-btn').classList.toggle('seg-active', scope === 'global');
-    document.getElementById('scope-local-btn').classList.toggle('seg-active', scope === 'local');
-    document.getElementById('scope-global-btn').classList.toggle('text-gray-400', scope !== 'global');
-    document.getElementById('scope-local-btn').classList.toggle('text-gray-400', scope !== 'local');
-  };
-
-  window.applyLabTheme = () => {
-    const bg = document.getElementById('lab-canvas-bg').value;
-    const lyr = document.getElementById('lab-lyrics-color').value;
-    const chd = document.getElementById('lab-chords-color').value;
-    const blur = document.getElementById('lab-blur').value;
-    document.getElementById('lab-canvas-bg-val').textContent = bg;
-    document.getElementById('lab-lyrics-color-val').textContent = lyr;
-    document.getElementById('lab-chords-color-val').textContent = chd;
-    document.getElementById('lab-blur-val').textContent = blur + 'px';
-    applyThemeVars({ '--canvas-bg': bg, '--lyrics-color': lyr, '--chords-color': chd, blur: blur + 'px' });
-  };
-
-  window.pushLabTheme = async () => {
-    const bg = document.getElementById('lab-canvas-bg').value;
-    const lyr = document.getElementById('lab-lyrics-color').value;
-    const chd = document.getElementById('lab-chords-color').value;
-    const blur = document.getElementById('lab-blur').value + 'px';
-    const themeData = { '--canvas-bg': bg, '--lyrics-color': lyr, '--chords-color': chd, blur };
-
-    if (themeScope === 'global') {
-      try {
-        await setDoc(doc(db, 'admin_settings', 'theme'), themeData);
-        showToast('Theme broadcast globally!', 'success');
-      } catch(e) { showToast('Error: ' + e.message, 'error'); }
-    } else {
-      localStorage.setItem('rccm_admin_local_theme', JSON.stringify(themeData));
-      showToast('Theme locked to Admin UI only', 'success');
-    }
-  };
-
-  function loadLocalTheme() {
-    const saved = localStorage.getItem('rccm_admin_local_theme');
-    if (saved && currentProfile?.role === 'Admin') {
-      try { applyThemeVars(JSON.parse(saved)); } catch(e) {}
-    }
+// ===== CLICK OUTSIDE FILTER =====
+document.addEventListener('click', (e) => {
+  if (filterPanelOpen && !document.getElementById('filter-panel').contains(e.target) && e.target !== document.getElementById('filter-btn')) {
+    closeFilterPanel();
   }
-
-  window.applyFontSize = () => {
-    const size = document.getElementById('admin-font-size').value;
-    document.body.style.fontSize = size;
-  };
-
-  // ───── Purge System ─────
-  window.openPurgeModal = () => showModal('purge-modal');
-  window.closePurgeModal = () => hideModal('purge-modal');
-
-  window.initiatePurge = (type) => {
-    pendingPurgeType = type;
-    otaCode = String(Math.floor(100000 + Math.random() * 900000));
-    // Simulate OTA dispatch — in production, call a cloud function / email API
-    console.warn(`[OTA] Dispatching code ${otaCode} to ${currentUser?.email}`);
-    showToast(`OTA code dispatched to ${currentUser?.email}`, 'info');
-    // For demo: auto-log code (remove in production)
-    setTimeout(() => showToast(`[DEV] OTA Code: ${otaCode}`, 'info'), 1500);
-
-    closePurgeModal();
-    document.getElementById('verify-email-display').textContent = currentUser?.email || 'your email';
-    document.getElementById('verify-code-input').value = '';
-    document.getElementById('verify-code-input').classList.remove('error','success');
-    document.getElementById('verify-error-msg').classList.add('hidden');
-    showModal('purge-verification-modal');
-  };
-
-  window.closePurgeVerifyModal = () => {
-    pendingPurgeType = null; otaCode = null;
-    hideModal('purge-verification-modal');
-  };
-
-  window.validateVerifyInput = (el) => {
-    el.value = el.value.replace(/[^0-9]/g,'').slice(0,6);
-  };
-
-  window.submitVerifyCode = async () => {
-    const input = document.getElementById('verify-code-input').value.trim();
-    const errMsg = document.getElementById('verify-error-msg');
-    if (input !== otaCode) {
-      document.getElementById('verify-code-input').classList.add('error');
-      errMsg.classList.remove('hidden');
-      showToast('Invalid OTA code — operation locked', 'error');
-      return;
-    }
-    document.getElementById('verify-code-input').classList.add('success');
-    errMsg.classList.add('hidden');
-    showToast('Code verified — executing purge…', 'info');
-    await executePurge(pendingPurgeType);
-    closePurgeVerifyModal();
-  };
-
-  async function executePurge(type) {
-    try {
-      const batch = writeBatch(db);
-      // Delete setlists
-      const setlistSnap = await getDocs(collection(db, 'setlists'));
-      setlistSnap.forEach(d => batch.delete(d.ref));
-
-      if (type === 'full') {
-        // Delete users (except songs collection)
-        const usersSnap = await getDocs(collection(db, 'users'));
-        usersSnap.forEach(d => batch.delete(d.ref));
-      }
-
-      await batch.commit();
-      showToast(type === 'full' ? 'Deep factory reset complete' : 'All setlists purged', 'success');
-    } catch(e) {
-      showToast('Purge error: ' + e.message, 'error');
-    }
-  }
-
-  // ───── Sidenav ─────
-  window.openSidenav = () => {
-    document.getElementById('side-navbar').classList.add('open');
-    document.getElementById('nav-overlay').classList.add('open');
-  };
-  window.closeSidenav = () => {
-    document.getElementById('side-navbar').classList.remove('open');
-    document.getElementById('nav-overlay').classList.remove('open');
-  };
-
-  // ───── View Switching ─────
-  function showView(name) {
-    const auth = document.getElementById('view-auth');
-    const app = document.getElementById('view-app');
-    if (name === 'auth') {
-      auth.classList.remove('hidden'); app.classList.add('hidden');
-      document.getElementById('floating-header').classList.add('hidden-header');
-      document.getElementById('hamburger-btn').style.display = 'none';
-    } else {
-      auth.classList.add('hidden'); app.classList.remove('hidden');
-      document.getElementById('hamburger-btn').style.display = 'flex';
-    }
-  }
-
-  // ───── Modals ─────
-  function showModal(id) {
-    const el = document.getElementById(id);
-    el.style.display = 'flex';
-    requestAnimationFrame(() => {
-      el.classList.add('open');
-      el.querySelector('.modal-sheet')?.classList.add('open');
-    });
-  }
-  function hideModal(id) {
-    const el = document.getElementById(id);
-    el.classList.remove('open');
-    el.querySelector('.modal-sheet')?.classList.remove('open');
-    setTimeout(() => { el.style.display = 'none'; }, 350);
-  }
-
-  // ───── Toast ─────
-  window.showToast = (msg, type = 'success') => {
-    const toast = document.getElementById('toast');
-    const icon = document.getElementById('toast-icon');
-    const msgEl = document.getElementById('toast-msg');
-    const icons = { success: 'mdi:check-circle', error: 'mdi:alert-circle', info: 'mdi:information' };
-    const colors = { success: '#4ade80', error: '#f87171', info: '#60a5fa' };
-    icon.setAttribute('icon', icons[type] || icons.success);
-    icon.style.color = colors[type] || colors.success;
-    msgEl.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(window._toastTimer);
-    window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-  };
-
-  // Init hamburger hidden
-  document.getElementById('hamburger-btn').style.display = 'none';
-  document.getElementById('floating-header').classList.add('hidden-header');
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
+});
 </script>
 </body>
 </html>
