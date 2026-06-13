@@ -607,21 +607,60 @@
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- TOP NAV -->
-  <div id="top-nav" style="position:fixed;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);box-shadow:0 1px 8px rgba(0,0,0,0.25);padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;margin:0;box-sizing:border-box;flex-shrink:0;">
+  <div id="top-nav" style="position:fixed;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);box-shadow:0 1px 8px rgba(0,0,0,0.25);padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:8px;margin:0;box-sizing:border-box;flex-shrink:0;overflow:hidden;">
     <!-- Sync loading bar -->
     <div id="sync-bar"><div id="sync-bar-fill"></div></div>
+
+    <!-- Hamburger menu (anchored top-left) -->
+    <button id="hamburger-btn" onclick="toggleSidebar()" style="background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;padding:6px;display:flex;align-items:center;flex-shrink:0;border-radius:10px;transition:background 0.2s var(--ease-smooth);">
+      <iconify-icon icon="mdi:menu" style="font-size:24px;"></iconify-icon>
+    </button>
+
     <!-- Back button (shown when drilling into song/setlist/user) -->
-    <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;align-items:center;flex-shrink:0;">
+    <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:6px;align-items:center;flex-shrink:0;">
       <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
     </button>
+
     <!-- Title / App name -->
-    <span id="top-nav-title" style="color:var(--lyrics-color);font-size:16px;font-weight:600;display:none;flex:1;"></span>
-    <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;flex:1;">RCCM Gigbook</span>
-    <!-- Logo on the right -->
-    <img src="icons/logo.png" alt="Logo" onclick="switchTab('songs')" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-    <div onclick="switchTab('songs')" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-      <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
+    <span id="top-nav-title" style="color:var(--lyrics-color);font-size:16px;font-weight:600;display:none;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:opacity 0.2s var(--ease-smooth);"></span>
+    <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:opacity 0.2s var(--ease-smooth);">RCCM Gigbook</span>
+
+    <!-- Inline expanding search field -->
+    <div id="header-search-wrap" style="position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;gap:8px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-sizing:border-box;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
+      <iconify-icon icon="mdi:magnify" style="font-size:18px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
+      <input type="text" id="header-search-input" placeholder="Search..." oninput="onHeaderSearchInput()" style="flex:1;background:transparent;border:none;color:var(--lyrics-color);font-size:15px;outline:none;min-width:0;" />
+      <button onclick="closeHeaderSearch()" style="background:var(--surface-2);border:none;color:var(--text-secondary);cursor:pointer;padding:6px 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;flex-shrink:0;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);">Cancel</button>
     </div>
+
+    <!-- Header actions: search + filter (animate out when sidebar opens) -->
+    <div id="header-actions" style="display:flex;align-items:center;gap:4px;flex-shrink:0;transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
+      <button id="header-search-btn" onclick="openHeaderSearch()" style="background:transparent;border:none;color:var(--text-secondary);cursor:pointer;padding:6px;display:flex;align-items:center;border-radius:10px;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);">
+        <iconify-icon icon="mdi:magnify" style="font-size:21px;"></iconify-icon>
+      </button>
+      <button id="header-filter-btn" onclick="openHeaderFilter()" style="background:transparent;border:none;color:var(--text-secondary);cursor:pointer;padding:6px;display:flex;align-items:center;border-radius:10px;position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);">
+        <iconify-icon icon="mdi:tune-variant" style="font-size:20px;"></iconify-icon>
+        <span id="header-filter-dot" style="display:none;position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);"></span>
+      </button>
+    </div>
+
+    <!-- Logo on the right -->
+    <img src="icons/logo.png" alt="Logo" onclick="switchTab('songs')" style="height:32px;width:32px;border-radius:9px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+    <div onclick="switchTab('songs')" style="display:none;width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+      <iconify-icon icon="mdi:music-note" style="font-size:17px;color:#fff;"></iconify-icon>
+    </div>
+  </div>
+
+  <!-- SIDEBAR DRAWER -->
+  <div id="sidebar-overlay" onclick="closeSidebar()" style="position:fixed;inset:0;background:rgba(8,6,14,0.6);backdrop-filter:blur(2px);z-index:550;opacity:0;pointer-events:none;transition:opacity 0.25s var(--ease-smooth);"></div>
+  <div id="sidebar-drawer" style="position:fixed;top:0;left:0;bottom:0;width:78%;max-width:300px;background:var(--surface-1);border-right:1px solid var(--border-color);z-index:560;transform:translateX(-100%);transition:transform 0.28s var(--ease-smooth);display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 20px;box-shadow:8px 0 32px rgba(0,0,0,0.4);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;padding:0 4px;">
+      <img src="icons/logo.png" alt="Logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <div style="display:none;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
+        <iconify-icon icon="mdi:music-note" style="font-size:19px;color:#fff;"></iconify-icon>
+      </div>
+      <span style="color:var(--lyrics-color);font-size:16px;font-weight:700;">RCCM Gigbook</span>
+    </div>
+    <div id="sidebar-nav" style="display:flex;flex-direction:column;gap:4px;flex:1;"></div>
   </div>
 
   <!-- MAIN CONTENT AREA -->
@@ -1995,8 +2034,97 @@ function reloadApp() {
 }
 
 // ============================================================
-// NAVIGATION BUILD
+// HAMBURGER SIDEBAR
 // ============================================================
+function toggleSidebar() {
+  const drawer = document.getElementById('sidebar-drawer');
+  const isOpen = drawer.style.transform === 'translateX(0px)' || drawer.style.transform === 'translateX(0)';
+  if (isOpen) closeSidebar(); else openSidebar();
+}
+function openSidebar() {
+  document.getElementById('sidebar-drawer').style.transform = 'translateX(0)';
+  const overlay = document.getElementById('sidebar-overlay');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'auto';
+  // Animate header actions out of view
+  const actions = document.getElementById('header-actions');
+  actions.style.opacity = '0';
+  actions.style.transform = 'translateX(16px)';
+  actions.style.pointerEvents = 'none';
+}
+function closeSidebar() {
+  document.getElementById('sidebar-drawer').style.transform = 'translateX(-100%)';
+  const overlay = document.getElementById('sidebar-overlay');
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  const actions = document.getElementById('header-actions');
+  actions.style.opacity = '1';
+  actions.style.transform = 'translateX(0)';
+  actions.style.pointerEvents = 'auto';
+}
+
+// ============================================================
+// HEADER SEARCH (animates inline into header)
+// ============================================================
+function openHeaderSearch() {
+  const wrap = document.getElementById('header-search-wrap');
+  const actions = document.getElementById('header-actions');
+  const title = document.getElementById('top-nav-title');
+  const appname = document.getElementById('top-nav-appname');
+  wrap.style.opacity = '1';
+  wrap.style.pointerEvents = 'auto';
+  wrap.style.transform = 'translateY(0)';
+  actions.style.opacity = '0';
+  actions.style.pointerEvents = 'none';
+  if (title) title.style.opacity = '0';
+  if (appname) appname.style.opacity = '0';
+  setTimeout(() => document.getElementById('header-search-input').focus(), 200);
+}
+function closeHeaderSearch() {
+  const wrap = document.getElementById('header-search-wrap');
+  const actions = document.getElementById('header-actions');
+  const title = document.getElementById('top-nav-title');
+  const appname = document.getElementById('top-nav-appname');
+  wrap.style.opacity = '0';
+  wrap.style.pointerEvents = 'none';
+  wrap.style.transform = 'translateY(-6px)';
+  actions.style.opacity = '1';
+  actions.style.pointerEvents = 'auto';
+  if (title) title.style.opacity = '1';
+  if (appname) appname.style.opacity = '1';
+  const input = document.getElementById('header-search-input');
+  input.value = '';
+  onHeaderSearchInput();
+}
+// Routes header search input to the active tab's underlying search field
+function onHeaderSearchInput() {
+  const val = document.getElementById('header-search-input').value;
+  let target = null;
+  if (activeTab === 'songs') target = document.getElementById('song-search-input');
+  else if (activeTab === 'setlists') target = document.getElementById('setlist-search-input');
+  else if (activeTab === 'users') target = document.getElementById('user-search-input');
+  if (target) {
+    target.value = val;
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+// Routes header filter button to the active tab's filter menu
+function openHeaderFilter() {
+  if (activeTab === 'songs') toggleSongFilterMenu();
+  else if (activeTab === 'setlists') toggleSetlistFilterMenu();
+  else if (activeTab === 'users') toggleUserFilterMenu();
+}
+// Sync the header filter dot with the active tab's filter button state
+function syncHeaderFilterDot() {
+  const dot = document.getElementById('header-filter-dot');
+  if (!dot) return;
+  let btn = null;
+  if (activeTab === 'songs') btn = document.getElementById('song-filter-btn');
+  else if (activeTab === 'setlists') btn = document.getElementById('setlist-filter-btn');
+  else if (activeTab === 'users') btn = document.getElementById('user-filter-btn');
+  dot.style.display = (btn && btn.classList.contains('has-active-filter')) ? 'block' : 'none';
+}
+
 function buildNav() {
   const role = currentUserProfile?.role || 'Musician';
   const nav = document.getElementById('bottom-nav');
@@ -2068,6 +2196,9 @@ function switchTab(tab) {
   if (navBtn) navBtn.classList.add('active');
   updateFAB();
   updateHomeBtn(false);
+  closeSidebar();
+  closeHeaderSearch();
+  syncHeaderFilterDot();
 }
 
 function updateFAB() {
@@ -2254,6 +2385,7 @@ function setSongSort(mode) {
   // Mark filter button active if not default
   const btn = document.getElementById('song-filter-btn');
   if (btn) btn.classList.toggle('has-active-filter', mode !== 'az');
+  syncHeaderFilterDot();
   // Mark active menu item
   ['az','za','artist','favourites'].forEach(m => {
     const el = document.getElementById('song-sort-' + m);
@@ -2276,6 +2408,7 @@ function _updateSetlistFilterBtn() {
   const sortIsDefault = currentSetlistSort === 'newest';
   const filterIsDefault = currentSetlistFilter === 'all';
   btn.classList.toggle('has-active-filter', !sortIsDefault || !filterIsDefault);
+  syncHeaderFilterDot();
   // Update label to show most relevant active state
   const label = document.getElementById('setlist-filter-label');
   if (!label) return;
@@ -4172,7 +4305,11 @@ function setUserFilter(filter) {
   const label = document.getElementById('user-filter-label');
   if (label) label.textContent = filter === 'all' ? 'All' : filter;
   const btn = document.getElementById('user-filter-btn');
-  if (btn) btn.style.color = filter === 'all' ? '#9ca3af' : 'var(--chords-color)';
+  if (btn) {
+    btn.style.color = filter === 'all' ? 'var(--text-secondary)' : 'var(--accent-soft)';
+    btn.classList.toggle('has-active-filter', filter !== 'all');
+  }
+  syncHeaderFilterDot();
   const menu = document.getElementById('user-filter-menu');
   if (menu) {
     // Highlight active item
