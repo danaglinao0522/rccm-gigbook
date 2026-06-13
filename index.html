@@ -1652,6 +1652,10 @@
   document.getElementById('hamburger-btn').style.display = 'none';
   document.getElementById('floating-header').classList.add('hidden-header');
 </script>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
 </body>
 </html>
