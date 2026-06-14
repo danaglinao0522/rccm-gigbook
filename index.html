@@ -19,22 +19,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     :root {
-      --canvas-bg: #121212;
-      --surface-1: #1e1e1e;
-      --surface-2: #2a2a2a;
-      --surface-3: #252525;
-      --surface-input: #2a2a2a;
-      --border-color: #2a2a2a;
-      --border-subtle: #333;
-      --nav-bg: rgba(14,14,14,0.96);
-      --text-muted: #6b7280;
-      --text-secondary: #9ca3af;
-      --modal-overlay: rgba(0,0,0,0.75);
-      --toggle-track: #374151;
-      --scrollbar-thumb: #444;
-      --accent-glow: rgba(251,191,36,0.15);
-      --lyrics-color: #FFFFFF;
-      --chords-color: #FBBF24;
+      /* ── Premium dark purple system ── */
+      --canvas-bg: #0e0c14;
+      --surface-1: #1a1726;
+      --surface-2: #241f33;
+      --surface-3: #211d2e;
+      --surface-input: #221d30;
+      --border-color: #2e2840;
+      --border-subtle: #383054;
+      --nav-bg: rgba(15,12,22,0.85);
+      --text-muted: #837e99;
+      --text-secondary: #b3aecb;
+      --modal-overlay: rgba(8,6,14,0.78);
+      --toggle-track: #3a3450;
+      --scrollbar-thumb: #4a4262;
+      --accent: #a78bfa;
+      --accent-strong: #8b5cf6;
+      --accent-soft: #c4b5fd;
+      --accent-glow: rgba(167,139,250,0.18);
+      --lyrics-color: #f5f3fa;
+      --chords-color: #c4b5fd;
       --sheet-font-size: 15px;
       --nav-font-size: 13px;
       --btn-font-size: 13px;
@@ -42,6 +46,9 @@
       --app-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       /* Unified view side padding — used by ALL tab content areas */
       --view-px: 6px;
+      --radius-card: 16px;
+      --radius-pill: 999px;
+      --ease-smooth: cubic-bezier(0.25,0.1,0.25,1);
     }
     html, body {
       overscroll-behavior-y: contain;
@@ -55,9 +62,9 @@
     * { box-sizing: border-box; }
     #app-root { background: var(--canvas-bg); height: 100vh; overflow: hidden; }
     .song-sheet-content { font-size: var(--sheet-font-size); }
-    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: monospace; }
+    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: monospace; font-weight: 600; }
     .lyric-line { color: var(--lyrics-color); white-space: pre-wrap; }
-    .section-header { color: var(--chords-color); font-weight: 700; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.75em; }
+    .section-header { color: var(--accent-soft); font-weight: 700; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.75em; }
     .nav-text { font-size: var(--nav-font-size); }
     .btn-text { font-size: var(--btn-font-size); }
     .meta-text { font-size: var(--meta-font-size); }
@@ -83,23 +90,13 @@
     .tab-panel.active { display: block; }
     .tab-panel.active.tab-visible { opacity: 1; transform: translateY(0); }
     #app-root { display: none; }
-    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-width: 0; padding: 6px 8px 4px; cursor: pointer; transition: color 0.2s, transform 0.15s; color:var(--text-muted); gap: 3px; background: transparent; border: none; position: relative; }
-    .bottom-nav-btn:active { transform: scale(0.92); }
-    .bottom-nav-btn.active { color: var(--chords-color); }
-    .bottom-nav-btn.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 2px; background: var(--chords-color); border-radius: 0 0 3px 3px; box-shadow: 0 0 8px var(--accent-glow); }
-    .bottom-nav-btn .nav-icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 28px; border-radius: 10px; transition: background 0.2s; }
-    .bottom-nav-btn.active .nav-icon-wrap { background: var(--accent-glow); }
-    .bottom-nav-btn iconify-icon { font-size: 21px; flex-shrink: 0; }
-    .bottom-nav-btn span { font-size: 10px !important; line-height: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 500; }
-    .bottom-nav-btn.active span { font-weight: 700; }
-    .bottom-nav-btn img { flex-shrink: 0; }
     /* Song swipe actions (admin) */
-    .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: 12px; }
-    .song-swipe-bg-edit { position: absolute; inset: 0; background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%); display: flex; align-items: center; padding-left: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
-    .song-swipe-bg-delete { position: absolute; inset: 0; background: linear-gradient(270deg, #dc2626 0%, #991b1b 100%); display: flex; align-items: center; justify-content: flex-end; padding-right: 22px; border-radius: 12px; opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+    .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: var(--radius-card); }
+    .song-swipe-bg-edit { position: absolute; inset: 0; background: linear-gradient(90deg, #6366f1 0%, #4338ca 100%); display: flex; align-items: center; padding-left: 22px; border-radius: var(--radius-card); opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+    .song-swipe-bg-delete { position: absolute; inset: 0; background: linear-gradient(270deg, #dc2626 0%, #991b1b 100%); display: flex; align-items: center; justify-content: flex-end; padding-right: 22px; border-radius: var(--radius-card); opacity: 0; transition: opacity 0.12s; pointer-events: none; }
     .song-swipe-bg-edit span, .song-swipe-bg-delete span { color: #fff; font-size: 14px; font-weight: 800; letter-spacing: 0.04em; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
     .song-swipe-bg-edit iconify-icon, .song-swipe-bg-delete iconify-icon { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
-    .song-swipe-item { position: relative; z-index: 1; touch-action: pan-y; will-change: transform; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); background: var(--surface-1); border-radius: 12px; }
+    .song-swipe-item { position: relative; z-index: 1; touch-action: pan-y; will-change: transform; transition: transform 0.25s var(--ease-smooth); background: var(--surface-1); border-radius: var(--radius-card); }
     /* ═══════════════════════════════════════════════════════
        UNIFIED LIST ITEM DESIGN SYSTEM
        All list rows share the same base: padding, radius, gap
@@ -107,15 +104,15 @@
     .list-item {
       background: var(--surface-1);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 11px 14px;
+      border-radius: var(--radius-card);
+      padding: 12px 15px;
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: background 0.15s;
+      transition: background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth);
       position: relative;
     }
-    .list-item:hover { background: var(--surface-2); }
+    .list-item:hover { background: var(--surface-2); border-color: var(--border-subtle); }
     /* Bare icon button — matches lock icon style: no box, just icon */
     .list-icon-btn {
       background: transparent;
@@ -137,12 +134,17 @@
     .song-card, .setlist-card, .user-row, .setlist-song-item {
       background: var(--surface-1);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 11px 14px;
-      transition: background 0.15s;
+      border-radius: var(--radius-card);
+      padding: 12px 15px;
+      transition: background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
     }
     .song-card:hover, .setlist-card:hover, .user-row:hover, .setlist-song-item:hover {
       background: var(--surface-2);
+      border-color: var(--border-subtle);
+      box-shadow: 0 4px 20px rgba(139,92,246,0.08);
+    }
+    .song-card:active, .setlist-card:active, .user-row:active, .setlist-song-item:active {
+      transform: scale(0.985);
     }
     /* Line layout mode — remove card borders/radius, just dividers */
     body.layout-line .song-card,
@@ -170,49 +172,59 @@
     }
     body.layout-line .song-swipe-bg-edit,
     body.layout-line .song-swipe-bg-delete { border-radius: 0 !important; }
-    .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
-    .modal-sheet { background: var(--surface-1); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; min-height: 280px; max-height: 92vh; overflow-y: auto; padding: 16px; transition: height 0.05s linear, max-height 0.05s linear; }
-    .modal-sheet.center-card { border-radius: 16px; max-height: 88vh; min-height: unset; }
+    .modal-sheet { background: var(--surface-1); border: 1px solid var(--border-color); border-bottom: none; border-radius: 22px 22px 0 0; width: 100%; max-width: 600px; min-height: 280px; max-height: 92vh; overflow-y: auto; padding: 18px; transition: height 0.05s linear, max-height 0.05s linear; box-shadow: 0 -8px 40px rgba(0,0,0,0.5); }
+    .modal-sheet.center-card { border: 1px solid var(--border-color); border-radius: 18px; max-height: 88vh; min-height: unset; }
     .modal-sheet.key-modal { max-height: 55vh; min-height: unset; }
-    .modal-handle { width: 48px; height: 5px; background: var(--border-subtle); border-radius: 3px; margin: 0 auto 14px; cursor: ns-resize; touch-action: none; padding: 10px 20px; box-sizing: content-box; margin-top: -10px; background-clip: content-box; }
-    .modal-handle:hover { background-color: var(--chords-color); background-clip: content-box; opacity: 0.7; }
+    .modal-handle { width: 48px; height: 5px; background: var(--border-subtle); border-radius: var(--radius-pill); margin: 0 auto 14px; cursor: ns-resize; touch-action: none; padding: 10px 20px; box-sizing: content-box; margin-top: -10px; background-clip: content-box; }
+    .modal-handle:hover { background-color: var(--accent); background-clip: content-box; opacity: 0.7; }
     /* Resizable modal sheet */
     .modal-sheet.resizable { transition: none; }
-    .role-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-    .instrument-tag { display: inline-flex; align-items: center; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
-    .badge-admin { background: #7c3aed; color:var(--lyrics-color); }
-    .badge-subadmin { background: #2563eb; color:var(--lyrics-color); }
-    .badge-lead { background: #059669; color:var(--lyrics-color); }
-    .badge-musician { background: #d97706; color:var(--lyrics-color); }
-    .badge-singer { background: #db2777; color:var(--lyrics-color); }
-    .badge-tech { background: #0891b2; color:var(--lyrics-color); }
+    .role-badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; }
+    .instrument-tag { display: inline-flex; align-items: center; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: var(--radius-pill); padding: 2px 9px; font-size: 11px; font-weight: 500; }
+    .badge-admin { background: #7c3aed; color:#fff; }
+    .badge-subadmin { background: #6366f1; color:#fff; }
+    .badge-lead { background: #059669; color:#fff; }
+    .badge-musician { background: #c026d3; color:#fff; }
+    .badge-singer { background: #db2777; color:#fff; }
+    .badge-tech { background: #0891b2; color:#fff; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s; }
-    .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; }
-    input:checked + .toggle-slider { background: var(--chords-color); }
+    .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s var(--ease-smooth); }
+    .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s var(--ease-smooth); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    input:checked + .toggle-slider { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
-    .fab { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--chords-color); color: #000; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.15s; }
+    .fab { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom,0px)); right: 20px; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 6px 24px rgba(139,92,246,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
     .fab:active { transform: scale(0.92); }
-    .desktop-font-btns { position: fixed; bottom: calc(74px + env(safe-area-inset-bottom,0px)); left: 16px; display: none; flex-direction: row; gap: 6px; z-index: 500; }
-    .desktop-font-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border-color); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
-    .autoscroll-slider { width: 100%; accent-color: var(--chords-color); }
+    .zoom-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 11px; font-weight: 600; min-width: 44px; justify-content: center; transition: color 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth); }
+    .zoom-indicator-active { color: var(--accent-soft); border-color: var(--accent); background: var(--accent-glow); }
+    .zoom-btn { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth); flex-shrink: 0; }
+    .zoom-btn:hover { background: var(--surface-3); border-color: var(--accent); }
+    .zoom-btn:active { transform: scale(0.93); }
+    .ctrl-pill { display: flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 10px; color: var(--text-secondary); cursor: pointer; font-size: 12px; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth); white-space: nowrap; }
+    .ctrl-pill:hover { background: var(--surface-3); border-color: var(--border-subtle); }
+    .ctrl-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-soft); }
+    .autoscroll-slider { width: 100%; accent-color: var(--accent); }
     input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--chords-color); cursor: pointer; }
-    .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 10px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s; }
-    .drag-zone.dragover { border-color: var(--chords-color); color: var(--chords-color); }
-    .btn-primary { background: var(--chords-color); color: #000; border: none; border-radius: 10px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s; min-height: 44px; }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 11px 18px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.15s; min-height: 44px; }
-    .btn-danger { background: #dc2626; color:var(--lyrics-color); border: none; border-radius: 10px; padding: 11px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); min-height: 44px; }
-    .input-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
-    .input-field:focus { border-color: var(--chords-color); }
-    .select-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px rgba(167,139,250,0.5); }
+    .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 14px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth); }
+    .drag-zone.dragover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); min-height: 44px; box-shadow: 0 4px 16px rgba(139,92,246,0.25); }
+    .btn-primary:hover { opacity: 0.92; box-shadow: 0 6px 22px rgba(139,92,246,0.35); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 11px 18px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth); min-height: 44px; }
+    .btn-secondary:hover { background: var(--surface-3); border-color: var(--border-subtle); }
+    .btn-danger { background: #dc2626; color:#fff; border: none; border-radius: 12px; padding: 11px 16px; font-weight: 600; cursor: pointer; font-size: var(--btn-font-size); min-height: 44px; transition: opacity 0.2s var(--ease-smooth); }
+    .btn-danger:hover { opacity: 0.9; }
+    .input-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; transition: border-color 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
+    .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .select-field { background: var(--surface-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; color: var(--lyrics-color); width: 100%; font-size: 14px; outline: none; transition: border-color 0.2s var(--ease-smooth); }
+    .select-field:focus { border-color: var(--accent); }
     .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
-    .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
-    .theme-preset-btn { border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
-    .theme-preset-btn.active { border-color: var(--chords-color); }
+    .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 1px solid var(--border-color); }
+    .theme-preset-btn { border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s var(--ease-smooth); }
+    .theme-preset-btn.active { border-color: var(--accent); }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
@@ -258,7 +270,6 @@
       .modal-sheet { max-width: 520px; }
       .modal-sheet.center-card { max-width: 480px; }
       #bottom-nav { justify-content: center; }
-      .bottom-nav-btn { max-width: 90px; }
 
       /* Admin panel: 2-column grid for Song Limit, Theme Presets, Custom Theme, Typography */
       #admin-sections-grid {
@@ -344,14 +355,9 @@
         bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
         right: 16px !important;
       }
-      .desktop-font-btns {
-        position: absolute !important;
-        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
-        left: 16px !important;
-      }
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
-    .checkbox-custom:checked { background: var(--chords-color); border-color: var(--chords-color); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
+    .checkbox-custom:checked { background: var(--accent); border-color: var(--accent); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
     .instrument-tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--surface-2); border: 1px solid var(--border-color); border-radius: 999px; font-size: 11px; color: var(--text-secondary); }
     .song-selector-row { padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
     .song-selector-row:hover { background: var(--surface-2); }
@@ -360,46 +366,46 @@
     .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
     .key-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .key-btn { padding: 10px 4px; border-radius: 8px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: var(--lyrics-color); font-weight: 600; font-size: 15px; transition: all 0.15s; }
-    .key-btn.active { border-color: var(--chords-color); color: var(--chords-color); }
+    .key-btn { padding: 10px 4px; border-radius: 10px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: var(--lyrics-color); font-weight: 600; font-size: 15px; transition: all 0.15s var(--ease-smooth); }
+    .key-btn.active { border-color: var(--accent); color: var(--accent-soft); background: var(--accent-glow); }
     .key-btn:hover { background: var(--surface-3); }
-    .spinner { width: 28px; height: 28px; border: 3px solid var(--surface-2); border-top-color: var(--chords-color); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    .spinner { width: 28px; height: 28px; border: 3px solid var(--surface-2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pulseGreen {
       0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
       50% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
     }
-    .onboarding-btn { padding: 12px 20px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--surface-1); color: var(--lyrics-color); font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
-    .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--chords-color); background: var(--accent-glow); color: var(--chords-color); }
+    .onboarding-btn { padding: 12px 20px; border-radius: 14px; border: 2px solid var(--border-color); background: var(--surface-1); color: var(--lyrics-color); font-weight: 600; cursor: pointer; transition: all 0.2s var(--ease-smooth); text-align: center; }
+    .onboarding-btn:hover, .onboarding-btn.selected { border-color: var(--accent); background: var(--accent-glow); color: var(--accent-soft); }
     .no-select { user-select: none; -webkit-user-select: none; }
     .setlist-song-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-    .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+    .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 600; }
     .badge-public { background: #064e3b; color: #34d399; }
     .badge-private { background: #431407; color: #fb923c; }
-    .badge-custom { background: #1e1b4b; color: #818cf8; }
+    .badge-custom { background: #2e1065; color: #c4b5fd; }
     textarea.input-field { resize: vertical; min-height: 120px; }
     :root {
-      --btn-primary-bg: var(--chords-color);
-      --btn-primary-text: #000;
+      --btn-primary-bg: linear-gradient(135deg, var(--accent-strong), var(--accent));
+      --btn-primary-text: #fff;
       --nav-shadow: 0 1px 8px rgba(0,0,0,0.25);
       --nav-text-color: var(--lyrics-color);
-      --nav-icon-color: var(--chords-color);
+      --nav-icon-color: var(--accent);
     }
     /* Apply component overrides */
     .btn-primary { background: var(--btn-primary-bg) !important; color: var(--btn-primary-text) !important; }
     /* Line layout mode */
     /* Active filter/sort indicator dot on filter button */
-    .filter-btn.has-active-filter { color: var(--chords-color); border-color: var(--chords-color); }
-    .filter-btn.has-active-filter iconify-icon { color: var(--chords-color); }
+    .filter-btn.has-active-filter { color: var(--accent-soft); border-color: var(--accent); }
+    .filter-btn.has-active-filter iconify-icon { color: var(--accent-soft); }
     /* Active checkmark in filter menu items */
-    .filter-menu-item-active { color: var(--chords-color) !important; font-weight: 700 !important; }
+    .filter-menu-item-active { color: var(--accent-soft) !important; font-weight: 700 !important; }
     .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-    .camera-btn { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 13px; }
+    .camera-btn { background: #1e2a5f; border: 1px solid #6366f1; border-radius: 10px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #a5b4fc; font-size: 13px; transition: background 0.15s var(--ease-smooth); }
     .progress-bar-track { width: 100%; height: 3px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
-    .progress-bar-fill { height: 100%; background: var(--chords-color); border-radius: 2px; transition: width 0.1s linear; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-strong), var(--accent)); border-radius: 2px; transition: width 0.1s linear; }
     /* ── Universal layout tokens ── */
     :root {
-      --search-row-height: 36px;        /* height of search input + filter button */
+      --search-row-height: 38px;        /* height of search input + filter button */
       --search-row-mb: 12px;            /* gap below every search/filter row */
       --list-gap: 8px;                  /* gap between list cards (songs, setlists, users) */
       --tab-padding: 12px;              /* side+top padding inside every tab panel */
@@ -408,19 +414,33 @@
     .search-input {
       height: var(--search-row-height);
       background: var(--surface-1); border: 1px solid var(--border-subtle);
-      border-radius: 8px; padding: 0 12px 0 36px;
+      border-radius: 12px; padding: 0 12px 0 36px;
       color: var(--lyrics-color); font-size: 13px; width: 100%; outline: none;
       box-sizing: border-box;
+      transition: border-color 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
     }
-    .search-input:focus { border-color: var(--chords-color); }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
     /* Uniform filter button */
     .filter-btn {
       display: flex; align-items: center; gap: 4px; flex-shrink: 0;
       background: var(--surface-2); border: 1px solid var(--border-subtle);
-      border-radius: 8px; padding: 0 10px;
+      border-radius: 12px; padding: 0 10px;
       height: var(--search-row-height);
       color: var(--text-secondary); cursor: pointer; font-size: 13px;
       white-space: nowrap;
+      transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth);
+      position: relative;
+    }
+    /* Subtle purple status dot on filter icon when non-default sort active */
+    .filter-btn.has-active-filter::after {
+      content: '';
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      border: 1.5px solid var(--surface-2);
     }
     /* Uniform search row wrapper */
     .search-row {
@@ -435,9 +455,9 @@
     .songs-list-wrap, .setlists-list-wrap, .users-list-wrap {
       display: flex; flex-direction: column; gap: var(--list-gap);
     }
-    .filter-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
-    .filter-chip.active { background: var(--chords-color); color: #000; border-color: var(--chords-color); }
-    .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 10px; color: var(--lyrics-color); font-size: 13px; outline: none; }
+    .filter-chip { padding: 4px 11px; border-radius: var(--radius-pill); font-size: 12px; border: 1px solid var(--border-color); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: all 0.2s var(--ease-smooth); }
+    .filter-chip.active { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; border-color: transparent; }
+    .sort-select { background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 10px; color: var(--lyrics-color); font-size: 13px; outline: none; }
 
     /* ── Sync bar ── */
     #sync-bar {
@@ -455,7 +475,7 @@
       position: absolute;
       top: 0; left: -60%;
       width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent 0%, #22c55e 40%, #4ade80 60%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, var(--accent-strong) 40%, var(--accent-soft) 60%, transparent 100%);
       border-radius: 0 2px 2px 0;
       animation: syncSlide 1.4s cubic-bezier(0.4,0,0.2,1) infinite;
     }
@@ -469,7 +489,6 @@
     .theme-preset-card { transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
     .theme-preset-card:hover { transform: scale(1.04); }
     /* Bottom nav profile pic active border */
-    .bottom-nav-btn.profile-active img { border-color: var(--chords-color) !important; }
     /* Horizontal scrollbar hide for carousel */
     #theme-carousel::-webkit-scrollbar { display: none; }
     /* Admin branding logo hover */
@@ -481,7 +500,7 @@
 <!-- SPLASH SCREEN -->
 <div id="splash-screen" style="position:fixed;inset:0;background:var(--canvas-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
   <img src="icons/logo.png" alt="RCCM Gigbook" class="splash-logo-anim" style="width:100px;height:100px;border-radius:20px;object-fit:cover;" onerror="this.style.display='none';document.getElementById('splash-fallback').style.display='flex'" />
-  <div id="splash-fallback" style="display:none;width:100px;height:100px;border-radius:20px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;" class="splash-logo-anim">
+  <div id="splash-fallback" style="display:none;width:100px;height:100px;border-radius:20px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;" class="splash-logo-anim">
     <iconify-icon icon="mdi:music-note" style="font-size:50px;color:var(--lyrics-color);"></iconify-icon>
   </div>
   <p style="color:var(--text-muted);font-size:13px;margin-top:20px;letter-spacing:0.1em;">RCCM GIGBOOK</p>
@@ -490,14 +509,14 @@
 
 <!-- AUTH VIEW -->
 <div id="auth-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:8000;">
-  <img src="icons/logo.png" alt="RCCM Gigbook" style="width:90px;height:90px;border-radius:18px;object-fit:cover;margin-bottom:28px;" onerror="this.style.background='linear-gradient(135deg,#7c3aed,#FBBF24)';this.style.display='flex'" />
+  <img src="icons/logo.png" alt="RCCM Gigbook" style="width:90px;height:90px;border-radius:18px;object-fit:cover;margin-bottom:28px;" onerror="this.style.background='linear-gradient(135deg,#8b5cf6,#a78bfa)';this.style.display='flex'" />
   <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin-bottom:4px;">RCCM Gigbook</h1>
   <p style="color:var(--text-muted);font-size:13px;margin-bottom:36px;">Your performance companion</p>
   <button id="google-signin-btn" style="display:flex;align-items:center;gap:10px;background:#fff;color:#111;border:none;border-radius:12px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.3);">
     <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
     Sign In with Google
   </button>
-  <button id="install-app-btn" style="display:none;align-items:center;gap:10px;background:transparent;color:#FBBF24;border:1px solid #FBBF24;border-radius:12px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;margin-top:12px;">
+  <button id="install-app-btn" style="display:none;align-items:center;gap:10px;background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:12px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;margin-top:12px;">
     <iconify-icon icon="mdi:download" style="font-size:18px;"></iconify-icon>
     Install App
   </button>
@@ -512,12 +531,12 @@
     <h2 style="color:var(--lyrics-color);font-size:18px;font-weight:700;margin-bottom:4px;">Welcome to RCCM Gigbook</h2>
     <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Tell us your role to get started</p>
     <div style="background:var(--surface-2);border:1px solid var(--border-color);border-radius:10px;padding:10px 14px;margin-bottom:16px;">
-      <p style="color:var(--chords-color);font-size:12px;font-weight:600;margin:0 0 3px;">📌 Heads up!</p>
+      <p style="color:var(--accent);font-size:12px;font-weight:600;margin:0 0 3px;">📌 Heads up!</p>
       <p style="color:var(--text-secondary);font-size:12px;margin:0;line-height:1.5;">If you play an instrument or sing but also help with Tech, select your musical role — you can indicate Tech involvement below. Only select Tech if that's your <em>only</em> function.</p>
     </div>
     <div id="onboarding-role-selector" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
       <button class="onboarding-btn" onclick="selectOnboardingRole('Musician')">
-        <iconify-icon icon="mdi:guitar-electric" style="font-size:26px;display:block;margin:0 auto 6px;color:var(--chords-color);"></iconify-icon>
+        <iconify-icon icon="mdi:guitar-electric" style="font-size:26px;display:block;margin:0 auto 6px;color:var(--accent);"></iconify-icon>
         Musician
       </button>
       <button class="onboarding-btn" onclick="selectOnboardingRole('Singer')">
@@ -534,15 +553,15 @@
       <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
         <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
           <input type="checkbox" class="checkbox-custom" id="ob-guitar" value="Guitar"> 
-          <iconify-icon icon="mdi:guitar-electric" style="font-size:16px;color:var(--chords-color);"></iconify-icon> Guitar
+          <iconify-icon icon="mdi:guitar-electric" style="font-size:16px;color:var(--accent);"></iconify-icon> Guitar
         </label>
         <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
           <input type="checkbox" class="checkbox-custom" id="ob-keyboard" value="Keyboard"> 
-          <iconify-icon icon="mdi:piano" style="font-size:16px;color:var(--chords-color);"></iconify-icon> Keyboard
+          <iconify-icon icon="mdi:piano" style="font-size:16px;color:var(--accent);"></iconify-icon> Keyboard
         </label>
         <label style="display:flex;align-items:center;gap:8px;color:var(--lyrics-color);font-size:14px;cursor:pointer;">
           <input type="checkbox" class="checkbox-custom" id="ob-djembe" value="Djembe"> 
-          <iconify-icon icon="mdi:drum" style="font-size:16px;color:var(--chords-color);"></iconify-icon> Djembe
+          <iconify-icon icon="mdi:drum" style="font-size:16px;color:var(--accent);"></iconify-icon> Djembe
         </label>
       </div>
       <div id="ob-instrument-error" style="display:none;color:#ef4444;font-size:12px;margin-bottom:10px;">⚠ Please select at least one instrument.</div>
@@ -575,26 +594,52 @@
 <!-- MAIN APP ROOT -->
 <div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
-  <!-- TOP NAV -->
-  <div id="top-nav" style="position:fixed;top:0;left:0;right:0;width:100%;z-index:400;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);box-shadow:0 1px 8px rgba(0,0,0,0.25);padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;margin:0;box-sizing:border-box;flex-shrink:0;">
-    <!-- Sync loading bar -->
-    <div id="sync-bar"><div id="sync-bar-fill"></div></div>
-    <!-- Back button (shown when drilling into song/setlist/user) -->
-    <button id="home-btn" onclick="goHome()" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;align-items:center;flex-shrink:0;">
-      <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
+  <!-- Sync loading bar -->
+  <div id="sync-bar"><div id="sync-bar-fill"></div></div>
+
+  <!-- FLOATING HAMBURGER (top-left) -->
+  <button id="hamburger-btn" onclick="toggleSidebar()" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:14px;z-index:400;width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--lyrics-color);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+    <iconify-icon icon="mdi:menu" style="font-size:23px;"></iconify-icon>
+  </button>
+
+  <!-- Back button (shown when drilling into song/setlist/user) -->
+  <button id="home-btn" onclick="goHome()" style="display:none;position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:14px;z-index:400;width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--lyrics-color);cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);transition:background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+    <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
+  </button>
+
+  <!-- FLOATING SEARCH + FILTER (top-right, per-tab) -->
+  <div id="header-actions" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:400;display:flex;align-items:center;gap:8px;transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
+    <button id="header-search-btn" onclick="openHeaderSearch()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+      <iconify-icon icon="mdi:magnify" style="font-size:21px;"></iconify-icon>
     </button>
-    <!-- Title / App name -->
-    <span id="top-nav-title" style="color:var(--lyrics-color);font-size:16px;font-weight:600;display:none;flex:1;"></span>
-    <span id="top-nav-appname" style="color:var(--lyrics-color);font-size:16px;font-weight:700;letter-spacing:0.01em;flex:1;">RCCM Gigbook</span>
-    <!-- Logo on the right -->
-    <img src="icons/logo.png" alt="Logo" onclick="switchTab('songs')" style="height:34px;width:34px;border-radius:8px;object-fit:cover;cursor:pointer;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-    <div onclick="switchTab('songs')" style="display:none;width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-      <iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--lyrics-color);"></iconify-icon>
+    <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+      <iconify-icon icon="mdi:tune-variant" style="font-size:20px;"></iconify-icon>
+      <span id="header-filter-dot" style="display:none;position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);border:1.5px solid var(--surface-1);"></span>
+    </button>
+  </div>
+
+  <!-- Inline expanding search bar (slides down from top, full width) -->
+  <div id="header-search-wrap" style="position:fixed;top:0;left:0;right:0;z-index:401;display:flex;align-items:center;gap:8px;padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-sizing:border-box;border-bottom:1px solid var(--border-color);box-shadow:0 4px 16px rgba(0,0,0,0.25);opacity:0;pointer-events:none;transform:translateY(-100%);transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
+    <iconify-icon icon="mdi:magnify" style="font-size:18px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
+    <input type="text" id="header-search-input" placeholder="Search..." oninput="onHeaderSearchInput()" style="flex:1;background:transparent;border:none;color:var(--lyrics-color);font-size:15px;outline:none;min-width:0;" />
+    <button onclick="closeHeaderSearch()" style="background:var(--surface-2);border:none;color:var(--text-secondary);cursor:pointer;padding:6px 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;flex-shrink:0;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);">Cancel</button>
+  </div>
+
+  <!-- SIDEBAR DRAWER -->
+  <div id="sidebar-overlay" onclick="closeSidebar()" style="position:fixed;inset:0;background:rgba(8,6,14,0.6);backdrop-filter:blur(2px);z-index:550;opacity:0;pointer-events:none;transition:opacity 0.25s var(--ease-smooth);"></div>
+  <div id="sidebar-drawer" style="position:fixed;top:0;left:0;bottom:0;width:78%;max-width:300px;background:var(--surface-1);border-right:1px solid var(--border-color);z-index:560;transform:translateX(-100%);transition:transform 0.28s var(--ease-smooth);display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 20px;box-shadow:8px 0 32px rgba(0,0,0,0.4);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;padding:0 4px;">
+      <img src="icons/logo.png" alt="Logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <div style="display:none;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
+        <iconify-icon icon="mdi:music-note" style="font-size:19px;color:#fff;"></iconify-icon>
+      </div>
+      <span id="sidebar-app-name" style="color:var(--lyrics-color);font-size:16px;font-weight:700;">RCCM Gigbook</span>
     </div>
+    <div id="sidebar-nav" style="display:flex;flex-direction:column;gap:4px;flex:1;"></div>
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));padding-top:calc(58px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-top:calc(74px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
 
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:12px var(--view-px);">
@@ -608,16 +653,16 @@
         </button>
         <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:148px;z-index:200;">
           <button id="song-sort-az" onclick="setSongSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
           <button id="song-sort-za" onclick="setSongSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon id="song-sort-za-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon id="song-sort-za-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
           <button id="song-sort-artist" onclick="setSongSort('artist')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:account-music" style="font-size:14px;"></iconify-icon><span style="flex:1;">By Artist</span><iconify-icon id="song-sort-artist-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
+            <iconify-icon icon="mdi:account-music" style="font-size:14px;"></iconify-icon><span style="flex:1;">By Artist</span><iconify-icon id="song-sort-artist-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
           <button id="song-sort-favourites" onclick="setSongSort('favourites')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:heart" style="font-size:14px;color:#ef4444;"></iconify-icon><span style="flex:1;">Favourites</span><iconify-icon id="song-sort-favourites-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--chords-color);"></iconify-icon>
+            <iconify-icon icon="mdi:heart" style="font-size:14px;color:#ef4444;"></iconify-icon><span style="flex:1;">Favourites</span><iconify-icon id="song-sort-favourites-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
         </div>
       </div>
@@ -636,32 +681,51 @@
               <h2 id="sheet-song-title" style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
               <p id="sheet-song-artist" style="color:var(--text-secondary);font-size:13px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
             </div>
+            <button id="sheet-setlist-btn" onclick="openSetlistSongsSheet()" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;padding:6px 10px;align-items:center;gap:4px;flex-shrink:0;color:var(--text-secondary);font-size:12px;font-weight:600;transition:background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth);">
+              <iconify-icon icon="mdi:playlist-music" style="font-size:16px;"></iconify-icon>
+              Songs
+            </button>
             <button id="sheet-heart-btn" onclick="toggleFavouriteSheet()" style="background:transparent;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;flex-shrink:0;" title="Add to Favourites">
               <iconify-icon icon="mdi:heart-outline" style="font-size:22px;color:var(--text-muted);"></iconify-icon>
             </button>
           </div>
           <!-- MUSICIAN/LEAD/SUBADMIN/ADMIN CONTROLS -->
           <div id="musician-controls" style="margin-top:8px;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-              <button id="key-selector-btn" onclick="openKeyModal()" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--lyrics-color);cursor:pointer;font-size:13px;">
-                <iconify-icon icon="mdi:music-clef-treble" style="font-size:16px;color:var(--chords-color);"></iconify-icon>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+              <button id="key-selector-btn" class="ctrl-pill" onclick="openKeyModal()">
+                <iconify-icon icon="mdi:music-clef-treble" style="font-size:16px;color:var(--accent-soft);"></iconify-icon>
                 Key: <span id="current-key-display">C</span>
               </button>
-              <div id="capo-display" style="display:flex;align-items:center;gap:4px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--text-secondary);">
+              <div id="capo-display" class="ctrl-pill" style="cursor:default;">
                 <iconify-icon icon="mdi:guitar-pick" style="font-size:14px;"></iconify-icon>
-                Capo: <span id="capo-value" style="color:var(--chords-color);font-weight:600;margin-left:2px;">0</span>
+                Capo: <span id="capo-value" style="color:var(--accent-soft);font-weight:700;margin-left:2px;">0</span>
               </div>
-              <button id="lyrics-only-toggle-btn" onclick="toggleLyricsOnly()" style="margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:12px;">
+              <button id="lyrics-only-toggle-btn" class="ctrl-pill" onclick="toggleLyricsOnly()" style="margin-left:auto;">
                 <iconify-icon icon="mdi:text" style="font-size:16px;"></iconify-icon>
                 <span id="lyrics-toggle-label">Lyrics Only</span>
               </button>
+            </div>
+            <!-- Zoom controls -->
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button class="zoom-btn" onclick="zoomStep(-1)" title="Zoom out" aria-label="Zoom out">
+                <iconify-icon icon="mdi:minus" style="font-size:16px;"></iconify-icon>
+              </button>
+              <span class="zoom-indicator zoom-pct-display">100%</span>
+              <button class="zoom-btn" onclick="zoomStep(1)" title="Zoom in" aria-label="Zoom in">
+                <iconify-icon icon="mdi:plus" style="font-size:16px;"></iconify-icon>
+              </button>
+              <div style="flex:1;"></div>
+              <span style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+                <iconify-icon icon="mdi:gesture-pinch" style="font-size:14px;"></iconify-icon>
+                Pinch to zoom
+              </span>
             </div>
           </div>
           <!-- SINGER/TECH CONTROLS -->
           <div id="singer-controls" style="display:none;margin-top:8px;">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <div id="tech-copy-btn-wrap" style="display:none;">
-                <button onclick="copySheetToClipboard()" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;color:var(--text-secondary);cursor:pointer;font-size:12px;">
+                <button class="ctrl-pill" onclick="copySheetToClipboard()">
                   <iconify-icon icon="mdi:content-copy" style="font-size:16px;"></iconify-icon>
                   <span id="copy-btn-label">Copy</span>
                 </button>
@@ -688,31 +752,31 @@
             <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort</span>
           </div>
           <button id="setlist-sort-newest" onclick="setSetlistSort('newest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Newest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="newest"></iconify-icon>
+            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Newest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="newest"></iconify-icon>
           </button>
           <button id="setlist-sort-oldest" onclick="setSetlistSort('oldest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Oldest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="oldest"></iconify-icon>
+            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Oldest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="oldest"></iconify-icon>
           </button>
           <button id="setlist-sort-az" onclick="setSetlistSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="az"></iconify-icon>
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="az"></iconify-icon>
           </button>
           <button id="setlist-sort-za" onclick="setSetlistSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="sort-chk" data-for="za"></iconify-icon>
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="za"></iconify-icon>
           </button>
           <div style="padding:6px 8px 4px;border-top:1px solid var(--border-color);margin-top:4px;">
             <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter</span>
           </div>
           <button id="setlist-filter-all" onclick="setSetlistFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:playlist-music" style="font-size:14px;color:var(--text-secondary);"></iconify-icon><span style="flex:1;">All Types</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="all"></iconify-icon>
+            <iconify-icon icon="mdi:playlist-music" style="font-size:14px;color:var(--text-secondary);"></iconify-icon><span style="flex:1;">All Types</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="all"></iconify-icon>
           </button>
           <button id="setlist-filter-public" onclick="setSetlistFilter('public')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:earth" style="font-size:14px;color:#34d399;"></iconify-icon><span style="flex:1;">Public</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="public"></iconify-icon>
+            <iconify-icon icon="mdi:earth" style="font-size:14px;color:#34d399;"></iconify-icon><span style="flex:1;">Public</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="public"></iconify-icon>
           </button>
           <button id="setlist-filter-private" onclick="setSetlistFilter('private')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:lock" style="font-size:14px;color:#fb923c;"></iconify-icon><span style="flex:1;">Private</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="private"></iconify-icon>
+            <iconify-icon icon="mdi:lock" style="font-size:14px;color:#fb923c;"></iconify-icon><span style="flex:1;">Private</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="private"></iconify-icon>
           </button>
           <button id="setlist-filter-custom" onclick="setSetlistFilter('custom')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:#818cf8;"></iconify-icon><span style="flex:1;">Custom Group</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--chords-color);" class="filter-chk" data-for="custom"></iconify-icon>
+            <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:var(--accent-soft);"></iconify-icon><span style="flex:1;">Custom Group</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent-soft);" class="filter-chk" data-for="custom"></iconify-icon>
           </button>
         </div>
       </div>
@@ -757,14 +821,14 @@
             <!-- Logo + Name row -->
             <div style="display:flex;align-items:center;gap:14px;">
               <button onclick="openLogoChangeModal()" title="Change app logo"
-                style="flex-shrink:0;background:var(--surface-2);border:2px dashed #555;border-radius:12px;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;position:relative;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--chords-color)'" onmouseout="this.style.borderColor='#555'">
+                style="flex-shrink:0;background:var(--surface-2);border:2px dashed var(--border-subtle);border-radius:12px;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;position:relative;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-subtle)'">
                 <img id="admin-logo-preview" src="icons/logo.png" alt="Logo"
                   style="width:46px;height:46px;border-radius:8px;object-fit:cover;"
                   onerror="this.style.display='none';document.getElementById('admin-logo-fallback').style.display='flex'" />
-                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#FBBF24);align-items:center;justify-content:center;">
+                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
                   <iconify-icon icon="mdi:music-note" style="font-size:24px;color:var(--lyrics-color);"></iconify-icon>
                 </div>
-                <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--chords-color);background:var(--surface-1);border-radius:50%;padding:1px;"></iconify-icon>
+                <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--accent);background:var(--surface-1);border-radius:50%;padding:1px;"></iconify-icon>
               </button>
               <div style="flex:1;min-width:0;">
                 <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em;">App Name</label>
@@ -837,7 +901,7 @@
             <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
               <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
                 <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
-                  style="background:var(--canvas-bg);border:2px solid var(--chords-color);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(251,191,36,0.3);">
+                  style="background:var(--canvas-bg);border:2px solid var(--accent);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(167,139,250,0.3);">
                   <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#FBBF24;"></div><div style="width:12px;height:12px;border-radius:3px;background:#FFFFFF;"></div></div>
                   <span style="color:#FBBF24;font-size:11px;font-weight:700;white-space:nowrap;">Gigbook Classic</span>
                 </button>
@@ -866,121 +930,104 @@
           </div>
         </div>
 
-        <!-- CUSTOM THEME — Collapsible, full-width advanced -->
+        <!-- CUSTOM THEME — Collapsible -->
         <div id="admin-sec-customtheme">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('custom-theme')">
             <div class="section-label" style="margin-bottom:0;">Custom Theme</div>
             <iconify-icon id="custom-theme-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
           </div>
           <div id="custom-theme-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:1000px;opacity:1;">
-            <div style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:14px;">
+            <div style="background:var(--surface-1);border:1px solid var(--border-color);border-radius:var(--radius-card);padding:16px;display:flex;flex-direction:column;gap:16px;">
 
-              <!-- Base Colors -->
+              <!-- Live Preview Card -->
               <div>
-                <div class="section-label" style="margin-bottom:8px;">Base Colors</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-bg" value="#121212" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Background</label>
+                <div class="section-label" style="margin-bottom:8px;">Live Preview</div>
+                <div id="theme-preview-card" style="border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;border:1px solid transparent;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div id="preview-avatar" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                      <iconify-icon icon="mdi:music-note" style="font-size:18px;"></iconify-icon>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                      <p id="preview-title" style="font-size:14px;font-weight:700;margin:0;">How Great Is Our God</p>
+                      <p id="preview-artist" style="font-size:11px;margin:2px 0 0;">Chris Tomlin</p>
+                    </div>
+                    <span id="preview-chord" style="font-size:13px;font-weight:700;font-family:monospace;">G</span>
                   </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-lyrics" value="#FFFFFF" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Lyrics / Text</label>
+                  <div id="preview-lyrics" style="font-size:13px;line-height:1.8;font-family:monospace;">
+                    <div id="preview-chord-line" style="font-weight:600;">G&nbsp;&nbsp;&nbsp;&nbsp;D&nbsp;&nbsp;&nbsp;Em&nbsp;&nbsp;&nbsp;C</div>
+                    <div id="preview-lyric-line">How great is our God</div>
                   </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-chords" value="#FBBF24" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Chords / Accent</label>
+                  <div style="display:flex;gap:8px;">
+                    <button id="preview-btn" style="flex:1;padding:8px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:default;">Open Song</button>
+                    <button id="preview-btn2" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:default;background:transparent;">Cancel</button>
                   </div>
                 </div>
               </div>
 
-              <!-- Buttons -->
+              <!-- Color Pickers -->
               <div>
-                <div class="section-label" style="margin-bottom:8px;">Buttons</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="section-label" style="margin-bottom:10px;">Colors</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-btn-bg" value="#FBBF24" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Button Background</label>
+                    <input type="color" id="custom-bg" value="#0e0c14" oninput="livePreviewTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Background</label>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-btn-text" value="#000000" />
+                    <input type="color" id="custom-lyrics" value="#f5f3fa" oninput="livePreviewTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Text / Lyrics</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-chords" value="#c4b5fd" oninput="livePreviewTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Chords / Accent</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-card-bg" value="#1a1726" oninput="livePreviewTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Card Surface</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-btn-bg" value="#8b5cf6" oninput="livePreviewTheme()" />
+                    <label style="color:var(--text-secondary);font-size:12px;">Button Color</label>
+                  </div>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="custom-btn-text" value="#ffffff" oninput="livePreviewTheme()" />
                     <label style="color:var(--text-secondary);font-size:12px;">Button Text</label>
                   </div>
                 </div>
               </div>
 
-              <!-- Cards & Lists -->
-              <div>
-                <div class="section-label" style="margin-bottom:8px;">Cards &amp; Lists</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-card-bg" value="#1e1e1e" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Card Background</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-list-bg" value="#2a2a2a" />
-                    <label style="color:var(--text-secondary);font-size:12px;">List Item Color</label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Navbar -->
-              <div>
-                <div class="section-label" style="margin-bottom:8px;">Navbar</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-nav-bg" value="#0e0e0e" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Nav Background</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-nav-text" value="#FFFFFF" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Nav Text</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-nav-icon" value="#FBBF24" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Nav Icon (Active)</label>
-                  </div>
-                  <div style="display:flex;flex-direction:column;gap:4px;">
-                    <label style="color:var(--text-secondary);font-size:11px;">Shadow Opacity: <span id="nav-shadow-label">40%</span></label>
-                    <input type="range" min="0" max="100" value="40" class="autoscroll-slider" id="custom-nav-shadow" oninput="document.getElementById('nav-shadow-label').textContent=this.value+'%';" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Layout Toggle -->
+              <!-- List Layout -->
               <div>
                 <div class="section-label" style="margin-bottom:8px;">List Layout</div>
                 <div style="display:flex;gap:8px;">
                   <button id="layout-card-btn" onclick="setListLayout('card')"
-                    style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--chords-color);background:var(--accent-glow);color:var(--chords-color);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;">
-                    <iconify-icon icon="mdi:card-multiple" style="font-size:16px;"></iconify-icon>Card Layout
+                    style="flex:1;padding:8px;border-radius:10px;border:2px solid var(--accent);background:var(--accent-glow);color:var(--accent-soft);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s var(--ease-smooth);">
+                    <iconify-icon icon="mdi:card-multiple" style="font-size:16px;"></iconify-icon>Card
                   </button>
                   <button id="layout-line-btn" onclick="setListLayout('line')"
-                    style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--border-color);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;">
-                    <iconify-icon icon="mdi:format-list-bulleted" style="font-size:16px;"></iconify-icon>Line Layout
+                    style="flex:1;padding:8px;border-radius:10px;border:2px solid var(--border-color);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s var(--ease-smooth);">
+                    <iconify-icon icon="mdi:format-list-bulleted" style="font-size:16px;"></iconify-icon>Line
                   </button>
                 </div>
               </div>
 
-              <!-- Theme Scope Toggle -->
-              <div style="background:var(--surface-2);border-radius:10px;padding:12px;">
-                <div class="section-label" style="margin-bottom:8px;">Apply Theme To</div>
-                <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--border-color);">
-                  <button id="theme-scope-admin-btn" onclick="setThemeScope('admin')"
-                    style="flex:1;padding:9px 6px;background:var(--chords-color);color:#000;border:none;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s;">
-                    <iconify-icon icon="mdi:crown" style="font-size:14px;"></iconify-icon>Admin Only
-                  </button>
+              <!-- Scope + Save -->
+              <div style="background:var(--surface-2);border:1px solid var(--border-color);border-radius:14px;padding:14px;">
+                <div class="section-label" style="margin-bottom:10px;">Apply To</div>
+                <div style="display:flex;gap:4px;background:var(--surface-3);border-radius:var(--radius-pill);padding:4px;margin-bottom:10px;">
                   <button id="theme-scope-global-btn" onclick="setThemeScope('global')"
-                    style="flex:1;padding:9px 6px;background:transparent;color:var(--text-secondary);border:none;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s;">
+                    style="flex:1;padding:9px 6px;border-radius:var(--radius-pill);border:none;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s var(--ease-smooth);background:transparent;color:var(--text-secondary);">
                     <iconify-icon icon="mdi:account-group" style="font-size:14px;"></iconify-icon>All Users
                   </button>
+                  <button id="theme-scope-admin-btn" onclick="setThemeScope('admin')"
+                    style="flex:1;padding:9px 6px;border-radius:var(--radius-pill);border:none;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s var(--ease-smooth);background:linear-gradient(135deg,var(--accent-strong),var(--accent));color:#fff;box-shadow:0 2px 10px rgba(139,92,246,0.3);">
+                    <iconify-icon icon="mdi:crown" style="font-size:14px;"></iconify-icon>Admin Only
+                  </button>
                 </div>
-                <p id="theme-scope-hint" style="color:var(--text-muted);font-size:11px;margin:6px 0 0;line-height:1.4;">Theme will only apply to your admin account.</p>
+                <p id="theme-scope-hint" style="color:var(--text-muted);font-size:11px;margin:0 0 12px;line-height:1.4;">Theme will only apply to your admin account.</p>
+                <button class="btn-primary" onclick="saveCustomTheme()" style="width:100%;">
+                  <iconify-icon icon="mdi:content-save" style="font-size:16px;margin-right:6px;vertical-align:middle;"></iconify-icon>Save Theme
+                </button>
               </div>
-
-              <button class="btn-primary" onclick="saveCustomTheme()" style="width:100%;">
-                <iconify-icon icon="mdi:palette" style="font-size:16px;margin-right:6px;vertical-align:middle;"></iconify-icon>Apply &amp; Save Theme
-              </button>
             </div>
           </div>
         </div>
@@ -1019,73 +1066,28 @@
         </div>
 
       </div>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <div id="bottom-nav" style="position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.06);display:flex;z-index:400;max-width:100%;padding-bottom:env(safe-area-inset-bottom,0px);height:calc(62px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 12px rgba(0,0,0,0.25);">
-    <!-- Dynamically built by buildNav() -->
-  </div>
-</div>
-
-<!-- FAB -->
-<button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
-
-<!-- ADD SONG FAB (inside setlist detail) -->
-<button id="add-song-fab" style="display:none;position:fixed;bottom:calc(74px + env(safe-area-inset-bottom,0px));right:20px;width:52px;height:52px;border-radius:50%;background:var(--chords-color);color:#000;flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;z-index:500;border:none;transition:transform 0.15s;" onclick="openSongSelectorModal()" title="Add Song">
-  <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
-</button>
-
-<!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(74px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;width:46px;">
-  <!-- Vertical slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:46px;">
-    <span style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
-    <span id="autoscroll-speed-label" style="color:var(--chords-color);font-size:13px;font-weight:700;min-width:16px;text-align:center;">0</span>
-    <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
-      style="writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:28px;height:100px;accent-color:var(--chords-color);cursor:pointer;background:transparent;"
-      oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
-    <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
-      style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:9px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;letter-spacing:0.05em;">STOP</button>
-  </div>
-  <!-- FAB button — same fixed width as the container -->
-  <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
-    style="width:46px;height:46px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;flex-shrink:0;">
-    <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
-  </button>
-</div>
-
-<!-- DESKTOP FONT BUTTONS -->
-<div id="desktop-font-btns" class="desktop-font-btns" style="display:none;">
-  <button class="desktop-font-btn" onclick="adjustSheetFont(1)" title="Increase font">A+</button>
-  <button class="desktop-font-btn" onclick="adjustSheetFont(-1)" title="Decrease font">A-</button>
-</div>
-
-<!-- PROFILE VIEW OVERLAY -->
-<div id="profile-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);z-index:600;flex-direction:column;overflow-y:auto;transition:opacity 0.25s ease,transform 0.25s ease;opacity:0;transform:translateX(100%);">
-  <!-- Header bar -->
-  <div style="padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 16px rgba(0,0,0,0.4);position:sticky;top:0;z-index:10;">
-    <button onclick="closeProfileView()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:4px;flex-shrink:0;">
-      <iconify-icon icon="mdi:arrow-left" style="font-size:22px;"></iconify-icon>
-    </button>
-    <span style="color:var(--lyrics-color);font-size:16px;font-weight:600;flex:1;">My Profile</span>
-    <button id="profile-admin-btn" onclick="closeProfileView();switchTab('admin');" style="display:none;background:transparent;border:none;color:var(--text-muted);cursor:pointer;align-items:center;padding:4px;flex-shrink:0;" title="Admin Panel">
-      <iconify-icon icon="mdi:cog" style="font-size:22px;"></iconify-icon>
+<!-- PROFILE TAB -->
+<div id="tab-profile" class="tab-panel" style="padding:12px var(--view-px);">
+  <!-- Header row matching other tabs -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <h2 style="color:var(--lyrics-color);font-size:18px;font-weight:700;margin:0;">My Profile</h2>
+    <button id="profile-admin-btn" onclick="switchTab('admin');" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;align-items:center;padding:8px;flex-shrink:0;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Admin Panel">
+      <iconify-icon icon="mdi:cog" style="font-size:20px;"></iconify-icon>
     </button>
   </div>
 
   <!-- Hero section -->
-  <div style="padding:32px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:0;background:linear-gradient(180deg,#1a1a1a 0%,var(--canvas-bg) 100%);">
-    <div style="position:relative;margin-bottom:16px;">
+  <div style="padding:20px 12px 20px;display:flex;flex-direction:column;align-items:center;gap:0;background:var(--surface-1);border-radius:var(--radius-card);border:1px solid var(--border-color);margin-bottom:12px;">
+    <div style="position:relative;margin-bottom:14px;">
       <img id="profile-view-pic" src="" alt="Profile"
-        style="width:96px;height:96px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--chords-color);box-shadow:0 0 0 6px rgba(251,191,36,0.1);" />
+        style="width:88px;height:88px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--accent);box-shadow:0 0 0 6px rgba(167,139,250,0.1);" />
     </div>
     <!-- Name row with edit pencil -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      <span id="profile-view-name" style="color:var(--lyrics-color);font-size:20px;font-weight:700;letter-spacing:0.01em;"></span>
+      <span id="profile-view-name" style="color:var(--lyrics-color);font-size:19px;font-weight:700;letter-spacing:0.01em;"></span>
       <button onclick="openNameEditModal()" title="Edit name"
-        style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--chords-color);">
-        <iconify-icon icon="mdi:pencil" style="font-size:16px;"></iconify-icon>
+        style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--accent);transition:background 0.15s var(--ease-smooth);">
+        <iconify-icon icon="mdi:pencil" style="font-size:15px;"></iconify-icon>
       </button>
     </div>
     <!-- Role | Instruments row -->
@@ -1096,9 +1098,9 @@
   </div>
 
   <!-- Settings card -->
-  <div style="padding:0 12px 12px;">
-    <div style="background:var(--surface-1);border-radius:12px;overflow:hidden;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color);">
+  <div style="margin-bottom:12px;">
+    <div style="background:var(--surface-1);border:1px solid var(--border-color);border-radius:var(--radius-card);overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
         <div style="display:flex;align-items:center;gap:10px;">
           <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
           <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
@@ -1112,30 +1114,61 @@
   </div>
 
   <!-- My Setlists -->
-  <div style="padding:0 11px 12px;">
+  <div style="margin-bottom:12px;">
     <div class="section-label" style="margin-bottom:8px;padding-left:1px;">My Setlists</div>
-    <div id="profile-my-setlists" style="display:flex;flex-direction:column;gap:var(--list-gap);"></div>
+    <div id="profile-my-setlists" class="setlists-list-wrap"></div>
     <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
   </div>
 
   <!-- Update Available Banner (shown when a new version is detected) -->
-  <div id="profile-update-banner" style="display:none;padding:0 var(--view-px) 12px;">
+  <div id="profile-update-banner" style="display:none;margin-bottom:12px;">
     <button onclick="showUpdateModal(window._pendingUpdateVersion||'')"
-      style="width:100%;background:linear-gradient(135deg,#065f46,#047857);border:1px solid #34d399;color:#d1fae5;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.2s;animation:pulseGreen 2s ease-in-out infinite;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+      style="width:100%;background:linear-gradient(135deg,#065f46,#047857);border:1px solid #34d399;color:#d1fae5;border-radius:var(--radius-card);padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.2s;animation:pulseGreen 2s ease-in-out infinite;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
       <iconify-icon icon="mdi:update" style="font-size:20px;"></iconify-icon>
       Update Available — Tap to Reload
     </button>
   </div>
 
   <!-- Sign out -->
-  <div style="padding:12px var(--view-px) calc(32px + env(safe-area-inset-bottom,0px));">
-    <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
+  <div style="margin-bottom:8px;">
+    <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:var(--radius-card);padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
       <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
       Sign Out
     </button>
   </div>
 </div>
+    </div>
+  </div>
 
+  <!-- BOTTOM NAV removed — navigation now via hamburger sidebar -->
+</div>
+
+<!-- FAB -->
+<button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
+
+<!-- ADD SONG FAB (inside setlist detail) -->
+<button id="add-song-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg, var(--accent-strong), var(--accent));color:#fff;flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 24px rgba(139,92,246,0.4);cursor:pointer;z-index:500;border:none;transition:transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);" onclick="openSongSelectorModal()" title="Add Song">
+  <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
+</button>
+
+<!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;width:46px;">
+  <!-- Vertical slider popup -->
+  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:46px;">
+    <span style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
+    <span id="autoscroll-speed-label" style="color:var(--accent);font-size:13px;font-weight:700;min-width:16px;text-align:center;">0</span>
+    <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
+      style="writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:28px;height:100px;accent-color:var(--accent);cursor:pointer;background:transparent;"
+      oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
+    <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
+      style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:9px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;letter-spacing:0.05em;">STOP</button>
+  </div>
+  <!-- FAB button — same fixed width as the container -->
+  <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
+    style="width:46px;height:46px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.35);transition:background 0.2s,color 0.2s;flex-shrink:0;">
+    <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
+  </button>
+</div>
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
   <div class="modal-sheet" style="min-height:420px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -1204,7 +1237,7 @@
           <div id="camera-preview-wrap" style="display:none;width:100%;max-height:180px;border-radius:8px;overflow:hidden;border:1px solid var(--border-subtle);">
             <img id="camera-preview-img" style="width:100%;height:100%;object-fit:contain;display:block;" />
           </div>
-          <iconify-icon id="camera-idle-icon" icon="mdi:camera" style="font-size:40px;color:var(--chords-color);"></iconify-icon>
+          <iconify-icon id="camera-idle-icon" icon="mdi:camera" style="font-size:40px;color:var(--accent);"></iconify-icon>
           <p id="camera-idle-text" style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;">Capture a photo of your chord sheet. The text will be extracted automatically.</p>
           <div id="camera-status" style="display:none;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;">
             <div class="spinner" style="width:18px;height:18px;border-width:2px;flex-shrink:0;"></div>
@@ -1386,7 +1419,7 @@
 <div id="tutorial-modal" class="tutorial-overlay" style="display:none;">
   <div style="background:var(--surface-1);border-radius:16px;padding:24px;max-width:360px;width:100%;">
     <div style="text-align:center;margin-bottom:16px;">
-      <iconify-icon icon="mdi:gesture-pinch" style="font-size:48px;color:var(--chords-color);display:block;margin:0 auto 12px;"></iconify-icon>
+      <iconify-icon icon="mdi:gesture-pinch" style="font-size:48px;color:var(--accent);display:block;margin:0 auto 12px;"></iconify-icon>
       <h3 style="color:var(--lyrics-color);font-size:17px;font-weight:700;margin:0 0 8px;">Resize the Song Sheet</h3>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
@@ -1396,7 +1429,7 @@
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <iconify-icon icon="mdi:monitor" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Desktop:</strong> Use the <strong style="color:var(--chords-color);">A+</strong> and <strong style="color:var(--chords-color);">A-</strong> buttons in the bottom-left corner to adjust text size.</p>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Zoom:</strong> Use the <strong style="color:var(--accent);">+</strong> and <strong style="color:var(--accent);">−</strong> buttons, or pinch with two fingers, to adjust text size from 60% to 300%.</p>
       </div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;cursor:pointer;margin-bottom:16px;">
@@ -1427,7 +1460,7 @@
 <div id="alert-modal" class="modal-overlay center" style="display:none;">
   <div class="modal-sheet center-card" style="max-width:360px;border-radius:16px;">
     <div style="text-align:center;padding:8px 0;">
-      <iconify-icon id="alert-icon" icon="mdi:information" style="font-size:40px;color:var(--chords-color);display:block;margin:0 auto 12px;"></iconify-icon>
+      <iconify-icon id="alert-icon" icon="mdi:information" style="font-size:40px;color:var(--accent);display:block;margin:0 auto 12px;"></iconify-icon>
       <h3 id="alert-title" style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0 0 8px;"></h3>
       <p id="alert-message" style="color:var(--text-secondary);font-size:13px;margin:0 0 16px;line-height:1.5;"></p>
       <button class="btn-primary" style="width:100%;" onclick="closeAlertModal()">OK</button>
@@ -1493,6 +1526,9 @@ let lyricsOnlyMode = false;
 let autoScrollInterval = null;
 let autoScrollSpeed = 0;
 let sheetFontSize = 15;
+const SHEET_FONT_BASE = 15; // 1.0x / 100%
+const SHEET_ZOOM_MIN = 0.6; // 0.6x
+const SHEET_ZOOM_MAX = 3.0; // 3x
 let globalSongLimit = 4;
 let selectedCustomMembers = [];
 let currentEditUserId = null;
@@ -1568,7 +1604,7 @@ function handleBackButton() {
     if (_isVisible('tutorial-modal')) { closeTutorialModal(); return; }
     if (_isVisible('alert-modal')) { closeAlertModal(); return; }
     if (_isVisible('setlist-limit-modal')) { closeSetlistLimitModal(); return; }
-    if (_isVisible('profile-view')) { closeProfileView(); return; }
+    if (activeTab === 'profile') { switchTab('songs'); return; }
     if (_isVisible('song-sheet-view')) { closeSongSheet(); return; }
     // Setlist opened from user detail → go back to user detail
     if (currentSetlistId !== null && _setlistOpenedFromUserDetail) { closeSetlistFromUserDetail(); return; }
@@ -1613,7 +1649,7 @@ auth.onAuthStateChanged(async (user) => {
 function showAuthView() {
   document.getElementById('splash-screen').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
-  document.getElementById('profile-view').style.display = 'none';
+  
   const authView = document.getElementById('auth-view');
   authView.style.display = 'flex';
   authView.classList.add('fade-in');
@@ -1793,24 +1829,8 @@ function signOut() {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
-  // Reset nav buttons — Songs active
-  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  const navSongs = document.getElementById('nav-songs');
-  if (navSongs) navSongs.classList.add('active');
-  // Hide top-nav back arrow and title
-  updateHomeBtn(false);
-  const navTitle = document.getElementById('top-nav-title');
-  if (navTitle) navTitle.style.display = 'none';
-  // Hide FABs
-  document.getElementById('fab-btn').style.display = 'none';
-  document.getElementById('add-song-fab').style.display = 'none';
-  document.getElementById('autoscroll-fab').style.display = 'none';
-  document.getElementById('app-root').style.display = 'none';
-  document.getElementById('profile-view').style.display = 'none';
-  auth.signOut().then(() => {
-    _signingOut = false;
-    showAuthView();
-  }).catch(err => {
+  // Reset nav — sidebar rebuilt on next login
+  firebase.auth().signOut().catch(err => {
     _signingOut = false;
     console.error('Sign out error:', err);
   });
@@ -1964,60 +1984,132 @@ function reloadApp() {
 }
 
 // ============================================================
-// NAVIGATION BUILD
+// HAMBURGER SIDEBAR
 // ============================================================
+function toggleSidebar() {
+  const drawer = document.getElementById('sidebar-drawer');
+  const isOpen = drawer.style.transform === 'translateX(0px)' || drawer.style.transform === 'translateX(0)';
+  if (isOpen) closeSidebar(); else openSidebar();
+}
+function openSidebar() {
+  document.getElementById('sidebar-drawer').style.transform = 'translateX(0)';
+  const overlay = document.getElementById('sidebar-overlay');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'auto';
+  // Animate floating buttons out
+  const actions = document.getElementById('header-actions');
+  actions.style.opacity = '0';
+  actions.style.transform = 'translateX(16px)';
+  actions.style.pointerEvents = 'none';
+  const hamburger = document.getElementById('hamburger-btn');
+  if (hamburger) hamburger.style.opacity = '0.4';
+}
+function closeSidebar() {
+  document.getElementById('sidebar-drawer').style.transform = 'translateX(-100%)';
+  const overlay = document.getElementById('sidebar-overlay');
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  const actions = document.getElementById('header-actions');
+  actions.style.opacity = '1';
+  actions.style.transform = 'translateX(0)';
+  actions.style.pointerEvents = 'auto';
+  const hamburger = document.getElementById('hamburger-btn');
+  if (hamburger) hamburger.style.opacity = '1';
+}
+
+// ============================================================
+// HEADER SEARCH (animates inline into header)
+// ============================================================
+function openHeaderSearch() {
+  const wrap = document.getElementById('header-search-wrap');
+  const actions = document.getElementById('header-actions');
+  const hamburger = document.getElementById('hamburger-btn');
+  wrap.style.opacity = '1';
+  wrap.style.pointerEvents = 'auto';
+  wrap.style.transform = 'translateY(0)';
+  actions.style.opacity = '0';
+  actions.style.transform = 'translateX(16px)';
+  actions.style.pointerEvents = 'none';
+  if (hamburger) { hamburger.style.opacity = '0'; hamburger.style.pointerEvents = 'none'; }
+  setTimeout(() => document.getElementById('header-search-input').focus(), 200);
+}
+function closeHeaderSearch() {
+  const wrap = document.getElementById('header-search-wrap');
+  const actions = document.getElementById('header-actions');
+  const hamburger = document.getElementById('hamburger-btn');
+  wrap.style.opacity = '0';
+  wrap.style.pointerEvents = 'none';
+  wrap.style.transform = 'translateY(-100%)';
+  actions.style.opacity = '1';
+  actions.style.transform = 'translateX(0)';
+  actions.style.pointerEvents = 'auto';
+  if (hamburger) { hamburger.style.opacity = '1'; hamburger.style.pointerEvents = 'auto'; }
+  const input = document.getElementById('header-search-input');
+  input.value = '';
+  onHeaderSearchInput();
+}
+// Routes header search input to the active tab's underlying search field
+function onHeaderSearchInput() {
+  const val = document.getElementById('header-search-input').value;
+  let target = null;
+  if (activeTab === 'songs') target = document.getElementById('song-search-input');
+  else if (activeTab === 'setlists') target = document.getElementById('setlist-search-input');
+  else if (activeTab === 'users') target = document.getElementById('user-search-input');
+  if (target) {
+    target.value = val;
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+// Routes header filter button to the active tab's filter menu
+function openHeaderFilter() {
+  if (activeTab === 'songs') toggleSongFilterMenu();
+  else if (activeTab === 'setlists') toggleSetlistFilterMenu();
+  else if (activeTab === 'users') toggleUserFilterMenu();
+}
+// Sync the header filter dot with the active tab's filter button state
+function syncHeaderFilterDot() {
+  const dot = document.getElementById('header-filter-dot');
+  if (!dot) return;
+  let btn = null;
+  if (activeTab === 'songs') btn = document.getElementById('song-filter-btn');
+  else if (activeTab === 'setlists') btn = document.getElementById('setlist-filter-btn');
+  else if (activeTab === 'users') btn = document.getElementById('user-filter-btn');
+  dot.style.display = (btn && btn.classList.contains('has-active-filter')) ? 'block' : 'none';
+}
+
 function buildNav() {
   const role = currentUserProfile?.role || 'Musician';
-  const nav = document.getElementById('bottom-nav');
-  let tabs = [];
-  if (role === 'Admin') {
-    tabs = [
-      { id: 'songs', icon: 'mdi:music-note', label: 'Songs' },
-      { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' },
-      { id: 'users', icon: 'mdi:account-group', label: 'Users' }
-    ];
-  } else if (role === 'Sub-Admin' || role === 'Lead') {
-    tabs = [
-      { id: 'songs', icon: 'mdi:music-note', label: 'Songs' },
-      { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' },
-      { id: 'users', icon: 'mdi:account-group', label: 'Users' }
-    ];
-  } else {
-    tabs = [
-      { id: 'songs', icon: 'mdi:music-note', label: 'Songs' },
-      { id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' }
-    ];
-  }
   const photoURL = escHtml(currentUserProfile?.photoURL || '');
-  const isProfileActive = activeTab === 'profile';
-  const profileBtn = `<button class="bottom-nav-btn nav-text${isProfileActive ? ' active' : ''}" id="nav-profile" onclick="openProfileView()">
-    <div class="nav-icon-wrap">
-      <img src="${photoURL}" alt="Profile"
-        style="width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid ${isProfileActive ? 'var(--chords-color)' : '#555'};"
-        onerror="this.style.background='#374151';this.src=''"
-      />
-    </div>
-    <span>Profile</span>
-  </button>`;
-  nav.innerHTML = tabs.map(t => `
-    <button class="bottom-nav-btn ${t.id === activeTab ? 'active' : ''} nav-text" id="nav-${t.id}" onclick="switchTab('${t.id}')">
-      <div class="nav-icon-wrap"><iconify-icon icon="${t.icon}"></iconify-icon></div>
-      <span>${t.label}</span>
-    </button>
-  `).join('') + profileBtn;
-  // Also populate desktop sidebar nav
+  let tabs = [
+    { id: 'songs',    icon: 'mdi:music-note',       label: 'Songs' },
+    { id: 'setlists', icon: 'mdi:playlist-music',    label: 'Setlists' },
+  ];
+  if (['Admin','Sub-Admin','Lead'].includes(role)) {
+    tabs.push({ id: 'users', icon: 'mdi:account-group', label: 'Team' });
+  }
+  tabs.push({ id: 'profile', icon: null, label: 'My Profile', isProfile: true });
+  if (role === 'Admin') {
+    tabs.push({ id: 'admin', icon: 'mdi:shield-crown', label: 'Admin Panel' });
+  }
+
   const sidebarNav = document.getElementById('sidebar-nav');
   if (sidebarNav) {
-    const sidebarProfileBtn = `<button onclick="openProfileView()" style="display:flex;align-items:center;gap:10px;background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
-      <img src="${photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid var(--border-subtle);" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
-      <span style="font-size:13px;font-weight:500;">Profile</span>
-    </button>`;
-    sidebarNav.innerHTML = tabs.map(t => `
-      <button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}')" style="display:flex;align-items:center;gap:10px;background:${t.id===activeTab?'#2a2a2a':'transparent'};border:none;color:${t.id===activeTab?'var(--chords-color)':'#6b7280'};cursor:pointer;padding:10px 12px;border-radius:10px;width:100%;text-align:left;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='${t.id===activeTab?'#2a2a2a':'transparent'}'">
-        <iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>
-        <span style="font-size:13px;font-weight:500;">${t.label}</span>
-      </button>
-    `).join('') + sidebarProfileBtn;
+    sidebarNav.innerHTML = tabs.map(t => {
+      const isActive = t.id === activeTab;
+      const activeBg = isActive ? 'var(--accent-glow)' : 'transparent';
+      const activeColor = isActive ? 'var(--accent-soft)' : 'var(--text-secondary)';
+      const iconHtml = t.isProfile
+        ? `<img src="${photoURL}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid ${isActive ? 'var(--accent)' : 'var(--border-subtle)'};" onerror="this.style.background='var(--surface-3)'" />`
+        : `<iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>`;
+      return `<button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}');closeSidebar();"
+        style="display:flex;align-items:center;gap:12px;background:${activeBg};border:none;color:${activeColor};cursor:pointer;padding:11px 14px;border-radius:12px;width:100%;text-align:left;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);"
+        onmouseover="if(this.id!=='sidebar-nav-${activeTab}')this.style.background='var(--surface-2)'"
+        onmouseout="this.style.background='${activeBg}'">
+        ${iconHtml}
+        <span style="font-size:14px;font-weight:${isActive ? '700' : '500'};">${t.label}</span>
+        ${isActive ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent);"></span>' : ''}
+      </button>`;
+    }).join('');
   }
 }
 
@@ -2026,17 +2118,30 @@ function switchTab(tab) {
   closeSetlistDetail();
   closeAllDropdowns();
   activeTab = tab;
+
   document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
   const panel = document.getElementById('tab-' + tab);
   if (panel) {
     panel.classList.add('active');
     requestAnimationFrame(() => requestAnimationFrame(() => panel.classList.add('tab-visible')));
   }
-  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  const navBtn = document.getElementById('nav-' + tab);
-  if (navBtn) navBtn.classList.add('active');
+
+  // Populate profile data when switching to profile tab
+  if (tab === 'profile') populateProfileTab();
+
+  // Hide search/filter floating buttons on admin and profile tabs
+  const headerActions = document.getElementById('header-actions');
+  if (headerActions) {
+    const showSearchFilter = !['admin','profile'].includes(tab);
+    headerActions.style.display = showSearchFilter ? 'flex' : 'none';
+  }
+
   updateFAB();
   updateHomeBtn(false);
+  closeSidebar();
+  closeHeaderSearch();
+  syncHeaderFilterDot();
+  buildNav(); // refresh sidebar active states
 }
 
 function updateFAB() {
@@ -2075,18 +2180,17 @@ function handleFabClick() {
 }
 
 function updateHomeBtn(show) {
-  const btn = document.getElementById('home-btn');
-  // Never show back arrow when we're at the root of the songs tab with nothing open
+  const backBtn = document.getElementById('home-btn');
+  const hamburger = document.getElementById('hamburger-btn');
   const atSongsRoot = activeTab === 'songs' && !currentSongId && !currentSetlistId && !currentDetailUserId;
   const shouldShow = show && !atSongsRoot;
-  btn.style.display = shouldShow ? 'flex' : 'none';
-  const appName = document.getElementById('top-nav-appname');
-  const navTitle = document.getElementById('top-nav-title');
-  if (appName) appName.style.display = shouldShow ? 'none' : 'flex';
-  // Always keep a flex:1 spacer visible so the logo stays pushed to the far-right
-  if (navTitle) {
-    navTitle.style.display = shouldShow ? 'flex' : 'none';
-    navTitle.style.flex = '1';
+  if (backBtn) backBtn.style.display = shouldShow ? 'flex' : 'none';
+  if (hamburger) hamburger.style.display = shouldShow ? 'none' : 'flex';
+  // Hide floating search/filter on admin/profile tabs (no search needed)
+  const actions = document.getElementById('header-actions');
+  if (actions) {
+    const hideActions = (activeTab === 'admin') || (activeTab === 'profile' && !shouldShow);
+    actions.style.display = hideActions ? 'none' : 'flex';
   }
 }
 
@@ -2223,6 +2327,7 @@ function setSongSort(mode) {
   // Mark filter button active if not default
   const btn = document.getElementById('song-filter-btn');
   if (btn) btn.classList.toggle('has-active-filter', mode !== 'az');
+  syncHeaderFilterDot();
   // Mark active menu item
   ['az','za','artist','favourites'].forEach(m => {
     const el = document.getElementById('song-sort-' + m);
@@ -2245,6 +2350,7 @@ function _updateSetlistFilterBtn() {
   const sortIsDefault = currentSetlistSort === 'newest';
   const filterIsDefault = currentSetlistFilter === 'all';
   btn.classList.toggle('has-active-filter', !sortIsDefault || !filterIsDefault);
+  syncHeaderFilterDot();
   // Update label to show most relevant active state
   const label = document.getElementById('setlist-filter-label');
   if (!label) return;
@@ -2318,7 +2424,7 @@ function updateSongSheetHeartBtn() {
   const btn = document.getElementById('sheet-heart-btn');
   if (!btn) return;
   const fav = isFavourite(currentSongId);
-  btn.innerHTML = `<iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:20px;color:${fav ? '#ef4444' : '#6b7280'};"></iconify-icon>`;
+  btn.innerHTML = `<iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:20px;color:${fav ? '#ef4444' : 'var(--text-muted)'};"></iconify-icon>`;
 }
 
 function renderSongsList() {
@@ -2363,7 +2469,7 @@ function renderSongsList() {
           <p style="color:var(--text-muted);font-size:12px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.artist||'')}</p>
         </div>
         <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
-          ${displayKey ? `<span style="background:var(--accent-glow);color:var(--chords-color);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:4px;">${escHtml(displayKey)}</span>` : ''}
+          ${displayKey ? `<span style="background:var(--accent-glow);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;margin-right:4px;">${escHtml(displayKey)}</span>` : ''}
           <button onclick="event.stopPropagation();toggleFavourite('${song.id}')" class="list-icon-btn" title="${fav ? 'Remove from Favourites' : 'Add to Favourites'}">
             <iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:18px;color:${fav ? '#ef4444' : 'var(--text-muted)'};"></iconify-icon>
           </button>
@@ -2505,6 +2611,8 @@ function openSongSheet(songId, fromSetlist) {
     songsPanel.classList.add('active');
     songsPanel.classList.add('tab-visible');
   }
+  const setlistBtn = document.getElementById('sheet-setlist-btn');
+  if (setlistBtn) setlistBtn.style.display = openedFromSetlist ? 'flex' : 'none';
   document.getElementById('songs-list-view').style.display = 'none';
   const sheetView = document.getElementById('song-sheet-view');
   sheetView.style.display = 'block';
@@ -2534,11 +2642,7 @@ function openSongSheet(songId, fromSetlist) {
   if (addSongFabEl) addSongFabEl.style.display = 'none';
   document.getElementById('fab-btn').style.display = 'none';
   updateAutoscrollFabPosition();
-  // Show font size buttons on non-touch devices when inside a song sheet
-  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-  if (!isTouch) {
-    document.getElementById('desktop-font-btns').style.display = 'flex';
-  }
+  updateZoomIndicator();
 }
 
 function setupSongControls() {
@@ -2593,12 +2697,40 @@ function copySheetToClipboard() {
 
 // loadCreatorInfo removed — creator info no longer shown on song sheet
 
+// Quick-jump modal: shows the current setlist's songs while inside immersive song view
+function openSetlistSongsSheet() {
+  const setlist = allSetlists.find(s => s.id === currentSetlistId);
+  if (!setlist) return;
+  const songs = currentSetlistSongs.map(sid => allSongs.find(s => s.id === sid)).filter(Boolean);
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <h3 style="color:var(--lyrics-color);font-size:15px;font-weight:700;margin:0 0 12px;">${escHtml(setlist.name || 'Setlist')}</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        ${songs.map((song, i) => `
+          <div class="setlist-song-item" style="${song.id === currentSongId ? 'border-color:var(--accent);background:var(--accent-glow);' : ''}" onclick="this.closest('.modal-overlay').remove(); openSongSheet('${song.id}', true);">
+            <span style="color:var(--text-muted);font-size:12px;width:20px;text-align:center;flex-shrink:0;">${i+1}</span>
+            <div style="flex:1;min-width:0;">
+              <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
+              <p style="color:var(--text-muted);font-size:11px;margin:2px 0 0;">${escHtml(song.artist||'')}</p>
+            </div>
+            ${song.id === currentSongId ? '<iconify-icon icon="mdi:music-note" style="font-size:18px;color:var(--accent-soft);"></iconify-icon>' : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
 function closeSongSheet() {
   stopAutoScroll();
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
   document.getElementById('autoscroll-popup').style.display = 'none';
-  document.getElementById('desktop-font-btns').style.display = 'none';
   const navTitle = document.getElementById('top-nav-title');
   if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
@@ -2771,6 +2903,8 @@ function saveLyricsOnlyPref(val) {
 function applyLyricsOnlyUI() {
   const btn = document.getElementById('lyrics-toggle-label');
   if (btn) btn.textContent = lyricsOnlyMode ? 'Show Chords' : 'Lyrics Only';
+  const pill = document.getElementById('lyrics-only-toggle-btn');
+  if (pill) pill.classList.toggle('active', lyricsOnlyMode);
 }
 function toggleLyricsOnly() {
   lyricsOnlyMode = !lyricsOnlyMode;
@@ -2827,15 +2961,15 @@ function updateAutoscrollFabIcon() {
   const icon = document.getElementById('autoscroll-fab-icon');
   const val = parseInt(document.getElementById('autoscroll-slider').value || 0);
   if (val > 0) {
-    btn.style.background = 'var(--chords-color)';
-    btn.style.color = '#000';
-    btn.style.borderColor = 'var(--chords-color)';
-    icon.style.color = '#000';
+    btn.style.background = 'linear-gradient(135deg, var(--accent-strong), var(--accent))';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--accent)';
+    icon.style.color = '#fff';
   } else {
-    btn.style.background = '#2a2a2a';
-    btn.style.color = '#9ca3af';
-    btn.style.borderColor = '#444';
-    icon.style.color = '#9ca3af';
+    btn.style.background = 'var(--surface-2)';
+    btn.style.color = 'var(--text-secondary)';
+    btn.style.borderColor = 'var(--border-subtle)';
+    icon.style.color = 'var(--text-secondary)';
   }
 }
 function updateAutoscrollFabPosition() {
@@ -2873,11 +3007,28 @@ function stopAutoScroll() {
 }
 
 // ============================================================
-// FONT ZOOM — PINCH & DESKTOP BUTTONS
+// FONT ZOOM — PINCH & TAP CONTROLS (0.6x – 3x)
 // ============================================================
 function adjustSheetFont(delta) {
-  sheetFontSize = Math.max(10, Math.min(36, sheetFontSize + delta));
+  sheetFontSize = Math.max(SHEET_FONT_BASE * SHEET_ZOOM_MIN, Math.min(SHEET_FONT_BASE * SHEET_ZOOM_MAX, sheetFontSize + delta));
   document.documentElement.style.setProperty('--sheet-font-size', sheetFontSize + 'px');
+  updateZoomIndicator();
+}
+function zoomStep(dir) {
+  // Step ~10% of base per tap, snapped to whole px
+  const step = SHEET_FONT_BASE * 0.1 * dir;
+  adjustSheetFont(step);
+}
+function updateZoomIndicator() {
+  const pct = Math.round((sheetFontSize / SHEET_FONT_BASE) * 100);
+  const els = document.querySelectorAll('.zoom-pct-display');
+  els.forEach(el => el.textContent = pct + '%');
+  // Flash the indicator briefly
+  document.querySelectorAll('.zoom-indicator').forEach(el => {
+    el.classList.add('zoom-indicator-active');
+    clearTimeout(el._zoomFadeTimer);
+    el._zoomFadeTimer = setTimeout(() => el.classList.remove('zoom-indicator-active'), 1100);
+  });
 }
 
 function setupPinchZoom() {
@@ -2894,8 +3045,11 @@ function setupPinchZoom() {
       e.stopPropagation();
       const dist = getPinchDist(e);
       const scale = dist / pinchInitialDist;
-      sheetFontSize = Math.max(10, Math.min(36, Math.round(pinchInitialFontSize * scale)));
+      const minF = SHEET_FONT_BASE * SHEET_ZOOM_MIN;
+      const maxF = SHEET_FONT_BASE * SHEET_ZOOM_MAX;
+      sheetFontSize = Math.max(minF, Math.min(maxF, pinchInitialFontSize * scale));
       document.documentElement.style.setProperty('--sheet-font-size', sheetFontSize + 'px');
+      updateZoomIndicator();
     }
   }, { passive: false });
 }
@@ -3405,18 +3559,7 @@ function openSetlistDetail(setlistId) {
   activeTab = 'setlists';
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-setlists').classList.add('active');
-  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  const navBtn = document.getElementById('nav-setlists');
-  if (navBtn) navBtn.classList.add('active');
-  document.getElementById('setlists-list-view').style.display = 'none';
-  const detailView = document.getElementById('setlist-detail-view');
-  detailView.style.display = 'block';
-  renderSetlistDetail(setlist);
-  const navTitle = document.getElementById('top-nav-title');
-  if (navTitle) navTitle.textContent = setlist.name || 'Setlist';
-  updateHomeBtn(true);
-  updateFAB();
-  pushState();
+  // bottom-nav removed — sidebar rebuilt via buildNav()
 }
 
 function closeSetlistDetail() {
@@ -3493,12 +3636,12 @@ async function loadSetlistCreator(uid) {
         <img src="${escHtml(d.photoURL||'')}" title="${escHtml(d.displayName||'')}"
           style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--surface-2);cursor:pointer;border:2px solid var(--border-subtle);transition:border-color 0.2s;"
           onclick="openCreatorProfile('${uid}')"
-          onmouseover="this.style.borderColor='var(--chords-color)'"
+          onmouseover="this.style.borderColor='var(--accent)'"
           onmouseout="this.style.borderColor='var(--border-subtle)'" />
         ${isCustomGroup && canManage ? `<button onclick="openManageMembersModal()" title="Manage Members"
           style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.15s;"
           onmouseover="this.style.background='#3a3a3a'" onmouseout="this.style.background='var(--surface-2)'">
-          <iconify-icon icon="mdi:account-multiple-plus" style="font-size:16px;color:var(--chords-color);"></iconify-icon>
+          <iconify-icon icon="mdi:account-multiple-plus" style="font-size:16px;color:var(--accent);"></iconify-icon>
         </button>` : ''}
       </div>
     `;
@@ -3580,7 +3723,7 @@ function renderManageAddList(query) {
         <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
         ${infoTags.length ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">${infoTags.join('')}</div>` : ''}
       </div>
-      <iconify-icon icon="mdi:plus-circle" style="font-size:20px;color:var(--chords-color);flex-shrink:0;"></iconify-icon>
+      <iconify-icon icon="mdi:plus-circle" style="font-size:20px;color:var(--accent);flex-shrink:0;"></iconify-icon>
     </div>`}).join('');
 }
 
@@ -3700,7 +3843,7 @@ function renderSongSelectorList(query) {
     ? '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:16px;">No songs available.</p>'
     : available.map(s => `
       <div class="song-selector-row" onclick="addSongToSetlist('${s.id}')">
-        <iconify-icon icon="mdi:plus-circle" style="font-size:18px;color:var(--chords-color);flex-shrink:0;"></iconify-icon>
+        <iconify-icon icon="mdi:plus-circle" style="font-size:18px;color:var(--accent);flex-shrink:0;"></iconify-icon>
         <div style="flex:1;min-width:0;">
           <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.title)}</p>
           <p style="color:var(--text-muted);font-size:11px;margin:0;">${escHtml(s.artist||'')}</p>
@@ -3789,7 +3932,7 @@ function renderCustomGroupUsers(query) {
         <span style="color:var(--lyrics-color);font-size:13px;display:block;">${escHtml(u.displayName||u.email||'')}</span>
         ${infoTags.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;">${infoTags.join('')}</div>` : ''}
       </div>
-      ${selected ? '<iconify-icon icon="mdi:check" style="font-size:16px;color:#34d399;flex-shrink:0;"></iconify-icon>' : ''}
+      ${selected ? '<iconify-icon icon="mdi:check" style="font-size:16px;color:var(--accent-soft);flex-shrink:0;"></iconify-icon>' : ''}
     </div>`;
   }).join('');
 }
@@ -3935,22 +4078,21 @@ function renderUserBadges(u) {
 // Render small horizontal avatars for custom group whitelist
 function renderWhitelistAvatars(uids) {
   if (!uids || !uids.length) return '';
-  const visible = uids.slice(0, 7);
-  const avatars = visible.map((uid, i) => {
+  const visible = uids.slice(0, 4);
+  const pills = visible.map((uid) => {
     const u = allUsers.find(x => x.uid === uid);
-    const marginLeft = i === 0 ? '0' : '-7px';
-    const zIndex = visible.length - i;
-    const base = `position:relative;z-index:${zIndex};display:inline-block;width:24px;height:24px;border-radius:50%;flex-shrink:0;margin-left:${marginLeft};border:2px solid var(--canvas-bg);overflow:hidden;background:var(--surface-2);vertical-align:middle;`;
-    if (!u || !u.photoURL) {
-      return `<div style="${base}display:flex;align-items:center;justify-content:center;"><iconify-icon icon="mdi:account" style="font-size:13px;color:var(--text-secondary);"></iconify-icon></div>`;
-    }
-    return `<img src="${escHtml(u.photoURL)}" title="${escHtml(u.displayName||uid)}"
-      style="${base}" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />`;
+    const fullName = u?.displayName || '';
+    const firstName = fullName.split(' ')[0] || 'User';
+    const avatarStyle = `width:18px;height:18px;border-radius:50%;flex-shrink:0;overflow:hidden;background:var(--surface-3);display:flex;align-items:center;justify-content:center;`;
+    const avatar = (u && u.photoURL)
+      ? `<img src="${escHtml(u.photoURL)}" style="${avatarStyle}object-fit:cover;" onerror="this.outerHTML='<div style=\\'${avatarStyle}\\'><iconify-icon icon=\\'mdi:account\\' style=\\'font-size:11px;color:var(--text-secondary);\\'></iconify-icon></div>'" />`
+      : `<div style="${avatarStyle}"><iconify-icon icon="mdi:account" style="font-size:11px;color:var(--text-secondary);"></iconify-icon></div>`;
+    return `<span title="${escHtml(fullName)}" style="display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-pill);padding:2px 8px 2px 2px;font-size:11px;color:var(--text-secondary);font-weight:500;">${avatar}${escHtml(firstName)}</span>`;
   }).join('');
-  const extra = uids.length > 7
-    ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--surface-2);border:2px solid var(--canvas-bg);font-size:9px;color:var(--text-secondary);font-weight:700;margin-left:-7px;flex-shrink:0;vertical-align:middle;">+${uids.length-7}</span>`
+  const extra = uids.length > 4
+    ? `<span style="display:inline-flex;align-items:center;justify-content:center;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-pill);padding:2px 9px;font-size:11px;color:var(--text-muted);font-weight:600;">+${uids.length-4}</span>`
     : '';
-  return `<div style="display:flex;align-items:center;margin-top:6px;flex-wrap:nowrap;">${avatars}${extra}</div>`;
+  return `<div style="display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap;">${pills}${extra}</div>`;
 }
 
 // ─── USER DETAIL VIEW ───────────────────────────────────────────────────────
@@ -4141,14 +4283,18 @@ function setUserFilter(filter) {
   const label = document.getElementById('user-filter-label');
   if (label) label.textContent = filter === 'all' ? 'All' : filter;
   const btn = document.getElementById('user-filter-btn');
-  if (btn) btn.style.color = filter === 'all' ? '#9ca3af' : 'var(--chords-color)';
+  if (btn) {
+    btn.style.color = filter === 'all' ? 'var(--text-secondary)' : 'var(--accent-soft)';
+    btn.classList.toggle('has-active-filter', filter !== 'all');
+  }
+  syncHeaderFilterDot();
   const menu = document.getElementById('user-filter-menu');
   if (menu) {
     // Highlight active item
     menu.querySelectorAll('button').forEach(b => {
       const isActive = b.textContent.trim() === (filter === 'all' ? 'All Roles' : filter);
-      b.style.background = isActive ? '#2a2a2a' : 'transparent';
-      b.style.color = isActive ? 'var(--chords-color)' : '#e5e7eb';
+      b.style.background = isActive ? 'var(--surface-2)' : 'transparent';
+      b.style.color = isActive ? 'var(--accent-soft)' : 'var(--lyrics-color)';
     });
     menu.style.display = 'none';
   }
@@ -4227,7 +4373,7 @@ function _renderEditRoleToggles() {
   const colorMap = { Musician:'#d97706', Singer:'#db2777', Tech:'#0891b2', Lead:'#059669', 'Sub-Admin':'#2563eb' };
   rolesContainer.innerHTML = roleOptions.map(r => {
     const isActive = _selectedEditRoles.has(r);
-    const col = colorMap[r] || '#6b7280';
+    const col = colorMap[r] || 'var(--text-muted)';
     return `<button onclick="selectEditRole('${r}')" id="edit-role-btn-${r.replace('-','_')}"
       style="padding:6px 14px;border-radius:999px;border:2px solid ${isActive ? col : 'var(--border-color)'};background:${isActive ? col + '22' : 'transparent'};color:${isActive ? col : 'var(--text-secondary)'};font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;">
       ${isActive ? '<iconify-icon icon="mdi:check" style="font-size:11px;margin-right:4px;vertical-align:middle;"></iconify-icon>' : ''}${r}
@@ -4302,29 +4448,27 @@ async function saveUserEdit() {
 // PROFILE VIEW
 // ============================================================
 function openProfileView() {
+  populateProfileTab();
+  switchTab('profile');
+}
+
+function populateProfileTab() {
   const p = currentUserProfile;
   if (!p) return;
-  document.getElementById('profile-view-pic').src = p.photoURL || '';
-  document.getElementById('profile-view-name').textContent = p.displayName || '';
+  const pic = document.getElementById('profile-view-pic');
+  if (pic) pic.src = p.photoURL || '';
+  const nameEl = document.getElementById('profile-view-name');
+  if (nameEl) nameEl.textContent = p.displayName || '';
   const roleBadge = document.getElementById('profile-view-role-badge');
-  roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role);
-  roleBadge.textContent = p.role || '';
+  if (roleBadge) { roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role); roleBadge.textContent = p.role || ''; }
   const instInline = document.getElementById('profile-view-instruments-inline');
   if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
-  document.getElementById('tutorial-toggle').checked = p.showTutorial !== false;
+  const tutToggle = document.getElementById('tutorial-toggle');
+  if (tutToggle) { tutToggle.checked = p.showTutorial !== false; }
   tutorialEnabled = p.showTutorial !== false;
-  // Show Admin Panel shortcut only for Admins
   const adminBtn = document.getElementById('profile-admin-btn');
   if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
   renderProfileSetlists();
-  const profileView = document.getElementById('profile-view');
-  profileView.style.display = 'flex';
-  profileView.style.flexDirection = 'column';
-  requestAnimationFrame(() => {
-    profileView.style.opacity = '1';
-    profileView.style.transform = 'translateX(0)';
-  });
-  pushState();
 }
 
 function renderProfileSetlists() {
@@ -4338,7 +4482,7 @@ function renderProfileSetlists() {
   }
   if (empty) empty.style.display = 'none';
   if (container) container.innerHTML = mySetlists.map(s => `
-    <div class="setlist-card" style="cursor:pointer;" onclick="closeProfileAndOpenSetlist('${s.id}')">
+    <div class="setlist-card" style="cursor:pointer;" onclick="switchTab('setlists');openSetlistDetail('${s.id}')">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
           <p style="color:var(--lyrics-color);font-size:13px;font-weight:600;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.name)}</p>
@@ -4356,23 +4500,12 @@ function renderProfileSetlists() {
 }
 
 function closeProfileAndOpenSetlist(id) {
-  const profileView = document.getElementById('profile-view');
-  profileView.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-  profileView.style.opacity = '0';
-  profileView.style.transform = 'translateX(100%)';
-  setTimeout(() => {
-    profileView.style.display = 'none';
-    profileView.style.transition = '';
-    switchTab('setlists');
-    openSetlistDetail(id);
-  }, 200);
+  switchTab('setlists');
+  openSetlistDetail(id);
 }
 
 function closeProfileView() {
-  const profileView = document.getElementById('profile-view');
-  profileView.style.opacity = '0';
-  profileView.style.transform = 'translateX(100%)';
-  setTimeout(() => { profileView.style.display = 'none'; }, 240);
+  switchTab('songs');
 }
 
 async function saveTutorialPref(val) {
@@ -4441,14 +4574,14 @@ function setListLayout(mode) {
   const cardBtn = document.getElementById('layout-card-btn');
   const lineBtn = document.getElementById('layout-line-btn');
   if (cardBtn) {
-    cardBtn.style.border = mode === 'card' ? '2px solid var(--chords-color)' : '2px solid var(--border-color)';
+    cardBtn.style.border = mode === 'card' ? '2px solid var(--accent)' : '2px solid var(--border-color)';
     cardBtn.style.background = mode === 'card' ? 'var(--accent-glow)' : 'transparent';
-    cardBtn.style.color = mode === 'card' ? 'var(--chords-color)' : 'var(--text-secondary)';
+    cardBtn.style.color = mode === 'card' ? 'var(--accent)' : 'var(--text-secondary)';
   }
   if (lineBtn) {
-    lineBtn.style.border = mode === 'line' ? '2px solid var(--chords-color)' : '2px solid var(--border-color)';
+    lineBtn.style.border = mode === 'line' ? '2px solid var(--accent)' : '2px solid var(--border-color)';
     lineBtn.style.background = mode === 'line' ? 'var(--accent-glow)' : 'transparent';
-    lineBtn.style.color = mode === 'line' ? 'var(--chords-color)' : 'var(--text-secondary)';
+    lineBtn.style.color = mode === 'line' ? 'var(--accent)' : 'var(--text-secondary)';
   }
 }
 
@@ -4550,7 +4683,7 @@ async function saveLogoChange() {
 function updateThemeCarousel(activeKey) {
   const keys = ['gigbook','nordic','parchment','cyber','charcoal'];
   const themeStyles = {
-    gigbook:   { bg: '#121212', border: '#FBBF24', glow: 'rgba(251,191,36,0.3)', color: '#FBBF24' },
+    gigbook:   { bg: '#121212', border: '#FBBF24', glow: 'rgba(167,139,250,0.3)', color: '#FBBF24' },
     nordic:    { bg: '#1E293B', border: '#34D399', glow: 'rgba(52,211,153,0.3)', color: '#34D399' },
     parchment: { bg: '#FDFBF7', border: '#B91C1C', glow: 'rgba(185,28,28,0.3)', color: '#B91C1C' },
     cyber:     { bg: '#0F172A', border: '#06B6D4', glow: 'rgba(6,182,212,0.3)', color: '#06B6D4' },
@@ -4581,7 +4714,7 @@ const THEMES = {
     s1:'#1e1e1e', s2:'#2a2a2a', s3:'#252525', sInput:'#2a2a2a',
     border:'#2a2a2a', borderSubtle:'#333',
     navBg:'rgba(14,14,14,0.96)',
-    textMuted:'#6b7280', textSecondary:'#9ca3af',
+    textMuted:'var(--text-muted)', textSecondary:'#9ca3af',
     modalOverlay:'rgba(0,0,0,0.78)', toggleTrack:'#374151',
     scrollbar:'#444', accentGlow:'rgba(251,191,36,0.15)'
   },
@@ -4645,7 +4778,7 @@ function applyThemeData(theme) {
   root.style.setProperty('--border-color',   theme.border   || ab(theme.bg, 22));
   root.style.setProperty('--border-subtle',  theme.borderSubtle || ab(theme.bg, 30));
   root.style.setProperty('--nav-bg',         theme.navBg    || (theme.bg + 'f5'));
-  root.style.setProperty('--text-muted',     theme.textMuted     || '#6b7280');
+  root.style.setProperty('--text-muted',     theme.textMuted     || 'var(--text-muted)');
   root.style.setProperty('--text-secondary', theme.textSecondary || '#9ca3af');
   root.style.setProperty('--modal-overlay',  theme.modalOverlay  || 'rgba(0,0,0,0.75)');
   root.style.setProperty('--toggle-track',   theme.toggleTrack   || '#374151');
@@ -4654,21 +4787,18 @@ function applyThemeData(theme) {
   // Extended component overrides
   if (theme.btnBg)       root.style.setProperty('--btn-primary-bg',   theme.btnBg);
   if (theme.btnText)     root.style.setProperty('--btn-primary-text',  theme.btnText);
-  if (theme.navShadow)   root.style.setProperty('--nav-shadow',        theme.navShadow);
-  if (theme.navTextColor)root.style.setProperty('--nav-text-color',   theme.navTextColor);
-  if (theme.navIconColor)root.style.setProperty('--nav-icon-color',   theme.navIconColor);
   // Update meta theme-color
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) metaTheme.content = theme.bg;
   // Sync custom theme pickers
   const el = id => document.getElementById(id);
-  if (el('custom-bg'))     el('custom-bg').value     = theme.bg;
-  if (el('custom-lyrics')) el('custom-lyrics').value = theme.lyrics;
-  if (el('custom-chords')) el('custom-chords').value = theme.chords;
-  if (el('custom-btn-bg') && theme.btnBg)   el('custom-btn-bg').value   = theme.btnBg;
+  if (el('custom-bg'))       el('custom-bg').value       = theme.bg;
+  if (el('custom-lyrics'))   el('custom-lyrics').value   = theme.lyrics;
+  if (el('custom-chords'))   el('custom-chords').value   = theme.chords;
+  if (el('custom-btn-bg')  && theme.btnBg)  el('custom-btn-bg').value  = theme.btnBg;
   if (el('custom-btn-text') && theme.btnText) el('custom-btn-text').value = theme.btnText;
   if (el('custom-card-bg') && theme.s1)    el('custom-card-bg').value  = theme.s1;
-  if (el('custom-list-bg') && theme.s2)    el('custom-list-bg').value  = theme.s2;
+  livePreviewTheme();
 }
 
 // Helper: lighten/darken a hex color by amount (positive = lighter)
@@ -4688,10 +4818,12 @@ function setThemeScope(scope) {
   const globalBtn = document.getElementById('theme-scope-global-btn');
   const hint      = document.getElementById('theme-scope-hint');
   if (adminBtn && globalBtn) {
-    adminBtn.style.background  = scope === 'admin'  ? 'var(--chords-color)' : 'transparent';
-    adminBtn.style.color       = scope === 'admin'  ? '#000' : 'var(--text-secondary)';
-    globalBtn.style.background = scope === 'global' ? 'var(--chords-color)' : 'transparent';
-    globalBtn.style.color      = scope === 'global' ? '#000' : 'var(--text-secondary)';
+    adminBtn.style.background  = scope === 'admin'  ? 'linear-gradient(135deg, var(--accent-strong), var(--accent))' : 'transparent';
+    adminBtn.style.color       = scope === 'admin'  ? '#fff' : 'var(--text-secondary)';
+    adminBtn.style.boxShadow   = scope === 'admin'  ? '0 2px 10px rgba(139,92,246,0.3)' : 'none';
+    globalBtn.style.background = scope === 'global' ? 'linear-gradient(135deg, var(--accent-strong), var(--accent))' : 'transparent';
+    globalBtn.style.color      = scope === 'global' ? '#fff' : 'var(--text-secondary)';
+    globalBtn.style.boxShadow  = scope === 'global' ? '0 2px 10px rgba(139,92,246,0.3)' : 'none';
   }
   if (hint) hint.textContent = scope === 'global'
     ? 'Theme will apply to all users in the app.'
@@ -4699,40 +4831,73 @@ function setThemeScope(scope) {
 }
 
 function _buildCustomThemeObject() {
-  const bg = document.getElementById('custom-bg').value;
-  const lyrics = document.getElementById('custom-lyrics').value;
-  const chords = document.getElementById('custom-chords').value;
-  const btnBg = document.getElementById('custom-btn-bg')?.value || chords;
-  const btnText = document.getElementById('custom-btn-text')?.value || '#000000';
-  const cardBg = document.getElementById('custom-card-bg')?.value || null;
-  const listBg = document.getElementById('custom-list-bg')?.value || null;
-  const navBgColor = document.getElementById('custom-nav-bg')?.value || null;
-  const navTextColor = document.getElementById('custom-nav-text')?.value || lyrics;
-  const navIconColor = document.getElementById('custom-nav-icon')?.value || chords;
-  const navShadowOpacity = (parseInt(document.getElementById('custom-nav-shadow')?.value || 40) / 100).toFixed(2);
+  const bg      = document.getElementById('custom-bg')?.value     || '#0e0c14';
+  const lyrics  = document.getElementById('custom-lyrics')?.value || '#f5f3fa';
+  const chords  = document.getElementById('custom-chords')?.value || '#c4b5fd';
+  const btnBg   = document.getElementById('custom-btn-bg')?.value || chords;
+  const btnText = document.getElementById('custom-btn-text')?.value || '#ffffff';
+  const cardBg  = document.getElementById('custom-card-bg')?.value || null;
   const ab = adjustBrightness;
   const isDark = isColorDark(bg);
   const s1 = cardBg || ab(bg, isDark ? 12 : -10);
-  const s2 = listBg || ab(bg, isDark ? 22 : -18);
+  const s2 = ab(bg, isDark ? 22 : -18);
   const s3 = ab(bg, isDark ? 17 : -14);
   const border = ab(bg, isDark ? 24 : -20);
   const borderSubtle = ab(bg, isDark ? 32 : -28);
   return {
     bg, lyrics, chords, s1, s2, s3, sInput: s2,
     border, borderSubtle,
-    navBg: navBgColor ? navBgColor + 'f5' : (bg + 'f5'),
-    textMuted: isDark ? '#6b7280' : '#6b5a40',
-    textSecondary: isDark ? '#9ca3af' : '#8a7560',
+    navBg: bg + 'd9',
+    textMuted: isDark ? '#837e99' : '#6b5a40',
+    textSecondary: isDark ? '#b3aecb' : '#8a7560',
     modalOverlay: isDark ? 'rgba(0,0,0,0.78)' : 'rgba(40,20,10,0.55)',
     toggleTrack: border, scrollbar: borderSubtle,
-    accentGlow: hexToRgba(chords, 0.15),
-    btnBg, btnText, navTextColor, navIconColor,
-    navShadow: `0 1px 8px rgba(0,0,0,${navShadowOpacity})`
+    accentGlow: hexToRgba(chords, 0.18),
+    btnBg, btnText,
+    navTextColor: lyrics, navIconColor: chords,
+    navShadow: '0 1px 8px rgba(0,0,0,0.3)'
   };
 }
 
+// Live-preview the theme builder in the preview card without saving
+function livePreviewTheme() {
+  const bg     = document.getElementById('custom-bg')?.value     || '#0e0c14';
+  const lyrics = document.getElementById('custom-lyrics')?.value || '#f5f3fa';
+  const chords = document.getElementById('custom-chords')?.value || '#c4b5fd';
+  const btnBg  = document.getElementById('custom-btn-bg')?.value || chords;
+  const btnTxt = document.getElementById('custom-btn-text')?.value || '#ffffff';
+  const cardBg = document.getElementById('custom-card-bg')?.value || null;
+  const ab = adjustBrightness;
+  const isDark = isColorDark(bg);
+  const s1 = cardBg || ab(bg, isDark ? 12 : -10);
+  const border = ab(bg, isDark ? 24 : -20);
+
+  const card = document.getElementById('theme-preview-card');
+  if (!card) return;
+  card.style.background = s1;
+  card.style.borderColor = border;
+
+  const titleEl = document.getElementById('preview-title');
+  const artistEl = document.getElementById('preview-artist');
+  const chordEl = document.getElementById('preview-chord');
+  const chordLine = document.getElementById('preview-chord-line');
+  const lyricLine = document.getElementById('preview-lyric-line');
+  const btn = document.getElementById('preview-btn');
+  const btn2 = document.getElementById('preview-btn2');
+  const avatarEl = document.getElementById('preview-avatar');
+
+  if (titleEl)   titleEl.style.color = lyrics;
+  if (artistEl)  artistEl.style.color = isDark ? '#b3aecb' : '#8a7560';
+  if (chordEl)   chordEl.style.color = chords;
+  if (chordLine) chordLine.style.color = chords;
+  if (lyricLine) lyricLine.style.color = lyrics;
+  if (btn)       { btn.style.background = btnBg; btn.style.color = btnTxt; btn.style.border = 'none'; }
+  if (btn2)      { btn2.style.color = isDark ? '#b3aecb' : '#8a7560'; btn2.style.borderColor = border; btn2.style.border = `1px solid ${border}`; btn2.style.borderRadius = '10px'; }
+  if (avatarEl)  { avatarEl.style.background = btnBg; avatarEl.style.color = btnTxt; }
+}
+
 function applyCustomTheme() {
-  // Theme is applied only when "Apply & Save Theme" button is clicked
+  // Applied only when Save Theme is clicked
 }
 
 function isColorDark(hex) {
@@ -5060,7 +5225,7 @@ function _startModalDrag(e, sheet) {
       <div style="text-align:center;margin-bottom:4px;">
         <img id="logo-modal-preview" src="icons/logo.png" alt="Preview"
           style="width:80px;height:80px;border-radius:16px;object-fit:cover;background:var(--surface-2);border:2px dashed var(--border-subtle);"
-          onerror="this.style.background='linear-gradient(135deg,#7c3aed,#FBBF24)'" />
+          onerror="this.style.background='linear-gradient(135deg,#8b5cf6,#a78bfa)'" />
       </div>
       <div>
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Logo URL or Path</label>
@@ -5142,13 +5307,13 @@ function _startModalDrag(e, sheet) {
 <!-- UPDATE AVAILABLE MODAL -->
 <div id="update-modal" class="modal-overlay center" style="display:none;z-index:10000;">
   <div class="modal-sheet center-card" style="max-width:340px;border-radius:20px;padding:24px;text-align:center;">
-    <div style="width:56px;height:56px;border-radius:16px;background:var(--accent-glow);border:2px solid var(--chords-color);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-      <iconify-icon icon="mdi:update" style="font-size:28px;color:var(--chords-color);"></iconify-icon>
+    <div style="width:56px;height:56px;border-radius:16px;background:var(--accent-glow);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <iconify-icon icon="mdi:update" style="font-size:28px;color:var(--accent);"></iconify-icon>
     </div>
     <h3 style="color:var(--lyrics-color);font-size:17px;font-weight:700;margin:0 0 8px;">Update Available</h3>
     <p style="color:var(--text-secondary);font-size:13px;margin:0 0 6px;line-height:1.5;">A new version of RCCM Gigbook is ready.</p>
     <p style="color:var(--text-muted);font-size:12px;margin:0 0 20px;">
-      Version <strong style="color:var(--chords-color);" id="update-new-version">—</strong> is available
+      Version <strong style="color:var(--accent);" id="update-new-version">—</strong> is available
       &nbsp;·&nbsp; Current: <strong style="color:var(--text-secondary);">v1.0.0</strong>
     </p>
     <div style="display:flex;flex-direction:column;gap:8px;">
