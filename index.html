@@ -43,7 +43,7 @@
       --nav-font-size: 13px;
       --btn-font-size: 13px;
       --meta-font-size: 14px;
-      --app-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --app-font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       /* Unified view side padding — used by ALL tab content areas */
       --view-px: 6px;
       --radius-card: 16px;
@@ -62,7 +62,7 @@
     * { box-sizing: border-box; }
     #app-root { background: var(--canvas-bg); height: 100vh; overflow: hidden; }
     .song-sheet-content { font-size: var(--sheet-font-size); }
-    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: monospace; font-weight: 600; }
+    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: 'Google Sans Mono', monospace; font-weight: 600; }
     .lyric-line { color: var(--lyrics-color); white-space: pre-wrap; }
     .section-header { color: var(--accent-soft); font-weight: 700; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.75em; }
     .nav-text { font-size: var(--nav-font-size); }
@@ -193,9 +193,9 @@
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s var(--ease-smooth); }
     .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s var(--ease-smooth); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-    input:checked + .toggle-slider { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); }
+    input:checked + .toggle-slider { background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
-    .fab { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom,0px)); right: 20px; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 6px 24px rgba(139,92,246,0.4); cursor: pointer; z-index: 500; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
+    .fab { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom,0px)); right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); cursor: pointer; z-index: 500; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); }
     .fab:active { transform: scale(0.92); }
     .zoom-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 11px; font-weight: 600; min-width: 44px; justify-content: center; transition: color 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth); }
     .zoom-indicator-active { color: var(--accent-soft); border-color: var(--accent); background: var(--accent-glow); }
@@ -210,7 +210,7 @@
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px rgba(167,139,250,0.5); }
     .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 14px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth); }
     .drag-zone.dragover { border-color: var(--accent); color: var(--accent); }
-    .btn-primary { background: linear-gradient(135deg, var(--accent-strong), var(--accent)); color: #fff; border: none; border-radius: 12px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); min-height: 44px; box-shadow: 0 4px 16px rgba(139,92,246,0.25); }
+    .btn-primary { background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); border: none; border-radius: 12px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); min-height: 44px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
     .btn-primary:hover { opacity: 0.92; box-shadow: 0 6px 22px rgba(139,92,246,0.35); }
     .btn-primary:active { transform: scale(0.98); }
     .btn-secondary { background: var(--surface-2); color: var(--lyrics-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 11px 18px; font-weight: 500; cursor: pointer; font-size: var(--btn-font-size); transition: background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth); min-height: 44px; }
@@ -391,8 +391,7 @@
       --nav-text-color: var(--lyrics-color);
       --nav-icon-color: var(--accent);
     }
-    /* Apply component overrides */
-    .btn-primary { background: var(--btn-primary-bg) !important; color: var(--btn-primary-text) !important; }
+    /* btn-primary uses CSS vars directly — no override needed */
     /* Line layout mode */
     /* Active filter/sort indicator dot on filter button */
     .filter-btn.has-active-filter { color: var(--accent-soft); border-color: var(--accent); }
@@ -419,7 +418,7 @@
       box-sizing: border-box;
       transition: border-color 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
     }
-    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); transition: border-color 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
     /* Uniform filter button */
     .filter-btn {
       display: flex; align-items: center; gap: 4px; flex-shrink: 0;
@@ -432,6 +431,24 @@
       position: relative;
     }
     /* Subtle purple status dot on filter icon when non-default sort active */
+    /* Floating filter dropdown menus */
+    #song-filter-menu, #setlist-filter-menu, #user-filter-menu {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 8px;
+      min-width: 180px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    #song-filter-menu button, #setlist-filter-menu button, #user-filter-menu button {
+      border-radius: 8px !important;
+      padding: 8px 10px !important;
+      font-family: var(--app-font-family) !important;
+      font-size: 13px !important;
+      transition: background 0.15s var(--ease-smooth) !important;
+    }
     .filter-btn.has-active-filter::after {
       content: '';
       position: absolute;
@@ -444,8 +461,7 @@
     }
     /* Uniform search row wrapper */
     .search-row {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: var(--search-row-mb); position: relative;
+      display: none !important; /* Replaced by floating header search/filter buttons */
     }
     .search-row .search-icon {
       position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
@@ -494,6 +510,7 @@
     /* Admin branding logo hover */
     #admin-logo-preview:hover { opacity: 0.85; }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="no-select">
 
@@ -627,7 +644,7 @@
 
   <!-- SIDEBAR DRAWER -->
   <div id="sidebar-overlay" onclick="closeSidebar()" style="position:fixed;inset:0;background:rgba(8,6,14,0.6);backdrop-filter:blur(2px);z-index:550;opacity:0;pointer-events:none;transition:opacity 0.25s var(--ease-smooth);"></div>
-  <div id="sidebar-drawer" style="position:fixed;top:0;left:0;bottom:0;width:78%;max-width:300px;background:var(--surface-1);border-right:1px solid var(--border-color);z-index:560;transform:translateX(-100%);transition:transform 0.28s var(--ease-smooth);display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 20px;box-shadow:8px 0 32px rgba(0,0,0,0.4);">
+  <div id="sidebar-drawer" style="position:fixed;top:0;left:0;bottom:0;width:78%;max-width:300px;background:var(--surface-1);border-right:1px solid var(--border-color);z-index:560;transform:translateX(-100%);transition:transform 0.28s var(--ease-smooth), background 0.3s var(--ease-smooth);display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 20px;box-shadow:8px 0 32px rgba(0,0,0,0.4);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;padding:0 4px;">
       <img src="icons/logo.png" alt="Logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
       <div style="display:none;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
@@ -639,10 +656,14 @@
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-top:calc(74px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-top:calc(80px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
 
     <!-- SONGS TAB -->
     <div id="tab-songs" class="tab-panel active" style="padding:12px var(--view-px);">
+    <!-- Tab header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;">
+      <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin:0;letter-spacing:-0.02em;">Songs</h1>
+    </div>
     <div id="songs-list-view">
       <div class="search-row">
         <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
@@ -651,7 +672,10 @@
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="song-filter-label">A–Z</span>
         </button>
-        <div id="song-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:148px;z-index:200;">
+        
+      </div>
+      
+    <div id="song-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:168px;z-index:900;box-shadow:0 8px 32px rgba(0,0,0,0.45);" onclick="event.stopPropagation()">
           <button id="song-sort-az" onclick="setSongSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
@@ -665,8 +689,7 @@
             <iconify-icon icon="mdi:heart" style="font-size:14px;color:#ef4444;"></iconify-icon><span style="flex:1;">Favourites</span><iconify-icon id="song-sort-favourites-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
         </div>
-      </div>
-      <div id="songs-list" class="songs-list-wrap"></div>
+    <div id="songs-list" class="songs-list-wrap"></div>
         <div id="songs-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:music-off" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No songs yet.</p>
@@ -739,6 +762,10 @@
 
     <!-- SETLISTS TAB -->
     <div id="tab-setlists" class="tab-panel" style="padding:12px var(--view-px);">
+      <!-- Tab header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;">
+        <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin:0;letter-spacing:-0.02em;">Setlists</h1>
+      </div>
       <div id="setlists-list-view">
       <div class="search-row">
         <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
@@ -747,10 +774,7 @@
           <iconify-icon icon="mdi:filter" style="font-size:16px;"></iconify-icon>
           <span id="setlist-filter-label">Newest</span>
         </button>
-        <div id="setlist-filter-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:8px;padding:8px;min-width:168px;z-index:200;">
-          <div style="padding:4px 8px 6px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
-            <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort</span>
-          </div>
+        
           <button id="setlist-sort-newest" onclick="setSetlistSort('newest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Newest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="newest"></iconify-icon>
           </button>
@@ -780,7 +804,12 @@
           </button>
         </div>
       </div>
-        <div id="setlists-list" class="setlists-list-wrap"></div>
+        
+    <div id="setlist-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:180px;z-index:900;box-shadow:0 8px 32px rgba(0,0,0,0.45);" onclick="event.stopPropagation()">
+          <div style="padding:4px 8px 6px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
+            <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort</span>
+          </div>
+    <div id="setlists-list" class="setlists-list-wrap"></div>
         <div id="setlists-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:playlist-music" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No setlists yet.</p>
@@ -791,6 +820,10 @@
 
     <!-- USERS TAB -->
     <div id="tab-users" class="tab-panel" style="padding:12px var(--view-px);">
+      <!-- Tab header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;">
+        <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin:0;letter-spacing:-0.02em;">Team</h1>
+      </div>
       <div id="users-list-panel">
       <div class="search-row">
         <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
@@ -800,7 +833,12 @@
           <span id="user-filter-label">All</span>
         </button>
       </div>
-      <div id="users-list" class="users-list-wrap"></div>
+      
+    <div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
+  <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
+    <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
+  </div>
+    <div id="users-list" class="users-list-wrap"></div>
       </div><!-- /users-list-panel -->
       <div id="user-detail-view" style="display:none;"></div>
     </div>
@@ -900,30 +938,41 @@
           <div id="theme-presets-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:200px;opacity:1;">
             <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
               <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
+                <!-- MD Purple (Default) -->
                 <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
-                  style="background:var(--canvas-bg);border:2px solid var(--accent);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(167,139,250,0.3);">
-                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#FBBF24;"></div><div style="width:12px;height:12px;border-radius:3px;background:#FFFFFF;"></div></div>
-                  <span style="color:#FBBF24;font-size:11px;font-weight:700;white-space:nowrap;">Gigbook Classic</span>
+                  style="background:#0e0c14;border:2px solid #a78bfa;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(167,139,250,0.2);">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#a78bfa;"></div><div style="width:14px;height:14px;border-radius:4px;background:#c4b5fd;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a1726;"></div></div>
+                  <span style="color:#c4b5fd;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Purple Dusk</span>
                 </button>
+                <!-- MD Blue -->
                 <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
-                  style="background:#1E293B;border:2px solid #334155;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#34D399;"></div><div style="width:12px;height:12px;border-radius:3px;background:#F8FAFC;"></div></div>
-                  <span style="color:#34D399;font-size:11px;font-weight:700;white-space:nowrap;">Nordic Studio</span>
+                  style="background:#0a1929;border:2px solid #1e3a5f;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#42a5f5;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e3f2fd;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1565c0;"></div></div>
+                  <span style="color:#90caf9;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Blue</span>
                 </button>
+                <!-- MD Teal -->
                 <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
-                  style="background:#FDFBF7;border:2px solid #e5e0d5;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#B91C1C;"></div><div style="width:12px;height:12px;border-radius:3px;background:#1F2937;"></div></div>
-                  <span style="color:#B91C1C;font-size:11px;font-weight:700;white-space:nowrap;">Vintage Parchment</span>
+                  style="background:#fafafa;border:2px solid #b2dfdb;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#00897b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#212121;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e0f2f1;"></div></div>
+                  <span style="color:#00897b;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">MD Light Teal</span>
                 </button>
+                <!-- MD Deep Orange -->
                 <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
-                  style="background:#0F172A;border:2px solid #1e293b;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#06B6D4;"></div><div style="width:12px;height:12px;border-radius:3px;background:#EC4899;"></div></div>
-                  <span style="color:#06B6D4;font-size:11px;font-weight:700;white-space:nowrap;">Cyber Neon</span>
+                  style="background:#1a0a00;border:2px solid #3e1a00;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ff6d00;"></div><div style="width:14px;height:14px;border-radius:4px;background:#ffab40;"></div><div style="width:14px;height:14px;border-radius:4px;background:#241508;"></div></div>
+                  <span style="color:#ff9e40;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Deep Orange</span>
                 </button>
+                <!-- MD Grey / Charcoal -->
                 <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
-                  style="background:#1F2937;border:2px solid #374151;border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:12px;height:12px;border-radius:3px;background:#38BDF8;"></div><div style="width:12px;height:12px;border-radius:3px;background:#9CA3AF;"></div></div>
-                  <span style="color:#38BDF8;font-size:11px;font-weight:700;white-space:nowrap;">Minimalist Charcoal</span>
+                  style="background:#212121;border:2px solid #424242;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ef9a9a;"></div><div style="width:14px;height:14px;border-radius:4px;background:#eeeeee;"></div><div style="width:14px;height:14px;border-radius:4px;background:#424242;"></div></div>
+                  <span style="color:#eeeeee;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Dark</span>
+                </button>
+                <!-- MD Indigo -->
+                <button id="theme-btn-indigo" class="theme-preset-card" onclick="applyTheme('indigo')"
+                  style="background:#0d0e2e;border:2px solid #1a1b4b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#7986cb;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e8eaf6;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a237e;"></div></div>
+                  <span style="color:#9fa8da;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Indigo Night</span>
                 </button>
               </div>
             </div>
@@ -1077,10 +1126,13 @@
   </div>
 
   <!-- Hero section -->
-  <div style="padding:20px 12px 20px;display:flex;flex-direction:column;align-items:center;gap:0;background:var(--surface-1);border-radius:var(--radius-card);border:1px solid var(--border-color);margin-bottom:12px;">
+  <div style="padding:24px 12px 20px;display:flex;flex-direction:column;align-items:center;gap:0;background:var(--surface-1);border-radius:var(--radius-card);border:1px solid var(--border-color);margin-bottom:12px;">
     <div style="position:relative;margin-bottom:14px;">
-      <img id="profile-view-pic" src="" alt="Profile"
-        style="width:88px;height:88px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:3px solid var(--accent);box-shadow:0 0 0 6px rgba(167,139,250,0.1);" />
+      <div id="profile-avatar-wrap" style="width:88px;height:88px;border-radius:50%;background:var(--surface-2);border:3px solid var(--accent);box-shadow:0 0 0 6px var(--accent-glow);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+        <img id="profile-view-pic" src="" alt="Profile"
+          style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />
+        <iconify-icon id="profile-view-placeholder" icon="mdi:account" style="font-size:44px;color:var(--text-muted);position:relative;z-index:1;"></iconify-icon>
+      </div>
     </div>
     <!-- Name row with edit pencil -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -2080,37 +2132,65 @@ function syncHeaderFilterDot() {
 function buildNav() {
   const role = currentUserProfile?.role || 'Musician';
   const photoURL = escHtml(currentUserProfile?.photoURL || '');
-  let tabs = [
+  const displayName = escHtml(currentUserProfile?.displayName || 'My Profile');
+  const firstName = displayName.split(' ')[0] || 'Profile';
+  let mainTabs = [
     { id: 'songs',    icon: 'mdi:music-note',       label: 'Songs' },
     { id: 'setlists', icon: 'mdi:playlist-music',    label: 'Setlists' },
   ];
   if (['Admin','Sub-Admin','Lead'].includes(role)) {
-    tabs.push({ id: 'users', icon: 'mdi:account-group', label: 'Team' });
+    mainTabs.push({ id: 'users', icon: 'mdi:account-group', label: 'Team' });
   }
-  tabs.push({ id: 'profile', icon: null, label: 'My Profile', isProfile: true });
-  if (role === 'Admin') {
-    tabs.push({ id: 'admin', icon: 'mdi:shield-crown', label: 'Admin Panel' });
-  }
+  const isAdmin = role === 'Admin';
 
   const sidebarNav = document.getElementById('sidebar-nav');
-  if (sidebarNav) {
-    sidebarNav.innerHTML = tabs.map(t => {
-      const isActive = t.id === activeTab;
-      const activeBg = isActive ? 'var(--accent-glow)' : 'transparent';
-      const activeColor = isActive ? 'var(--accent-soft)' : 'var(--text-secondary)';
-      const iconHtml = t.isProfile
-        ? `<img src="${photoURL}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:2px solid ${isActive ? 'var(--accent)' : 'var(--border-subtle)'};" onerror="this.style.background='var(--surface-3)'" />`
-        : `<iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>`;
-      return `<button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}');closeSidebar();"
-        style="display:flex;align-items:center;gap:12px;background:${activeBg};border:none;color:${activeColor};cursor:pointer;padding:11px 14px;border-radius:12px;width:100%;text-align:left;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);"
-        onmouseover="if(this.id!=='sidebar-nav-${activeTab}')this.style.background='var(--surface-2)'"
-        onmouseout="this.style.background='${activeBg}'">
-        ${iconHtml}
-        <span style="font-size:14px;font-weight:${isActive ? '700' : '500'};">${t.label}</span>
-        ${isActive ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent);"></span>' : ''}
-      </button>`;
-    }).join('');
-  }
+  if (!sidebarNav) return;
+
+  // Main nav items
+  const mainHtml = mainTabs.map(t => {
+    const isActive = t.id === activeTab;
+    const activeBg = isActive ? 'var(--accent-glow)' : 'transparent';
+    const activeColor = isActive ? 'var(--accent-soft)' : 'var(--text-secondary)';
+    return `<button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}');closeSidebar();"
+      style="display:flex;align-items:center;gap:12px;background:${activeBg};border:none;color:${activeColor};cursor:pointer;padding:11px 14px;border-radius:12px;width:100%;text-align:left;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);"
+      onmouseover="if(this.id!=='sidebar-nav-${activeTab}')this.style.background='var(--surface-2)'"
+      onmouseout="this.style.background='${activeBg}'">
+      <iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>
+      <span style="font-size:14px;font-weight:${isActive ? '700' : '500'};">${t.label}</span>
+      ${isActive ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent);"></span>' : ''}
+    </button>`;
+  }).join('');
+
+  // Profile row at the bottom with optional admin cog icon
+  const profileActive = activeTab === 'profile';
+  const adminActive = activeTab === 'admin';
+  const avatarHtml = photoURL
+    ? `<img src="${photoURL}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid ${profileActive ? 'var(--accent)' : 'var(--border-subtle)'};flex-shrink:0;" onerror="this.outerHTML='<div style=\'width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;\'><iconify-icon icon=\'mdi:account\' style=\'font-size:18px;color:var(--text-secondary);\'></iconify-icon></div>'" />`
+    : `<div style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);border:2px solid ${profileActive ? 'var(--accent)' : 'var(--border-subtle)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><iconify-icon icon="mdi:account" style="font-size:18px;color:var(--text-secondary);"></iconify-icon></div>`;
+
+  const profileHtml = `
+    <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-color);">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button id="sidebar-nav-profile" onclick="switchTab('profile');closeSidebar();"
+          style="flex:1;display:flex;align-items:center;gap:10px;background:${profileActive ? 'var(--accent-glow)' : 'transparent'};border:none;color:${profileActive ? 'var(--accent-soft)' : 'var(--text-secondary)'};cursor:pointer;padding:10px 10px;border-radius:12px;text-align:left;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);"
+          onmouseover="if(activeTab!=='profile')this.style.background='var(--surface-2)'"
+          onmouseout="this.style.background='${profileActive ? 'var(--accent-glow)' : 'transparent'}'">
+          ${avatarHtml}
+          <div style="flex:1;min-width:0;">
+            <p style="margin:0;font-size:13px;font-weight:${profileActive ? '700' : '600'};color:${profileActive ? 'var(--accent-soft)' : 'var(--lyrics-color)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${firstName}</p>
+            <p style="margin:0;font-size:11px;color:var(--text-muted);">${escHtml(role)}</p>
+          </div>
+        </button>
+        ${isAdmin ? `<button id="sidebar-nav-admin" onclick="switchTab('admin');closeSidebar();" title="Admin Panel"
+          style="width:38px;height:38px;border-radius:50%;background:${adminActive ? 'var(--accent-glow)' : 'var(--surface-2)'};border:1px solid ${adminActive ? 'var(--accent)' : 'var(--border-subtle)'};color:${adminActive ? 'var(--accent-soft)' : 'var(--text-secondary)'};cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s var(--ease-smooth);"
+          onmouseover="this.style.background='var(--surface-3)'"
+          onmouseout="this.style.background='${adminActive ? 'var(--accent-glow)' : 'var(--surface-2)'}'">
+          <iconify-icon icon="mdi:shield-crown" style="font-size:18px;"></iconify-icon>
+        </button>` : ''}
+      </div>
+    </div>`;
+
+  sidebarNav.innerHTML = mainHtml + profileHtml;
 }
 
 function switchTab(tab) {
@@ -2275,7 +2355,13 @@ function loadAdminSettings() {
         });
       }
       if (data.songLimit) globalSongLimit = data.songLimit;
-      if (data.theme) applyThemeData(data.theme);
+      if (data.theme) {
+        applyThemeData(data.theme);
+      } else {
+        // No saved theme — apply logo-inspired purple default
+        applyThemeData(THEMES.gigbook);
+        updateThemeCarousel('gigbook');
+      }
       if (data.typography) applyTypographyData(data.typography);
       if (data.appName) {
         document.title = data.appName;
@@ -2975,6 +3061,17 @@ function updateAutoscrollFabIcon() {
 function updateAutoscrollFabPosition() {
   // Autoscroll FAB always pinned far right; main FAB never overlaps (different states)
 }
+// Close filter menus when tapping outside them
+document.addEventListener('click', (e) => {
+  const menus = ['song-filter-menu','setlist-filter-menu','user-filter-menu'];
+  const filterBtn = document.getElementById('header-filter-btn');
+  const clickedInsideMenu = menus.some(id => document.getElementById(id)?.contains(e.target));
+  const clickedFilterBtn = filterBtn?.contains(e.target);
+  if (!clickedInsideMenu && !clickedFilterBtn) {
+    menus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
+  }
+});
+
 // Close autoscroll popup when tapping outside it
 document.addEventListener('click', (e) => {
   const fab = document.getElementById('autoscroll-fab');
@@ -4244,21 +4341,7 @@ function closeUserDetail() {
 
 function filterUsers() { renderUsersList(); }
 function toggleUserFilterMenu() {
-  const menu = document.getElementById('user-filter-menu');
-  const btn = document.getElementById('user-filter-btn');
-  if (!menu || !btn) return;
-  const isOpen = menu.style.display === 'block';
-  closeAllDropdowns();
-  if (!isOpen) {
-    // Position the portal below the button
-    const rect = btn.getBoundingClientRect();
-    menu.style.display = 'block';
-    const menuW = menu.offsetWidth || 160;
-    let left = rect.right - menuW;
-    if (left < 8) left = 8;
-    menu.style.top = (rect.bottom + 4) + 'px';
-    menu.style.left = left + 'px';
-  }
+  positionFloatingMenu('user-filter-menu');
 }
 // Close all filter dropdowns when clicking outside
 document.addEventListener('click', function(e) {
@@ -4456,7 +4539,18 @@ function populateProfileTab() {
   const p = currentUserProfile;
   if (!p) return;
   const pic = document.getElementById('profile-view-pic');
-  if (pic) pic.src = p.photoURL || '';
+  const placeholder = document.getElementById('profile-view-placeholder');
+  if (pic) {
+    if (p.photoURL) {
+      pic.src = p.photoURL;
+      pic.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+      pic.onerror = () => { pic.style.display='none'; if(placeholder) placeholder.style.display='block'; };
+    } else {
+      pic.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'block';
+    }
+  }
   const nameEl = document.getElementById('profile-view-name');
   if (nameEl) nameEl.textContent = p.displayName || '';
   const roleBadge = document.getElementById('profile-view-role-badge');
@@ -4469,6 +4563,7 @@ function populateProfileTab() {
   const adminBtn = document.getElementById('profile-admin-btn');
   if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
   renderProfileSetlists();
+  buildNav(); // refresh sidebar avatar/name
 }
 
 function renderProfileSetlists() {
@@ -4681,6 +4776,8 @@ async function saveLogoChange() {
 }
 
 function updateThemeCarousel(activeKey) {
+  // Add indigo to recognized keys
+  const ALL_KEYS = ['gigbook','nordic','parchment','cyber','charcoal','indigo'];
   const keys = ['gigbook','nordic','parchment','cyber','charcoal'];
   const themeStyles = {
     gigbook:   { bg: '#121212', border: '#FBBF24', glow: 'rgba(167,139,250,0.3)', color: '#FBBF24' },
@@ -4709,50 +4806,77 @@ function updateThemeCarousel(activeKey) {
 // THEME ENGINE
 // ============================================================
 const THEMES = {
-  gigbook:  {
-    bg:'#121212', lyrics:'#FFFFFF', chords:'#FBBF24',
-    s1:'#1e1e1e', s2:'#2a2a2a', s3:'#252525', sInput:'#2a2a2a',
-    border:'#2a2a2a', borderSubtle:'#333',
-    navBg:'rgba(14,14,14,0.96)',
-    textMuted:'var(--text-muted)', textSecondary:'#9ca3af',
-    modalOverlay:'rgba(0,0,0,0.78)', toggleTrack:'#374151',
-    scrollbar:'#444', accentGlow:'rgba(251,191,36,0.15)'
+  // Purple Dusk — logo-inspired default (Material You / deep purple)
+  gigbook: {
+    bg:'#0e0c14', lyrics:'#f5f3fa', chords:'#c4b5fd',
+    s1:'#1a1726', s2:'#241f33', s3:'#211d2e', sInput:'#221d30',
+    border:'#2e2840', borderSubtle:'#383054',
+    navBg:'rgba(15,12,22,0.88)',
+    textMuted:'#837e99', textSecondary:'#b3aecb',
+    modalOverlay:'rgba(8,6,14,0.78)', toggleTrack:'#3a3450',
+    scrollbar:'#4a4262', accentGlow:'rgba(167,139,250,0.18)',
+    btnBg:'linear-gradient(135deg,#8b5cf6,#a78bfa)', btnText:'#ffffff',
+    accent:'#a78bfa', accentStrong:'#8b5cf6', accentSoft:'#c4b5fd'
   },
+  // Material Blue — MD3 Blue Dark
   nordic: {
-    bg:'#0f1e2d', lyrics:'#e2f0f7', chords:'#34D399',
-    s1:'#162636', s2:'#1e3347', s3:'#1a2d40', sInput:'#1e3347',
-    border:'#1e3347', borderSubtle:'#254056',
-    navBg:'rgba(10,24,38,0.97)',
-    textMuted:'#5a8a9f', textSecondary:'#7ab5cc',
-    modalOverlay:'rgba(0,10,20,0.82)', toggleTrack:'#1a3a52',
-    scrollbar:'#254056', accentGlow:'rgba(52,211,153,0.15)'
+    bg:'#0a1929', lyrics:'#e3f2fd', chords:'#90caf9',
+    s1:'#0d233d', s2:'#102a4a', s3:'#0f2742', sInput:'#102a4a',
+    border:'#1a3a5f', borderSubtle:'#1e4470',
+    navBg:'rgba(8,18,32,0.92)',
+    textMuted:'#4a7a9b', textSecondary:'#6a9ec0',
+    modalOverlay:'rgba(0,8,20,0.85)', toggleTrack:'#1a3a5f',
+    scrollbar:'#1e4470', accentGlow:'rgba(66,165,245,0.18)',
+    btnBg:'linear-gradient(135deg,#1565c0,#42a5f5)', btnText:'#ffffff',
+    accent:'#90caf9', accentStrong:'#42a5f5', accentSoft:'#bbdefb'
   },
+  // MD Light — Teal on White (Material You light surface)
   parchment: {
-    bg:'#f5ede0', lyrics:'#2c1810', chords:'#9b1c1c',
-    s1:'#ede0ce', s2:'#e0d0ba', s3:'#e8d8c4', sInput:'#e0d0ba',
-    border:'#c9b89a', borderSubtle:'#bba882',
-    navBg:'rgba(237,220,200,0.97)',
-    textMuted:'#8c6e4e', textSecondary:'#7a5c3c',
-    modalOverlay:'rgba(44,24,16,0.55)', toggleTrack:'#c9b89a',
-    scrollbar:'#bba882', accentGlow:'rgba(155,28,28,0.12)'
+    bg:'#fafafa', lyrics:'#212121', chords:'#00695c',
+    s1:'#ffffff', s2:'#f5f5f5', s3:'#eeeeee', sInput:'#f5f5f5',
+    border:'#e0e0e0', borderSubtle:'#bdbdbd',
+    navBg:'rgba(250,250,250,0.95)',
+    textMuted:'#9e9e9e', textSecondary:'#616161',
+    modalOverlay:'rgba(0,0,0,0.40)', toggleTrack:'#bdbdbd',
+    scrollbar:'#9e9e9e', accentGlow:'rgba(0,137,123,0.12)',
+    btnBg:'linear-gradient(135deg,#00695c,#00897b)', btnText:'#ffffff',
+    accent:'#00897b', accentStrong:'#00695c', accentSoft:'#4db6ac'
   },
+  // Material Deep Orange — MD3 Tertiary
   cyber: {
-    bg:'#060d1a', lyrics:'#e0f0ff', chords:'#00e5ff',
-    s1:'#0d1b2e', s2:'#122236', s3:'#0f1f32', sInput:'#122236',
-    border:'#1a3050', borderSubtle:'#1e3a60',
-    navBg:'rgba(4,10,22,0.97)',
-    textMuted:'#3a6080', textSecondary:'#4a80a8',
-    modalOverlay:'rgba(0,5,18,0.88)', toggleTrack:'#1a3050',
-    scrollbar:'#1e3a60', accentGlow:'rgba(0,229,255,0.15)'
+    bg:'#1a0a00', lyrics:'#fbe9e7', chords:'#ffab40',
+    s1:'#241308', s2:'#2e1a0a', s3:'#281508', sInput:'#2e1a0a',
+    border:'#3e2210', borderSubtle:'#4e2c14',
+    navBg:'rgba(20,8,0,0.92)',
+    textMuted:'#7a4a28', textSecondary:'#a06030',
+    modalOverlay:'rgba(16,4,0,0.88)', toggleTrack:'#3e2210',
+    scrollbar:'#4e2c14', accentGlow:'rgba(255,109,0,0.18)',
+    btnBg:'linear-gradient(135deg,#e65100,#ff6d00)', btnText:'#ffffff',
+    accent:'#ff9e40', accentStrong:'#ff6d00', accentSoft:'#ffcc80'
   },
+  // Material Dark — MD3 neutral surface / Grey 900
   charcoal: {
-    bg:'#161e28', lyrics:'#c8d4e0', chords:'#38BDF8',
-    s1:'#1e2a38', s2:'#263446', s3:'#223040', sInput:'#263446',
-    border:'#2e3e52', borderSubtle:'#364a60',
-    navBg:'rgba(14,18,26,0.97)',
-    textMuted:'#4a6070', textSecondary:'#5a7890',
-    modalOverlay:'rgba(0,0,0,0.78)', toggleTrack:'#2e3e52',
-    scrollbar:'#364a60', accentGlow:'rgba(56,189,248,0.15)'
+    bg:'#121212', lyrics:'#eeeeee', chords:'#ef9a9a',
+    s1:'#1e1e1e', s2:'#272727', s3:'#222222', sInput:'#272727',
+    border:'#333333', borderSubtle:'#424242',
+    navBg:'rgba(10,10,10,0.92)',
+    textMuted:'#757575', textSecondary:'#9e9e9e',
+    modalOverlay:'rgba(0,0,0,0.82)', toggleTrack:'#333333',
+    scrollbar:'#424242', accentGlow:'rgba(239,154,154,0.15)',
+    btnBg:'linear-gradient(135deg,#b71c1c,#ef5350)', btnText:'#ffffff',
+    accent:'#ef9a9a', accentStrong:'#ef5350', accentSoft:'#ffcdd2'
+  },
+  // Indigo Night — MD3 Indigo / dark
+  indigo: {
+    bg:'#0d0e2e', lyrics:'#e8eaf6', chords:'#9fa8da',
+    s1:'#14163a', s2:'#1a1e48', s3:'#171940', sInput:'#1a1e48',
+    border:'#252860', borderSubtle:'#303470',
+    navBg:'rgba(10,11,30,0.92)',
+    textMuted:'#4a5080', textSecondary:'#6a70a8',
+    modalOverlay:'rgba(4,4,20,0.88)', toggleTrack:'#252860',
+    scrollbar:'#303470', accentGlow:'rgba(121,134,203,0.18)',
+    btnBg:'linear-gradient(135deg,#1a237e,#7986cb)', btnText:'#ffffff',
+    accent:'#9fa8da', accentStrong:'#7986cb', accentSoft:'#c5cae9'
   }
 };
 
@@ -4778,15 +4902,19 @@ function applyThemeData(theme) {
   root.style.setProperty('--border-color',   theme.border   || ab(theme.bg, 22));
   root.style.setProperty('--border-subtle',  theme.borderSubtle || ab(theme.bg, 30));
   root.style.setProperty('--nav-bg',         theme.navBg    || (theme.bg + 'f5'));
-  root.style.setProperty('--text-muted',     theme.textMuted     || 'var(--text-muted)');
-  root.style.setProperty('--text-secondary', theme.textSecondary || '#9ca3af');
+  root.style.setProperty('--text-muted',     theme.textMuted     || '#837e99');
+  root.style.setProperty('--text-secondary', theme.textSecondary || '#b3aecb');
   root.style.setProperty('--modal-overlay',  theme.modalOverlay  || 'rgba(0,0,0,0.75)');
-  root.style.setProperty('--toggle-track',   theme.toggleTrack   || '#374151');
-  root.style.setProperty('--scrollbar-thumb',theme.scrollbar     || '#444');
-  root.style.setProperty('--accent-glow',    theme.accentGlow    || 'rgba(251,191,36,0.15)');
-  // Extended component overrides
-  if (theme.btnBg)       root.style.setProperty('--btn-primary-bg',   theme.btnBg);
-  if (theme.btnText)     root.style.setProperty('--btn-primary-text',  theme.btnText);
+  root.style.setProperty('--toggle-track',   theme.toggleTrack   || '#3a3450');
+  root.style.setProperty('--scrollbar-thumb',theme.scrollbar     || '#4a4262');
+  root.style.setProperty('--accent-glow',    theme.accentGlow    || 'rgba(167,139,250,0.18)');
+  // Accent system — updates ALL accent-colored components
+  if (theme.accent)       root.style.setProperty('--accent',        theme.accent);
+  if (theme.accentStrong) root.style.setProperty('--accent-strong', theme.accentStrong);
+  if (theme.accentSoft)   root.style.setProperty('--accent-soft',   theme.accentSoft);
+  // Primary button
+  if (theme.btnBg)        root.style.setProperty('--btn-primary-bg',   theme.btnBg);
+  if (theme.btnText)      root.style.setProperty('--btn-primary-text',  theme.btnText);
   // Update meta theme-color
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) metaTheme.content = theme.bg;
@@ -5270,10 +5398,7 @@ function _startModalDrag(e, sheet) {
 
 
 <!-- USER FILTER PORTAL MENU -->
-<div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
-  <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
-    <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
-  </div>
+
   <button onclick="setUserFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
     <iconify-icon icon="mdi:account-group" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
     <span>All Roles</span>
