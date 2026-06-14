@@ -1,295 +1,195 @@
-# 🎸 RCCM GigBook
+# 🎵 RCCM GigBook
 
-> **A premium, production-ready band performance management SPA** — built with vanilla JavaScript, HTML5, CSS3, Tailwind CSS (v4 CDN), and Google Firebase v10 Compatibility Mode. Designed for live stage use with zero build-step, zero dependencies to install.
-
----
-
-![RCCM GigBook Banner](https://img.shields.io/badge/RCCM-GigBook-8b5cf6?style=for-the-badge&logo=guitar&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-v10-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![PWA Ready](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+> **Production-ready, single-file Band Setlist & Chord Sheet Management SPA** — built with vanilla JavaScript, HTML5, Tailwind CSS v4 (CDN), and Google Firebase v10+ (Compatibility Mode). Styled to mirror the Google Gemini App aesthetic with fluid micro-animations and a mathematically locked layout system.
 
 ---
 
 ## 📋 Table of Contents
 
-1. [Project Overview](#-project-overview)
-2. [Feature Inventory](#-feature-inventory)
-3. [Visual Design System](#-visual-design-system)
-4. [Architecture Overview](#-architecture-overview)
-5. [Local Setup](#-local-setup)
-6. [Firebase Configuration](#-firebase-configuration)
-7. [Firestore Data Schema](#-firestore-data-schema)
-8. [Role & Permission Matrix](#-role--permission-matrix)
-9. [Production Deployment](#-production-deployment)
-10. [PWA Configuration](#-pwa-configuration)
-11. [Environment Variables & Security](#-environment-variables--security)
-12. [Known Limitations & Roadmap](#-known-limitations--roadmap)
-13. [Contributing](#-contributing)
-14. [License](#-license)
+- [Project Overview](#project-overview)
+- [Feature Matrix](#feature-matrix)
+- [Design System](#design-system)
+- [Tech Stack](#tech-stack)
+- [Local Setup](#local-setup)
+- [Firebase Configuration](#firebase-configuration)
+- [Firestore Data Schema](#firestore-data-schema)
+- [Role & Permission Matrix](#role--permission-matrix)
+- [PWA Deployment](#pwa-deployment)
+- [Production Deployment](#production-deployment)
+- [Architecture Notes](#architecture-notes)
+- [Known Limitations & Roadmap](#known-limitations--roadmap)
 
 ---
 
-## 🎯 Project Overview
+## Project Overview
 
-**RCCM GigBook** is a single-file (`index.html`) Progressive Web Application designed to serve as the central hub for church bands, worship teams, and live performance groups. It delivers:
+RCCM GigBook is a **standalone single-file SPA** (`index.html`) that enables a worship band or performance group to:
 
-- 📋 **Song Library Management** — Store and manage songs with chord/lyric sheets, keys, tempos, and genres.
-- 🎼 **Live Stage HUD** — A dedicated, distraction-free performance view with real-time chord transposition, capo adjustment, auto-scroll, and lyrics-only mode.
-- 📂 **Public Setlist Engine** — Create, manage, and view public setlists accessible by all authenticated users.
-- 👥 **User Directory & Role Management** — Hierarchical role system with real-time assignment controls.
-- 🛡️ **Admin Control Panel** — Theme laboratory, song limits, branding, and a secured purge/reset console.
-- 📱 **PWA Installable** — Full Progressive Web App support for mobile and desktop installation.
+- Maintain a centralized **Song Library** with chord sheets and metadata
+- Create and manage **Setlists** tied to specific dates
+- Perform songs live through a dedicated **Stage HUD** with transposition, capo adjustment, lyrics-only mode, and auto-scroll teleprompter
+- Manage **User Roles** in real-time via an Admin-gated directory
+- Configure the app's **Theme, Branding, and Song Limits** from an Admin Panel
+- Operate under a strict **Guest/Role Permission** system with immutable Admin protection
 
 ---
 
-## ✨ Feature Inventory
+## Feature Matrix
 
-### 🔐 Authentication & Onboarding
-| Feature | Description |
+### 🎸 Song Library
+| Feature | Details |
 |---|---|
-| Google OAuth | Firebase Google Sign-In via popup |
-| Recent Account Cache | Last-used account card shown on auth screen for 1-tap re-login |
-| Auto Guest Assignment | New users automatically receive "Guest" role — no onboarding forms |
-| PWA Install Button | Dynamic, event-driven install prompt (only shown when not already installed) |
+| Add Songs (Manual) | Title, key, artist, chord sheet (bracket notation `[Chord]`) |
+| Add Songs (Scan) | File drop zone for `.pdf`, `.png`, `.jpg` with preview |
+| Add Songs (Camera) | Live `getUserMedia` video stream + frame capture |
+| Key Filter | Filter songs by musical key |
+| Search | Real-time title/artist fuzzy search |
+| Favorites | Heart-flag persisted to Firestore |
+| Song Limit | Admin-configurable cap enforced client-side |
+| Delete | Soft confirm → Firestore `deleteDoc` |
 
-### 🎵 Song Library (Song List View)
-| Feature | Description |
+### 📋 Setlists
+| Feature | Details |
 |---|---|
-| Real-time Sync | Firestore `onSnapshot` listener for instant updates |
-| Search | Full-text search across title, artist, and genre |
-| Key Filter | Filter chips by musical key |
-| Genre Filter | Filter chips by genre/style tag |
-| Add Song FAB | Floating action button (visible to non-Guest, Song List view only) |
-| Edit / Delete | Inline controls for Admin, Sub-Admin, Lead roles |
-| Card Layout | Glassmorphism song cards with rounded corners, key/genre badges |
+| Create Setlists | Name, date, multi-song picker |
+| View Detail | Tap to open song list with jump-to-stage |
+| Public Model | All setlists visible to all authenticated users |
+| Delete | Admin/authorized roles only |
 
-### 🎤 Stage HUD (Performance View)
-| Feature | Description |
+### 🎭 Stage HUD (Performance Mode)
+| Feature | Details |
 |---|---|
-| Full-Screen Mode | Hides navigation; shows focused performance workspace |
-| Key Transposer | +/− semitone buttons with live chord re-rendering |
-| Capo Adjuster | Visual capo fret tracker |
-| Lyrics-Only Toggle | Hides all chord spans; collapses to clean lyric view |
-| Auto-Scroll | Configurable speed (0.2x–5.0x); play/pause/reset controls |
-| Chord Parsing | Inline `[Chord]` notation parsed and rendered in magenta-rose color |
-| Back Navigation | Smooth return to previous view (setlist detail or song list) |
+| Chord Transposer | Chromatic ♭/♯ step controls, live re-render |
+| Capo Adjuster | 0–12 fret range |
+| Lyrics-Only Toggle | Hides all `[Chord]` tokens, strips chord lines |
+| Auto-Scroll | Play/Pause, 6 speed presets (0.5x–2.0x), scroll-to-top |
+| Back Button | Replaces hamburger, preserves state |
 
-### 📋 Setlist Engine
-| Feature | Description |
+### 👥 User Directory (Admin/Sub-Admin)
+| Feature | Details |
 |---|---|
-| Public Setlists | All setlists are globally visible to all authenticated users |
-| Create Setlist FAB | Floating action button (Setlist view, non-Guest only) |
-| Song Picker | Tap-to-add song selection modal with live list |
-| Setlist Detail | Numbered song list; tap any song to open Stage HUD |
-| Ordered Playlist | Songs stored in sequence for performance order |
-
-### 👥 User Directory
-| Feature | Description |
-|---|---|
-| Dual Sub-Panels | "Roster" (assigned roles) and "Pending/New" (Guest users) |
-| Real-time Roster | Live Firestore sync of all user profiles |
-| Role Assignment | Admin/Sub-Admin can change any user role via modal |
-| Admin Lock Guard | Admin role row is permanently locked — no dropdown shown |
-| Profile Cards | Circular avatar, display name, email, role badge |
+| Master Roster | All users with assigned roles |
+| Pending Panel | New users stuck at "Guest" role |
+| Role Assignment | Inline `<select>` → live Firestore write |
+| Immutable Admin Guard | `role === 'Admin'` rows hard-disabled |
 
 ### 🛡️ Admin Panel
-| Feature | Description |
+| Section | Details |
 |---|---|
-| App Branding | Set display name; persisted to Firestore |
-| Song Limits | Configure max songs per setlist |
-| Theme Laboratory | Dual-scope color customization (Global Broadcast / Admin Local Lock) |
-| Custom Colors | Canvas BG, Lyrics Color, Chords Color, Blur intensity |
-| System Purge Console | OTA-verified destructive reset operations |
-| Purge Option 1 | Clear All Setlists (batch Firestore delete) |
-| Purge Option 2 | Deep Factory Reset (Setlists + Users, preserving Songs) |
-| OTA Code Verification | 6-digit random token must be entered before purge executes |
+| App Branding | Configurable app name → Firestore |
+| Song Limit | Numeric cap → Firestore config doc |
+| Theme Presets | Gemini Dark, Midnight Purple, Forest, Ocean Blue |
+| Theme Laboratory | Dual-scope: Global (Firestore broadcast) or Admin-local (`localStorage`) |
+| System Purge | 2-step OTA verification → batch delete setlists and/or users |
 
-### 🎨 UI / UX
-| Feature | Description |
+### 🔐 Auth & Onboarding
+| Feature | Details |
 |---|---|
-| Glassmorphism | `backdrop-filter: blur(24px)` on all cards, panels, modals |
-| Micro-animations | `transition-all duration-300 ease-out` universally applied |
-| Sidebar Kinetics | `cubic-bezier(0.16, 1, 0.3, 1)` spring-easing on drawer open |
-| FAB Visibility Engine | Role + view-context aware floating action buttons |
-| Toast Notifications | Animated, color-coded feedback messages |
-| Rounded Everything | `rounded-full`, `rounded-3xl`, `rounded-[2rem]` — strictly enforced |
-| Plus Jakarta Sans | Geometric, premium font loaded from Google Fonts CDN |
-| Keyboard Shortcuts | `Escape` closes sidebar and all modals |
+| Google Sign-In | Firebase `signInWithPopup` |
+| Recent Account Cache | `localStorage` fast-track re-auth |
+| Auto Guest Assignment | New users → `role: 'Guest'` (no manual picker) |
+| PWA Install Prompt | `beforeinstallprompt` → conditional button reveal |
 
 ---
 
-## 🎨 Visual Design System
+## Design System
 
-### Color Token System
+### Color Tokens
+
 | Token | Value | Usage |
 |---|---|---|
-| `--canvas-bg` | `#09070f` | Primary background — deep midnight obsidian |
-| `--lyrics-color` | `#f9fafb` | Primary text, headings, lyric lines |
-| `--chords-color` | `#ec4899` | Chord notation (magenta-rose) |
-| `--purple` | `#8b5cf6` | Royal amethyst — primary accent, buttons, active states |
-| `--pink` | `#ec4899` | Magenta-rose — secondary accent, FAB, badges |
-| `--text-primary` | `#f9fafb` | Crisp ivory — high-contrast headers |
-| `--text-muted` | `#9ca3af` | Warm charcoal-gray — metadata, labels |
-| `--card-glass` | `rgba(18,14,28,0.6)` | Card background |
-| `--sidebar-glass` | `rgba(18,14,28,0.85)` | Sidebar/navbar background |
-| `--border-subtle` | `rgba(255,255,255,0.06)` | Subtle border lines |
+| `--canvas-bg` | `#131314` | Main app background |
+| `--surface-bg` | `#1e1f20` | Sidebar, cards, modal bodies |
+| `--surface-raised` | `#2a2b2c` | Input fields, inner chips |
+| `--text-primary` | `#e3e3e3` | Headings, interactive labels |
+| `--text-secondary` | `#b4b4b4` | Metadata, descriptions |
+| `--accent-gradient` | `#4285f4 → #9b72cb → #d96570` | Gemini gradient accents |
+| `--chords-color` | `#4285f4` | Chord tokens in sheet view |
+| `--lyrics-color` | `#e3e3e3` | Lyric text |
 
 ### Typography
-- **Font Family:** `Plus Jakarta Sans` (400–800 weight range)
-- **Headings:** `font-weight: 800`, `color: var(--text-primary)`
-- **Body/Labels:** `font-weight: 500–600`, `color: var(--text-muted)`
-- **Chord Notation:** `font-weight: 700`, `color: var(--chords-color)`
-- **Section Labels:** `uppercase`, `letter-spacing: 0.1em`, `color: var(--purple)`
+- **Primary Font:** `Plus Jakarta Sans` (via Google Fonts CDN)
+- **Fallback:** `Google Sans`, `sans-serif`
+- **Chord Sheet Font:** `Courier New` / `Consolas` (monospace, fixed-width chord alignment)
 
-### Glassmorphism Layers
-```css
-/* Standard Glass */
-backdrop-filter: blur(24px);
-background: rgba(18, 14, 28, 0.6);
-border: 1px solid rgba(255, 255, 255, 0.06);
-box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+### Curvature Rules
+| Element | Tailwind Class |
+|---|---|
+| Main sidebar, modals | `rounded-3xl` / `rounded-2xl` |
+| Buttons, pills, FABs | `rounded-full` |
+| Inputs, textareas, selects | `rounded-xl` / `rounded-2xl` |
+| Card containers | `rounded-2xl` |
 
-/* Strong Glass (Sidebar, Modals) */
-backdrop-filter: blur(32px);
-background: rgba(18, 14, 28, 0.85);
-border: 1px solid rgba(255, 255, 255, 0.08);
-box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.7);
-```
+### Animation Specs
+| Event | Timing |
+|---|---|
+| Global transitions | `transition-all duration-300 ease-out` |
+| Sidebar drawer | `cubic-bezier(0.16, 1, 0.3, 1)` — spring kinetic |
+| Modal entrance | `translateY(32px) scale(0.97)` → neutral |
+| Hover cards/buttons | `translateY(-2px)` lift |
+| FAB reveal/hide | Opacity + `translateY(16px) scale(0.9)` |
+| Search row hide | `translateY(-10px)` + opacity fade |
 
-### Rounding Standards
-| Component | Tailwind Class | Pixel Value |
+---
+
+## Tech Stack
+
+| Layer | Technology | Source |
 |---|---|---|
-| Buttons, Pills, Inputs, FABs | `rounded-full` | 9999px |
-| Song Cards, User Cards | `rounded-3xl` / `rounded-2xl` | 24px / 16px |
-| Modals, Drawers | `rounded-[2rem]` | 32px |
-| Sidebar right edge | `rounded-r-[2.5rem]` | 40px |
-| Transposer capsules | `rounded-full` | 9999px |
+| Markup | HTML5 | Native |
+| Styling | Tailwind CSS v4 | `cdn.jsdelivr.net/npm/@tailwindcss/browser@4` |
+| Icons | Material Design Icons v7 | `cdn.jsdelivr.net/npm/@mdi/font@7.2.96` |
+| Fonts | Plus Jakarta Sans | Google Fonts CDN |
+| Auth | Firebase Auth v10 | `gstatic.com/firebasejs/10.12.0` |
+| Database | Cloud Firestore v10 | `gstatic.com/firebasejs/10.12.0` |
+| JS Paradigm | ES Modules (vanilla) | Native browser |
+| PWA | Service Worker + Web Manifest | Manual |
 
 ---
 
-## 🏗️ Architecture Overview
-
-```
-index.html
-├── <head>
-│   ├── Google Fonts (Plus Jakarta Sans)
-│   ├── MDI Icons CDN (@mdi/font v7.4.47)
-│   ├── Tailwind CSS v4 Browser CDN
-│   └── <style> Custom CSS (tokens, glass, animations)
-│
-├── <body>
-│   ├── #loading-screen        → Initial spinner overlay
-│   ├── #auth-screen           → Google Sign-In + Recent Account + PWA Install
-│   ├── #sidebar-overlay       → Backdrop tap-to-close
-│   ├── #side-navbar           → Sliding glass nav panel (3 zones)
-│   ├── #app
-│   │   ├── #top-bar           → Hamburger/Back + Search + Filter
-│   │   ├── #filter-panel      → Dropdown key/genre filter chips
-│   │   ├── #main-content      → Scrollable view host
-│   │   │   ├── #songs-view
-│   │   │   ├── #setlist-view
-│   │   │   ├── #users-view
-│   │   │   ├── #admin-view
-│   │   │   └── #setlist-detail-view
-│   │   └── #stage-view        → Full-screen performance HUD
-│   │       ├── #stage-toolbar (top)
-│   │       ├── #song-sheet    → Scrollable chord/lyric canvas
-│   │       └── #stage-tray   (bottom)
-│   ├── #fab-container         → FAB buttons (role/view aware)
-│   ├── #toast-container       → Toast notification stack
-│   └── Modals (overlay pattern)
-│       ├── #add-song-modal
-│       ├── #add-setlist-modal
-│       ├── #role-modal
-│       ├── #purge-modal
-│       ├── #otp-modal
-│       └── #edit-song-modal
-│
-└── <script type="module">
-    ├── Firebase Init (app, auth, db)
-    ├── Constants (CHROMATIC_SCALE, ENHARMONIC_MAP, etc.)
-    ├── State Management
-    ├── Auth Handlers (onAuthStateChanged, signIn, signOut)
-    ├── Navigation Router (navigateTo)
-    ├── Firestore Listeners (onSnapshot)
-    ├── Render Functions (songs, setlists, users)
-    ├── Stage HUD Engine (transpose, capo, auto-scroll)
-    ├── CRUD Operations
-    ├── Admin Functions (theme, purge, branding)
-    └── Utility Functions (toast, modal, escape)
-```
-
----
-
-## 🚀 Local Setup
+## Local Setup
 
 ### Prerequisites
-- A modern web browser (Chrome 80+, Firefox 75+, Safari 14+, Edge 80+)
-- A Firebase project (see [Firebase Configuration](#-firebase-configuration))
-- A local HTTP server (required for Firebase Auth — `file://` protocol is blocked by CORS)
+- Any modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- A text editor (VS Code recommended)
+- A local static file server (required for ES module imports)
 
-### Step 1: Clone the Repository
+### Option A: VS Code Live Server (Recommended)
 ```bash
+# 1. Clone or download the repository
 git clone https://github.com/your-org/rccm-gigbook.git
 cd rccm-gigbook
+
+# 2. Open in VS Code
+code .
+
+# 3. Install the "Live Server" extension by Ritwick Dey
+# 4. Right-click index.html → "Open with Live Server"
+# 5. Browser opens at http://127.0.0.1:5500
 ```
 
-### Step 2: Configure Firebase (if using your own project)
-Open `index.html` and locate the `firebaseConfig` object inside the `<script type="module">` block. Replace the values with your own Firebase project credentials:
-
-```javascript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-```
-
-### Step 3: Serve Locally
-
-**Option A: Python (built-in)**
+### Option B: Python HTTP Server
 ```bash
+# Python 3
 python3 -m http.server 8080
-# Open: http://localhost:8080
+
+# Then open: http://localhost:8080
 ```
 
-**Option B: Node.js `serve` package**
+### Option C: Node.js `serve`
 ```bash
 npx serve .
-# Open: http://localhost:3000
+# Then open: http://localhost:3000
 ```
 
-**Option C: VS Code Live Server Extension**
-- Install the "Live Server" extension by Ritwick Dey
-- Right-click `index.html` → "Open with Live Server"
-
-**Option D: Firebase Hosting emulator (recommended for full testing)**
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting
-firebase emulators:start
-```
-
-### Step 4: Set Up Firebase Auth
-In the Firebase Console:
-1. Navigate to **Authentication → Sign-in method**
-2. Enable **Google** provider
-3. Add `localhost` to authorized domains
-
-### Step 5: Open the Application
-Navigate to `http://localhost:8080` in your browser. You should see the loading screen, then the auth screen.
+> ⚠️ **Important:** Do NOT open `index.html` directly via `file://` — Firebase ES Module imports require an HTTP/HTTPS origin.
 
 ---
 
-## 🔥 Firebase Configuration
+## Firebase Configuration
 
-### Project Details (Default)
+The app is pre-wired to the following Firebase project. To use your own:
+
 ```javascript
 const firebaseConfig = {
   apiKey: "AIzaSyAlE76KUY17bv8J5mM_9SBN6p23gNUyc0Y",
@@ -301,338 +201,181 @@ const firebaseConfig = {
 };
 ```
 
-### Required Firebase Services
-| Service | Usage |
-|---|---|
-| **Authentication** | Google Sign-In provider |
-| **Firestore** | Songs, Setlists, Users, Admin Settings |
+### Firebase Console Setup Steps
 
-### Firestore Security Rules (Recommended)
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. **Authentication** → Sign-in methods → Enable **Google**
+3. Add your deployment domain to **Authorized Domains**
+4. **Firestore Database** → Create database (Production mode)
+5. Apply the security rules below
+
+### Firestore Security Rules
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
-    function isAuth() { return request.auth != null; }
-    function getUserRole() {
+
+    function isSignedIn() { return request.auth != null; }
+    function getRole() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
-    function isAdmin() { return getUserRole() == 'Admin'; }
-    function isSubAdmin() { return getUserRole() == 'Sub-Admin'; }
-    function isLead() { return getUserRole() == 'Lead'; }
-    function isPrivileged() { return isAdmin() || isSubAdmin() || isLead(); }
+    function isAdmin() { return getRole() == 'Admin'; }
+    function isAdminOrSub() { return getRole() in ['Admin', 'Sub-Admin']; }
 
-    // Songs collection — readable by all authenticated, writable by privileged
     match /songs/{songId} {
-      allow read: if isAuth();
-      allow write: if isAuth() && isPrivileged();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && getRole() != 'Guest';
+      allow update, delete: if isAdminOrSub();
     }
 
-    // Setlists — readable by all authenticated, writable by privileged
     match /setlists/{setlistId} {
-      allow read: if isAuth();
-      allow write: if isAuth() && isPrivileged();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && getRole() != 'Guest';
+      allow update, delete: if isAdminOrSub();
     }
 
-    // Users — own doc always readable/writable; full access for admin
     match /users/{userId} {
-      allow read: if isAuth();
-      allow create: if isAuth() && request.auth.uid == userId;
-      allow update: if isAuth() && (request.auth.uid == userId || isAdmin() || isSubAdmin());
-      allow delete: if isAuth() && isAdmin();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isAdmin() && resource.data.role != 'Admin';
+      allow delete: if isAdmin() && resource.data.role != 'Admin';
     }
 
-    // Admin settings — readable by all, writable by admin only
-    match /admin_settings/{docId} {
-      allow read: if isAuth();
-      allow write: if isAuth() && isAdmin();
+    match /admin_settings/{doc} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
   }
 }
 ```
 
-### Setting the First Admin
-Since the app auto-assigns "Guest" to new users, the first Admin must be set manually:
-
-```bash
-# Using Firebase CLI with Admin SDK
-firebase firestore:set users/YOUR_UID '{"role": "Admin", "displayName": "Your Name", "email": "your@email.com"}'
-```
-
-Or via the Firebase Console:
-1. Go to **Firestore → users → [your UID document]**
-2. Edit the `role` field to `Admin`
-3. Save
-
 ---
 
-## 📊 Firestore Data Schema
+## Firestore Data Schema
 
 ### `/songs/{songId}`
-```typescript
+```json
 {
-  title: string;           // Song title (required)
-  artist: string;          // Artist or band name
-  key: string;             // Musical key (e.g., "G", "C#", "Bb")
-  tempo: number | null;    // BPM tempo
-  genre: string;           // Genre/style tag
-  lyrics: string;          // Chord+lyric content (see format below)
-  createdBy: string;       // Firebase UID of creator
-  createdAt: Timestamp;    // Firestore server timestamp
+  "title": "Amazing Grace",
+  "artist": "John Newton",
+  "key": "G",
+  "sheet": "[Verse 1]\n[G]Amazing [D]grace\nhow sweet the sound",
+  "favorite": false,
+  "createdBy": "uid_string",
+  "createdAt": "Timestamp"
 }
 ```
 
-**Lyric/Chord Format:**
-```
-[Verse]
-[G]Amazing [D]grace how [Em]sweet the [C]sound
-That [G]saved a [D]wretch like [G]me
-
-[Chorus]
-[C]How great thou [G]art
-[D]How great thou [G]art
-```
-
 ### `/setlists/{setlistId}`
-```typescript
+```json
 {
-  name: string;            // Setlist display name (required)
-  venue: string;           // Event/venue name
-  date: string;            // ISO date string (YYYY-MM-DD)
-  songs: Array<{id: string}>; // Ordered array of song document references
-  createdBy: string;       // Firebase UID of creator
-  createdAt: Timestamp;    // Firestore server timestamp
+  "name": "Sunday Morning Service",
+  "date": "2025-01-19",
+  "songIds": ["songId1", "songId2"],
+  "createdBy": "uid_string",
+  "createdAt": "Timestamp"
 }
 ```
 
 ### `/users/{uid}`
-```typescript
+```json
 {
-  uid: string;             // Firebase Auth UID
-  displayName: string;     // Google display name
-  email: string;           // Google email address
-  photoURL: string;        // Google profile photo URL
-  role: string;            // Permission role (see Role Matrix)
-  createdAt: Timestamp;    // First sign-in timestamp
+  "uid": "firebase_uid",
+  "displayName": "Jane Doe",
+  "email": "jane@example.com",
+  "photoURL": "https://...",
+  "role": "Musician",
+  "createdAt": "Timestamp"
 }
 ```
 
-### `/admin_settings/branding`
-```typescript
+### `/admin_settings/config`
+```json
 {
-  appName: string;         // Custom application display name
-}
-```
-
-### `/admin_settings/limits`
-```typescript
-{
-  maxSongsPerSetlist: number; // Maximum songs allowed per setlist
+  "appName": "RCCM GigBook",
+  "songLimit": 500
 }
 ```
 
 ### `/admin_settings/theme`
-```typescript
+```json
 {
-  '--canvas-bg': string;    // CSS hex color
-  '--lyrics-color': string; // CSS hex color
-  '--chords-color': string; // CSS hex color
+  "--canvas-bg": "#131314",
+  "--surface-bg": "#1e1f20",
+  "--lyrics-color": "#e3e3e3",
+  "--chords-color": "#4285f4"
 }
 ```
 
 ---
 
-## 🔒 Role & Permission Matrix
+## Role & Permission Matrix
 
 | Permission | Guest | Singer | Musician | Lead | Tech | Sub-Admin | Admin |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | View Setlists | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| View Song List | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Open Stage HUD | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Add Songs | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| Edit/Delete Songs | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| Create Setlists | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| Delete Setlists | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| View Users | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Assign Roles | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| View Admin Panel | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Modify Theme | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Execute Purge | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| FAB Add Song | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| FAB Add Setlist | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| View Song Library | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Add Songs | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Add Setlists | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Delete Songs/Setlists | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| View Users Directory | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Assign Roles | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Access Admin Panel | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Execute System Purge | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Override Global Theme | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-### Navigation Visibility
-| Nav Item | Guest | Singer/Musician/Tech | Lead | Sub-Admin | Admin |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Song List | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Setlist | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Users | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Admin Panel | ❌ | ❌ | ❌ | ❌ | ✅ |
+> **Immutable Admin Rule:** An account with `role === 'Admin'` cannot have its role changed by any interface control. The dropdown is force-disabled and Firestore rules reject the write.
 
 ---
 
-## 🚀 Production Deployment
+## Chord Sheet Notation Guide
 
-### Option 1: Firebase Hosting (Recommended)
+The chord sheet parser uses bracket notation. Write chords inside square brackets on the same line as — or on the line before — lyrics.
 
-**Install Firebase CLI:**
-```bash
-npm install -g firebase-tools
-firebase login
+```
+[Verse 1]
+[G]Amazing [D]grace how [Em]sweet the [C]sound
+That [G]saved a [D]wretch like [G]me
+
+[Chorus]
+[C]My chains are [G]gone
+I've been set [D]free
+My God my [G]Savior [Em]has ransomed [C]me
 ```
 
-**Initialize hosting:**
-```bash
-firebase init hosting
-# Select your project: rccm-gigbook
-# Public directory: . (current directory)
-# Single-page app: Yes
-# GitHub Actions: No (unless you want CI/CD)
-```
+**Section headers:** A line containing only `[SectionName]` (no spaces) renders as a gradient section label.
 
-**Deploy:**
-```bash
-firebase deploy --only hosting
-```
-
-Your app will be live at: `https://rccm-gigbook.web.app`
-
-**firebase.json configuration:**
-```json
-{
-  "hosting": {
-    "public": ".",
-    "ignore": [
-      "firebase.json",
-      "README.md",
-      ".gitignore"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ],
-    "headers": [
-      {
-        "source": "**",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-          { "key": "X-Content-Type-Options", "value": "nosniff" },
-          { "key": "X-Frame-Options", "value": "DENY" },
-          { "key": "X-XSS-Protection", "value": "1; mode=block" }
-        ]
-      },
-      {
-        "source": "*.html",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache" }
-        ]
-      }
-    ]
-  }
-}
-```
+**Transposition:** All `[Root]` chord tokens are parsed via the `CHROMATIC_SCALE` array and `ENHARMONIC_MAP` dictionary, then re-rendered on each transpose step.
 
 ---
 
-### Option 2: Vercel
+## PWA Deployment
 
-**Install Vercel CLI:**
-```bash
-npm install -g vercel
-vercel login
-```
-
-**Deploy:**
-```bash
-vercel --prod
-```
-
-**`vercel.json` configuration:**
-```json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" }
-      ]
-    }
-  ]
-}
-```
-
----
-
-### Option 3: Netlify
-
-1. Connect your GitHub repository to Netlify
-2. Set build command: *(leave empty)*
-3. Set publish directory: `.`
-4. Create `_redirects` file in root:
-```
-/* /index.html 200
-```
-
----
-
-### Option 4: GitHub Pages
-
-1. Go to your repository **Settings → Pages**
-2. Source: **Deploy from branch**
-3. Branch: `main` / root `/`
-4. Update Firebase authorized domains to include `your-username.github.io`
-
----
-
-## 📱 PWA Configuration
-
-To enable full PWA functionality, add a `manifest.json` and service worker:
-
-**`manifest.json`:**
+### Create `manifest.json`
 ```json
 {
   "name": "RCCM GigBook",
   "short_name": "GigBook",
-  "description": "Premium band performance management SPA",
+  "description": "Band setlist & chord sheet manager",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09070f",
-  "theme_color": "#8b5cf6",
-  "orientation": "any",
+  "background_color": "#131314",
+  "theme_color": "#131314",
+  "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
-    }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
 ```
 
-**Add to `<head>` in `index.html`:**
-```html
-<link rel="manifest" href="/manifest.json" />
-```
-
-**`sw.js` (Basic Service Worker):**
+### Service Worker (`sw.js`)
 ```javascript
-const CACHE_NAME = 'rccm-gigbook-v1';
-const ASSETS = ['/index.html', '/manifest.json'];
+const CACHE = 'gigbook-v1';
+const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
 });
 
 self.addEventListener('fetch', e => {
@@ -642,7 +385,7 @@ self.addEventListener('fetch', e => {
 });
 ```
 
-**Register service worker (add to `index.html` before `</body>`):**
+Register in `index.html` before `</body>`:
 ```html
 <script>
   if ('serviceWorker' in navigator) {
@@ -653,165 +396,127 @@ self.addEventListener('fetch', e => {
 
 ---
 
-## 🔐 Environment Variables & Security
+## Production Deployment
 
-### API Key Security
-Firebase Web API keys are **designed to be public** — they identify your Firebase project. Security is enforced via:
-1. **Firebase Security Rules** (Firestore) — controls data access per user
-2. **Firebase App Check** — prevents unauthorized apps from using your backend
-3. **Authorized Domains** — only listed domains can use your Auth configuration
+### Firebase Hosting (Recommended)
 
-### Enabling Firebase App Check (Production Recommended)
-```javascript
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+```bash
+# Install Firebase CLI
+npm install -g firebase-tools
 
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('YOUR_RECAPTCHA_SITE_KEY'),
-  isTokenAutoRefreshEnabled: true
-});
+# Login
+firebase login
+
+# Initialize in project directory
+firebase init hosting
+
+# Settings:
+#   Public directory: . (or dist)
+#   Single-page app: No (static file)
+#   GitHub Actions: Optional
+
+# Deploy
+firebase deploy --only hosting
 ```
 
-### Admin Role Protection
-- The Admin role can **only** be assigned manually via Firebase Console or Admin SDK
-- The UI explicitly blocks assigning "Admin" role via the role dropdown
-- Admin role rows are locked in the Users panel with a visual lock indicator
-- The purge system requires OTA verification (6-digit code) before any destructive action
+**`firebase.json`:**
+```json
+{
+  "hosting": {
+    "public": ".",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### localStorage Usage
-| Key | Content | Purpose |
+### Netlify / Vercel
+
+```bash
+# Netlify drag-and-drop or CLI
+netlify deploy --prod --dir .
+
+# Vercel
+vercel --prod
+```
+
+No build step required — the file is entirely self-contained.
+
+### GitHub Pages
+
+1. Push repository to GitHub
+2. Settings → Pages → Source: `main` branch, `/ (root)`
+3. Access at `https://your-org.github.io/rccm-gigbook/`
+
+> ⚠️ Add `https://your-org.github.io` to Firebase **Authorized Domains** before going live.
+
+---
+
+## Architecture Notes
+
+### Single-File Pattern
+All HTML, CSS (inline + `<style>`), and JavaScript reside in one `index.html`. This eliminates build tooling, module bundlers, and deployment complexity. Firebase is loaded via ES module CDN imports inside a `<script type="module">` block.
+
+### State Management
+App state is managed through module-scoped `let` variables:
+- `allSongs[]` — Firestore snapshot cache
+- `allSetlists[]` — Firestore snapshot cache
+- `allUsers[]` — Admin-only Firestore cache
+- `currentSong` — active stage view target
+- `transpositionSteps` — chromatic offset (0–11)
+- `capoPosition` — display fret counter
+- `currentUserRole` — drives all permission gates
+
+### Real-Time Sync
+`onSnapshot()` listeners maintain live updates for songs, setlists, users, and the global theme document. Listeners are stored in `unsubX` variables and torn down on `signOut`.
+
+### Chord Transposition Engine
+```
+Input chord → ENHARMONIC_MAP normalization → CHROMATIC_SCALE index lookup
+→ index + transpositionSteps (mod 12) → CHROMATIC_SCALE output
+```
+
+Regex pattern: `/\[([A-G][#b]?(?:m|maj|min|dim|aug|sus|add|\/[A-G][#b]?)?[0-9]*)\]/g`
+
+---
+
+## Known Limitations & Roadmap
+
+| Limitation | Status | Notes |
 |---|---|---|
-| `rccm_last_user` | `{displayName, email, photoURL}` | Recent account fast-login cache |
-| `rccm_admin_local_theme` | `{"--canvas-bg": "#...", ...}` | Admin-only local theme overrides |
+| OCR (image/PDF text extraction) | 🔲 Planned | Requires backend (Cloud Functions + Vision API) |
+| Email OTA code dispatch | 🔲 Planned | Requires Cloud Functions + SendGrid/Nodemailer |
+| Offline song cache | 🔲 Planned | Firestore persistence + service worker |
+| Drag-and-drop setlist reorder | 🔲 Planned | HTML5 drag API or Sortable.js |
+| Multi-language support | 🔲 Planned | i18n string map |
+| Song versioning / history | 🔲 Planned | Firestore subcollections |
+| Beat/tempo sync | 🔲 Research | Web Audio API metronome |
 
 ---
 
-## 🧰 CDN Dependencies
+## License
 
-All dependencies are loaded from CDN — no `npm install` required:
-
-| Library | Version | CDN | Purpose |
-|---|---|---|---|
-| Firebase App | 10.12.2 | gstatic.com | Firebase core |
-| Firebase Auth | 10.12.2 | gstatic.com | Google authentication |
-| Firebase Firestore | 10.12.2 | gstatic.com | Database |
-| Tailwind CSS | v4 Browser | jsdelivr.net | Utility CSS framework |
-| MDI Icons | 7.4.47 | jsdelivr.net | Material Design Icons |
-| Plus Jakarta Sans | Latest | fonts.googleapis.com | Premium typography |
+MIT © RCCM GigBook Contributors
 
 ---
 
-## 🔧 Chord Format Reference
+## Contributing
 
-Songs support an inline bracket notation for chord placement:
-
-```
-[Section Name]
-[Chord]Lyrics with chords [Chord]inline like this
-
-[Verse 1]
-[G]Amazing [D]grace, how [Em]sweet the [C]sound
-That [G]saved a [D]wretch like [G]me
-
-[Pre-Chorus]
-[Am]I once was [F]lost
-
-[Chorus]
-[G]How great thou [D]art
-[Em]How great thou [C]art
-
-[Bridge]
-[Bm]Then sings my soul
-```
-
-**Supported chord types:**
-- Major: `[G]`, `[C#]`, `[Bb]`
-- Minor: `[Em]`, `[Am]`, `[F#m]`
-- Complex: `[G7]`, `[Cmaj7]`, `[Dsus4]`, `[G/B]`
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make changes to `index.html` only (single-file architecture)
+4. Test across Chrome, Firefox, Safari, and mobile viewports
+5. Submit a pull request with a clear description
 
 ---
 
-## 🐛 Known Limitations & Roadmap
-
-### Current Limitations
-| Issue | Workaround |
-|---|---|
-| OTP not emailed (demo mode) | Code shown in description text and logged to console |
-| No offline song caching | Service worker must be implemented separately |
-| No drag-to-reorder setlist | Song order fixed at creation time |
-| Image uploads not supported | Profile photos from Google OAuth only |
-
-### Planned Features (Roadmap)
-- [ ] **Email OTP Integration** — Connect to SendGrid/EmailJS for real email dispatch
-- [ ] **Drag & Drop Setlist Ordering** — Reorder songs within a setlist
-- [ ] **Offline Mode** — Cache songs for offline stage use via Service Worker + IndexedDB
-- [ ] **Song Import** — Bulk import from ChordPro or plain text files
-- [ ] **BPM Metronome** — Visual/audio metronome tied to song tempo
-- [ ] **Multi-language Support** — i18n for international worship teams
-- [ ] **Song Rating System** — Stars/favorites per user
-- [ ] **Rehearsal Mode** — Section-by-section practice focus view
-- [ ] **PDF Export** — Generate chord charts as printable PDFs
-- [ ] **Backup & Restore** — JSON export/import of entire song library
-
----
-
-## 🤝 Contributing
-
-1. **Fork** the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes to `index.html` (single-file architecture)
-4. Test locally with a live server
-5. Commit: `git commit -m "feat: your descriptive commit message"`
-6. Push: `git push origin feature/your-feature-name`
-7. Open a **Pull Request** with a clear description
-
-### Contribution Guidelines
-- Maintain the single-file architecture (`index.html` only)
-- Preserve the existing color token system and glassmorphism design language
-- All new UI elements must use `rounded-full` or `rounded-2xl`/`rounded-3xl`
-- All new interactive elements must include `transition-all duration-300 ease-out`
-- No build tools, no package.json, no external files beyond CDN links
-- Test on mobile viewport (375px) and desktop (1440px) before submitting
-
----
-
-## 📄 License
-
-```
-MIT License
-
-Copyright (c) 2025 RCCM GigBook
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
-
-## 🙏 Acknowledgements
-
-- **Firebase** — Google's BaaS platform for auth and real-time database
-- **Tailwind CSS** — Utility-first CSS framework
-- **Material Design Icons** — Comprehensive icon library by Pictogrammers
-- **Plus Jakarta Sans** — Premium geometric typeface by Tokotype
-
----
-
-<div align="center">
-  <strong>Built with ♥ for RCCM worship teams everywhere</strong><br/>
-  <sub>May every performance be anointed 🎵</sub>
-</div>
+*Built with ❤️ for worship teams and performing bands worldwide.*

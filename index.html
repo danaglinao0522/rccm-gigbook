@@ -2,996 +2,969 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="theme-color" content="#09070f" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>RCCM GigBook</title>
+<meta name="theme-color" content="#131314" />
+<meta name="description" content="RCCM GigBook — Band setlist & chord management app" />
+<link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet" />
+
 <style>
   :root {
-    --canvas-bg: #09070f;
-    --lyrics-color: #f9fafb;
-    --chords-color: #ec4899;
-    --sidebar-glass: rgba(18,14,28,0.85);
-    --card-glass: rgba(18,14,28,0.6);
-    --border-subtle: rgba(255,255,255,0.06);
-    --purple: #8b5cf6;
-    --pink: #ec4899;
-    --text-primary: #f9fafb;
-    --text-muted: #9ca3af;
+    --canvas-bg: #131314;
+    --surface-bg: #1e1f20;
+    --surface-raised: #2a2b2c;
+    --lyrics-color: #e3e3e3;
+    --chords-color: #4285f4;
+    --accent-gradient: linear-gradient(to right, #4285f4, #9b72cb, #d96570);
+    --text-primary: #e3e3e3;
+    --text-secondary: #b4b4b4;
+    --border-color: rgba(255,255,255,0.08);
+    --font-main: 'Plus Jakarta Sans', 'Google Sans', sans-serif;
   }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   html, body {
-    width: 100%; height: 100%; overflow: hidden;
+    height: 100%; width: 100%; overflow: hidden;
     background: var(--canvas-bg);
-    font-family: 'Plus Jakarta Sans', sans-serif;
     color: var(--text-primary);
+    font-family: var(--font-main);
+    -webkit-font-smoothing: antialiased;
   }
-  #app { width:100%; height:100%; display:flex; flex-direction:column; overflow:hidden; }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width:4px; }
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.4); border-radius:999px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
 
-  /* Glass card mixin */
-  .glass {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: var(--card-glass);
-    border: 1px solid var(--border-subtle);
-    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+  /* Gemini gradient text */
+  .gemini-gradient-text {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .glass-strong {
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    background: var(--sidebar-glass);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 20px 60px -15px rgba(0,0,0,0.7);
+
+  .gemini-gradient-bg {
+    background: var(--accent-gradient);
   }
 
   /* Sidebar */
   #side-navbar {
-    position: fixed; top:0; left:0; height:100vh; width:280px; z-index:100;
-    transform: translateX(-100%);
-    transition: transform 300ms cubic-bezier(0.16,1,0.3,1);
-    border-radius: 0 2.5rem 2.5rem 0;
-    display: flex; flex-direction: column;
-    overflow: hidden;
+    transform: translateX(-110%);
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
   }
   #side-navbar.open { transform: translateX(0); }
-  #sidebar-overlay {
-    position:fixed; inset:0; z-index:99;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    opacity:0; pointer-events:none;
+
+  /* Overlay */
+  #nav-overlay {
+    opacity: 0; pointer-events: none;
     transition: opacity 300ms ease-out;
   }
-  #sidebar-overlay.open { opacity:1; pointer-events:all; }
+  #nav-overlay.show { opacity: 1; pointer-events: all; }
 
-  /* Top bar */
-  #top-bar {
-    position: fixed; top:0; left:0; right:0; z-index:50;
-    padding: 12px 16px;
-    display: flex; align-items: center; gap:10px;
+  /* View transitions */
+  .view-panel {
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
+    pointer-events: none; position: absolute; inset: 0;
   }
-  .top-bar-glass {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: rgba(9,7,15,0.8);
-    border-bottom: 1px solid var(--border-subtle);
+  .view-panel.active {
+    opacity: 1; transform: translateY(0);
+    pointer-events: all; position: relative;
   }
 
-  /* Buttons base */
-  .btn-circle {
-    width:48px; height:48px; border-radius:9999px;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; border:none; outline:none;
-    transition: all 300ms ease-out;
-    flex-shrink:0;
+  /* Header search row */
+  #search-filter-row {
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
   }
-  .btn-circle:hover { transform: translateY(-1px); }
-  .btn-circle:active { transform: scale(0.95); }
-  .btn-glass {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text-primary);
+  #search-filter-row.hidden-row {
+    opacity: 0; transform: translateY(-10px); pointer-events: none;
   }
-  .btn-glass:hover { background: rgba(255,255,255,0.1); }
-  .btn-purple { background: var(--purple); color:#fff; box-shadow: 0 4px 20px rgba(139,92,246,0.4); }
-  .btn-purple:hover { background: #7c3aed; box-shadow: 0 6px 28px rgba(139,92,246,0.55); }
-  .btn-pink { background: var(--pink); color:#fff; box-shadow: 0 4px 20px rgba(236,72,153,0.4); }
-  .btn-pink:hover { background: #db2777; }
-
-  /* Search input */
-  #search-bar-container {
-    flex:1; position:relative;
-    transition: all 300ms ease-out;
-  }
-  #search-input {
-    width:100%; height:48px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 9999px;
-    padding: 0 48px 0 20px;
-    color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: all 300ms ease-out;
-  }
-  #search-input::placeholder { color: var(--text-muted); }
-  #search-input:focus {
-    border-color: rgba(139,92,246,0.5);
-    background: rgba(139,92,246,0.08);
-    box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
-  }
-  .search-icon {
-    position:absolute; right:16px; top:50%; transform:translateY(-50%);
-    color: var(--pink); font-size:18px; pointer-events:none;
-  }
-
-  /* Filter btn */
-  #filter-btn {
-    width:48px; height:48px; border-radius:9999px;
-    display:flex; align-items:center; justify-content:center;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text-muted);
-    cursor:pointer; flex-shrink:0;
-    transition: all 300ms ease-out;
-  }
-  #filter-btn:hover { background: rgba(139,92,246,0.2); color: var(--purple); transform:translateY(-1px); }
-  #filter-btn.active { background: rgba(139,92,246,0.3); color: var(--purple); border-color: rgba(139,92,246,0.5); }
-
-  /* Main content */
-  #main-content {
-    flex:1; overflow-y:auto; overflow-x:hidden;
-    padding: 76px 16px 96px;
-  }
-
-  /* Song / Setlist Cards */
-  .song-card {
-    background: var(--card-glass);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border-subtle);
-    border-radius: 1.5rem;
-    padding: 16px;
-    cursor:pointer;
-    transition: all 300ms ease-out;
-    margin-bottom: 10px;
-    overflow: hidden;
-  }
-  .song-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(139,92,246,0.3);
-    box-shadow: 0 8px 32px rgba(139,92,246,0.15);
-  }
-  .song-card:active { transform: scale(0.98); }
-
-  /* Badge */
-  .badge {
-    display:inline-flex; align-items:center;
-    padding: 3px 10px; border-radius:9999px;
-    font-size:11px; font-weight:600; letter-spacing:0.02em;
-  }
-  .badge-purple { background: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
-  .badge-pink { background: rgba(236,72,153,0.2); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
-  .badge-green { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-  .badge-amber { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-  .badge-gray { background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.2); }
-  .badge-red { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-
-  /* Nav link */
-  .nav-link {
-    display:flex; align-items:center; gap:12px;
-    padding: 12px 16px; border-radius: 9999px;
-    cursor:pointer; color: var(--text-muted);
-    font-weight:500; font-size:15px;
-    transition: all 300ms ease-out;
-    margin: 3px 0;
-  }
-  .nav-link:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
-  .nav-link.active {
-    background: rgba(139,92,246,0.2);
-    color: #a78bfa;
-    box-shadow: 0 0 20px rgba(139,92,246,0.15);
-  }
-  .nav-link .nav-icon { font-size:20px; width:24px; text-align:center; }
 
   /* FABs */
-  #fab-container {
-    position: fixed; bottom:24px; right:24px; z-index:40;
-    display:flex; flex-direction:column; gap:12px; align-items:flex-end;
-  }
   .fab-btn {
-    width:56px; height:56px; border-radius:9999px;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; border:none; outline:none;
-    font-size:24px; color:#fff;
-    transition: all 300ms ease-out;
+    transition: transform 200ms cubic-bezier(0.16,1,0.3,1), opacity 200ms ease-out, box-shadow 200ms ease;
+    will-change: transform;
+  }
+  .fab-btn:hover { transform: translateY(-2px) scale(1.04); }
+  .fab-btn:active { transform: scale(0.96); }
+  .fab-hidden { opacity: 0; pointer-events: none; transform: translateY(16px) scale(0.9); }
+
+  /* Cards hover */
+  .song-card, .setlist-card, .user-card {
+    transition: transform 200ms ease-out, background 200ms ease-out, box-shadow 200ms ease-out;
+  }
+  .song-card:hover, .setlist-card:hover, .user-card:hover {
+    transform: translateY(-2px);
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
-  .fab-btn:hover { transform: translateY(-3px) scale(1.05); }
-  .fab-btn:active { transform: scale(0.95); }
-  .fab-hidden { opacity:0; pointer-events:none; transform: translateY(16px) scale(0.85); }
-  .fab-visible { opacity:1; pointer-events:all; transform: translateY(0) scale(1); }
 
-  /* Stage / Song Detail */
-  #stage-view { display:none; flex-direction:column; height:100%; overflow:hidden; }
-  #stage-view.active { display:flex; }
-
-  #song-sheet {
-    flex:1; overflow-y:auto; overflow-x:hidden;
-    padding: 80px 20px 120px;
-    line-height: 1.8;
-  }
-  .chord-span { color: var(--chords-color); font-weight:700; font-size:14px; margin-right:2px; }
-  .lyric-line { color: var(--lyrics-color); font-size:16px; }
-  .section-label {
-    color: var(--purple); font-weight:700; font-size:12px;
-    text-transform:uppercase; letter-spacing:0.1em;
-    margin: 24px 0 8px;
-  }
-
-  /* Stage toolbar */
-  #stage-toolbar {
-    position: fixed; top:0; left:0; right:0; z-index:50;
-    height:64px; padding: 8px 16px;
-    display:flex; align-items:center; gap:10px;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: rgba(9,7,15,0.9);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  .transposer-capsule {
-    display:flex; align-items:center; gap:6px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 9999px;
-    padding: 4px 8px;
-    flex-shrink:0;
-  }
-  .transposer-capsule .val {
-    min-width:40px; text-align:center;
-    font-weight:700; font-size:13px;
-    color: var(--text-primary);
-  }
-  .chip-btn {
-    width:30px; height:30px; border-radius:9999px;
-    display:flex; align-items:center; justify-content:center;
-    background: rgba(139,92,246,0.25); color: #a78bfa;
-    border: none; cursor:pointer; font-size:14px; font-weight:700;
-    transition: all 200ms ease-out; flex-shrink:0;
-  }
-  .chip-btn:hover { background: rgba(139,92,246,0.45); transform:scale(1.1); }
-
-  /* Stage bottom tray */
-  #stage-tray {
-    position: fixed; bottom:0; left:0; right:0; z-index:50;
-    height:64px; padding: 8px 20px;
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: rgba(9,7,15,0.9);
-    border-top: 1px solid var(--border-subtle);
-  }
-  .speed-capsule {
-    display:flex; align-items:center; gap:8px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 9999px;
-    padding: 6px 14px; font-size:13px; color: var(--text-muted);
-  }
-
-  /* Modal overlay */
-  .modal-overlay {
-    position: fixed; inset:0; z-index:200;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    display:flex; align-items:center; justify-content:center;
-    padding: 20px;
-    opacity:0; pointer-events:none;
+  /* Modal */
+  .modal-backdrop {
+    opacity: 0; pointer-events: none;
     transition: opacity 300ms ease-out;
+    backdrop-filter: blur(8px);
   }
-  .modal-overlay.open { opacity:1; pointer-events:all; }
-  .modal-sheet {
-    width:100%; max-width:480px;
-    background: rgba(18,14,28,0.95);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 2rem;
-    padding: 28px;
-    backdrop-filter: blur(32px);
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-    transform: translateY(20px) scale(0.97);
-    transition: transform 300ms cubic-bezier(0.16,1,0.3,1);
-    max-height: 90vh; overflow-y:auto;
-  }
-  .modal-overlay.open .modal-sheet { transform: translateY(0) scale(1); }
+  .modal-backdrop.show { opacity: 1; pointer-events: all; }
 
-  /* Input styled */
-  .input-styled {
-    width:100%;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 9999px;
-    padding: 12px 20px;
+  .modal-container {
+    transform: translateY(32px) scale(0.97);
+    transition: transform 300ms cubic-bezier(0.16,1,0.3,1), opacity 300ms ease-out;
+    opacity: 0;
+  }
+  .modal-backdrop.show .modal-container {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  /* Nav links */
+  .nav-link {
+    transition: background 200ms ease-out, color 200ms ease-out, transform 150ms ease-out;
+  }
+  .nav-link:hover { transform: translateX(3px); }
+  .nav-link.active {
+    background: rgba(66,133,244,0.15);
+    color: #e3e3e3;
+  }
+  .nav-link.active .nav-icon { color: #9b72cb; }
+
+  /* Buttons */
+  button, [role="button"] {
+    transition: transform 150ms ease-out, background 150ms ease-out, opacity 150ms ease-out;
+    cursor: pointer;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:active { transform: scale(0.97); }
+
+  /* Tab selector */
+  .tab-pill {
+    transition: background 200ms ease-out, color 200ms ease-out, transform 150ms ease-out;
+  }
+  .tab-pill.active {
+    background: rgba(255,255,255,0.12);
+    color: #e3e3e3;
+  }
+
+  /* Stage view */
+  #stage-view {
+    background: var(--canvas-bg);
+  }
+
+  .chord-token {
+    color: var(--chords-color);
+    font-weight: 700;
+    font-size: 0.85em;
+    letter-spacing: 0.03em;
+  }
+
+  .lyric-line { color: var(--lyrics-color); }
+
+  /* Auto scroll */
+  #song-scroll-area {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  /* Performance toolbar */
+  #perf-toolbar {
+    background: var(--surface-bg);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Stage tray */
+  #stage-tray {
+    background: var(--surface-bg);
+    border-top: 1px solid var(--border-color);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Input styles */
+  input, textarea, select {
+    background: var(--surface-raised);
     color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size:14px; outline:none;
-    transition: all 300ms ease-out;
+    border: 1px solid var(--border-color);
+    font-family: var(--font-main);
+    transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
+    outline: none;
   }
-  .input-styled:focus {
-    border-color: rgba(139,92,246,0.5);
-    background: rgba(139,92,246,0.08);
-    box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+  input:focus, textarea:focus, select:focus {
+    border-color: rgba(155,114,203,0.6);
+    box-shadow: 0 0 0 3px rgba(155,114,203,0.15);
   }
-  .input-styled::placeholder { color: var(--text-muted); }
-  textarea.input-styled {
-    border-radius: 1.5rem;
-    resize: vertical; min-height:120px;
-    padding: 16px 20px;
-  }
-  select.input-styled {
-    appearance:none; -webkit-appearance:none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%238b5cf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    background-size: 16px;
-    cursor:pointer;
-  }
-
-  /* Auth screen */
-  #auth-screen {
-    position:fixed; inset:0; z-index:300;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    background: var(--canvas-bg);
-    padding: 24px;
-    overflow-y:auto;
-  }
-  #auth-screen.hidden { display:none; }
-
-  /* Loading */
-  #loading-screen {
-    position:fixed; inset:0; z-index:400;
-    display:flex; align-items:center; justify-content:center;
-    background: var(--canvas-bg);
-    transition: opacity 500ms ease-out;
-  }
-  #loading-screen.fade-out { opacity:0; pointer-events:none; }
-
-  .spinner {
-    width:48px; height:48px; border-radius:50%;
-    border: 3px solid rgba(139,92,246,0.2);
-    border-top-color: var(--purple);
-    animation: spin 800ms linear infinite;
-  }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  /* Pulse ring */
-  .ring-purple { box-shadow: 0 0 0 3px rgba(139,92,246,0.5); }
-
-  /* User card */
-  .user-card {
-    display:flex; align-items:center; gap:14px;
-    padding: 14px 16px; border-radius: 1.5rem;
-    background: var(--card-glass);
-    border: 1px solid var(--border-subtle);
-    backdrop-filter:blur(20px);
-    margin-bottom: 10px;
-    transition: all 300ms ease-out;
-  }
-  .user-card:hover { border-color: rgba(139,92,246,0.3); transform:translateY(-1px); }
-
-  /* Divider */
-  .divider {
-    height:1px; background: var(--border-subtle); margin: 20px 0;
-  }
-
-  /* Admin section card */
-  .admin-section {
-    background: var(--card-glass);
-    backdrop-filter:blur(24px);
-    border: 1px solid var(--border-subtle);
-    border-radius: 1.5rem;
-    padding: 20px; margin-bottom:16px;
-  }
-  .admin-section h3 {
-    font-size:14px; font-weight:700; color: var(--purple);
-    text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px;
-  }
-
-  /* Toast */
-  #toast-container {
-    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
-    z-index:500; display:flex; flex-direction:column; gap:8px; align-items:center;
-    pointer-events:none;
-  }
-  .toast {
-    padding: 10px 20px; border-radius: 9999px;
-    font-size:13px; font-weight:600; color:#fff;
-    backdrop-filter:blur(20px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    animation: toastIn 300ms cubic-bezier(0.16,1,0.3,1) forwards,
-               toastOut 300ms ease-in 2500ms forwards;
-    white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis;
-  }
-  .toast-success { background: rgba(34,197,94,0.85); }
-  .toast-error { background: rgba(239,68,68,0.85); }
-  .toast-info { background: rgba(139,92,246,0.85); }
-  @keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes toastOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-10px)} }
-
-  /* Scope toggle */
-  .scope-toggle {
-    display:flex; background: rgba(255,255,255,0.05);
-    border-radius:9999px; padding:4px; gap:4px;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .scope-btn {
-    flex:1; padding:8px 16px; border-radius:9999px;
-    font-size:13px; font-weight:600; cursor:pointer;
-    border:none; transition: all 300ms ease-out;
-    color: var(--text-muted); background:transparent;
-    white-space:nowrap;
-  }
-  .scope-btn.active { background: var(--purple); color:#fff; box-shadow:0 4px 16px rgba(139,92,246,0.4); }
-
-  /* Sub-tab */
-  .sub-tab {
-    padding: 8px 20px; border-radius:9999px;
-    font-size:13px; font-weight:600; cursor:pointer;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text-muted); background: transparent;
-    transition: all 300ms ease-out;
-    white-space:nowrap;
-  }
-  .sub-tab.active { background: rgba(139,92,246,0.2); color:#a78bfa; border-color:rgba(139,92,246,0.4); }
 
   /* Recent account card */
   #recent-account-card {
-    width:100%; max-width:360px;
-    background: rgba(18,14,28,0.7);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius:1.5rem; padding:16px;
-    display:flex; align-items:center; gap:14px;
-    cursor:pointer; margin-bottom:16px;
-    transition: all 300ms ease-out;
-    backdrop-filter:blur(24px);
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
   }
-  #recent-account-card:hover { border-color:rgba(139,92,246,0.5); transform:translateY(-2px); box-shadow:0 8px 32px rgba(139,92,246,0.2); }
-
-  /* Verification modal input */
-  #otp-input {
-    letter-spacing: 0.4em; text-align:center; font-size:24px; font-weight:700;
+  #recent-account-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
-
-  /* Color picker label */
-  .color-row {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:10px 0; border-bottom:1px solid var(--border-subtle);
-  }
-  .color-row:last-child { border-bottom:none; }
-  input[type="color"] {
-    width:40px; height:40px; border-radius:9999px;
-    border: 2px solid rgba(255,255,255,0.15);
-    cursor:pointer; padding:2px; background:transparent;
-  }
-
-  /* Purge danger */
-  .danger-btn {
-    width:100%; padding:14px; border-radius:9999px;
-    font-weight:700; font-size:14px; cursor:pointer; border:none;
-    transition: all 300ms ease-out; letter-spacing:0.03em;
-  }
-  .danger-btn-red { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
-  .danger-btn-red:hover { background:rgba(239,68,68,0.3); box-shadow:0 4px 20px rgba(239,68,68,0.3); }
-  .danger-btn-orange { background:rgba(249,115,22,0.15); color:#fb923c; border:1px solid rgba(249,115,22,0.3); }
-  .danger-btn-orange:hover { background:rgba(249,115,22,0.3); box-shadow:0 4px 20px rgba(249,115,22,0.3); }
 
   /* PWA install */
   #pwa-install-btn {
-    display:none; width:100%; max-width:360px;
-    margin-top:12px; padding:14px;
-    border-radius:9999px; font-weight:700; font-size:14px;
-    cursor:pointer; border: 1px solid rgba(139,92,246,0.4);
-    background: rgba(139,92,246,0.15); color:#a78bfa;
-    transition: all 300ms ease-out;
-    font-family:'Plus Jakarta Sans',sans-serif;
-  }
-  #pwa-install-btn:hover { background:rgba(139,92,246,0.3); transform:translateY(-2px); }
-
-  /* Chip filter */
-  .filter-chip {
-    padding: 6px 16px; border-radius:9999px;
-    font-size:12px; font-weight:600; cursor:pointer;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text-muted); background:transparent;
-    transition: all 300ms ease-out; white-space:nowrap;
-  }
-  .filter-chip.active { background:rgba(139,92,246,0.2); color:#a78bfa; border-color:rgba(139,92,246,0.4); }
-
-  /* Section label for admin */
-  .section-head {
-    font-size:11px; font-weight:700; text-transform:uppercase;
-    letter-spacing:0.1em; color: var(--text-muted); margin-bottom:12px; margin-top:8px;
+    transition: opacity 400ms ease-out, transform 400ms ease-out;
   }
 
-  /* truncate helpers */
-  .trunc { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-  /* empty state */
-  .empty-state {
-    text-align:center; padding:60px 20px;
-    color: var(--text-muted);
+  /* Purge modal warning glow */
+  .input-error {
+    border-color: #d96570 !important;
+    box-shadow: 0 0 0 3px rgba(217,101,112,0.25) !important;
   }
-  .empty-state .mdi { font-size:48px; margin-bottom:16px; color:rgba(139,92,246,0.3); }
 
-  /* Setlist item row */
-  .setlist-song-row {
-    display:flex; align-items:center; gap:10px;
-    padding:10px 14px; border-radius:9999px;
-    background:rgba(255,255,255,0.04);
-    border:1px solid var(--border-subtle);
-    margin-bottom:8px;
-    transition: all 200ms ease-out;
+  /* Gradient border ring */
+  .gradient-ring {
+    background: linear-gradient(#1e1f20, #1e1f20) padding-box,
+                var(--accent-gradient) border-box;
+    border: 2px solid transparent;
   }
-  .setlist-song-row:hover { background:rgba(139,92,246,0.1); border-color:rgba(139,92,246,0.3); }
 
-  /* Smooth view transitions */
-  .view-panel { transition: opacity 300ms ease-out, transform 300ms ease-out; }
-  .view-panel.entering { opacity:0; transform:translateY(8px); }
+  /* Lyrics-only mode */
+  .chord-token.hidden-chord { display: none; }
+  .lyric-line.collapse-up { margin-top: 0 !important; }
 
-  /* Glow on active nav */
-  .nav-link.active .nav-icon { text-shadow:0 0 12px var(--purple); }
+  /* Speed badge */
+  .speed-badge {
+    background: var(--surface-raised);
+    border: 1px solid var(--border-color);
+    border-radius: 99px;
+    padding: 2px 12px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .speed-badge:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
 
-  /* Stage lyrics only mode */
-  .lyrics-only-mode .chord-span { display:none; }
+  /* Filter panel */
+  #filter-panel {
+    transition: opacity 250ms ease-out, transform 250ms ease-out;
+  }
+  #filter-panel.hidden-panel {
+    opacity: 0; transform: translateY(-8px); pointer-events: none;
+  }
 
-  /* OTP glow error */
-  #otp-input.error {
-    border-color: rgba(239,68,68,0.7) !important;
-    box-shadow: 0 0 0 3px rgba(239,68,68,0.2) !important;
+  /* User sub-tabs */
+  .user-subtab {
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+  .user-subtab.active {
+    color: #e3e3e3;
+    border-bottom-color: #9b72cb;
+  }
+
+  /* Shimmer loading */
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, var(--surface-bg) 25%, var(--surface-raised) 50%, var(--surface-bg) 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  /* Chord sheet container */
+  #chord-sheet-container {
+    font-family: 'Courier New', 'Consolas', monospace;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Loading spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: #9b72cb;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  /* Theme lab dual scope toggle */
+  .scope-btn {
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .scope-btn.active {
+    background: rgba(155,114,203,0.2);
+    color: #e3e3e3;
+  }
+
+  /* Camera modal video */
+  #camera-preview {
+    border-radius: 16px;
+    object-fit: cover;
+    background: #000;
+  }
+
+  /* Toast notification */
+  #toast {
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  #toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Admin sections */
+  .admin-section {
+    border: 1px solid var(--border-color);
+    background: var(--surface-bg);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  /* Color swatch */
+  .color-swatch {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: transform 150ms ease, border-color 150ms ease;
+  }
+  .color-swatch:hover { transform: scale(1.12); border-color: rgba(255,255,255,0.4); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    #side-navbar { width: 80vw; max-width: 300px; }
   }
 </style>
 </head>
-<body>
+<body class="relative">
 
-<!-- Loading Screen -->
-<div id="loading-screen">
-  <div style="text-align:center">
-    <div style="font-size:32px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px;">RCCM GigBook</div>
-    <div class="spinner" style="margin:0 auto;"></div>
-  </div>
-</div>
-
-<!-- Auth Screen -->
-<div id="auth-screen" class="hidden">
-  <div style="text-align:center;width:100%;max-width:380px;">
-    <div style="font-size:36px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;">RCCM GigBook</div>
-    <p style="color:var(--text-muted);font-size:14px;margin-bottom:40px;">Your band's live performance hub</p>
-
-    <!-- Recent Account Card -->
-    <div id="recent-account-card" style="display:none;" onclick="triggerGoogleSignIn()">
-      <img id="recent-photo" src="" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;" class="ring-purple" />
-      <div style="flex:1;min-width:0;text-align:left;">
-        <div id="recent-name" class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);"></div>
-        <div id="recent-email" class="trunc" style="font-size:12px;color:var(--text-muted);"></div>
+<!-- ═══════════════════════════════════════════════════════
+     AUTH SCREEN
+═══════════════════════════════════════════════════════ -->
+<div id="auth-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6"
+     style="background: var(--canvas-bg);">
+  <div class="w-full max-w-sm flex flex-col items-center gap-6">
+    <!-- Logo -->
+    <div class="flex flex-col items-center gap-3 mb-2">
+      <div class="w-16 h-16 rounded-3xl flex items-center justify-center gemini-gradient-bg shadow-2xl">
+        <i class="mdi mdi-music text-white text-3xl"></i>
       </div>
-      <span class="mdi mdi-chevron-right" style="color:var(--purple);font-size:20px;flex-shrink:0;"></span>
+      <h1 class="text-2xl font-800 tracking-tight" style="color:var(--text-primary)">RCCM GigBook</h1>
+      <p class="text-sm text-center" style="color:var(--text-secondary)">Band setlist & chord management</p>
     </div>
-    <div id="recent-account-label" style="display:none;font-size:12px;color:var(--text-muted);margin-bottom:12px;">Continue as this account or sign in with another:</div>
 
-    <button onclick="triggerGoogleSignIn()" style="width:100%;padding:14px 24px;border-radius:9999px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text-primary);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 300ms ease-out;backdrop-filter:blur(20px);" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.transform=''">
-      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+    <!-- Recent account card -->
+    <div id="recent-account-card" class="hidden w-full rounded-2xl p-4 flex items-center gap-3 cursor-pointer"
+         style="background:var(--surface-bg); border:1px solid var(--border-color);">
+      <div class="relative">
+        <img id="recent-photo" src="" alt="" class="w-11 h-11 rounded-full object-cover gradient-ring" />
+        <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-400 border-2"
+             style="border-color:var(--surface-bg)"></div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs" style="color:var(--text-secondary)">Continue as</p>
+        <p id="recent-name" class="font-600 text-sm truncate" style="color:var(--text-primary)"></p>
+        <p id="recent-email" class="text-xs truncate" style="color:var(--text-secondary)"></p>
+      </div>
+      <i class="mdi mdi-chevron-right text-xl" style="color:var(--text-secondary)"></i>
+    </div>
+
+    <!-- Google Sign-In -->
+    <button id="google-signin-btn" class="w-full h-12 rounded-full flex items-center justify-center gap-3 font-600 text-sm"
+            style="background:var(--surface-bg); border:1px solid var(--border-color); color:var(--text-primary);">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Sign in with Google
     </button>
 
-    <button id="pwa-install-btn" onclick="invokePWAInstall()">
-      <span class="mdi mdi-cellphone-arrow-down" style="margin-right:8px;"></span>Install GigBook App
+    <!-- PWA Install -->
+    <button id="pwa-install-btn" class="hidden w-full h-12 rounded-full flex items-center justify-center gap-2 font-600 text-sm opacity-0"
+            style="background: linear-gradient(135deg,rgba(66,133,244,0.15),rgba(155,114,203,0.15)); border:1px solid rgba(155,114,203,0.3); color:var(--text-primary);">
+      <i class="mdi mdi-download text-lg gemini-gradient-text"></i>
+      Install GigBook App
     </button>
 
-    <p style="margin-top:32px;font-size:12px;color:rgba(156,163,175,0.5);">Secure authentication via Firebase · RCCM © 2025</p>
+    <p class="text-xs text-center" style="color:var(--text-secondary)">
+      By signing in you agree to our Terms of Service
+    </p>
   </div>
 </div>
 
-<!-- Sidebar Overlay -->
-<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+<!-- ═══════════════════════════════════════════════════════
+     MAIN APP SHELL
+═══════════════════════════════════════════════════════ -->
+<div id="app-shell" class="hidden fixed inset-0 flex overflow-hidden" style="background:var(--canvas-bg);">
 
-<!-- Side Navigation -->
-<nav id="side-navbar" class="glass-strong">
-  <!-- Top Block -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;">
-    <div id="navbar-logo" style="display:flex;align-items:center;gap:10px;">
-      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;">
-        <span class="mdi mdi-music-note" style="color:#fff;font-size:18px;"></span>
+  <!-- NAV OVERLAY -->
+  <div id="nav-overlay" class="fixed inset-0 z-30" style="background:rgba(0,0,0,0.55);" onclick="closeSidebar()"></div>
+
+  <!-- SIDE NAVBAR -->
+  <nav id="side-navbar" class="fixed top-0 left-0 h-full z-40 flex flex-col"
+       style="width:280px; background:var(--surface-bg); border-right:1px solid var(--border-color); border-radius:0 28px 28px 0;">
+
+    <!-- Top block -->
+    <div class="flex items-center justify-between px-5 pt-6 pb-4">
+      <div id="navbar-logo" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-2xl flex items-center justify-center gemini-gradient-bg">
+          <i class="mdi mdi-music text-white text-lg"></i>
+        </div>
+        <span class="font-700 text-base truncate" style="color:var(--text-primary)">RCCM GigBook</span>
       </div>
-      <span style="font-weight:800;font-size:17px;background:linear-gradient(135deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">GigBook</span>
-    </div>
-    <button class="btn-circle btn-glass" onclick="closeSidebar()" style="width:40px;height:40px;">
-      <span class="mdi mdi-close" style="font-size:18px;"></span>
-    </button>
-  </div>
-
-  <!-- Middle Block: Nav Links -->
-  <div style="flex:1;padding:8px 16px;overflow-y:auto;">
-    <div id="nav-song-list" class="nav-link" onclick="navigateTo('songs');closeSidebar();">
-      <span class="mdi mdi-music-note nav-icon"></span>
-      <span class="trunc">Song List</span>
-    </div>
-    <div id="nav-setlist" class="nav-link" onclick="navigateTo('setlist');closeSidebar();">
-      <span class="mdi mdi-playlist-music nav-icon"></span>
-      <span class="trunc">Setlist</span>
-    </div>
-    <div id="nav-users" class="nav-link" onclick="navigateTo('users');closeSidebar();" style="display:none;">
-      <span class="mdi mdi-account-group nav-icon"></span>
-      <span class="trunc">Users</span>
-    </div>
-    <div id="nav-admin" class="nav-link" onclick="navigateTo('admin');closeSidebar();" style="display:none;">
-      <span class="mdi mdi-shield-account nav-icon"></span>
-      <span class="trunc">Admin Panel</span>
-    </div>
-  </div>
-
-  <!-- Bottom Block: Profile Footer -->
-  <div style="padding:16px;">
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:1rem;padding:14px;display:flex;align-items:center;gap:12px;">
-      <img id="nav-user-photo" src="" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;" class="ring-purple" />
-      <div style="flex:1;min-width:0;">
-        <div id="nav-user-name" class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);"></div>
-        <div id="nav-user-role" class="trunc" style="font-size:12px;color:var(--text-muted);"></div>
-      </div>
-      <button class="btn-circle btn-glass" onclick="handleSignOut()" style="width:40px;height:40px;" title="Sign Out">
-        <span class="mdi mdi-logout" style="font-size:18px;"></span>
+      <button onclick="closeSidebar()" class="w-9 h-9 rounded-full flex items-center justify-center"
+              style="background:var(--surface-raised); color:var(--text-secondary);">
+        <i class="mdi mdi-close text-lg"></i>
       </button>
     </div>
-  </div>
-</nav>
 
-<!-- App Container -->
-<div id="app">
+    <!-- Divider -->
+    <div class="mx-5 mb-3" style="height:1px; background:var(--border-color)"></div>
 
-  <!-- Top Bar -->
-  <div id="top-bar" class="top-bar-glass">
-    <button id="hamburger-btn" class="btn-circle btn-glass" onclick="openSidebar()" style="flex-shrink:0;">
-      <span class="mdi mdi-menu" style="font-size:22px;"></span>
-    </button>
-    <button id="back-btn" class="btn-circle btn-glass" onclick="handleBackBtn()" style="flex-shrink:0;display:none;">
-      <span class="mdi mdi-chevron-left" style="font-size:24px;"></span>
-    </button>
-
-    <div id="search-bar-container">
-      <input id="search-input" type="text" placeholder="Search songs, artists..." oninput="handleSearch(this.value)" autocomplete="off" />
-      <span class="mdi mdi-magnify search-icon"></span>
+    <!-- Middle block: nav links -->
+    <div class="flex-1 overflow-y-auto px-3 flex flex-col gap-1">
+      <button id="nav-songs" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-500 text-left"
+              style="color:var(--text-secondary)" onclick="switchView('songs')">
+        <i class="mdi mdi-music-note nav-icon text-lg" style="color:var(--text-secondary)"></i>
+        <span class="truncate">Song List</span>
+      </button>
+      <button id="nav-setlists" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-500 text-left"
+              style="color:var(--text-secondary)" onclick="switchView('setlists')">
+        <i class="mdi mdi-playlist-music nav-icon text-lg" style="color:var(--text-secondary)"></i>
+        <span class="truncate">Setlist</span>
+      </button>
+      <button id="nav-users" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-500 text-left hidden"
+              style="color:var(--text-secondary)" onclick="switchView('users')">
+        <i class="mdi mdi-account-group nav-icon text-lg" style="color:var(--text-secondary)"></i>
+        <span class="truncate">Users</span>
+      </button>
+      <button id="nav-admin" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-500 text-left hidden"
+              style="color:var(--text-secondary)" onclick="switchView('admin')">
+        <i class="mdi mdi-shield-account nav-icon text-lg" style="color:var(--text-secondary)"></i>
+        <span class="truncate">Admin Panel</span>
+      </button>
     </div>
 
-    <button id="filter-btn" onclick="toggleFilterPanel()" title="Filter">
-      <span class="mdi mdi-filter-variant" style="font-size:20px;"></span>
-    </button>
-  </div>
-
-  <!-- Filter Panel (dropdown) -->
-  <div id="filter-panel" style="display:none;position:fixed;top:70px;right:16px;z-index:60;width:240px;background:rgba(18,14,28,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:1.5rem;padding:16px;backdrop-filter:blur(32px);box-shadow:0 16px 48px rgba(0,0,0,0.5);transform:translateY(-8px);opacity:0;transition:all 300ms cubic-bezier(0.16,1,0.3,1);">
-    <div style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Filter by Key</div>
-    <div id="key-filter-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
-    <div style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Filter by Genre</div>
-    <div id="genre-filter-chips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    <div class="divider" style="margin:12px 0;"></div>
-    <button onclick="clearFilters()" style="width:100%;padding:10px;border-radius:9999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 200ms ease-out;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-muted)'">Clear Filters</button>
-  </div>
-
-  <!-- Main Content -->
-  <div id="main-content">
-
-    <!-- SONGS VIEW -->
-    <div id="songs-view" class="view-panel" style="display:none;">
-      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
-        <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);">Song Library</h1>
-        <span id="songs-count" class="badge badge-purple"></span>
-      </div>
-      <div id="songs-list" style="padding-bottom:8px;"></div>
-    </div>
-
-    <!-- SETLIST VIEW -->
-    <div id="setlist-view" class="view-panel" style="display:none;">
-      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
-        <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);">Setlists</h1>
-        <span id="setlists-count" class="badge badge-pink"></span>
-      </div>
-      <div id="setlists-list" style="padding-bottom:8px;"></div>
-    </div>
-
-    <!-- USERS VIEW -->
-    <div id="users-view" class="view-panel" style="display:none;">
-      <div style="margin-bottom:16px;">
-        <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:12px;">User Directory</h1>
-        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
-          <button class="sub-tab active" onclick="switchUserTab('roster',this)">Roster</button>
-          <button class="sub-tab" onclick="switchUserTab('pending',this)">Unassigned / New</button>
+    <!-- Bottom block: user profile -->
+    <div class="px-4 pb-5 pt-3" style="border-top:1px solid var(--border-color)">
+      <div class="flex items-center gap-3">
+        <div class="relative flex-shrink-0">
+          <img id="nav-user-photo" src="" alt="" class="w-10 h-10 rounded-full object-cover gradient-ring" />
         </div>
-      </div>
-      <div id="users-roster-list"></div>
-      <div id="users-pending-list" style="display:none;"></div>
-    </div>
-
-    <!-- ADMIN VIEW -->
-    <div id="admin-view" class="view-panel" style="display:none;">
-      <h1 style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:20px;">Admin Panel</h1>
-
-      <!-- App Branding -->
-      <div class="admin-section">
-        <h3><span class="mdi mdi-palette"></span> App Branding</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <input id="admin-app-name" class="input-styled" type="text" placeholder="App Display Name" />
-          <button onclick="saveAdminBranding()" style="width:100%;padding:12px;border-radius:9999px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all 300ms ease-out;" onmouseover="this.style.background='rgba(139,92,246,0.35)'" onmouseout="this.style.background='rgba(139,92,246,0.2)'">Save Branding</button>
+        <div class="flex-1 min-w-0">
+          <p id="nav-user-name" class="font-600 text-sm truncate" style="color:var(--text-primary)"></p>
+          <p id="nav-user-role" class="text-xs truncate" style="color:var(--text-secondary)"></p>
         </div>
+        <button id="signout-btn" onclick="handleSignOut()"
+                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                style="background:var(--surface-raised); color:var(--text-secondary);"
+                title="Sign Out">
+          <i class="mdi mdi-logout text-lg"></i>
+        </button>
       </div>
+    </div>
+  </nav>
 
-      <!-- Song Limit Guards -->
-      <div class="admin-section">
-        <h3><span class="mdi mdi-shield-lock"></span> Song Limit Guards</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-size:14px;color:var(--text-muted);">Max songs per setlist</span>
-            <input id="admin-max-songs" class="input-styled" type="number" min="1" max="100" value="20" style="width:80px;border-radius:9999px;text-align:center;padding:8px 12px;" />
+  <!-- MAIN CONTENT AREA -->
+  <main id="main-content" class="flex-1 relative overflow-hidden" style="background:var(--canvas-bg)">
+
+    <!-- ═══ FLOATING TOP BAR ═══ -->
+    <div class="fixed top-0 left-0 right-0 z-20 pointer-events-none">
+      <div class="flex items-start gap-2 px-4 pt-4 pb-2">
+
+        <!-- Hamburger / Back btn -->
+        <div class="pointer-events-auto flex-shrink-0">
+          <button id="hamburger-btn"
+                  class="w-12 h-12 rounded-full flex items-center justify-center"
+                  style="background:var(--surface-bg); border:1px solid var(--border-color); color:var(--text-primary);"
+                  onclick="openSidebar()">
+            <i class="mdi mdi-menu text-xl"></i>
+          </button>
+          <button id="back-btn"
+                  class="hidden w-12 h-12 rounded-full flex items-center justify-center"
+                  style="background:var(--surface-bg); border:1px solid var(--border-color); color:var(--text-primary);"
+                  onclick="backFromStage()">
+            <i class="mdi mdi-chevron-left text-2xl"></i>
+          </button>
+        </div>
+
+        <!-- Search + Filter row -->
+        <div id="search-filter-row" class="flex-1 flex items-center gap-2 pointer-events-auto">
+          <div class="flex-1 relative">
+            <i class="mdi mdi-magnify absolute left-3.5 top-1/2 -translate-y-1/2 text-lg" style="color:var(--text-secondary)"></i>
+            <input id="search-input" type="text" placeholder="Search songs, setlists…"
+                   class="w-full h-12 pl-10 pr-4 rounded-full text-sm truncate"
+                   style="background:var(--surface-bg); border:1px solid var(--border-color); color:var(--text-primary);"
+                   oninput="handleSearch()" />
           </div>
-          <button onclick="saveAdminLimits()" style="width:100%;padding:12px;border-radius:9999px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);color:#a78bfa;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all 300ms ease-out;" onmouseover="this.style.background='rgba(139,92,246,0.35)'" onmouseout="this.style.background='rgba(139,92,246,0.2)'">Save Limits</button>
-        </div>
-      </div>
-
-      <!-- Theme Laboratory -->
-      <div class="admin-section" id="admin-sec-customtheme">
-        <h3><span class="mdi mdi-flask"></span> Custom Theme Laboratory</h3>
-        <div id="theme-scope-toggle" class="scope-toggle" style="margin-bottom:16px;">
-          <button class="scope-btn active" onclick="setThemeScope('global',this)">🌐 Broadcast Globally</button>
-          <button class="scope-btn" onclick="setThemeScope('local',this)">🔒 Admin UI Lock</button>
-        </div>
-        <div class="color-row">
-          <span style="font-size:14px;color:var(--text-muted);">Canvas Background</span>
-          <input type="color" id="color-canvas-bg" value="#09070f" onchange="applyThemeColor('--canvas-bg',this.value)" />
-        </div>
-        <div class="color-row">
-          <span style="font-size:14px;color:var(--text-muted);">Lyrics Color</span>
-          <input type="color" id="color-lyrics" value="#f9fafb" onchange="applyThemeColor('--lyrics-color',this.value)" />
-        </div>
-        <div class="color-row">
-          <span style="font-size:14px;color:var(--text-muted);">Chords Color</span>
-          <input type="color" id="color-chords" value="#ec4899" onchange="applyThemeColor('--chords-color',this.value)" />
-        </div>
-        <div class="color-row" style="border-bottom:none;">
-          <span style="font-size:14px;color:var(--text-muted);">Background Blur (px)</span>
-          <input type="range" id="blur-range" min="0" max="48" value="24" style="width:120px;accent-color:var(--purple);" oninput="applyBlur(this.value)" />
-        </div>
-      </div>
-
-      <!-- System Purge -->
-      <div class="admin-section" style="border-color:rgba(239,68,68,0.2);">
-        <h3 style="color:#f87171;"><span class="mdi mdi-nuke"></span> System Purge & Reset Matrix</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Destructive operations require OTA verification. These actions are irreversible.</p>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <button id="admin-purge-trigger-btn" class="danger-btn danger-btn-red" onclick="openPurgeModal()">
-            <span class="mdi mdi-delete-sweep"></span> Open Purge Console
+          <button id="filter-btn"
+                  class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                  style="background:var(--surface-bg); border:1px solid var(--border-color); color:var(--text-secondary);"
+                  onclick="toggleFilter()">
+            <i class="mdi mdi-filter-variant text-xl"></i>
           </button>
         </div>
       </div>
+
+      <!-- Filter panel -->
+      <div id="filter-panel" class="hidden-panel mx-4 mt-1 rounded-2xl p-4 pointer-events-auto"
+           style="background:var(--surface-bg); border:1px solid var(--border-color);">
+        <p class="text-xs font-600 mb-3" style="color:var(--text-secondary)">FILTER BY KEY</p>
+        <div id="key-filters" class="flex flex-wrap gap-2"></div>
+      </div>
     </div>
 
-    <!-- SETLIST DETAIL VIEW -->
-    <div id="setlist-detail-view" class="view-panel" style="display:none;">
-      <div style="margin-bottom:20px;">
-        <h1 id="setlist-detail-title" style="font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:6px;" class="trunc"></h1>
-        <div id="setlist-detail-meta" style="font-size:13px;color:var(--text-muted);"></div>
-      </div>
-      <div id="setlist-detail-songs"></div>
-    </div>
+    <!-- ═══ SCROLLABLE VIEWS CONTAINER ═══ -->
+    <div id="views-container" class="h-full overflow-y-auto pt-28 px-4 pb-24 relative" style="scroll-behavior:smooth">
 
-  </div><!-- end main-content -->
-
-  <!-- Stage / Song Detail View (Full Screen) -->
-  <div id="stage-view">
-    <!-- Stage Toolbar -->
-    <div id="stage-toolbar">
-      <button class="btn-circle btn-glass" onclick="exitStageView()" style="flex-shrink:0;width:44px;height:44px;">
-        <span class="mdi mdi-chevron-left" style="font-size:24px;"></span>
-      </button>
-      <div id="stage-song-title" class="trunc" style="flex:1;font-weight:800;font-size:16px;color:var(--text-primary);"></div>
-
-      <!-- Key Transposer -->
-      <div class="transposer-capsule" title="Key">
-        <button class="chip-btn" onclick="transposeKey(-1)">♭</button>
-        <span class="val" id="stage-key-display">C</span>
-        <button class="chip-btn" onclick="transposeKey(1)">♯</button>
-      </div>
-
-      <!-- Capo -->
-      <div class="transposer-capsule" title="Capo">
-        <button class="chip-btn" onclick="adjustCapo(-1)">−</button>
-        <span class="val" id="stage-capo-display" style="font-size:11px;">Capo<br>0</span>
-        <button class="chip-btn" onclick="adjustCapo(1)">+</button>
+      <!-- SONG LIST VIEW -->
+      <div id="view-songs" class="view-panel">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-xl font-700 truncate" style="color:var(--text-primary)">Song Library</h2>
+          <span id="song-count-badge" class="text-xs px-3 py-1 rounded-full" style="background:var(--surface-bg); color:var(--text-secondary); border:1px solid var(--border-color)">0 songs</span>
+        </div>
+        <div id="song-list-container" class="flex flex-col gap-3"></div>
+        <div id="songs-empty" class="hidden flex flex-col items-center py-16 gap-3">
+          <div class="w-16 h-16 rounded-3xl flex items-center justify-center" style="background:var(--surface-bg)">
+            <i class="mdi mdi-music-note-off text-3xl" style="color:var(--text-secondary)"></i>
+          </div>
+          <p class="font-500" style="color:var(--text-secondary)">No songs yet</p>
+          <p class="text-sm text-center" style="color:var(--text-secondary)">Tap the + button to add your first song</p>
+        </div>
       </div>
 
-      <!-- Lyrics Only Toggle -->
-      <button id="lyrics-only-btn" class="chip-btn" onclick="toggleLyricsOnly()" title="Lyrics Only" style="width:36px;height:36px;">
-        <span class="mdi mdi-eye-off" style="font-size:16px;"></span>
-      </button>
-    </div>
-
-    <!-- Song Sheet -->
-    <div id="song-sheet"></div>
-
-    <!-- Stage Bottom Tray -->
-    <div id="stage-tray">
-      <button id="scroll-reset-btn" class="btn-circle btn-glass" onclick="scrollReset()" style="width:40px;height:40px;" title="Restart">
-        <span class="mdi mdi-rewind-to-start" style="font-size:18px;"></span>
-      </button>
-      <div class="speed-capsule">
-        <button class="chip-btn" onclick="adjustScrollSpeed(-0.2)" style="width:26px;height:26px;font-size:12px;">−</button>
-        <span id="speed-display" style="min-width:72px;text-align:center;font-weight:700;font-size:13px;color:var(--text-primary);">Speed: 1.0x</span>
-        <button class="chip-btn" onclick="adjustScrollSpeed(0.2)" style="width:26px;height:26px;font-size:12px;">+</button>
+      <!-- SETLIST VIEW -->
+      <div id="view-setlists" class="view-panel">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-xl font-700 truncate" style="color:var(--text-primary)">Setlists</h2>
+          <span id="setlist-count-badge" class="text-xs px-3 py-1 rounded-full" style="background:var(--surface-bg); color:var(--text-secondary); border:1px solid var(--border-color)">0 setlists</span>
+        </div>
+        <div id="setlist-container" class="flex flex-col gap-3"></div>
+        <div id="setlists-empty" class="hidden flex flex-col items-center py-16 gap-3">
+          <div class="w-16 h-16 rounded-3xl flex items-center justify-center" style="background:var(--surface-bg)">
+            <i class="mdi mdi-playlist-remove text-3xl" style="color:var(--text-secondary)"></i>
+          </div>
+          <p class="font-500" style="color:var(--text-secondary)">No setlists yet</p>
+        </div>
       </div>
-      <button id="auto-scroll-btn" class="btn-circle" onclick="toggleAutoScroll()" style="width:44px;height:44px;background:var(--purple);color:#fff;border:none;cursor:pointer;border-radius:50%;transition:all 300ms ease-out;box-shadow:0 4px 16px rgba(139,92,246,0.4);">
-        <span id="auto-scroll-icon" class="mdi mdi-play" style="font-size:20px;"></span>
-      </button>
-    </div>
-  </div>
 
-</div><!-- end app -->
-
-<!-- FAB Container -->
-<div id="fab-container">
-  <div id="fab-add-song" class="fab-btn fab-hidden" style="background:var(--purple);box-shadow:0 8px 32px rgba(139,92,246,0.5);" onclick="openAddSongModal()">
-    <span class="mdi mdi-music-note-plus"></span>
-  </div>
-  <div id="fab-add-setlist" class="fab-btn fab-hidden" style="background:var(--pink);box-shadow:0 8px 32px rgba(236,72,153,0.5);" onclick="openAddSetlistModal()">
-    <span class="mdi mdi-playlist-plus"></span>
-  </div>
-</div>
-
-<!-- Toast Container -->
-<div id="toast-container"></div>
-
-<!-- =================== MODALS =================== -->
-
-<!-- Add Song Modal -->
-<div id="add-song-modal" class="modal-overlay">
-  <div class="modal-sheet">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 style="font-size:18px;font-weight:800;">Add New Song</h2>
-      <button class="btn-circle btn-glass" onclick="closeModal('add-song-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <input id="song-title-input" class="input-styled" type="text" placeholder="Song Title *" />
-      <input id="song-artist-input" class="input-styled" type="text" placeholder="Artist / Band" />
-      <select id="song-key-input" class="input-styled">
-        <option value="">Select Key</option>
-      </select>
-      <input id="song-tempo-input" class="input-styled" type="number" placeholder="Tempo (BPM)" />
-      <input id="song-genre-input" class="input-styled" type="text" placeholder="Genre / Style" />
-      <textarea id="song-lyrics-input" class="input-styled" placeholder="Paste chord+lyrics here...&#10;&#10;[Verse]&#10;[G]Amazing [D]grace how [Em]sweet the [C]sound"></textarea>
-      <button onclick="submitAddSong()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;box-shadow:0 4px 20px rgba(139,92,246,0.4);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(139,92,246,0.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(139,92,246,0.4)'">Add Song</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Setlist Modal -->
-<div id="add-setlist-modal" class="modal-overlay">
-  <div class="modal-sheet">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 style="font-size:18px;font-weight:800;">Create New Setlist</h2>
-      <button class="btn-circle btn-glass" onclick="closeModal('add-setlist-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <input id="setlist-name-input" class="input-styled" type="text" placeholder="Setlist Name *" />
-      <input id="setlist-venue-input" class="input-styled" type="text" placeholder="Venue / Event" />
-      <input id="setlist-date-input" class="input-styled" type="date" />
-      <div id="setlist-song-picker" style="max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;padding:12px;">
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Pick Songs (tap to add):</div>
-        <div id="setlist-song-picker-list"></div>
+      <!-- USERS VIEW -->
+      <div id="view-users" class="view-panel">
+        <h2 class="text-xl font-700 mb-5 truncate" style="color:var(--text-primary)">User Directory</h2>
+        <!-- Sub-tabs -->
+        <div class="flex gap-0 mb-5" style="border-bottom:1px solid var(--border-color)">
+          <button class="user-subtab active px-5 py-3 text-sm font-600 border-b-2 border-transparent"
+                  style="color:var(--text-secondary); border-bottom-color:#9b72cb"
+                  onclick="switchUserSubtab('roster', this)">Master Roster</button>
+          <button class="user-subtab px-5 py-3 text-sm font-600 border-b-2 border-transparent"
+                  style="color:var(--text-secondary)"
+                  onclick="switchUserSubtab('pending', this)">Pending / New</button>
+        </div>
+        <div id="user-roster-panel" class="flex flex-col gap-3"></div>
+        <div id="user-pending-panel" class="hidden flex flex-col gap-3"></div>
       </div>
-      <div id="setlist-selected-songs" style="min-height:40px;"></div>
-      <button onclick="submitAddSetlist()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;box-shadow:0 4px 20px rgba(236,72,153,0.4);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Create Setlist</button>
-    </div>
-  </div>
-</div>
 
-<!-- Role Assignment Modal -->
-<div id="role-modal" class="modal-overlay">
-  <div class="modal-sheet" style="max-width:380px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 style="font-size:18px;font-weight:800;">Change Role</h2>
-      <button class="btn-circle btn-glass" onclick="closeModal('role-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div id="role-modal-user-info" style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.04);border-radius:1.5rem;border:1px solid rgba(255,255,255,0.08);margin-bottom:4px;"></div>
-      <select id="role-select" class="input-styled">
-        <option value="Guest">Guest</option>
-        <option value="Singer">Singer</option>
-        <option value="Musician">Musician</option>
-        <option value="Lead">Lead</option>
-        <option value="Tech">Tech</option>
-        <option value="Sub-Admin">Sub-Admin</option>
-        <option value="Admin">Admin</option>
-      </select>
-      <button onclick="submitRoleChange()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Update Role</button>
-    </div>
-  </div>
-</div>
+      <!-- ADMIN PANEL VIEW -->
+      <div id="view-admin" class="view-panel">
+        <h2 class="text-xl font-700 mb-5 truncate" style="color:var(--text-primary)">Admin Panel</h2>
+        <div class="flex flex-col gap-4">
 
-<!-- Purge Console Modal -->
-<div id="purge-modal" class="modal-overlay">
-  <div class="modal-sheet" style="max-width:420px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 style="font-size:18px;font-weight:800;color:#f87171;"><span class="mdi mdi-alert-octagon"></span> Purge Console</h2>
-      <button class="btn-circle btn-glass" onclick="closeModal('purge-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
-    </div>
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Choose a destructive operation. An OTA 6-digit security code will be dispatched to your admin email before execution.</p>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="danger-btn danger-btn-red" onclick="initiatePurge('setlists')">
-        <span class="mdi mdi-playlist-remove"></span> Clear All Setlists Only
-      </button>
-      <button class="danger-btn danger-btn-orange" onclick="initiatePurge('usersAndSetlists')">
-        <span class="mdi mdi-database-remove"></span> Deep Factory Reset (Setlists + Users)
-      </button>
-    </div>
-  </div>
-</div>
+          <!-- App Branding -->
+          <div class="admin-section p-5">
+            <h3 class="font-700 text-sm mb-4 flex items-center gap-2" style="color:var(--text-primary)">
+              <i class="mdi mdi-palette gemini-gradient-text"></i> App Branding
+            </h3>
+            <div class="flex flex-col gap-3">
+              <div>
+                <label class="text-xs mb-1 block" style="color:var(--text-secondary)">App Name</label>
+                <input id="admin-app-name" type="text" class="w-full h-10 px-3 rounded-xl text-sm" placeholder="RCCM GigBook" />
+              </div>
+              <button onclick="saveAdminBranding()" class="h-10 px-5 rounded-full text-sm font-600 gemini-gradient-bg text-white self-start">Save Branding</button>
+            </div>
+          </div>
 
-<!-- OTP Verification Modal -->
-<div id="otp-modal" class="modal-overlay">
-  <div class="modal-sheet" style="max-width:380px;text-align:center;">
-    <div style="margin-bottom:20px;">
-      <div style="width:64px;height:64px;border-radius:50%;background:rgba(139,92,246,0.2);border:2px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-        <span class="mdi mdi-email-lock" style="font-size:28px;color:var(--purple);"></span>
+          <!-- Song Limit -->
+          <div class="admin-section p-5">
+            <h3 class="font-700 text-sm mb-4 flex items-center gap-2" style="color:var(--text-primary)">
+              <i class="mdi mdi-counter gemini-gradient-text"></i> Song Limit Guards
+            </h3>
+            <div class="flex items-center gap-3">
+              <input id="admin-song-limit" type="number" class="w-24 h-10 px-3 rounded-xl text-sm text-center" placeholder="100" />
+              <button onclick="saveAdminSongLimit()" class="h-10 px-5 rounded-full text-sm font-600 gemini-gradient-bg text-white">Set Limit</button>
+            </div>
+          </div>
+
+          <!-- Theme Presets -->
+          <div class="admin-section p-5">
+            <h3 class="font-700 text-sm mb-4 flex items-center gap-2" style="color:var(--text-primary)">
+              <i class="mdi mdi-theme-light-dark gemini-gradient-text"></i> Theme Presets
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="applyThemePreset('gemini')" class="h-9 px-4 rounded-full text-xs font-600 gemini-gradient-bg text-white">Gemini Dark</button>
+              <button onclick="applyThemePreset('midnight')" class="h-9 px-4 rounded-full text-xs font-600" style="background:#0d0d1a; color:#a78bfa; border:1px solid rgba(167,139,250,0.3)">Midnight Purple</button>
+              <button onclick="applyThemePreset('forest')" class="h-9 px-4 rounded-full text-xs font-600" style="background:#0f1a0f; color:#4ade80; border:1px solid rgba(74,222,128,0.3)">Forest</button>
+              <button onclick="applyThemePreset('ocean')" class="h-9 px-4 rounded-full text-xs font-600" style="background:#0f172a; color:#38bdf8; border:1px solid rgba(56,189,248,0.3)">Ocean Blue</button>
+            </div>
+          </div>
+
+          <!-- Custom Theme Lab -->
+          <div class="admin-section p-5" id="admin-sec-customtheme">
+            <h3 class="font-700 text-sm mb-4 flex items-center gap-2" style="color:var(--text-primary)">
+              <i class="mdi mdi-flask gemini-gradient-text"></i> Custom Theme Laboratory
+            </h3>
+            <!-- Dual scope toggle -->
+            <div id="theme-scope-toggle" class="flex p-1 rounded-full mb-5" style="background:var(--surface-raised)">
+              <button id="scope-global" class="scope-btn active flex-1 h-9 rounded-full text-xs font-600 truncate" style="color:var(--text-primary)" onclick="setThemeScope('global')">
+                <i class="mdi mdi-earth mr-1"></i> Broadcast Globally
+              </button>
+              <button id="scope-local" class="scope-btn flex-1 h-9 rounded-full text-xs font-600 truncate" style="color:var(--text-secondary)" onclick="setThemeScope('local')">
+                <i class="mdi mdi-lock mr-1"></i> Admin UI Lock
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs mb-2 block" style="color:var(--text-secondary)">Canvas BG</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="tc-canvas-bg" value="#131314" class="color-swatch border-0 p-0" style="width:36px;height:36px;border-radius:50%;cursor:pointer" onchange="applyThemeColor('--canvas-bg', this.value)" />
+                  <span class="text-xs" style="color:var(--text-secondary)" id="tc-canvas-bg-val">#131314</span>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs mb-2 block" style="color:var(--text-secondary)">Lyrics Color</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="tc-lyrics" value="#e3e3e3" class="color-swatch border-0 p-0" style="width:36px;height:36px;border-radius:50%;cursor:pointer" onchange="applyThemeColor('--lyrics-color', this.value)" />
+                  <span class="text-xs" style="color:var(--text-secondary)" id="tc-lyrics-val">#e3e3e3</span>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs mb-2 block" style="color:var(--text-secondary)">Chords Color</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="tc-chords" value="#4285f4" class="color-swatch border-0 p-0" style="width:36px;height:36px;border-radius:50%;cursor:pointer" onchange="applyThemeColor('--chords-color', this.value)" />
+                  <span class="text-xs" style="color:var(--text-secondary)" id="tc-chords-val">#4285f4</span>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs mb-2 block" style="color:var(--text-secondary)">Surface BG</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="tc-surface" value="#1e1f20" class="color-swatch border-0 p-0" style="width:36px;height:36px;border-radius:50%;cursor:pointer" onchange="applyThemeColor('--surface-bg', this.value)" />
+                  <span class="text-xs" style="color:var(--text-secondary)" id="tc-surface-val">#1e1f20</span>
+                </div>
+              </div>
+            </div>
+            <button onclick="pushThemeToCloud()" id="push-theme-btn" class="mt-4 h-10 px-5 rounded-full text-sm font-600 gemini-gradient-bg text-white">Apply Theme</button>
+          </div>
+
+          <!-- System Purge -->
+          <div class="admin-section p-5" style="border-color:rgba(217,101,112,0.3)">
+            <h3 class="font-700 text-sm mb-2 flex items-center gap-2" style="color:#d96570">
+              <i class="mdi mdi-nuke"></i> System Purge & Reset Matrix
+            </h3>
+            <p class="text-xs mb-4" style="color:var(--text-secondary)">Destructive operations — cannot be undone.</p>
+            <button id="admin-purge-trigger-btn" onclick="openPurgeModal()"
+                    class="h-10 px-5 rounded-full text-sm font-600"
+                    style="background:rgba(217,101,112,0.15); color:#d96570; border:1px solid rgba(217,101,112,0.3);">
+              <i class="mdi mdi-delete-forever mr-1"></i> Open Purge Console
+            </button>
+          </div>
+
+        </div>
       </div>
-      <h2 style="font-size:18px;font-weight:800;margin-bottom:8px;">OTA Security Verification</h2>
-      <p id="otp-desc" style="font-size:13px;color:var(--text-muted);">A 6-digit code has been logged. Enter it below to confirm the operation.</p>
+
+    </div><!-- /views-container -->
+
+    <!-- ═══ STAGE VIEW (full-screen overlay) ═══ -->
+    <div id="stage-view" class="hidden fixed inset-0 z-20 flex flex-col" style="background:var(--canvas-bg)">
+
+      <!-- Performance toolbar -->
+      <div id="perf-toolbar" class="flex items-center gap-2 px-4 h-12 flex-shrink-0 mt-20">
+        <!-- Key transposer -->
+        <div class="flex items-center gap-1 rounded-full px-2 py-1" style="background:var(--surface-raised); border:1px solid var(--border-color)">
+          <button onclick="transposeKey(-1)" class="w-7 h-7 rounded-full flex items-center justify-center text-sm font-700" style="color:#9b72cb">♭</button>
+          <span id="current-key" class="text-xs font-700 px-1 min-w-[2rem] text-center truncate" style="color:var(--text-primary)">C</span>
+          <button onclick="transposeKey(1)" class="w-7 h-7 rounded-full flex items-center justify-center text-sm font-700" style="color:#9b72cb">♯</button>
+        </div>
+        <!-- Capo -->
+        <div class="flex items-center gap-1 rounded-full px-2 py-1" style="background:var(--surface-raised); border:1px solid var(--border-color)">
+          <button onclick="adjustCapo(-1)" class="w-7 h-7 rounded-full flex items-center justify-center text-sm" style="color:var(--text-secondary)"><i class="mdi mdi-minus text-sm"></i></button>
+          <span class="text-xs font-600 px-1 truncate" style="color:var(--text-primary)">Capo <span id="capo-val">0</span></span>
+          <button onclick="adjustCapo(1)" class="w-7 h-7 rounded-full flex items-center justify-center text-sm" style="color:var(--text-secondary)"><i class="mdi mdi-plus text-sm"></i></button>
+        </div>
+        <!-- Lyrics only toggle -->
+        <button id="lyrics-only-btn" onclick="toggleLyricsOnly()"
+                class="flex items-center gap-1 px-3 h-8 rounded-full text-xs font-600"
+                style="background:var(--surface-raised); border:1px solid var(--border-color); color:var(--text-secondary)">
+          <i class="mdi mdi-eye-off text-sm"></i>
+          <span class="hidden sm:inline truncate">Lyrics</span>
+        </button>
+        <!-- Song title -->
+        <span id="stage-song-title" class="flex-1 text-sm font-700 truncate text-right" style="color:var(--text-primary)"></span>
+      </div>
+
+      <!-- Scrollable chord sheet -->
+      <div id="song-scroll-area" class="flex-1 overflow-y-auto px-5 pt-4">
+        <div id="chord-sheet-container" class="pb-32 max-w-2xl mx-auto text-sm leading-relaxed"></div>
+      </div>
+
+      <!-- Stage tray (auto-scroll controls) -->
+      <div id="stage-tray" class="fixed bottom-0 left-0 right-0 h-12 flex items-center gap-3 px-5 z-30">
+        <button id="scroll-play-btn" onclick="toggleAutoScroll()"
+                class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                style="background:var(--surface-raised); border:1px solid var(--border-color); color:var(--text-primary)">
+          <i class="mdi mdi-play text-lg" id="scroll-play-icon"></i>
+        </button>
+        <button class="speed-badge flex-shrink-0" onclick="cycleScrollSpeed()" id="speed-display">Speed: 1.0x</button>
+        <div class="flex-1"></div>
+        <button onclick="scrollToTop()" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                style="background:var(--surface-raised); border:1px solid var(--border-color); color:var(--text-secondary)">
+          <i class="mdi mdi-rewind-to-start text-lg"></i>
+        </button>
+      </div>
+    </div><!-- /stage-view -->
+
+  </main><!-- /main-content -->
+
+  <!-- ═══ FAB BUTTONS ═══ -->
+  <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
+    <button id="fab-add-song" class="fab-btn fab-hidden w-14 h-14 rounded-full flex items-center justify-center shadow-2xl gemini-gradient-bg"
+            onclick="openSongModal()" title="Add Song">
+      <i class="mdi mdi-music-note-plus text-2xl text-white"></i>
+    </button>
+    <button id="fab-add-setlist" class="fab-btn fab-hidden w-14 h-14 rounded-full flex items-center justify-center shadow-2xl"
+            style="background:var(--surface-bg); border:2px solid rgba(155,114,203,0.4); color:#9b72cb"
+            onclick="openSetlistModal()" title="Add Setlist">
+      <i class="mdi mdi-playlist-plus text-2xl"></i>
+    </button>
+  </div>
+
+</div><!-- /app-shell -->
+
+<!-- ═══════════════════════════════════════════════════════
+     TOAST NOTIFICATION
+═══════════════════════════════════════════════════════ -->
+<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-full text-sm font-600 shadow-2xl"
+     style="background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border-color); white-space:nowrap">
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SONG MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="song-modal" class="modal-backdrop fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.7)">
+  <div class="modal-container w-full max-w-lg rounded-3xl flex flex-col" style="background:var(--surface-bg); border:1px solid var(--border-color); max-height:90vh;">
+    <!-- Modal header -->
+    <div class="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0">
+      <h3 class="font-700 text-base" style="color:var(--text-primary)">Add New Song</h3>
+      <button onclick="closeSongModal()" class="w-9 h-9 rounded-full flex items-center justify-center" style="background:var(--surface-raised); color:var(--text-secondary)">
+        <i class="mdi mdi-close"></i>
+      </button>
     </div>
-    <input id="otp-input" class="input-styled" type="text" maxlength="6" placeholder="000000" inputmode="numeric" pattern="[0-9]*" style="text-align:center;letter-spacing:0.4em;font-size:24px;font-weight:800;margin-bottom:16px;" />
-    <div id="otp-error" style="display:none;color:#f87171;font-size:13px;margin-bottom:12px;padding:10px;border-radius:9999px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);">
-      Invalid code. Operation blocked.
+    <!-- Tab row -->
+    <div class="flex mx-6 mb-4 p-1 rounded-full gap-1 flex-shrink-0" style="background:var(--surface-raised)">
+      <button id="tab-mode-manual" class="tab-pill active flex-1 h-9 rounded-full text-xs font-600 truncate" onclick="switchSongTab('manual')" style="color:var(--text-primary)"><i class="mdi mdi-pencil mr-1"></i>Manual</button>
+      <button id="tab-mode-scan" class="tab-pill flex-1 h-9 rounded-full text-xs font-600 truncate" onclick="switchSongTab('scan')" style="color:var(--text-secondary)"><i class="mdi mdi-file-image mr-1"></i>Scan</button>
+      <button id="tab-mode-camera" class="tab-pill flex-1 h-9 rounded-full text-xs font-600 truncate" onclick="switchSongTab('camera')" style="color:var(--text-secondary)"><i class="mdi mdi-camera mr-1"></i>Camera</button>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button onclick="closeModal('otp-modal')" style="flex:1;padding:14px;border-radius:9999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;">Cancel</button>
-      <button onclick="verifyOTP()" style="flex:1;padding:14px;border-radius:9999px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#f87171;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;cursor:pointer;transition:all 300ms ease-out;" onmouseover="this.style.background='rgba(239,68,68,0.35)'" onmouseout="this.style.background='rgba(239,68,68,0.2)'">Verify & Execute</button>
+    <!-- Modal body -->
+    <div class="flex-1 overflow-y-auto px-6 pb-6">
+
+      <!-- Manual input -->
+      <div id="modal-manual" class="flex flex-col gap-3">
+        <div>
+          <label class="text-xs mb-1 block" style="color:var(--text-secondary)">Song Title *</label>
+          <input id="song-title-input" type="text" class="w-full h-10 px-3 rounded-xl text-sm" placeholder="Amazing Grace" />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color:var(--text-secondary)">Original Key</label>
+          <select id="song-key-input" class="w-full h-10 px-3 rounded-xl text-sm">
+            <option value="">Select key…</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color:var(--text-secondary)">Artist / Composer</label>
+          <input id="song-artist-input" type="text" class="w-full h-10 px-3 rounded-xl text-sm" placeholder="Artist name" />
+        </div>
+        <div>
+          <label class="text-xs mb-1.5 block" style="color:var(--text-secondary)">Chord Sheet</label>
+          <p class="text-xs mb-2" style="color:var(--text-secondary)">Use <code class="px-1 rounded" style="background:var(--surface-raised)">[Chord]</code> on a line above lyrics.</p>
+          <textarea id="song-sheet-input" rows="8" class="w-full px-3 py-2.5 rounded-2xl text-sm resize-none"
+                    placeholder="[Verse 1]&#10;[G]Amazing [D]grace how&#10;sweet the [G]sound…"></textarea>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          <label class="flex items-center gap-2 cursor-pointer text-sm" style="color:var(--text-secondary)">
+            <input type="checkbox" id="song-fav-input" class="rounded" /> Favorite
+          </label>
+        </div>
+        <button onclick="submitSong()" class="w-full h-11 rounded-full text-sm font-700 gemini-gradient-bg text-white mt-1">
+          <i class="mdi mdi-check mr-1"></i> Save Song
+        </button>
+      </div>
+
+      <!-- Scan mode -->
+      <div id="modal-scan" class="hidden flex flex-col gap-4">
+        <div id="file-drop-zone"
+             class="w-full rounded-2xl flex flex-col items-center justify-center gap-3 py-12 cursor-pointer"
+             style="border:2px dashed rgba(155,114,203,0.4); background:rgba(155,114,203,0.05)"
+             onclick="document.getElementById('file-input').click()"
+             ondragover="event.preventDefault()" ondrop="handleFileDrop(event)">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center gemini-gradient-bg">
+            <i class="mdi mdi-file-upload text-2xl text-white"></i>
+          </div>
+          <p class="font-600 text-sm" style="color:var(--text-primary)">Drop PDF, PNG, or JPEG</p>
+          <p class="text-xs" style="color:var(--text-secondary)">or click to browse</p>
+        </div>
+        <input type="file" id="file-input" accept=".pdf,.png,.jpg,.jpeg" class="hidden" onchange="handleFileSelect(event)" />
+        <div id="scan-preview" class="hidden rounded-2xl overflow-hidden" style="border:1px solid var(--border-color)">
+          <img id="scan-image-preview" src="" alt="" class="w-full max-h-48 object-contain" style="background:#000" />
+        </div>
+        <textarea id="scan-extracted-text" class="hidden w-full px-3 py-2.5 rounded-2xl text-sm resize-none" rows="6" placeholder="Extracted text will appear here…"></textarea>
+        <button id="import-scan-btn" class="hidden w-full h-11 rounded-full text-sm font-700 gemini-gradient-bg text-white" onclick="importScannedText()">
+          <i class="mdi mdi-import mr-1"></i> Import & Edit
+        </button>
+      </div>
+
+      <!-- Camera mode -->
+      <div id="modal-camera" class="hidden flex flex-col gap-4 items-center">
+        <video id="camera-preview" class="w-full max-h-64 rounded-2xl" autoplay playsinline muted></video>
+        <canvas id="camera-canvas" class="hidden rounded-2xl" style="max-width:100%"></canvas>
+        <div class="flex gap-3">
+          <button id="camera-start-btn" onclick="startCamera()" class="h-11 px-5 rounded-full text-sm font-600" style="background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border-color)">
+            <i class="mdi mdi-video mr-1"></i> Start Camera
+          </button>
+          <button id="camera-snap-btn" onclick="snapPhoto()" class="hidden h-11 w-11 rounded-full flex items-center justify-center gemini-gradient-bg">
+            <i class="mdi mdi-circle text-xl text-white"></i>
+          </button>
+          <button id="camera-stop-btn" onclick="stopCamera()" class="hidden h-11 px-5 rounded-full text-sm font-600" style="background:var(--surface-raised); color:#d96570; border:1px solid rgba(217,101,112,0.3)">
+            <i class="mdi mdi-stop mr-1"></i> Stop
+          </button>
+        </div>
+        <textarea id="camera-extracted-text" class="hidden w-full px-3 py-2.5 rounded-2xl text-sm resize-none" rows="5" placeholder="Captured text will appear here…"></textarea>
+        <button id="import-camera-btn" class="hidden w-full h-11 rounded-full text-sm font-700 gemini-gradient-bg text-white" onclick="importCameraText()">
+          <i class="mdi mdi-import mr-1"></i> Import Capture
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- Edit Song Modal -->
-<div id="edit-song-modal" class="modal-overlay">
-  <div class="modal-sheet">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <h2 style="font-size:18px;font-weight:800;">Edit Song</h2>
-      <button class="btn-circle btn-glass" onclick="closeModal('edit-song-modal')" style="width:40px;height:40px;"><span class="mdi mdi-close"></span></button>
+<!-- ═══════════════════════════════════════════════════════
+     SETLIST MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="setlist-modal" class="modal-backdrop fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.7)">
+  <div class="modal-container w-full max-w-md rounded-3xl flex flex-col" style="background:var(--surface-bg); border:1px solid var(--border-color); max-height:90vh">
+    <div class="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0">
+      <h3 class="font-700 text-base" style="color:var(--text-primary)">Create Setlist</h3>
+      <button onclick="closeSetlistModal()" class="w-9 h-9 rounded-full flex items-center justify-center" style="background:var(--surface-raised); color:var(--text-secondary)">
+        <i class="mdi mdi-close"></i>
+      </button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <input id="edit-song-id" type="hidden" />
-      <input id="edit-song-title" class="input-styled" type="text" placeholder="Song Title *" />
-      <input id="edit-song-artist" class="input-styled" type="text" placeholder="Artist / Band" />
-      <select id="edit-song-key" class="input-styled"></select>
-      <input id="edit-song-tempo" class="input-styled" type="number" placeholder="Tempo (BPM)" />
-      <input id="edit-song-genre" class="input-styled" type="text" placeholder="Genre / Style" />
-      <textarea id="edit-song-lyrics" class="input-styled" placeholder="Chord+lyrics content..."></textarea>
-      <button onclick="submitEditSong()" style="width:100%;padding:14px;border-radius:9999px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;border:none;transition:all 300ms ease-out;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Save Changes</button>
+    <div class="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-3">
+      <div>
+        <label class="text-xs mb-1 block" style="color:var(--text-secondary)">Setlist Name *</label>
+        <input id="setlist-name-input" type="text" class="w-full h-10 px-3 rounded-xl text-sm" placeholder="Sunday Morning Service" />
+      </div>
+      <div>
+        <label class="text-xs mb-1 block" style="color:var(--text-secondary)">Date</label>
+        <input id="setlist-date-input" type="date" class="w-full h-10 px-3 rounded-xl text-sm" />
+      </div>
+      <div>
+        <label class="text-xs mb-2 block" style="color:var(--text-secondary)">Select Songs</label>
+        <div id="setlist-song-picker" class="flex flex-col gap-2 max-h-48 overflow-y-auto rounded-2xl p-3" style="background:var(--surface-raised)"></div>
+      </div>
+      <button onclick="submitSetlist()" class="w-full h-11 rounded-full text-sm font-700 gemini-gradient-bg text-white mt-1">
+        <i class="mdi mdi-check mr-1"></i> Create Setlist
+      </button>
     </div>
   </div>
 </div>
 
-<!-- Firebase -->
+<!-- ═══════════════════════════════════════════════════════
+     SETLIST DETAIL MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="setlist-detail-modal" class="modal-backdrop fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.7)">
+  <div class="modal-container w-full max-w-lg rounded-3xl flex flex-col" style="background:var(--surface-bg); border:1px solid var(--border-color); max-height:90vh">
+    <div class="flex items-center justify-between px-6 pt-5 pb-4 flex-shrink-0">
+      <div class="flex-1 min-w-0">
+        <h3 id="setlist-detail-title" class="font-700 text-base truncate" style="color:var(--text-primary)"></h3>
+        <p id="setlist-detail-date" class="text-xs" style="color:var(--text-secondary)"></p>
+      </div>
+      <button onclick="closeSetlistDetailModal()" class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ml-3" style="background:var(--surface-raised); color:var(--text-secondary)">
+        <i class="mdi mdi-close"></i>
+      </button>
+    </div>
+    <div id="setlist-detail-songs" class="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-2"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PURGE MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="purge-modal" class="modal-backdrop fixed inset-0 z-[70] flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.8)">
+  <div class="modal-container w-full max-w-sm rounded-3xl" style="background:var(--surface-bg); border:1px solid rgba(217,101,112,0.4)">
+    <div class="p-6 flex flex-col gap-5">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style="background:rgba(217,101,112,0.15)">
+          <i class="mdi mdi-alert text-2xl" style="color:#d96570"></i>
+        </div>
+        <div>
+          <h3 class="font-700" style="color:#d96570">System Purge Console</h3>
+          <p class="text-xs" style="color:var(--text-secondary)">Irreversible destructive actions</p>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <button onclick="initiatePurge('setlists')"
+                class="w-full h-11 rounded-full text-sm font-600 text-left px-4 flex items-center gap-2"
+                style="background:rgba(217,101,112,0.1); color:#d96570; border:1px solid rgba(217,101,112,0.25)">
+          <i class="mdi mdi-playlist-remove"></i> Clear All Setlists Only
+        </button>
+        <button onclick="initiatePurge('all')"
+                class="w-full h-11 rounded-full text-sm font-600 text-left px-4 flex items-center gap-2"
+                style="background:rgba(217,101,112,0.18); color:#d96570; border:1px solid rgba(217,101,112,0.4)">
+          <i class="mdi mdi-nuke"></i> Deep Factory Reset (Setlists + Users)
+        </button>
+      </div>
+      <button onclick="closePurgeModal()" class="w-full h-10 rounded-full text-sm" style="background:var(--surface-raised); color:var(--text-secondary)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Purge Verification Modal -->
+<div id="purge-verification-modal" class="modal-backdrop fixed inset-0 z-[80] flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.85)">
+  <div class="modal-container w-full max-w-sm rounded-3xl" style="background:var(--surface-bg); border:1px solid var(--border-color)">
+    <div class="p-6 flex flex-col gap-4">
+      <h3 class="font-700 text-base" style="color:var(--text-primary)">OTA Security Verification</h3>
+      <p class="text-sm" style="color:var(--text-secondary)">A 6-digit verification code has been generated. Check your console/email and enter it below.</p>
+      <input id="purge-code-input" type="text" maxlength="6" class="w-full h-12 px-4 rounded-xl text-center text-xl font-700 tracking-widest"
+             placeholder="000000" />
+      <p id="purge-error-msg" class="hidden text-xs text-center" style="color:#d96570">Invalid code. Operation cancelled.</p>
+      <div class="flex gap-2">
+        <button onclick="closePurgeVerification()" class="flex-1 h-10 rounded-full text-sm" style="background:var(--surface-raised); color:var(--text-secondary)">Cancel</button>
+        <button onclick="verifyPurgeCode()" class="flex-1 h-10 rounded-full text-sm font-600 gemini-gradient-bg text-white">Verify & Execute</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FIREBASE & APP SCRIPTS
+═══════════════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs,
+  onSnapshot, deleteDoc, writeBatch, updateDoc, query, orderBy
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// ===== FIREBASE CONFIG =====
+// ─── Firebase Config ────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyAlE76KUY17bv8J5mM_9SBN6p23gNUyc0Y",
   authDomain: "rccm-gigbook.firebaseapp.com",
@@ -1000,1076 +973,1036 @@ const firebaseConfig = {
   messagingSenderId: "817371493392",
   appId: "1:817371493392:web:a7cec582390753b9104695"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
 
-// ===== CONSTANTS =====
+// ─── Music Theory Constants ─────────────────────────────
 const CHROMATIC_SCALE = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const ENHARMONIC_MAP = { 'Db':'C#','Eb':'D#','Fb':'E','Gb':'F#','Ab':'G#','Bb':'A#','Cb':'B', 'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb' };
-const FLAT_KEYS = ['F','Bb','Eb','Ab','Db','Gb'];
+const ENHARMONIC_MAP = {
+  'Db':'C#','Eb':'D#','Fb':'E','Gb':'F#','Ab':'G#','Bb':'A#','Cb':'B',
+  'C#':'Db','D#':'Eb','E#':'F','F#':'Gb','G#':'Ab','A#':'Bb','B#':'C'
+};
 const ALL_KEYS = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B'];
-const ROLES = ['Guest','Singer','Musician','Lead','Tech','Sub-Admin','Admin'];
 
-// ===== STATE =====
+// ─── App State ──────────────────────────────────────────
 let currentUser = null;
-let currentUserData = null;
+let currentUserRole = 'Guest';
 let allSongs = [];
 let allSetlists = [];
 let allUsers = [];
 let currentView = 'songs';
 let currentSong = null;
-let currentSetlist = null;
-let stageTranspose = 0;
-let stageCapo = 0;
-let stageLyricsOnly = false;
-let autoScrollActive = false;
-let autoScrollSpeed = 1.0;
-let autoScrollRAF = null;
-let activeFilters = { key: null, genre: null };
-let searchQuery = '';
-let filterPanelOpen = false;
-let pendingPurgeType = null;
-let otpCode = null;
+let transpositionSteps = 0;
+let capoPosition = 0;
+let lyricsOnlyMode = false;
+let autoScrolling = false;
+let scrollSpeed = 1.0;
+let scrollInterval = null;
+let activeTab = 'manual';
 let themeScope = 'global';
-let songListeners = [];
-let setlistListeners = [];
-let userListeners = [];
-let selectedSetlistSongs = [];
-let roleModalTargetUser = null;
-let deferredInstallPrompt = null;
+let pendingPurgeType = null;
+let purgeVerifyCode = null;
+let cameraStream = null;
+let deferredPWAPrompt = null;
+let unsubSongs = null, unsubSetlists = null, unsubUsers = null, unsubTheme = null;
+let songLimit = 500;
+let filterKey = null;
+let filterOpen = false;
+let userSubtab = 'roster';
 
-// ===== PWA INSTALL =====
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  const btn = document.getElementById('pwa-install-btn');
-  if (btn) { btn.style.display = 'block'; btn.style.opacity = '0'; setTimeout(() => { btn.style.transition = 'opacity 500ms'; btn.style.opacity = '1'; }, 100); }
-});
+// ─── Utility ────────────────────────────────────────────
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
 
-window.invokePWAInstall = function() {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.then(r => { if (r.outcome === 'accepted') showToast('App installed!', 'success'); deferredInstallPrompt = null; });
+function fmt(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function initKeySelects() {
+  const sel = document.getElementById('song-key-input');
+  ALL_KEYS.forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = k;
+    sel.appendChild(o);
+  });
+}
+
+function buildKeyFilters() {
+  const c = document.getElementById('key-filters');
+  c.innerHTML = '';
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'h-8 px-3 rounded-full text-xs font-600';
+  resetBtn.style.cssText = `background:${filterKey===null?'rgba(155,114,203,0.25)':'var(--surface-raised)'}; color:${filterKey===null?'#e3e3e3':'var(--text-secondary)'}; border:1px solid var(--border-color)`;
+  resetBtn.textContent = 'All';
+  resetBtn.onclick = () => { filterKey = null; buildKeyFilters(); renderSongs(); };
+  c.appendChild(resetBtn);
+  ALL_KEYS.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'h-8 px-3 rounded-full text-xs font-600';
+    btn.style.cssText = `background:${filterKey===k?'rgba(66,133,244,0.25)':'var(--surface-raised)'}; color:${filterKey===k?'#4285f4':'var(--text-secondary)'}; border:1px solid var(--border-color)`;
+    btn.textContent = k;
+    btn.onclick = () => { filterKey = k; buildKeyFilters(); renderSongs(); };
+    c.appendChild(btn);
+  });
+}
+
+// ─── Expose globals ─────────────────────────────────────
+window.openSidebar = () => {
+  document.getElementById('side-navbar').classList.add('open');
+  document.getElementById('nav-overlay').classList.add('show');
+};
+window.closeSidebar = () => {
+  document.getElementById('side-navbar').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('show');
+};
+
+window.toggleFilter = () => {
+  filterOpen = !filterOpen;
+  const fp = document.getElementById('filter-panel');
+  fp.classList.toggle('hidden-panel', !filterOpen);
+};
+
+window.handleSearch = () => {
+  if (currentView === 'songs') renderSongs();
+  else if (currentView === 'setlists') renderSetlists();
+};
+
+// ─── View Switching ─────────────────────────────────────
+window.switchView = (view) => {
+  currentView = view;
+  closeSidebar();
+
+  ['songs','setlists','users','admin'].forEach(v => {
+    const el = document.getElementById(`view-${v}`);
+    if (el) el.classList.remove('active');
+  });
+
+  const target = document.getElementById(`view-${view}`);
+  if (target) {
+    setTimeout(() => target.classList.add('active'), 10);
+  }
+
+  ['nav-songs','nav-setlists','nav-users','nav-admin'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const activeNav = document.getElementById(`nav-${view === 'songs' ? 'songs' : view === 'setlists' ? 'setlists' : view === 'users' ? 'users' : 'admin'}`);
+  if (activeNav) activeNav.classList.add('active');
+
+  // Show/hide search row
+  const sfr = document.getElementById('search-filter-row');
+  sfr.classList.toggle('hidden-row', view === 'admin');
+
+  // Show/hide FABs
+  updateFABs(view);
+
+  // Reset search
+  document.getElementById('search-input').value = '';
+  filterKey = null;
+};
+
+function updateFABs(view) {
+  const fabSong = document.getElementById('fab-add-song');
+  const fabSetlist = document.getElementById('fab-add-setlist');
+  const isGuest = currentUserRole === 'Guest';
+
+  if (isGuest) {
+    fabSong.classList.add('fab-hidden');
+    fabSetlist.classList.add('fab-hidden');
+    return;
+  }
+  fabSong.classList.toggle('fab-hidden', view !== 'songs');
+  fabSetlist.classList.toggle('fab-hidden', view !== 'setlists');
+}
+
+// ─── Auth ───────────────────────────────────────────────
+const provider = new GoogleAuthProvider();
+
+window.handleGoogleSignIn = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    showToast('Sign-in failed: ' + e.message);
   }
 };
 
-// ===== AUTH =====
-window.triggerGoogleSignIn = function() {
-  signInWithPopup(auth, provider).catch(e => showToast('Sign-in failed: ' + e.message, 'error'));
-};
-
-window.handleSignOut = async function() {
-  if (!currentUser) return;
-  localStorage.setItem('rccm_last_user', JSON.stringify({
-    displayName: currentUser.displayName,
-    email: currentUser.email,
-    photoURL: currentUser.photoURL
-  }));
+window.handleSignOut = async () => {
+  if (currentUser) {
+    localStorage.setItem('rccm_last_user', JSON.stringify({
+      displayName: currentUser.displayName,
+      email: currentUser.email,
+      photoURL: currentUser.photoURL
+    }));
+  }
+  if (unsubSongs) unsubSongs();
+  if (unsubSetlists) unsubSetlists();
+  if (unsubUsers) unsubUsers();
+  if (unsubTheme) unsubTheme();
+  stopAutoScroll();
+  stopCamera();
   await signOut(auth);
 };
 
-onAuthStateChanged(auth, async (user) => {
-  const loadingEl = document.getElementById('loading-screen');
-  const authEl = document.getElementById('auth-screen');
+document.getElementById('google-signin-btn').onclick = window.handleGoogleSignIn;
+document.getElementById('recent-account-card').onclick = window.handleGoogleSignIn;
 
+// Recent user cache
+const cachedUser = (() => { try { return JSON.parse(localStorage.getItem('rccm_last_user')); } catch { return null; } })();
+if (cachedUser) {
+  const card = document.getElementById('recent-account-card');
+  card.classList.remove('hidden');
+  document.getElementById('recent-name').textContent = cachedUser.displayName || 'User';
+  document.getElementById('recent-email').textContent = cachedUser.email || '';
+  const img = document.getElementById('recent-photo');
+  img.src = cachedUser.photoURL || '';
+  img.onerror = () => img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="%239b72cb"/><path fill="%239b72cb" d="M20 20c0-4.4-3.6-8-8-8s-8 3.6-8 8"/></svg>';
+}
+
+// ─── onAuthStateChanged ──────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    loadingEl.classList.add('fade-out');
-    setTimeout(() => loadingEl.style.display = 'none', 500);
-    authEl.classList.add('hidden');
-    await ensureUserDoc(user);
-    await loadUserData(user.uid);
-    populateKeySelects();
-    initApp();
+    document.getElementById('auth-screen').style.opacity = '0';
+    document.getElementById('auth-screen').style.pointerEvents = 'none';
+    setTimeout(() => document.getElementById('auth-screen').classList.add('hidden'), 300);
+    document.getElementById('app-shell').classList.remove('hidden');
+
+    // Ensure user doc in Firestore
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        role: 'Guest',
+        createdAt: new Date()
+      });
+      currentUserRole = 'Guest';
+    } else {
+      currentUserRole = snap.data().role || 'Guest';
+    }
+
+    setupUI();
+    subscribeData();
+    applyLocalTheme();
+
   } else {
     currentUser = null;
-    currentUserData = null;
-    cleanupListeners();
-    loadingEl.classList.add('fade-out');
-    setTimeout(() => loadingEl.style.display = 'none', 500);
-    authEl.classList.remove('hidden');
-    showRecentAccount();
-    // Load any local theme overrides
-    applyLocalTheme();
+    currentUserRole = 'Guest';
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('auth-screen').style.opacity = '1';
+    document.getElementById('auth-screen').style.pointerEvents = 'all';
+    document.getElementById('app-shell').classList.add('hidden');
+    stopAutoScroll();
   }
 });
 
-function showRecentAccount() {
-  const raw = localStorage.getItem('rccm_last_user');
-  if (!raw) return;
-  try {
-    const u = JSON.parse(raw);
-    if (!u || !u.email) return;
-    const card = document.getElementById('recent-account-card');
-    const label = document.getElementById('recent-account-label');
-    document.getElementById('recent-photo').src = u.photoURL || '';
-    document.getElementById('recent-name').textContent = 'Continue as ' + (u.displayName || u.email);
-    document.getElementById('recent-email').textContent = u.email;
-    card.style.display = 'flex';
-    label.style.display = 'block';
-  } catch(e) {}
+// ─── Setup UI ───────────────────────────────────────────
+function setupUI() {
+  // Nav visibility
+  const isGuest = currentUserRole === 'Guest';
+  const isAdmin = currentUserRole === 'Admin';
+  const isSubAdmin = currentUserRole === 'Sub-Admin';
+
+  document.getElementById('nav-songs').classList.toggle('hidden', isGuest);
+  document.getElementById('nav-users').classList.toggle('hidden', !isAdmin && !isSubAdmin);
+  document.getElementById('nav-admin').classList.toggle('hidden', !isAdmin);
+
+  // User profile
+  document.getElementById('nav-user-photo').src = currentUser.photoURL || '';
+  document.getElementById('nav-user-name').textContent = currentUser.displayName || currentUser.email || 'User';
+  document.getElementById('nav-user-role').textContent = currentUserRole;
+
+  // Initial view
+  const startView = isGuest ? 'setlists' : 'songs';
+  switchView(startView);
+
+  initKeySelects();
+  buildKeyFilters();
 }
 
-async function ensureUserDoc(user) {
-  const ref = doc(db, 'users', user.uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      uid: user.uid,
-      displayName: user.displayName || '',
-      email: user.email || '',
-      photoURL: user.photoURL || '',
-      role: 'Guest',
-      createdAt: serverTimestamp()
-    });
-  } else {
-    await updateDoc(ref, {
-      displayName: user.displayName || snap.data().displayName || '',
-      photoURL: user.photoURL || snap.data().photoURL || '',
-      email: user.email || snap.data().email || ''
-    });
-  }
-}
-
-async function loadUserData(uid) {
-  const ref = doc(db, 'users', uid);
-  const snap = await getDoc(ref);
-  if (snap.exists()) currentUserData = snap.data();
-  else currentUserData = { role: 'Guest' };
-}
-
-// ===== INIT APP =====
-function initApp() {
-  setupNavForRole();
-  setupFABForView();
-  updateSidebarProfile();
-  loadAdminTheme();
-
-  // Navigate
-  const role = currentUserData?.role || 'Guest';
-  if (role === 'Guest') navigateTo('setlist');
-  else navigateTo('songs');
-
-  // Listeners
-  listenSongs();
-  listenSetlists();
-  const adminRoles = ['Admin','Sub-Admin'];
-  if (adminRoles.includes(role)) listenUsers();
-}
-
-function updateSidebarProfile() {
-  const u = currentUser;
-  const d = currentUserData;
-  if (!u) return;
-  document.getElementById('nav-user-photo').src = u.photoURL || '';
-  document.getElementById('nav-user-name').textContent = u.displayName || u.email || '';
-  document.getElementById('nav-user-role').textContent = d?.role || 'Guest';
-}
-
-function setupNavForRole() {
-  const role = currentUserData?.role || 'Guest';
-  const isGuest = role === 'Guest';
-  const isAdmin = role === 'Admin';
-  const isSubAdmin = role === 'Sub-Admin';
-
-  document.getElementById('nav-song-list').style.display = isGuest ? 'none' : 'flex';
-  document.getElementById('nav-users').style.display = (isAdmin || isSubAdmin) ? 'flex' : 'none';
-  document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
-}
-
-// ===== NAVIGATION =====
-window.navigateTo = function(view) {
-  currentView = view;
-  const views = ['songs-view','setlist-view','users-view','admin-view','setlist-detail-view'];
-  views.forEach(v => { document.getElementById(v).style.display = 'none'; });
-
-  // Hide stage
-  document.getElementById('stage-view').classList.remove('active');
-  document.getElementById('top-bar').style.display = 'flex';
-  document.getElementById('main-content').style.display = 'block';
-
-  // Show hamburger, hide back
-  document.getElementById('hamburger-btn').style.display = 'flex';
-  document.getElementById('back-btn').style.display = 'none';
-
-  // Show search/filter for songs
-  const showSearch = (view === 'songs' || view === 'setlist');
-  document.getElementById('search-bar-container').style.display = showSearch ? 'block' : 'none';
-  document.getElementById('filter-btn').style.display = (view === 'songs') ? 'flex' : 'none';
-
-  // Update active nav
-  ['nav-song-list','nav-setlist','nav-users','nav-admin'].forEach(id => document.getElementById(id).classList.remove('active'));
-  const navMap = { songs: 'nav-song-list', setlist: 'nav-setlist', users: 'nav-users', admin: 'nav-admin' };
-  if (navMap[view]) document.getElementById(navMap[view]).classList.add('active');
-
-  // Show view
-  const viewMap = { songs: 'songs-view', setlist: 'setlist-view', users: 'users-view', admin: 'admin-view', 'setlist-detail': 'setlist-detail-view' };
-  if (viewMap[view]) {
-    const el = document.getElementById(viewMap[view]);
-    el.style.display = 'block';
-    el.classList.add('entering');
-    requestAnimationFrame(() => { el.classList.remove('entering'); });
-  }
-
-  setupFABForView();
-  closeFilterPanel();
-
-  if (view === 'songs') renderSongs();
-  if (view === 'setlist') renderSetlists();
-  if (view === 'users') renderUsers();
-  if (view === 'admin') renderAdminSettings();
-};
-
-// ===== SIDEBAR =====
-window.openSidebar = function() {
-  document.getElementById('side-navbar').classList.add('open');
-  document.getElementById('sidebar-overlay').classList.add('open');
-};
-window.closeSidebar = function() {
-  document.getElementById('side-navbar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-};
-
-// ===== FAB LOGIC =====
-function setupFABForView() {
-  const role = currentUserData?.role || 'Guest';
-  const isGuest = role === 'Guest';
-  const fabSong = document.getElementById('fab-add-song');
-  const fabSetlist = document.getElementById('fab-add-setlist');
-
-  if (isGuest) {
-    fabSong.className = 'fab-btn fab-hidden';
-    fabSetlist.className = 'fab-btn fab-hidden';
-    return;
-  }
-
-  const inStage = document.getElementById('stage-view').classList.contains('active');
-  fabSong.className = 'fab-btn ' + ((currentView === 'songs' && !inStage) ? 'fab-visible' : 'fab-hidden');
-  fabSetlist.className = 'fab-btn ' + ((currentView === 'setlist' && !inStage) ? 'fab-visible' : 'fab-hidden');
-}
-
-// ===== FIRESTORE LISTENERS =====
-function listenSongs() {
-  const q = query(collection(db, 'songs'), orderBy('title'));
-  const unsub = onSnapshot(q, snap => {
+// ─── Firestore Subscriptions ────────────────────────────
+function subscribeData() {
+  // Songs
+  const songsQ = query(collection(db, 'songs'), orderBy('title'));
+  unsubSongs = onSnapshot(songsQ, snap => {
     allSongs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (currentView === 'songs') renderSongs();
-    populateSetlistSongPicker();
-    populateFilterChips();
+    renderSongs();
+    populateSetlistPicker();
   });
-  songListeners.push(unsub);
-}
 
-function listenSetlists() {
-  const q = query(collection(db, 'setlists'), orderBy('name'));
-  const unsub = onSnapshot(q, snap => {
+  // Setlists
+  const setlistsQ = query(collection(db, 'setlists'), orderBy('createdAt', 'desc'));
+  unsubSetlists = onSnapshot(setlistsQ, snap => {
     allSetlists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (currentView === 'setlist') renderSetlists();
+    renderSetlists();
   });
-  setlistListeners.push(unsub);
-}
 
-function listenUsers() {
-  const q = query(collection(db, 'users'), orderBy('displayName'));
-  const unsub = onSnapshot(q, snap => {
-    allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (currentView === 'users') renderUsers();
-  });
-  userListeners.push(unsub);
-}
-
-function cleanupListeners() {
-  [...songListeners, ...setlistListeners, ...userListeners].forEach(u => u && u());
-  songListeners = []; setlistListeners = []; userListeners = [];
-}
-
-// ===== RENDER SONGS =====
-function renderSongs() {
-  const list = document.getElementById('songs-list');
-  const cnt = document.getElementById('songs-count');
-  let songs = [...allSongs];
-
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    songs = songs.filter(s => (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q) || (s.genre||'').toLowerCase().includes(q));
-  }
-  if (activeFilters.key) songs = songs.filter(s => s.key === activeFilters.key);
-  if (activeFilters.genre) songs = songs.filter(s => (s.genre||'').toLowerCase() === activeFilters.genre.toLowerCase());
-
-  cnt.textContent = songs.length + ' songs';
-  if (!songs.length) { list.innerHTML = '<div class="empty-state"><div class="mdi mdi-music-note-off"></div><p>No songs found</p></div>'; return; }
-
-  const role = currentUserData?.role || 'Guest';
-  const canEdit = ['Admin','Sub-Admin','Lead'].includes(role);
-
-  list.innerHTML = '';
-  songs.forEach(song => {
-    const el = document.createElement('div');
-    el.className = 'song-card';
-    el.innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-        <div style="flex:1;min-width:0;">
-          <div class="trunc" style="font-weight:700;font-size:16px;color:var(--text-primary);margin-bottom:4px;">${esc(song.title || 'Untitled')}</div>
-          <div class="trunc" style="font-size:13px;color:var(--text-muted);">${esc(song.artist || '')}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-          ${song.key ? `<span class="badge badge-purple">${esc(song.key)}</span>` : ''}
-          ${song.genre ? `<span class="badge badge-gray trunc" style="max-width:80px;">${esc(song.genre)}</span>` : ''}
-        </div>
-      </div>
-      ${song.tempo ? `<div style="margin-top:8px;font-size:12px;color:var(--text-muted);"><span class="mdi mdi-metronome"></span> ${song.tempo} BPM</div>` : ''}
-      ${canEdit ? `<div style="display:flex;gap:8px;margin-top:12px;" onclick="event.stopPropagation()">
-        <button onclick="openEditSongModal('${song.id}')" style="padding:6px 16px;border-radius:9999px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;" onmouseover="this.style.background='rgba(139,92,246,0.3)'" onmouseout="this.style.background='rgba(139,92,246,0.15)'">Edit</button>
-        <button onclick="deleteSong('${song.id}')" style="padding:6px 16px;border-radius:9999px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">Delete</button>
-      </div>` : ''}
-    `;
-    el.addEventListener('click', () => openStageView(song));
-    list.appendChild(el);
-  });
-}
-
-// ===== RENDER SETLISTS =====
-function renderSetlists() {
-  const list = document.getElementById('setlists-list');
-  const cnt = document.getElementById('setlists-count');
-  let sets = [...allSetlists];
-
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    sets = sets.filter(s => (s.name||'').toLowerCase().includes(q) || (s.venue||'').toLowerCase().includes(q));
+  // Users (admin/sub-admin only)
+  if (currentUserRole === 'Admin' || currentUserRole === 'Sub-Admin') {
+    unsubUsers = onSnapshot(collection(db, 'users'), snap => {
+      allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderUsers();
+    });
   }
 
-  cnt.textContent = sets.length + ' setlists';
-  if (!sets.length) { list.innerHTML = '<div class="empty-state"><div class="mdi mdi-playlist-music-outline"></div><p>No setlists yet</p></div>'; return; }
-
-  const role = currentUserData?.role || 'Guest';
-  const canEdit = ['Admin','Sub-Admin','Lead'].includes(role);
-
-  list.innerHTML = '';
-  sets.forEach(sl => {
-    const el = document.createElement('div');
-    el.className = 'song-card';
-    const songCount = (sl.songs || []).length;
-    el.innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-        <div style="flex:1;min-width:0;">
-          <div class="trunc" style="font-weight:700;font-size:16px;color:var(--text-primary);margin-bottom:4px;">${esc(sl.name || 'Unnamed Setlist')}</div>
-          <div class="trunc" style="font-size:13px;color:var(--text-muted);">${esc(sl.venue || '')}${sl.date ? ' · ' + sl.date : ''}</div>
-        </div>
-        <span class="badge badge-pink">${songCount} songs</span>
-      </div>
-      ${canEdit ? `<div style="display:flex;gap:8px;margin-top:12px;" onclick="event.stopPropagation()">
-        <button onclick="deleteSetlist('${sl.id}')" style="padding:6px 16px;border-radius:9999px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">Delete</button>
-      </div>` : ''}
-    `;
-    el.addEventListener('click', () => openSetlistDetail(sl));
-    list.appendChild(el);
+  // Theme
+  unsubTheme = onSnapshot(doc(db, 'admin_settings', 'theme'), snap => {
+    if (snap.exists()) applyThemeVars(snap.data());
   });
-}
 
-// ===== SETLIST DETAIL =====
-window.openSetlistDetail = function(sl) {
-  currentSetlist = sl;
-  currentView = 'setlist-detail';
-  document.getElementById('setlist-view').style.display = 'none';
-  document.getElementById('setlist-detail-view').style.display = 'block';
-  document.getElementById('setlist-detail-title').textContent = sl.name || 'Setlist';
-  document.getElementById('setlist-detail-meta').textContent = (sl.venue ? sl.venue + ' · ' : '') + (sl.date || '');
-  document.getElementById('hamburger-btn').style.display = 'none';
-  document.getElementById('back-btn').style.display = 'flex';
-  document.getElementById('search-bar-container').style.display = 'none';
-  document.getElementById('filter-btn').style.display = 'none';
-  setupFABForView();
-
-  const list = document.getElementById('setlist-detail-songs');
-  const songs = sl.songs || [];
-  if (!songs.length) { list.innerHTML = '<div class="empty-state"><div class="mdi mdi-music-note-off"></div><p>No songs in this setlist</p></div>'; return; }
-
-  list.innerHTML = '';
-  songs.forEach((songRef, i) => {
-    const song = allSongs.find(s => s.id === (songRef.id || songRef));
-    if (!song) return;
-    const row = document.createElement('div');
-    row.className = 'setlist-song-row';
-    row.innerHTML = `
-      <span style="width:24px;height:24px;border-radius:50%;background:rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#a78bfa;flex-shrink:0;">${i+1}</span>
-      <div style="flex:1;min-width:0;">
-        <div class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);">${esc(song.title||'')}</div>
-        <div class="trunc" style="font-size:12px;color:var(--text-muted);">${esc(song.artist||'')}${song.key ? ' · ' + song.key : ''}</div>
-      </div>
-      <span class="mdi mdi-chevron-right" style="color:var(--text-muted);font-size:18px;flex-shrink:0;"></span>
-    `;
-    row.addEventListener('click', () => openStageView(song));
-    list.appendChild(row);
-  });
-};
-
-// ===== BACK BUTTON =====
-window.handleBackBtn = function() {
-  if (document.getElementById('stage-view').classList.contains('active')) {
-    exitStageView();
-  } else if (currentView === 'setlist-detail') {
-    navigateTo('setlist');
-  } else {
-    navigateTo('songs');
-  }
-};
-
-// ===== STAGE VIEW =====
-window.openStageView = function(song) {
-  currentSong = song;
-  stageTranspose = 0;
-  stageCapo = 0;
-  stageLyricsOnly = false;
-  document.getElementById('lyrics-only-btn').style.background = 'transparent';
-  document.getElementById('lyrics-only-btn').style.color = 'var(--text-muted)';
-
-  document.getElementById('stage-view').classList.add('active');
-  document.getElementById('top-bar').style.display = 'none';
-  document.getElementById('main-content').style.display = 'none';
-
-  document.getElementById('stage-song-title').textContent = song.title || '';
-  updateStageKeyDisplay();
-  renderSongSheet();
-  stopAutoScroll();
-
-  setupFABForView();
-};
-
-window.exitStageView = function() {
-  stopAutoScroll();
-  document.getElementById('stage-view').classList.remove('active');
-  document.getElementById('top-bar').style.display = 'flex';
-  document.getElementById('main-content').style.display = 'block';
-  setupFABForView();
-
-  if (currentView === 'setlist-detail') {
-    document.getElementById('hamburger-btn').style.display = 'none';
-    document.getElementById('back-btn').style.display = 'flex';
-    document.getElementById('search-bar-container').style.display = 'none';
-    document.getElementById('filter-btn').style.display = 'none';
-  } else {
-    document.getElementById('hamburger-btn').style.display = 'flex';
-    document.getElementById('back-btn').style.display = 'none';
-    const showSearch = (currentView === 'songs' || currentView === 'setlist');
-    document.getElementById('search-bar-container').style.display = showSearch ? 'block' : 'none';
-    document.getElementById('filter-btn').style.display = (currentView === 'songs') ? 'flex' : 'none';
-  }
-};
-
-// ===== TRANSPOSE / CAPO =====
-function transposeChord(chord, steps) {
-  let root = chord.match(/^[A-G][#b]?/)?.[0];
-  if (!root) return chord;
-  const norm = ENHARMONIC_MAP[root] || root;
-  const idx = CHROMATIC_SCALE.indexOf(norm);
-  if (idx === -1) return chord;
-  let newIdx = ((idx + steps) % 12 + 12) % 12;
-  const useFlatKey = FLAT_KEYS.includes(CHROMATIC_SCALE[newIdx]);
-  let newRoot = CHROMATIC_SCALE[newIdx];
-  if (useFlatKey && ENHARMONIC_MAP[newRoot]) newRoot = ENHARMONIC_MAP[newRoot];
-  return chord.replace(/^[A-G][#b]?/, newRoot);
-}
-
-window.transposeKey = function(dir) {
-  stageTranspose = ((stageTranspose + dir + 12) % 24) - 12;
-  if (stageTranspose > 11) stageTranspose = 11;
-  if (stageTranspose < -11) stageTranspose = -11;
-  updateStageKeyDisplay();
-  renderSongSheet();
-};
-
-window.adjustCapo = function(dir) {
-  stageCapo = Math.max(0, Math.min(12, stageCapo + dir));
-  updateStageKeyDisplay();
-};
-
-function updateStageKeyDisplay() {
-  const origKey = currentSong?.key || 'C';
-  const norm = ENHARMONIC_MAP[origKey] || origKey;
-  const idx = CHROMATIC_SCALE.indexOf(norm);
-  let newIdx = idx === -1 ? 0 : ((idx + stageTranspose + 12) % 12);
-  let newKey = CHROMATIC_SCALE[newIdx];
-  document.getElementById('stage-key-display').textContent = newKey;
-  document.getElementById('stage-capo-display').innerHTML = `Capo<br>${stageCapo}`;
-}
-
-window.toggleLyricsOnly = function() {
-  stageLyricsOnly = !stageLyricsOnly;
-  const btn = document.getElementById('lyrics-only-btn');
-  const sheet = document.getElementById('song-sheet');
-  if (stageLyricsOnly) {
-    btn.style.background = 'var(--purple)';
-    btn.style.color = '#fff';
-    sheet.classList.add('lyrics-only-mode');
-  } else {
-    btn.style.background = 'transparent';
-    btn.style.color = 'var(--text-muted)';
-    sheet.classList.remove('lyrics-only-mode');
-  }
-};
-
-// ===== SONG SHEET RENDER =====
-function renderSongSheet() {
-  const sheet = document.getElementById('song-sheet');
-  const raw = currentSong?.lyrics || currentSong?.content || '';
-  if (!raw) { sheet.innerHTML = '<div class="empty-state"><div class="mdi mdi-text-box-outline"></div><p>No lyrics/chords available</p></div>'; return; }
-
-  const lines = raw.split('\n');
-  let html = '';
-  lines.forEach(line => {
-    const trimmed = line.trim();
-    if (/^\[.*\]$/.test(trimmed)) {
-      html += `<div class="section-label">${esc(trimmed.slice(1,-1))}</div>`;
-    } else if (trimmed === '') {
-      html += `<div style="height:12px;"></div>`;
-    } else {
-      // Detect chord line (contains chord patterns)
-      const chordPattern = /\[([A-G][#b]?(?:maj|min|m|dim|aug|sus|add|[0-9]+)*(?:\/[A-G][#b]?)?)\]/g;
-      if (chordPattern.test(line)) {
-        chordPattern.lastIndex = 0;
-        let parsed = line.replace(/\[([A-G][#b]?(?:maj|min|m|dim|aug|sus|add|[0-9]+)*(?:\/[A-G][#b]?)?)\]/g, (_, ch) => {
-          const transposed = stageTranspose !== 0 ? transposeChordFull(ch, stageTranspose) : ch;
-          return `<span class="chord-span">${esc(transposed)}</span>`;
-        });
-        html += `<div class="lyric-line" style="font-size:16px;">${parsed}</div>`;
-      } else {
-        html += `<div class="lyric-line">${esc(line)}</div>`;
-      }
+  // Admin settings
+  const adminDocRef = doc(db, 'admin_settings', 'config');
+  getDoc(adminDocRef).then(snap => {
+    if (snap.exists()) {
+      songLimit = snap.data().songLimit || 500;
+      document.getElementById('admin-song-limit').value = songLimit;
+      document.getElementById('admin-app-name').value = snap.data().appName || 'RCCM GigBook';
     }
   });
-  html += '<div style="height:80px;"></div>';
-  sheet.innerHTML = html;
-  if (stageLyricsOnly) sheet.classList.add('lyrics-only-mode');
-  else sheet.classList.remove('lyrics-only-mode');
 }
 
-function transposeChordFull(chord, steps) {
-  return chord.replace(/[A-G][#b]?/g, (root) => {
-    const norm = ENHARMONIC_MAP[root] || root;
-    const idx = CHROMATIC_SCALE.indexOf(norm);
-    if (idx === -1) return root;
-    let newIdx = ((idx + steps) % 12 + 12) % 12;
-    return CHROMATIC_SCALE[newIdx];
+// ─── Song Rendering ─────────────────────────────────────
+function renderSongs() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  let songs = allSongs.filter(s => {
+    const match = !q || s.title?.toLowerCase().includes(q) || s.artist?.toLowerCase().includes(q);
+    const keyMatch = !filterKey || s.key === filterKey;
+    return match && keyMatch;
+  });
+
+  const container = document.getElementById('song-list-container');
+  const empty = document.getElementById('songs-empty');
+  const badge = document.getElementById('song-count-badge');
+  badge.textContent = `${allSongs.length} song${allSongs.length !== 1 ? 's' : ''}`;
+  container.innerHTML = '';
+
+  if (songs.length === 0) {
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  songs.forEach(song => {
+    const el = document.createElement('div');
+    el.className = 'song-card rounded-2xl p-4 flex items-center gap-3 cursor-pointer';
+    el.style.cssText = 'background:var(--surface-bg); border:1px solid var(--border-color)';
+    el.onclick = () => openStageView(song);
+    el.innerHTML = `
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 gemini-gradient-bg">
+        <i class="mdi mdi-music-note text-white text-lg"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-600 text-sm truncate" style="color:var(--text-primary)">${escHtml(song.title || 'Untitled')}</p>
+        <p class="text-xs truncate" style="color:var(--text-secondary)">${escHtml(song.artist || '')}${song.key ? ` · Key of ${escHtml(song.key)}` : ''}</p>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        ${song.favorite ? '<i class="mdi mdi-heart text-sm" style="color:#d96570"></i>' : ''}
+        <button class="w-8 h-8 rounded-full flex items-center justify-center" style="background:var(--surface-raised); color:var(--text-secondary)"
+          onclick="event.stopPropagation(); deleteSong('${song.id}')">
+          <i class="mdi mdi-delete-outline text-sm"></i>
+        </button>
+      </div>
+    `;
+    container.appendChild(el);
   });
 }
 
-// ===== AUTO SCROLL =====
-window.toggleAutoScroll = function() {
-  autoScrollActive = !autoScrollActive;
-  const icon = document.getElementById('auto-scroll-icon');
-  const btn = document.getElementById('auto-scroll-btn');
-  if (autoScrollActive) {
-    icon.className = 'mdi mdi-pause';
-    btn.style.background = 'var(--pink)';
-    btn.style.boxShadow = '0 4px 16px rgba(236,72,153,0.4)';
-    runAutoScroll();
-  } else {
-    stopAutoScroll();
+// ─── Setlist Rendering ───────────────────────────────────
+function renderSetlists() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  let lists = allSetlists.filter(s => !q || s.name?.toLowerCase().includes(q));
+  const container = document.getElementById('setlist-container');
+  const empty = document.getElementById('setlists-empty');
+  const badge = document.getElementById('setlist-count-badge');
+  badge.textContent = `${allSetlists.length} setlist${allSetlists.length !== 1 ? 's' : ''}`;
+  container.innerHTML = '';
+
+  if (lists.length === 0) { empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  lists.forEach(sl => {
+    const el = document.createElement('div');
+    el.className = 'setlist-card rounded-2xl p-4 flex items-center gap-3 cursor-pointer';
+    el.style.cssText = 'background:var(--surface-bg); border:1px solid var(--border-color)';
+    el.onclick = () => openSetlistDetail(sl);
+    const songCount = (sl.songIds || []).length;
+    el.innerHTML = `
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(155,114,203,0.15); border:1px solid rgba(155,114,203,0.3)">
+        <i class="mdi mdi-playlist-music text-lg" style="color:#9b72cb"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-600 text-sm truncate" style="color:var(--text-primary)">${escHtml(sl.name || 'Untitled')}</p>
+        <p class="text-xs truncate" style="color:var(--text-secondary)">${songCount} song${songCount !== 1 ? 's' : ''}${sl.date ? ` · ${escHtml(sl.date)}` : ''}</p>
+      </div>
+      <div class="flex items-center gap-1 flex-shrink-0">
+        ${currentUserRole !== 'Guest' ? `<button class="w-8 h-8 rounded-full flex items-center justify-center" style="background:var(--surface-raised); color:var(--text-secondary)"
+          onclick="event.stopPropagation(); deleteSetlist('${sl.id}')">
+          <i class="mdi mdi-delete-outline text-sm"></i>
+        </button>` : ''}
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+// ─── Users Rendering ────────────────────────────────────
+const ROLES = ['Guest','Singer','Musician','Lead','Tech','Sub-Admin','Admin'];
+
+function renderUsers() {
+  const roster = document.getElementById('user-roster-panel');
+  const pending = document.getElementById('user-pending-panel');
+  roster.innerHTML = '';
+  pending.innerHTML = '';
+
+  const rosterUsers = allUsers.filter(u => u.role && u.role !== 'Guest');
+  const pendingUsers = allUsers.filter(u => !u.role || u.role === 'Guest');
+
+  const buildCard = (u) => {
+    const isAdmin = u.role === 'Admin';
+    const canEdit = currentUserRole === 'Admin' && !isAdmin;
+    const el = document.createElement('div');
+    el.className = 'user-card rounded-2xl p-4 flex items-center gap-3';
+    el.style.cssText = 'background:var(--surface-bg); border:1px solid var(--border-color)';
+
+    let roleSelector = '';
+    if (canEdit) {
+      roleSelector = `<select onchange="changeUserRole('${u.id}', this.value)"
+        class="h-8 pl-2 pr-6 rounded-full text-xs" style="background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border-color)">
+        ${ROLES.filter(r => r !== 'Admin').map(r => `<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('')}
+      </select>`;
+    } else if (isAdmin) {
+      roleSelector = `<span class="h-8 px-3 rounded-full text-xs flex items-center font-600" style="background:rgba(66,133,244,0.15); color:#4285f4">Admin</span>`;
+    } else {
+      roleSelector = `<span class="text-xs" style="color:var(--text-secondary)">${u.role || 'Guest'}</span>`;
+    }
+
+    const photo = u.photoURL || '';
+    el.innerHTML = `
+      <div class="relative flex-shrink-0">
+        <img src="${escHtml(photo)}" alt="" class="w-10 h-10 rounded-full object-cover"
+             onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\'><circle cx=\\'12\\' cy=\\'8\\' r=\\'4\\' fill=\\'%239b72cb\\'/><path fill=\\'%239b72cb\\' d=\\'M20 20c0-4.4-3.6-8-8-8s-8 3.6-8 8\\'/></svg>'"
+             style="background:var(--surface-raised)"/>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-600 text-sm truncate" style="color:var(--text-primary)">${escHtml(u.displayName || 'User')}</p>
+        <p class="text-xs truncate" style="color:var(--text-secondary)">${escHtml(u.email || '')}</p>
+      </div>
+      <div class="flex-shrink-0">${roleSelector}</div>
+    `;
+    return el;
+  };
+
+  rosterUsers.forEach(u => roster.appendChild(buildCard(u)));
+  pendingUsers.forEach(u => pending.appendChild(buildCard(u)));
+
+  if (rosterUsers.length === 0) roster.innerHTML = '<p class="text-sm text-center py-8" style="color:var(--text-secondary)">No assigned members yet</p>';
+  if (pendingUsers.length === 0) pending.innerHTML = '<p class="text-sm text-center py-8" style="color:var(--text-secondary)">No pending users</p>';
+
+  // Show correct panel
+  switchUserSubtab(userSubtab);
+}
+
+window.switchUserSubtab = (tab, btn) => {
+  userSubtab = tab;
+  document.getElementById('user-roster-panel').classList.toggle('hidden', tab !== 'roster');
+  document.getElementById('user-pending-panel').classList.toggle('hidden', tab !== 'pending');
+  document.querySelectorAll('.user-subtab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+};
+
+window.changeUserRole = async (uid, newRole) => {
+  const user = allUsers.find(u => u.id === uid);
+  if (!user) return;
+  if (user.role === 'Admin') { showToast('Admin role is immutable.'); return; }
+  try {
+    await updateDoc(doc(db, 'users', uid), { role: newRole });
+    showToast(`Role updated to ${newRole}`);
+  } catch (e) {
+    showToast('Error: ' + e.message);
   }
 };
 
-function runAutoScroll() {
-  if (!autoScrollActive) return;
-  const sheet = document.getElementById('song-sheet');
-  sheet.scrollTop += autoScrollSpeed * 0.4;
-  autoScrollRAF = requestAnimationFrame(runAutoScroll);
+// ─── Stage View ──────────────────────────────────────────
+window.openStageView = (song) => {
+  currentSong = song;
+  transpositionSteps = 0;
+  capoPosition = 0;
+  lyricsOnlyMode = false;
+  document.getElementById('hamburger-btn').classList.add('hidden');
+  document.getElementById('back-btn').classList.remove('hidden');
+  document.getElementById('search-filter-row').classList.add('hidden-row');
+  document.getElementById('stage-view').classList.remove('hidden');
+  document.getElementById('stage-song-title').textContent = song.title || 'Song';
+  document.getElementById('current-key').textContent = song.key || 'C';
+  document.getElementById('capo-val').textContent = '0';
+  document.getElementById('lyrics-only-btn').style.background = 'var(--surface-raised)';
+  document.getElementById('lyrics-only-btn').style.color = 'var(--text-secondary)';
+  renderChordSheet();
+};
+
+window.backFromStage = () => {
+  stopAutoScroll();
+  stopCamera();
+  document.getElementById('stage-view').classList.add('hidden');
+  document.getElementById('hamburger-btn').classList.remove('hidden');
+  document.getElementById('back-btn').classList.add('hidden');
+  document.getElementById('search-filter-row').classList.remove('hidden-row');
+  currentSong = null;
+};
+
+function transposeChord(chord, steps) {
+  const normalized = ENHARMONIC_MAP[chord] || chord;
+  const idx = CHROMATIC_SCALE.indexOf(normalized);
+  if (idx === -1) return chord;
+  const newIdx = ((idx + steps) % 12 + 12) % 12;
+  return CHROMATIC_SCALE[newIdx];
+}
+
+function transposeLine(line) {
+  return line.replace(/\[([A-G][#b]?(?:m|maj|min|dim|aug|sus|add|\/[A-G][#b]?)?[0-9]*)\]/g, (match, chord) => {
+    const root = chord.match(/^([A-G][#b]?)/)?.[1];
+    const suffix = chord.slice(root?.length || 0);
+    if (!root) return match;
+    return `[${transposeChord(root, transpositionSteps)}${suffix}]`;
+  });
+}
+
+function renderChordSheet() {
+  if (!currentSong) return;
+  const raw = currentSong.sheet || '';
+  const lines = raw.split('\n');
+  const container = document.getElementById('chord-sheet-container');
+  container.innerHTML = '';
+
+  lines.forEach(rawLine => {
+    const line = transposeLine(rawLine);
+    const div = document.createElement('div');
+    div.className = 'mb-1';
+
+    const sectionMatch = line.match(/^\[([^\]]+)\]$/);
+    if (sectionMatch && !line.includes(' ')) {
+      div.innerHTML = `<span class="font-700 text-xs uppercase tracking-widest gemini-gradient-text">${escHtml(sectionMatch[1])}</span>`;
+    } else if (line.match(/\[[A-G]/)) {
+      // Chord line
+      const html = line.replace(/\[([^\]]+)\]/g, (_, c) =>
+        `<span class="chord-token">[${escHtml(c)}]</span>`
+      );
+      div.className = 'mb-0.5 lyric-line';
+      div.innerHTML = html || '&nbsp;';
+      div.dataset.isChord = 'true';
+    } else if (line.trim() === '') {
+      div.innerHTML = '&nbsp;';
+      div.className = 'mb-2';
+    } else {
+      div.className = 'lyric-line';
+      div.textContent = line;
+    }
+    container.appendChild(div);
+  });
+
+  if (lyricsOnlyMode) applyLyricsOnlyMode();
+  updateKeyDisplay();
+}
+
+function updateKeyDisplay() {
+  if (!currentSong) return;
+  const originalKeyIdx = CHROMATIC_SCALE.indexOf(ENHARMONIC_MAP[currentSong.key] || currentSong.key);
+  if (originalKeyIdx === -1) return;
+  const newIdx = ((originalKeyIdx + transpositionSteps) % 12 + 12) % 12;
+  document.getElementById('current-key').textContent = CHROMATIC_SCALE[newIdx];
+}
+
+window.transposeKey = (dir) => {
+  transpositionSteps = ((transpositionSteps + dir) % 12 + 12) % 12;
+  renderChordSheet();
+};
+
+window.adjustCapo = (dir) => {
+  capoPosition = Math.max(0, Math.min(12, capoPosition + dir));
+  document.getElementById('capo-val').textContent = capoPosition;
+};
+
+window.toggleLyricsOnly = () => {
+  lyricsOnlyMode = !lyricsOnlyMode;
+  const btn = document.getElementById('lyrics-only-btn');
+  if (lyricsOnlyMode) {
+    btn.style.background = 'rgba(155,114,203,0.2)';
+    btn.style.color = '#9b72cb';
+    btn.style.borderColor = 'rgba(155,114,203,0.4)';
+    applyLyricsOnlyMode();
+  } else {
+    btn.style.background = 'var(--surface-raised)';
+    btn.style.color = 'var(--text-secondary)';
+    btn.style.borderColor = 'var(--border-color)';
+    renderChordSheet();
+  }
+};
+
+function applyLyricsOnlyMode() {
+  document.querySelectorAll('.chord-token').forEach(el => el.classList.add('hidden-chord'));
+  document.querySelectorAll('[data-is-chord="true"]').forEach(el => { el.style.display = 'none'; });
+}
+
+// ─── Auto Scroll ─────────────────────────────────────────
+const SPEEDS = [0.5, 0.8, 1.0, 1.2, 1.5, 2.0];
+let speedIdx = 2;
+
+window.toggleAutoScroll = () => {
+  autoScrolling ? stopAutoScroll() : startAutoScroll();
+};
+
+function startAutoScroll() {
+  autoScrolling = true;
+  document.getElementById('scroll-play-icon').className = 'mdi mdi-pause text-lg';
+  scrollInterval = setInterval(() => {
+    const el = document.getElementById('song-scroll-area');
+    el.scrollTop += SPEEDS[speedIdx];
+  }, 16);
 }
 
 function stopAutoScroll() {
-  autoScrollActive = false;
-  if (autoScrollRAF) cancelAnimationFrame(autoScrollRAF);
-  autoScrollRAF = null;
-  const icon = document.getElementById('auto-scroll-icon');
-  const btn = document.getElementById('auto-scroll-btn');
-  icon.className = 'mdi mdi-play';
-  btn.style.background = 'var(--purple)';
-  btn.style.boxShadow = '0 4px 16px rgba(139,92,246,0.4)';
+  autoScrolling = false;
+  document.getElementById('scroll-play-icon').className = 'mdi mdi-play text-lg';
+  clearInterval(scrollInterval);
 }
 
-window.adjustScrollSpeed = function(delta) {
-  autoScrollSpeed = Math.max(0.2, Math.min(5.0, autoScrollSpeed + delta));
-  document.getElementById('speed-display').textContent = 'Speed: ' + autoScrollSpeed.toFixed(1) + 'x';
+window.cycleScrollSpeed = () => {
+  speedIdx = (speedIdx + 1) % SPEEDS.length;
+  scrollSpeed = SPEEDS[speedIdx];
+  document.getElementById('speed-display').textContent = `Speed: ${scrollSpeed}x`;
 };
 
-window.scrollReset = function() {
-  document.getElementById('song-sheet').scrollTop = 0;
+window.scrollToTop = () => {
   stopAutoScroll();
+  document.getElementById('song-scroll-area').scrollTop = 0;
 };
 
-// ===== RENDER USERS =====
-function renderUsers() {
-  const role = currentUserData?.role || 'Guest';
-  const roster = allUsers.filter(u => u.role && u.role !== 'Guest');
-  const pending = allUsers.filter(u => !u.role || u.role === 'Guest');
-
-  renderUserList('users-roster-list', roster, role);
-  renderUserList('users-pending-list', pending, role);
-}
-
-function renderUserList(listId, users, viewerRole) {
-  const list = document.getElementById(listId);
-  if (!users.length) { list.innerHTML = '<div class="empty-state" style="padding:30px 0;"><div class="mdi mdi-account-off"></div><p>No users here</p></div>'; return; }
-  list.innerHTML = '';
-  users.forEach(u => {
-    const isProtectedAdmin = u.role === 'Admin';
-    const canEdit = viewerRole === 'Admin' || viewerRole === 'Sub-Admin';
-    const el = document.createElement('div');
-    el.className = 'user-card';
-    el.innerHTML = `
-      <img src="${esc(u.photoURL||'')}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;background:rgba(139,92,246,0.2);" />
-      <div style="flex:1;min-width:0;">
-        <div class="trunc" style="font-weight:700;font-size:14px;color:var(--text-primary);">${esc(u.displayName||'Unknown')}</div>
-        <div class="trunc" style="font-size:12px;color:var(--text-muted);">${esc(u.email||'')}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-        <span class="badge ${roleBadgeClass(u.role)}">${esc(u.role||'Guest')}</span>
-        ${canEdit && !isProtectedAdmin ? `<button onclick="openRoleModal('${u.id}')" style="padding:6px 14px;border-radius:9999px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 200ms;flex-shrink:0;" onmouseover="this.style.background='rgba(139,92,246,0.3)'" onmouseout="this.style.background='rgba(139,92,246,0.15)'">Edit</button>` : ''}
-        ${isProtectedAdmin ? `<span style="opacity:0.4;font-size:11px;color:var(--text-muted);padding:6px 10px;"><span class="mdi mdi-lock"></span> Locked</span>` : ''}
-      </div>
-    `;
-    list.appendChild(el);
-  });
-}
-
-function roleBadgeClass(role) {
-  const map = { Admin: 'badge-purple', 'Sub-Admin': 'badge-pink', Lead: 'badge-amber', Singer: 'badge-green', Musician: 'badge-green', Tech: 'badge-gray', Guest: 'badge-gray' };
-  return map[role] || 'badge-gray';
-}
-
-window.switchUserTab = function(tab, btn) {
-  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('users-roster-list').style.display = tab === 'roster' ? 'block' : 'none';
-  document.getElementById('users-pending-list').style.display = tab === 'pending' ? 'block' : 'none';
-};
-
-// ===== ROLE MODAL =====
-window.openRoleModal = function(userId) {
-  roleModalTargetUser = allUsers.find(u => u.id === userId);
-  if (!roleModalTargetUser) return;
-  if (roleModalTargetUser.role === 'Admin') { showToast('Cannot modify Admin role', 'error'); return; }
-  const info = document.getElementById('role-modal-user-info');
-  info.innerHTML = `
-    <img src="${esc(roleModalTargetUser.photoURL||'')}" alt="" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;" />
-    <div style="min-width:0;">
-      <div class="trunc" style="font-weight:700;">${esc(roleModalTargetUser.displayName||'')}</div>
-      <div class="trunc" style="font-size:12px;color:var(--text-muted);">${esc(roleModalTargetUser.email||'')}</div>
-    </div>
-  `;
-  document.getElementById('role-select').value = roleModalTargetUser.role || 'Guest';
-  openModal('role-modal');
-};
-
-window.submitRoleChange = async function() {
-  if (!roleModalTargetUser) return;
-  if (roleModalTargetUser.role === 'Admin') { showToast('Admin role is immutable', 'error'); return; }
-  const newRole = document.getElementById('role-select').value;
-  if (newRole === 'Admin') { showToast('Cannot assign Admin role via UI', 'error'); return; }
-  try {
-    await updateDoc(doc(db, 'users', roleModalTargetUser.id), { role: newRole });
-    showToast('Role updated to ' + newRole, 'success');
-    closeModal('role-modal');
-  } catch(e) { showToast('Failed: ' + e.message, 'error'); }
-};
-
-// ===== ADD SONG =====
-window.openAddSongModal = function() {
+// ─── Song Modal ──────────────────────────────────────────
+window.openSongModal = () => {
+  document.getElementById('song-modal').classList.add('show');
   document.getElementById('song-title-input').value = '';
+  document.getElementById('song-sheet-input').value = '';
   document.getElementById('song-artist-input').value = '';
   document.getElementById('song-key-input').value = '';
-  document.getElementById('song-tempo-input').value = '';
-  document.getElementById('song-genre-input').value = '';
-  document.getElementById('song-lyrics-input').value = '';
-  openModal('add-song-modal');
+};
+window.closeSongModal = () => {
+  document.getElementById('song-modal').classList.remove('show');
+  stopCamera();
 };
 
-window.submitAddSong = async function() {
+window.switchSongTab = (tab) => {
+  activeTab = tab;
+  ['manual','scan','camera'].forEach(t => {
+    document.getElementById(`modal-${t}`).classList.toggle('hidden', t !== tab);
+    const btn = document.getElementById(`tab-mode-${t}`);
+    btn.classList.toggle('active', t === tab);
+    btn.style.color = t === tab ? 'var(--text-primary)' : 'var(--text-secondary)';
+  });
+  if (tab !== 'camera') stopCamera();
+};
+
+window.submitSong = async () => {
   const title = document.getElementById('song-title-input').value.trim();
-  if (!title) { showToast('Song title is required', 'error'); return; }
+  if (!title) { showToast('Song title is required'); return; }
+  if (allSongs.length >= songLimit) { showToast(`Song limit (${songLimit}) reached`); return; }
+  const sheet = document.getElementById('song-sheet-input').value;
+  const key = document.getElementById('song-key-input').value;
+  const artist = document.getElementById('song-artist-input').value.trim();
+  const favorite = document.getElementById('song-fav-input').checked;
   try {
     await addDoc(collection(db, 'songs'), {
-      title,
-      artist: document.getElementById('song-artist-input').value.trim(),
-      key: document.getElementById('song-key-input').value,
-      tempo: parseInt(document.getElementById('song-tempo-input').value)||null,
-      genre: document.getElementById('song-genre-input').value.trim(),
-      lyrics: document.getElementById('song-lyrics-input').value,
+      title, sheet, key, artist, favorite,
       createdBy: currentUser.uid,
-      createdAt: serverTimestamp()
+      createdAt: new Date()
     });
-    showToast('Song added!', 'success');
-    closeModal('add-song-modal');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    closeSongModal();
+    showToast('Song added!');
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
 };
 
-// ===== EDIT SONG =====
-window.openEditSongModal = function(songId) {
-  const song = allSongs.find(s => s.id === songId);
-  if (!song) return;
-  document.getElementById('edit-song-id').value = songId;
-  document.getElementById('edit-song-title').value = song.title || '';
-  document.getElementById('edit-song-artist').value = song.artist || '';
-  document.getElementById('edit-song-key').value = song.key || '';
-  document.getElementById('edit-song-tempo').value = song.tempo || '';
-  document.getElementById('edit-song-genre').value = song.genre || '';
-  document.getElementById('edit-song-lyrics').value = song.lyrics || song.content || '';
-  openModal('edit-song-modal');
-};
-
-window.submitEditSong = async function() {
-  const id = document.getElementById('edit-song-id').value;
-  const title = document.getElementById('edit-song-title').value.trim();
-  if (!title) { showToast('Title required', 'error'); return; }
+window.deleteSong = async (id) => {
+  if (!confirm('Delete this song?')) return;
   try {
-    await updateDoc(doc(db, 'songs', id), {
-      title, artist: document.getElementById('edit-song-artist').value.trim(),
-      key: document.getElementById('edit-song-key').value,
-      tempo: parseInt(document.getElementById('edit-song-tempo').value)||null,
-      genre: document.getElementById('edit-song-genre').value.trim(),
-      lyrics: document.getElementById('edit-song-lyrics').value
-    });
-    showToast('Song updated!', 'success');
-    closeModal('edit-song-modal');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    await deleteDoc(doc(db, 'songs', id));
+    showToast('Song deleted');
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
 };
 
-window.deleteSong = async function(songId) {
-  if (!confirm('Delete this song? This cannot be undone.')) return;
+// ─── File Scan ───────────────────────────────────────────
+window.handleFileDrop = (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+};
+
+window.handleFileSelect = (e) => {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+};
+
+function processFile(file) {
+  const reader = new FileReader();
+  if (file.type.startsWith('image/')) {
+    reader.onload = (ev) => {
+      const preview = document.getElementById('scan-preview');
+      const img = document.getElementById('scan-image-preview');
+      img.src = ev.target.result;
+      preview.classList.remove('hidden');
+      const textarea = document.getElementById('scan-extracted-text');
+      textarea.value = '[Image loaded — OCR extraction requires a backend service. Edit text manually below.]';
+      textarea.classList.remove('hidden');
+      document.getElementById('import-scan-btn').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  } else if (file.type === 'application/pdf') {
+    reader.onload = () => {
+      document.getElementById('scan-extracted-text').value = '[PDF loaded — text extraction requires a parser. Edit manually below.]';
+      document.getElementById('scan-extracted-text').classList.remove('hidden');
+      document.getElementById('import-scan-btn').classList.remove('hidden');
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+window.importScannedText = () => {
+  const text = document.getElementById('scan-extracted-text').value;
+  switchSongTab('manual');
+  document.getElementById('song-sheet-input').value = text;
+};
+
+// ─── Camera ───────────────────────────────────────────────
+window.startCamera = async () => {
   try {
-    await deleteDoc(doc(db, 'songs', songId));
-    showToast('Song deleted', 'info');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    const video = document.getElementById('camera-preview');
+    video.srcObject = cameraStream;
+    document.getElementById('camera-start-btn').classList.add('hidden');
+    document.getElementById('camera-snap-btn').classList.remove('hidden');
+    document.getElementById('camera-stop-btn').classList.remove('hidden');
+  } catch (e) {
+    showToast('Camera access denied: ' + e.message);
+  }
 };
 
-// ===== ADD SETLIST =====
-window.openAddSetlistModal = function() {
+window.snapPhoto = () => {
+  const video = document.getElementById('camera-preview');
+  const canvas = document.getElementById('camera-canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.classList.remove('hidden');
+  const textarea = document.getElementById('camera-extracted-text');
+  textarea.value = '[Frame captured — OCR requires a backend. Edit text manually below.]';
+  textarea.classList.remove('hidden');
+  document.getElementById('import-camera-btn').classList.remove('hidden');
+};
+
+window.stopCamera = () => {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  const video = document.getElementById('camera-preview');
+  if (video) video.srcObject = null;
+  document.getElementById('camera-start-btn')?.classList.remove('hidden');
+  document.getElementById('camera-snap-btn')?.classList.add('hidden');
+  document.getElementById('camera-stop-btn')?.classList.add('hidden');
+};
+
+window.importCameraText = () => {
+  const text = document.getElementById('camera-extracted-text').value;
+  switchSongTab('manual');
+  document.getElementById('song-sheet-input').value = text;
+};
+
+// ─── Setlist Modal ────────────────────────────────────────
+window.openSetlistModal = () => {
+  document.getElementById('setlist-modal').classList.add('show');
   document.getElementById('setlist-name-input').value = '';
-  document.getElementById('setlist-venue-input').value = '';
   document.getElementById('setlist-date-input').value = '';
-  selectedSetlistSongs = [];
-  populateSetlistSongPicker();
-  renderSelectedSetlistSongs();
-  openModal('add-setlist-modal');
+  populateSetlistPicker();
 };
+window.closeSetlistModal = () => document.getElementById('setlist-modal').classList.remove('show');
 
-function populateSetlistSongPicker() {
-  const list = document.getElementById('setlist-song-picker-list');
-  if (!list) return;
-  list.innerHTML = '';
+function populateSetlistPicker() {
+  const c = document.getElementById('setlist-song-picker');
+  if (!c) return;
+  c.innerHTML = '';
   allSongs.forEach(s => {
-    const el = document.createElement('div');
-    el.className = 'setlist-song-row';
-    el.style.cursor = 'pointer';
-    el.innerHTML = `<span class="trunc" style="flex:1;font-size:13px;font-weight:600;">${esc(s.title||'')}</span>${s.key?`<span class="badge badge-purple" style="flex-shrink:0;">${esc(s.key)}</span>`:''}`;
-    el.addEventListener('click', () => {
-      if (!selectedSetlistSongs.find(x => x.id === s.id)) {
-        selectedSetlistSongs.push({ id: s.id, title: s.title });
-        renderSelectedSetlistSongs();
-        showToast(s.title + ' added', 'info');
-      } else {
-        showToast('Already added', 'info');
-      }
-    });
-    list.appendChild(el);
+    const el = document.createElement('label');
+    el.className = 'flex items-center gap-2 cursor-pointer py-1.5 px-2 rounded-xl';
+    el.style.cssText = 'transition: background 150ms ease';
+    el.onmouseenter = () => el.style.background = 'rgba(255,255,255,0.05)';
+    el.onmouseleave = () => el.style.background = 'transparent';
+    el.innerHTML = `
+      <input type="checkbox" value="${s.id}" class="rounded" style="accent-color:#9b72cb" />
+      <span class="text-sm truncate" style="color:var(--text-primary)">${escHtml(s.title)}</span>
+      ${s.key ? `<span class="text-xs ml-auto flex-shrink-0" style="color:var(--text-secondary)">${escHtml(s.key)}</span>` : ''}
+    `;
+    c.appendChild(el);
   });
 }
 
-function renderSelectedSetlistSongs() {
-  const el = document.getElementById('setlist-selected-songs');
-  if (!el) return;
-  if (!selectedSetlistSongs.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text-muted);">No songs selected yet.</p>'; return; }
-  el.innerHTML = `<div style="font-size:12px;color:var(--purple);font-weight:700;margin-bottom:6px;">${selectedSetlistSongs.length} song(s) selected:</div>` +
-    selectedSetlistSongs.map((s,i) => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;"><span style="font-size:12px;color:var(--text-muted);">${i+1}.</span><span class="trunc" style="flex:1;font-size:13px;">${esc(s.title)}</span><button onclick="removeSetlistSong('${s.id}')" style="color:#f87171;background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;">×</button></div>`).join('');
-}
-
-window.removeSetlistSong = function(id) {
-  selectedSetlistSongs = selectedSetlistSongs.filter(s => s.id !== id);
-  renderSelectedSetlistSongs();
-};
-
-window.submitAddSetlist = async function() {
+window.submitSetlist = async () => {
   const name = document.getElementById('setlist-name-input').value.trim();
-  if (!name) { showToast('Setlist name required', 'error'); return; }
+  if (!name) { showToast('Setlist name required'); return; }
+  const date = document.getElementById('setlist-date-input').value;
+  const checked = [...document.querySelectorAll('#setlist-song-picker input:checked')].map(i => i.value);
   try {
     await addDoc(collection(db, 'setlists'), {
-      name,
-      venue: document.getElementById('setlist-venue-input').value.trim(),
-      date: document.getElementById('setlist-date-input').value,
-      songs: selectedSetlistSongs.map(s => ({ id: s.id })),
+      name, date,
+      songIds: checked,
       createdBy: currentUser.uid,
-      createdAt: serverTimestamp()
+      createdAt: new Date()
     });
-    showToast('Setlist created!', 'success');
-    closeModal('add-setlist-modal');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    closeSetlistModal();
+    showToast('Setlist created!');
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  }
 };
 
-window.deleteSetlist = async function(id) {
+window.deleteSetlist = async (id) => {
   if (!confirm('Delete this setlist?')) return;
   try {
     await deleteDoc(doc(db, 'setlists', id));
-    showToast('Setlist deleted', 'info');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
-};
-
-// ===== SEARCH & FILTER =====
-window.handleSearch = function(val) {
-  searchQuery = val;
-  if (currentView === 'songs') renderSongs();
-  if (currentView === 'setlist') renderSetlists();
-};
-
-window.toggleFilterPanel = function() {
-  filterPanelOpen = !filterPanelOpen;
-  const panel = document.getElementById('filter-panel');
-  const btn = document.getElementById('filter-btn');
-  if (filterPanelOpen) {
-    panel.style.display = 'block';
-    requestAnimationFrame(() => { panel.style.transform = 'translateY(0)'; panel.style.opacity = '1'; });
-    btn.classList.add('active');
-  } else {
-    closeFilterPanel();
+    showToast('Setlist deleted');
+  } catch (e) {
+    showToast('Error: ' + e.message);
   }
 };
 
-function closeFilterPanel() {
-  filterPanelOpen = false;
-  const panel = document.getElementById('filter-panel');
-  const btn = document.getElementById('filter-btn');
-  panel.style.transform = 'translateY(-8px)'; panel.style.opacity = '0';
-  btn.classList.remove('active');
-  setTimeout(() => { if (!filterPanelOpen) panel.style.display = 'none'; }, 300);
-}
-
-function populateFilterChips() {
-  const keys = [...new Set(allSongs.map(s => s.key).filter(Boolean))];
-  const genres = [...new Set(allSongs.map(s => s.genre).filter(Boolean))];
-
-  const kc = document.getElementById('key-filter-chips');
-  const gc = document.getElementById('genre-filter-chips');
-  if (!kc || !gc) return;
-
-  kc.innerHTML = keys.map(k => `<button class="filter-chip ${activeFilters.key===k?'active':''}" onclick="setKeyFilter('${esc(k)}')">${esc(k)}</button>`).join('');
-  gc.innerHTML = genres.map(g => `<button class="filter-chip ${activeFilters.genre===g?'active':''}" onclick="setGenreFilter('${esc(g)}')">${esc(g)}</button>`).join('');
-}
-
-window.setKeyFilter = function(k) {
-  activeFilters.key = activeFilters.key === k ? null : k;
-  populateFilterChips(); renderSongs();
+// ─── Setlist Detail ───────────────────────────────────────
+window.openSetlistDetail = (sl) => {
+  document.getElementById('setlist-detail-title').textContent = sl.name || 'Setlist';
+  document.getElementById('setlist-detail-date').textContent = sl.date || '';
+  const container = document.getElementById('setlist-detail-songs');
+  container.innerHTML = '';
+  const songs = (sl.songIds || []).map(id => allSongs.find(s => s.id === id)).filter(Boolean);
+  if (songs.length === 0) {
+    container.innerHTML = '<p class="text-sm text-center py-8" style="color:var(--text-secondary)">No songs in this setlist</p>';
+  } else {
+    songs.forEach((song, i) => {
+      const el = document.createElement('div');
+      el.className = 'flex items-center gap-3 py-2.5 px-2 rounded-xl cursor-pointer';
+      el.style.cssText = 'transition: background 150ms ease';
+      el.onmouseenter = () => el.style.background = 'rgba(255,255,255,0.05)';
+      el.onmouseleave = () => el.style.background = 'transparent';
+      el.onclick = () => { closeSetlistDetailModal(); openStageView(song); };
+      el.innerHTML = `
+        <span class="w-6 text-xs text-center font-600 flex-shrink-0" style="color:var(--text-secondary)">${i+1}</span>
+        <div class="flex-1 min-w-0">
+          <p class="font-600 text-sm truncate" style="color:var(--text-primary)">${escHtml(song.title)}</p>
+          <p class="text-xs truncate" style="color:var(--text-secondary)">${escHtml(song.artist || '')}${song.key ? ` · ${song.key}` : ''}</p>
+        </div>
+        <i class="mdi mdi-chevron-right flex-shrink-0" style="color:var(--text-secondary)"></i>
+      `;
+      container.appendChild(el);
+    });
+  }
+  document.getElementById('setlist-detail-modal').classList.add('show');
 };
-window.setGenreFilter = function(g) {
-  activeFilters.genre = activeFilters.genre === g ? null : g;
-  populateFilterChips(); renderSongs();
-};
-window.clearFilters = function() {
-  activeFilters = { key: null, genre: null };
-  document.getElementById('search-input').value = '';
-  searchQuery = '';
-  populateFilterChips(); renderSongs();
-  closeFilterPanel();
-};
+window.closeSetlistDetailModal = () => document.getElementById('setlist-detail-modal').classList.remove('show');
 
-// ===== KEY SELECT POPULATE =====
-function populateKeySelects() {
-  ['song-key-input','edit-song-key'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = '<option value="">Select Key</option>' + ALL_KEYS.map(k => `<option value="${k}">${k}</option>`).join('');
-  });
-}
-
-// ===== ADMIN PANEL =====
-function renderAdminSettings() {
-  loadAdminTheme();
-}
-
-window.saveAdminBranding = async function() {
-  const name = document.getElementById('admin-app-name').value.trim();
+// ─── Admin Functions ──────────────────────────────────────
+window.saveAdminBranding = async () => {
+  const name = document.getElementById('admin-app-name').value.trim() || 'RCCM GigBook';
   try {
-    await setDoc(doc(db, 'admin_settings', 'branding'), { appName: name }, { merge: true });
-    showToast('Branding saved', 'success');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    await setDoc(doc(db, 'admin_settings', 'config'), { appName: name }, { merge: true });
+    document.title = name;
+    showToast('Branding saved!');
+  } catch (e) { showToast('Error: ' + e.message); }
 };
 
-window.saveAdminLimits = async function() {
-  const max = parseInt(document.getElementById('admin-max-songs').value) || 20;
+window.saveAdminSongLimit = async () => {
+  const val = parseInt(document.getElementById('admin-song-limit').value) || 500;
+  songLimit = val;
   try {
-    await setDoc(doc(db, 'admin_settings', 'limits'), { maxSongsPerSetlist: max }, { merge: true });
-    showToast('Limits saved', 'success');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    await setDoc(doc(db, 'admin_settings', 'config'), { songLimit: val }, { merge: true });
+    showToast(`Song limit set to ${val}`);
+  } catch (e) { showToast('Error: ' + e.message); }
 };
 
-// ===== THEME SCOPE =====
-window.setThemeScope = function(scope, btn) {
+// ─── Theme System ─────────────────────────────────────────
+const THEME_PRESETS = {
+  gemini: { '--canvas-bg':'#131314','--surface-bg':'#1e1f20','--surface-raised':'#2a2b2c','--lyrics-color':'#e3e3e3','--chords-color':'#4285f4' },
+  midnight: { '--canvas-bg':'#0d0d1a','--surface-bg':'#141425','--surface-raised':'#1e1e35','--lyrics-color':'#e0e0ff','--chords-color':'#a78bfa' },
+  forest: { '--canvas-bg':'#0f1a0f','--surface-bg':'#162016','--surface-raised':'#1e2a1e','--lyrics-color':'#e0ffe0','--chords-color':'#4ade80' },
+  ocean: { '--canvas-bg':'#0f172a','--surface-bg':'#1e2942','--surface-raised':'#263450','--lyrics-color':'#e0f0ff','--chords-color':'#38bdf8' }
+};
+
+window.applyThemePreset = (preset) => {
+  const vars = THEME_PRESETS[preset];
+  if (!vars) return;
+  applyThemeVars(vars);
+  pushThemeVarsToSource(vars);
+};
+
+function applyThemeVars(vars) {
+  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+  // Sync color pickers
+  if (vars['--canvas-bg']) { document.getElementById('tc-canvas-bg').value = vars['--canvas-bg']; document.getElementById('tc-canvas-bg-val').textContent = vars['--canvas-bg']; }
+  if (vars['--lyrics-color']) { document.getElementById('tc-lyrics').value = vars['--lyrics-color']; document.getElementById('tc-lyrics-val').textContent = vars['--lyrics-color']; }
+  if (vars['--chords-color']) { document.getElementById('tc-chords').value = vars['--chords-color']; document.getElementById('tc-chords-val').textContent = vars['--chords-color']; }
+  if (vars['--surface-bg']) { document.getElementById('tc-surface').value = vars['--surface-bg']; document.getElementById('tc-surface-val').textContent = vars['--surface-bg']; }
+}
+
+window.applyThemeColor = (varName, value) => {
+  document.documentElement.style.setProperty(varName, value);
+  // Update display label
+  const labelMap = { '--canvas-bg':'tc-canvas-bg-val','--lyrics-color':'tc-lyrics-val','--chords-color':'tc-chords-val','--surface-bg':'tc-surface-val' };
+  if (labelMap[varName]) document.getElementById(labelMap[varName]).textContent = value;
+};
+
+window.setThemeScope = (scope) => {
   themeScope = scope;
-  document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  document.getElementById('scope-global').classList.toggle('active', scope === 'global');
+  document.getElementById('scope-local').classList.toggle('active', scope === 'local');
+  document.getElementById('scope-global').style.color = scope === 'global' ? 'var(--text-primary)' : 'var(--text-secondary)';
+  document.getElementById('scope-local').style.color = scope === 'local' ? 'var(--text-primary)' : 'var(--text-secondary)';
 };
 
-window.applyThemeColor = function(variable, value) {
-  document.documentElement.style.setProperty(variable, value);
+window.pushThemeToCloud = () => {
+  const vars = {
+    '--canvas-bg': document.getElementById('tc-canvas-bg').value,
+    '--lyrics-color': document.getElementById('tc-lyrics').value,
+    '--chords-color': document.getElementById('tc-chords').value,
+    '--surface-bg': document.getElementById('tc-surface').value
+  };
+  pushThemeVarsToSource(vars);
+};
+
+async function pushThemeVarsToSource(vars) {
   if (themeScope === 'global') {
-    saveGlobalTheme(variable, value);
+    try {
+      await setDoc(doc(db, 'admin_settings', 'theme'), vars, { merge: true });
+      showToast('Theme broadcast globally!');
+    } catch (e) { showToast('Error: ' + e.message); }
   } else {
-    saveLocalTheme(variable, value);
+    localStorage.setItem('rccm_admin_local_theme', JSON.stringify(vars));
+    applyThemeVars(vars);
+    showToast('Theme saved locally (Admin only)');
   }
-};
-
-window.applyBlur = function(val) {
-  document.documentElement.style.setProperty('--blur-val', val + 'px');
-  document.querySelectorAll('.glass, .glass-strong').forEach(el => {
-    el.style.backdropFilter = `blur(${val}px)`;
-    el.style.webkitBackdropFilter = `blur(${val}px)`;
-  });
-};
-
-async function saveGlobalTheme(variable, value) {
-  try {
-    await setDoc(doc(db, 'admin_settings', 'theme'), { [variable]: value }, { merge: true });
-  } catch(e) { console.warn('Theme save failed', e); }
-}
-
-function saveLocalTheme(variable, value) {
-  const existing = JSON.parse(localStorage.getItem('rccm_admin_local_theme') || '{}');
-  existing[variable] = value;
-  localStorage.setItem('rccm_admin_local_theme', JSON.stringify(existing));
-}
-
-async function loadAdminTheme() {
-  // Local override for admin
-  const role = currentUserData?.role || 'Guest';
-  if (role === 'Admin') {
-    const local = JSON.parse(localStorage.getItem('rccm_admin_local_theme') || '{}');
-    Object.entries(local).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
-  }
-  // Global theme from Firestore
-  try {
-    const snap = await getDoc(doc(db, 'admin_settings', 'theme'));
-    if (snap.exists()) {
-      const data = snap.data();
-      const keys = ['--canvas-bg','--lyrics-color','--chords-color'];
-      keys.forEach(k => { if (data[k]) document.documentElement.style.setProperty(k, data[k]); });
-      if (data['--canvas-bg']) { document.getElementById('color-canvas-bg').value = data['--canvas-bg']; }
-      if (data['--lyrics-color']) { document.getElementById('color-lyrics').value = data['--lyrics-color']; }
-      if (data['--chords-color']) { document.getElementById('color-chords').value = data['--chords-color']; }
-    }
-  } catch(e) {}
 }
 
 function applyLocalTheme() {
+  if (currentUserRole !== 'Admin') return;
   try {
-    const local = JSON.parse(localStorage.getItem('rccm_admin_local_theme') || '{}');
-    Object.entries(local).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
-  } catch(e) {}
+    const saved = JSON.parse(localStorage.getItem('rccm_admin_local_theme'));
+    if (saved) applyThemeVars(saved);
+  } catch {}
 }
 
-// ===== PURGE SYSTEM =====
-window.openPurgeModal = function() { openModal('purge-modal'); };
+// ─── Purge System ─────────────────────────────────────────
+window.openPurgeModal = () => document.getElementById('purge-modal').classList.add('show');
+window.closePurgeModal = () => document.getElementById('purge-modal').classList.remove('show');
 
-window.initiatePurge = function(type) {
+window.initiatePurge = (type) => {
   pendingPurgeType = type;
-  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  closeModal('purge-modal');
-  document.getElementById('otp-input').value = '';
-  document.getElementById('otp-input').classList.remove('error');
-  document.getElementById('otp-error').style.display = 'none';
-  const desc = type === 'setlists'
-    ? `Code dispatched for: Clear All Setlists. Code for demo: ${otpCode}`
-    : `Code dispatched for: Deep Factory Reset. Code for demo: ${otpCode}`;
-  document.getElementById('otp-desc').textContent = desc;
-  openModal('otp-modal');
-  console.log('[RCCM PURGE OTP]', otpCode); // In production, email this
+  closePurgeModal();
+  purgeVerifyCode = String(Math.floor(100000 + Math.random() * 900000));
+  console.warn(`🔐 PURGE VERIFICATION CODE: ${purgeVerifyCode}`);
+  // In production, dispatch via email API. Here logged to console.
+  showToast(`Verification code sent to ${currentUser.email} (see console)`, 4000);
+  document.getElementById('purge-code-input').value = '';
+  document.getElementById('purge-error-msg').classList.add('hidden');
+  document.getElementById('purge-code-input').classList.remove('input-error');
+  document.getElementById('purge-verification-modal').classList.add('show');
 };
 
-window.verifyOTP = async function() {
-  const entered = document.getElementById('otp-input').value.trim();
-  if (entered !== otpCode) {
-    document.getElementById('otp-input').classList.add('error');
-    document.getElementById('otp-error').style.display = 'block';
-    setTimeout(() => document.getElementById('otp-input').classList.remove('error'), 3000);
+window.closePurgeVerification = () => {
+  document.getElementById('purge-verification-modal').classList.remove('show');
+  pendingPurgeType = null;
+  purgeVerifyCode = null;
+};
+
+window.verifyPurgeCode = async () => {
+  const entered = document.getElementById('purge-code-input').value.trim();
+  if (entered !== purgeVerifyCode) {
+    document.getElementById('purge-code-input').classList.add('input-error');
+    document.getElementById('purge-error-msg').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('purge-code-input').classList.remove('input-error');
+      document.getElementById('purge-error-msg').classList.add('hidden');
+    }, 3000);
     return;
   }
-  closeModal('otp-modal');
-  showToast('Code verified. Executing purge...', 'info');
+  document.getElementById('purge-verification-modal').classList.remove('show');
+  showToast('Executing purge…');
   try {
-    if (pendingPurgeType === 'setlists') await purgeSetlists();
-    else if (pendingPurgeType === 'usersAndSetlists') await purgeUsersAndSetlists();
-    showToast('Purge complete.', 'success');
-  } catch(e) { showToast('Purge failed: ' + e.message, 'error'); }
+    if (pendingPurgeType === 'setlists' || pendingPurgeType === 'all') {
+      const setSnap = await getDocs(collection(db, 'setlists'));
+      const batch1 = writeBatch(db);
+      setSnap.docs.forEach(d => batch1.delete(d.ref));
+      await batch1.commit();
+    }
+    if (pendingPurgeType === 'all') {
+      const usersSnap = await getDocs(collection(db, 'users'));
+      const batch2 = writeBatch(db);
+      usersSnap.docs.forEach(d => batch2.delete(d.ref));
+      await batch2.commit();
+    }
+    showToast('Purge complete!');
+  } catch (e) {
+    showToast('Purge error: ' + e.message);
+  }
+  pendingPurgeType = null;
+  purgeVerifyCode = null;
 };
 
-async function purgeSetlists() {
-  const snap = await getDocs(collection(db, 'setlists'));
-  const batch = writeBatch(db);
-  snap.docs.forEach(d => batch.delete(d.ref));
-  await batch.commit();
-}
-
-async function purgeUsersAndSetlists() {
-  await purgeSetlists();
-  const snap = await getDocs(collection(db, 'users'));
-  const batch = writeBatch(db);
-  snap.docs.forEach(d => {
-    if (d.data().role !== 'Admin') batch.delete(d.ref);
-  });
-  await batch.commit();
-}
-
-// ===== MODAL HELPERS =====
-window.openModal = function(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.add('open');
-  document.body.style.overflow = 'hidden';
-};
-window.closeModal = function(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.remove('open');
-  document.body.style.overflow = '';
-};
-
-// Close modals on backdrop click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeModal(overlay.id);
-  });
+// ─── PWA Install ──────────────────────────────────────────
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPWAPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  btn.classList.remove('hidden');
+  setTimeout(() => {
+    btn.style.opacity = '1';
+    btn.style.transform = 'translateY(0)';
+  }, 100);
 });
 
-// ===== TOAST =====
-window.showToast = function(msg, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const el = document.createElement('div');
-  el.className = `toast toast-${type}`;
-  el.textContent = msg;
-  container.appendChild(el);
-  setTimeout(() => el.remove(), 3000);
+document.getElementById('pwa-install-btn').onclick = async () => {
+  if (!deferredPWAPrompt) return;
+  deferredPWAPrompt.prompt();
+  const { outcome } = await deferredPWAPrompt.userChoice;
+  if (outcome === 'accepted') deferredPWAPrompt = null;
 };
 
-// ===== ESCAPE HELPER =====
-function esc(str) {
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-install-btn').classList.add('hidden');
+  deferredPWAPrompt = null;
+});
+
+// ─── Helpers ──────────────────────────────────────────────
+function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ===== KEYBOARD SHORTCUTS =====
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeSidebar();
-    document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
-  }
+// Close modals on backdrop click
+['song-modal','setlist-modal','setlist-detail-modal','purge-modal'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', (e) => { if (e.target === el) el.classList.remove('show'); });
 });
 
-// ===== CLICK OUTSIDE FILTER =====
-document.addEventListener('click', (e) => {
-  if (filterPanelOpen && !document.getElementById('filter-panel').contains(e.target) && e.target !== document.getElementById('filter-btn')) {
-    closeFilterPanel();
-  }
-});
+// Initial view setup (for first paint before auth)
+document.getElementById('view-songs').classList.add('active');
+
 </script>
 </body>
 </html>
