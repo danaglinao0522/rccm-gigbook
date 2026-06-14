@@ -1,8 +1,8 @@
-const CACHE_NAME = 'rccm-gigbook-v1';
-const ASSETS = ['/index.html', '/manifest.json'];
+const CACHE = 'gigbook-v1';
+const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
 });
 
 self.addEventListener('fetch', e => {
