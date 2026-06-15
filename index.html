@@ -93,9 +93,9 @@
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .view { display: none; }
     .view.active { display: flex; flex-direction: column; }
-    .tab-panel { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.2s ease, transform 0.2s ease; }
-    .tab-panel.active { display: block; }
-    .tab-panel.active.tab-visible { opacity: 1; transform: translateY(0); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: tabFadeIn 0.18s ease forwards; }
+    @keyframes tabFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     #app-root { display: none; }
     /* Song swipe actions (admin) */
     .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: var(--radius-card); }
@@ -512,10 +512,25 @@
     }
     #song-filter-menu button, #setlist-filter-menu button, #user-filter-menu button {
       border-radius: 8px !important;
-      padding: 8px 10px !important;
+      padding: 8px 12px !important;
       font-family: var(--app-font-family) !important;
       font-size: 13px !important;
-      transition: background 0.15s var(--ease-smooth) !important;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: var(--lyrics-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.12s ease !important;
+    }
+    #song-filter-menu button:hover, #setlist-filter-menu button:hover, #user-filter-menu button:hover {
+      background: var(--surface-2) !important;
+    }
+    #song-filter-menu button::after, #setlist-filter-menu button::after, #user-filter-menu button::after {
+      display: none !important; /* no ripple overlay in menus */
     }
     .filter-btn.has-active-filter::after {
       content: '';
@@ -747,20 +762,7 @@
         
       </div>
       
-    <div id="song-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:168px;z-index:900;box-shadow:0 8px 32px rgba(0,0,0,0.45);" onclick="event.stopPropagation()">
-          <button id="song-sort-az" onclick="setSongSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
-          </button>
-          <button id="song-sort-za" onclick="setSongSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon id="song-sort-za-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
-          </button>
-          <button id="song-sort-artist" onclick="setSongSort('artist')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:account-music" style="font-size:14px;"></iconify-icon><span style="flex:1;">By Artist</span><iconify-icon id="song-sort-artist-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
-          </button>
-          <button id="song-sort-favourites" onclick="setSongSort('favourites')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:heart" style="font-size:14px;color:#ef4444;"></iconify-icon><span style="flex:1;">Favourites</span><iconify-icon id="song-sort-favourites-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
-          </button>
-        </div>
+
     <div id="songs-list" class="songs-list-wrap"></div>
         <div id="songs-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:music-off" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
@@ -846,49 +848,18 @@
           <span id="setlist-filter-label">Newest</span>
         </button>
         
-          <button id="setlist-sort-newest" onclick="setSetlistSort('newest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Newest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="newest"></iconify-icon>
-          </button>
-          <button id="setlist-sort-oldest" onclick="setSetlistSort('oldest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Oldest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="oldest"></iconify-icon>
-          </button>
-          <button id="setlist-sort-az" onclick="setSetlistSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="az"></iconify-icon>
-          </button>
-          <button id="setlist-sort-za" onclick="setSetlistSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="za"></iconify-icon>
-          </button>
-          <div style="padding:6px 8px 4px;border-top:1px solid var(--border-color);margin-top:4px;">
-            <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter</span>
-          </div>
-          <button id="setlist-filter-all" onclick="setSetlistFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:playlist-music" style="font-size:14px;color:var(--text-secondary);"></iconify-icon><span style="flex:1;">All Types</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="all"></iconify-icon>
-          </button>
-          <button id="setlist-filter-public" onclick="setSetlistFilter('public')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:earth" style="font-size:14px;color:#34d399;"></iconify-icon><span style="flex:1;">Public</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="public"></iconify-icon>
-          </button>
-          <button id="setlist-filter-private" onclick="setSetlistFilter('private')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:lock" style="font-size:14px;color:#fb923c;"></iconify-icon><span style="flex:1;">Private</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="private"></iconify-icon>
-          </button>
-          <button id="setlist-filter-custom" onclick="setSetlistFilter('custom')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-            <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:var(--accent-soft);"></iconify-icon><span style="flex:1;">Custom Group</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent-soft);" class="filter-chk" data-for="custom"></iconify-icon>
-          </button>
-        </div>
       </div>
         
-    <div id="setlist-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:180px;z-index:900;box-shadow:0 8px 32px rgba(0,0,0,0.45);" onclick="event.stopPropagation()">
-          <div style="padding:4px 8px 6px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
-            <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort</span>
-          </div>
-    <div id="setlists-list" class="setlists-list-wrap"></div>
-        <div id="setlists-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
-          <iconify-icon icon="mdi:playlist-music" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
-          <p>No setlists yet.</p>
-        </div>
+
+      <div id="setlists-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
+        <iconify-icon icon="mdi:playlist-music" style="font-size:48px;display:block;margin:0 auto 14px;opacity:0.4;"></iconify-icon>
+        <p style="font-size:15px;font-weight:600;margin:0 0 6px;color:var(--text-secondary);">No setlists yet</p>
+        <p style="font-size:13px;margin:0;">Create a setlist using the + button.</p>
       </div>
       <div id="setlist-detail-view" style="display:none;"></div>
     </div>
 
+    </div><!-- /tab-setlists -->
 <div id="tab-users" class="tab-panel" style="padding:12px var(--view-px);">
       <!-- Tab header -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;">
@@ -904,21 +875,7 @@
         </button>
       </div>
       
-    <div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:180px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
-      <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
-        <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
-      </div>
-      <button onclick="setUserFilter('all')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">All Roles</button>
-      <button onclick="setUserFilter('Admin')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Admin</button>
-      <button onclick="setUserFilter('Sub-Admin')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Sub-Admin</button>
-      <button onclick="setUserFilter('Lead')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Lead</button>
-      <button onclick="setUserFilter('Musician')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Musician</button>
-      <button onclick="setUserFilter('Singer')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Singer</button>
-      <button onclick="setUserFilter('Tech')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">
-        <iconify-icon icon="mdi:headphones" style="font-size:15px;vertical-align:middle;margin-right:4px;flex-shrink:0;"></iconify-icon>
-        <span>Tech</span>
-      </button>
-    </div><!-- /user-filter-menu -->
+<!-- /user-filter-menu -->
     <div id="users-list" class="users-list-wrap"></div>
       <div id="users-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
         <iconify-icon icon="mdi:account-group-outline" style="font-size:48px;display:block;margin:0 auto 14px;opacity:0.4;"></iconify-icon>
@@ -1945,10 +1902,10 @@ function signOut() {
   activeTab = 'songs';
   // Reset all tab panels back to initial state
   document.querySelectorAll('.tab-panel').forEach(p => {
-    p.classList.remove('active', 'tab-visible');
+    p.classList.remove('active');
   });
   const songsPanel = document.getElementById('tab-songs');
-  if (songsPanel) { songsPanel.classList.add('active', 'tab-visible'); }
+  if (songsPanel) { songsPanel.classList.add('active'); }
   // Close any open views within tabs
   const songSheet = document.getElementById('song-sheet-view');
   if (songSheet) songSheet.style.display = 'none';
@@ -2046,7 +2003,7 @@ function mountApp() {
   // Start initial tab visible
   requestAnimationFrame(() => {
     const initPanel = document.getElementById('tab-songs');
-    if (initPanel) initPanel.classList.add('tab-visible');
+    // tab-visible removed — using CSS animation instead
   });
   runTTLCleanup();
   seedSongsIfEmpty();
@@ -2291,11 +2248,10 @@ function switchTab(tab) {
   closeAllDropdowns();
   activeTab = tab;
 
-  document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
+  document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); });
   const panel = document.getElementById('tab-' + tab);
   if (panel) {
     panel.classList.add('active');
-    requestAnimationFrame(() => requestAnimationFrame(() => panel.classList.add('tab-visible')));
   }
 
   // Populate profile data when switching to profile tab
@@ -2814,10 +2770,9 @@ function openSongSheet(songId, fromSetlist) {
   }
   if (openedFromSetlist) {
     // Switch to songs tab to render the song sheet, but setlist detail stays in memory
-    document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
+    document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); });
     const songsPanel = document.getElementById('tab-songs');
     songsPanel.classList.add('active');
-    songsPanel.classList.add('tab-visible');
   }
   const setlistBtn = document.getElementById('sheet-setlist-btn');
   if (setlistBtn) setlistBtn.style.display = openedFromSetlist ? 'flex' : 'none';
@@ -2944,10 +2899,10 @@ function closeSongSheet() {
   currentSongId = null;
   if (openedFromSetlist) {
     openedFromSetlist = false;
-    document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); p.classList.remove('tab-visible'); });
+    document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); });
     const setlistsPanel = document.getElementById('tab-setlists');
     setlistsPanel.classList.add('active');
-    setlistsPanel.classList.add('tab-visible');
+    setlistsPanel.classList.add('active');
     document.getElementById('songs-list-view').style.display = 'block';
     document.getElementById('setlist-detail-view').style.display = 'block';
     updateHomeBtn(true);
@@ -5574,5 +5529,69 @@ function _startModalDrag(e, sheet) {
   </div>
 </div>
 
+
+
+<!-- FILTER MENUS — at body level to avoid tab-panel opacity cascade -->
+<div id="song-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:168px;z-index:900;box-shadow:0 8px 32px rgba(0,0,0,0.45);" onclick="event.stopPropagation()">
+          <button id="song-sort-az" onclick="setSongSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
+          </button>
+          <button id="song-sort-za" onclick="setSongSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon id="song-sort-za-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
+          </button>
+          <button id="song-sort-artist" onclick="setSongSort('artist')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:account-music" style="font-size:14px;"></iconify-icon><span style="flex:1;">By Artist</span><iconify-icon id="song-sort-artist-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
+          </button>
+          <button id="song-sort-favourites" onclick="setSongSort('favourites')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:heart" style="font-size:14px;color:#ef4444;"></iconify-icon><span style="flex:1;">Favourites</span><iconify-icon id="song-sort-favourites-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
+          </button>
+        </div>
+<div id="setlist-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:200px;z-index:9000;box-shadow:0 8px 32px rgba(0,0,0,0.45);max-height:70vh;overflow-y:auto;" onclick="event.stopPropagation()">
+  <div style="padding:4px 8px 6px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
+    <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort &amp; Filter</span>
+  </div>
+          <button id="setlist-sort-newest" onclick="setSetlistSort('newest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-clock-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Newest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="newest"></iconify-icon>
+          </button>
+          <button id="setlist-sort-oldest" onclick="setSetlistSort('oldest')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-clock-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Oldest First</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="oldest"></iconify-icon>
+          </button>
+          <button id="setlist-sort-az" onclick="setSetlistSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="az"></iconify-icon>
+          </button>
+          <button id="setlist-sort-za" onclick="setSetlistSort('za')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:sort-alphabetical-descending" style="font-size:14px;"></iconify-icon><span style="flex:1;">Z–A</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="sort-chk" data-for="za"></iconify-icon>
+          </button>
+          <div style="padding:6px 8px 4px;border-top:1px solid var(--border-color);margin-top:4px;">
+            <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter</span>
+          </div>
+          <button id="setlist-filter-all" onclick="setSetlistFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:playlist-music" style="font-size:14px;color:var(--text-secondary);"></iconify-icon><span style="flex:1;">All Types</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="all"></iconify-icon>
+          </button>
+          <button id="setlist-filter-public" onclick="setSetlistFilter('public')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:earth" style="font-size:14px;color:#34d399;"></iconify-icon><span style="flex:1;">Public</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="public"></iconify-icon>
+          </button>
+          <button id="setlist-filter-private" onclick="setSetlistFilter('private')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:lock" style="font-size:14px;color:#fb923c;"></iconify-icon><span style="flex:1;">Private</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent);" class="filter-chk" data-for="private"></iconify-icon>
+          </button>
+          <button id="setlist-filter-custom" onclick="setSetlistFilter('custom')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
+            <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:var(--accent-soft);"></iconify-icon><span style="flex:1;">Custom Group</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent-soft);" class="filter-chk" data-for="custom"></iconify-icon>
+          </button>
+</div><!-- /setlist-filter-menu -->
+<div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:180px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
+      <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
+        <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
+      </div>
+      <button onclick="setUserFilter('all')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">All Roles</button>
+      <button onclick="setUserFilter('Admin')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Admin</button>
+      <button onclick="setUserFilter('Sub-Admin')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Sub-Admin</button>
+      <button onclick="setUserFilter('Lead')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Lead</button>
+      <button onclick="setUserFilter('Musician')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Musician</button>
+      <button onclick="setUserFilter('Singer')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Singer</button>
+      <button onclick="setUserFilter('Tech')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">
+        <iconify-icon icon="mdi:headphones" style="font-size:15px;vertical-align:middle;margin-right:4px;flex-shrink:0;"></iconify-icon>
+        <span>Tech</span>
+      </button>
+    </div>
 </body>
 </html>
