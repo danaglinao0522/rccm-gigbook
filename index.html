@@ -460,16 +460,32 @@
     }
     button:hover::after  { background: rgba(255,255,255,0.06); }
     button:active::after { background: rgba(255,255,255,0.12); }
-    /* Circular floating buttons */
-    #hamburger-btn:hover, #home-btn:hover,
-    #header-search-btn:hover, #header-filter-btn:hover {
+    /* Exclude search/filter floating buttons from ::after overlay — they have their own hover */
+    #header-search-btn::after, #header-search-clear::after,
+    #header-filter-btn::after, #hamburger-btn::after, #home-btn::after { display: none !important; }
+    /* Circular floating buttons — standalone */
+    #hamburger-btn:hover, #home-btn:hover, #header-filter-btn:hover {
       background: var(--surface-2) !important;
       border-color: var(--border-subtle) !important;
     }
-    #hamburger-btn:active, #home-btn:active,
-    #header-search-btn:active, #header-filter-btn:active {
+    #hamburger-btn:active, #home-btn:active, #header-filter-btn:active {
       transform: scale(0.92);
     }
+    /* Search pill — icon button inside pill has no background highlight */
+    #header-search-btn { border-radius: 0; }
+    #header-search-btn:hover { background: transparent !important; }
+    #header-search-btn:active { background: transparent !important; transform: none; }
+    /* Clear button inside pill */
+    #header-search-clear {
+      width: 26px !important; height: 26px !important; min-width: 26px !important;
+      margin: 0 10px 0 4px !important;
+      font-size: 13px !important;
+      border-radius: 50% !important;
+      background: var(--surface-3) !important;
+      border: 1px solid var(--border-subtle) !important;
+      color: var(--text-secondary) !important;
+    }
+    #header-search-clear:hover { background: var(--border-subtle) !important; }
     /* Sidebar nav buttons */
     #sidebar-nav button:hover { background: var(--surface-2) !important; }
     /* List cards */
@@ -711,15 +727,15 @@
   </button>
 
   <!-- FLOATING SEARCH + FILTER (top-right, per-tab) -->
-  <div id="header-actions" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:400;display:flex;align-items:center;gap:8px;transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
+  <div id="header-actions" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:400;display:flex;align-items:center;gap:8px;transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);will-change:transform;">
     <!-- Expandable search pill -->
-    <div id="header-search-pill" style="display:flex;align-items:center;background:var(--surface-1);border:1px solid var(--border-color);border-radius:23px;box-shadow:0 4px 16px rgba(0,0,0,0.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;transition:width 0.28s cubic-bezier(0.4,0,0.2,1);width:46px;height:46px;">
-      <button id="header-search-btn" onclick="toggleHeaderSearch()" style="width:46px;height:46px;min-width:46px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s;">
-        <iconify-icon icon="mdi:magnify" style="font-size:21px;"></iconify-icon>
+    <div id="header-search-pill" style="display:flex;align-items:center;background:var(--surface-1);border:1px solid var(--border-color);border-radius:23px;box-shadow:0 4px 16px rgba(0,0,0,0.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;transition:width 0.28s cubic-bezier(0.4,0,0.2,1);width:46px;height:46px;position:relative;">
+      <button id="header-search-btn" onclick="toggleHeaderSearch()" style="width:46px;height:46px;min-width:46px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s var(--ease-smooth);border-radius:0;">
+        <iconify-icon icon="mdi:magnify" style="font-size:21px;pointer-events:none;"></iconify-icon>
       </button>
       <input id="header-search-input" type="text" placeholder="Search..." oninput="onHeaderSearchInput()"
-        style="width:0;opacity:0;border:none;background:transparent;color:var(--lyrics-color);font-size:14px;font-family:var(--app-font-family);outline:none;padding:0;transition:width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;pointer-events:none;" />
-      <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:32px;height:32px;min-width:32px;margin-right:6px;background:var(--surface-2);border:none;border-radius:50%;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:background 0.15s;">✕</button>
+        style="flex:1;min-width:0;width:0;opacity:0;border:none;background:transparent;color:var(--lyrics-color);font-size:14px;font-family:var(--app-font-family);outline:none;padding:0;transition:width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;pointer-events:none;" />
+      <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:28px;height:28px;min-width:28px;margin-right:9px;background:var(--surface-3);border:1px solid var(--border-subtle);border-radius:50%;color:var(--text-secondary);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;transition:background 0.15s;">✕</button>
     </div>
     <!-- Filter button -->
     <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
@@ -1926,6 +1942,9 @@ function signOut() {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+  // Clear sidebar nav so stale role/avatar doesn't flash on next auth
+  const sidebarNav = document.getElementById('sidebar-nav');
+  if (sidebarNav) sidebarNav.innerHTML = '';
   // Reset nav — sidebar rebuilt on next login
   firebase.auth().signOut().catch(err => {
     _signingOut = false;
@@ -1996,6 +2015,9 @@ function mountApp() {
   appRoot.style.display = 'flex';
   appRoot.classList.add('fade-in');
   document.getElementById('top-profile-pic') && (document.getElementById('top-profile-pic').src = currentUserProfile.photoURL || '');
+  // Clear sidebar nav first to prevent stale role flash
+  const _sn = document.getElementById('sidebar-nav');
+  if (_sn) _sn.innerHTML = '';
   buildNav();
   setupListeners();
   checkDesktop();
@@ -2093,25 +2115,40 @@ function openSidebar() {
   const overlay = document.getElementById('sidebar-overlay');
   overlay.style.opacity = '1';
   overlay.style.pointerEvents = 'auto';
-  // Animate floating buttons out
+  // Animate floating action buttons out
   const actions = document.getElementById('header-actions');
-  actions.style.opacity = '0';
-  actions.style.transform = 'translateX(16px)';
-  actions.style.pointerEvents = 'none';
+  if (actions) {
+    actions.style.opacity = '0';
+    actions.style.transform = 'translateX(16px)';
+    actions.style.pointerEvents = 'none';
+  }
   const hamburger = document.getElementById('hamburger-btn');
   if (hamburger) hamburger.style.opacity = '0.4';
+  // Disable FABs while sidebar open
+  ['fab-btn','add-song-fab','autoscroll-fab-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.pointerEvents = 'none';
+  });
 }
 function closeSidebar() {
-  document.getElementById('sidebar-drawer').style.transform = 'translateX(-100%)';
+  const drawer = document.getElementById('sidebar-drawer');
+  if (drawer) drawer.style.transform = 'translateX(-100%)';
   const overlay = document.getElementById('sidebar-overlay');
-  overlay.style.opacity = '0';
-  overlay.style.pointerEvents = 'none';
+  if (overlay) { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }
   const actions = document.getElementById('header-actions');
-  actions.style.opacity = '1';
-  actions.style.transform = 'translateX(0)';
-  actions.style.pointerEvents = 'auto';
+  if (actions) {
+    actions.style.opacity = '1';
+    actions.style.transform = 'translateX(0)';
+    actions.style.pointerEvents = 'auto';
+    actions.style.visibility = 'visible';
+  }
   const hamburger = document.getElementById('hamburger-btn');
-  if (hamburger) hamburger.style.opacity = '1';
+  if (hamburger) { hamburger.style.opacity = '1'; hamburger.style.visibility = 'visible'; }
+  // Re-enable FABs
+  ['fab-btn','add-song-fab','autoscroll-fab-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.pointerEvents = 'auto';
+  });
 }
 
 // ============================================================
@@ -2128,13 +2165,16 @@ function openHeaderSearch() {
   const input = document.getElementById('header-search-input');
   const clearBtn = document.getElementById('header-search-clear');
   const searchBtn = document.getElementById('header-search-btn');
+  const filterBtn = document.getElementById('header-filter-btn');
   if (!pill) return;
-  pill.style.width = '220px';
+  // Expand pill width, hide filter button to give space
+  pill.style.width = '200px';
+  if (filterBtn) { filterBtn.style.opacity = '0'; filterBtn.style.pointerEvents = 'none'; filterBtn.style.width = '0'; filterBtn.style.overflow = 'hidden'; filterBtn.style.marginLeft = '-8px'; }
   setTimeout(() => {
-    if (input) { input.style.width = '120px'; input.style.opacity = '1'; input.style.pointerEvents = 'auto'; input.focus(); }
-    if (clearBtn) clearBtn.style.display = 'flex';
-    if (searchBtn) searchBtn.style.color = 'var(--accent)';
-  }, 50);
+    if (input) { input.style.width = '1px'; input.style.flex = '1'; input.style.opacity = '1'; input.style.pointerEvents = 'auto'; input.focus(); }
+    if (clearBtn) { clearBtn.style.display = 'flex'; }
+    if (searchBtn) { searchBtn.style.color = 'var(--accent)'; searchBtn.style.minWidth = '40px'; searchBtn.style.width = '40px'; }
+  }, 60);
 }
 function closeHeaderSearch() {
   _searchExpanded = false;
@@ -2142,11 +2182,13 @@ function closeHeaderSearch() {
   const input = document.getElementById('header-search-input');
   const clearBtn = document.getElementById('header-search-clear');
   const searchBtn = document.getElementById('header-search-btn');
+  const filterBtn = document.getElementById('header-filter-btn');
   if (!pill) return;
   pill.style.width = '46px';
-  if (input) { input.style.width = '0'; input.style.opacity = '0'; input.style.pointerEvents = 'none'; input.value = ''; }
-  if (clearBtn) clearBtn.style.display = 'none';
-  if (searchBtn) searchBtn.style.color = 'var(--text-secondary)';
+  if (filterBtn) { filterBtn.style.opacity = '1'; filterBtn.style.pointerEvents = 'auto'; filterBtn.style.width = '46px'; filterBtn.style.overflow = ''; filterBtn.style.marginLeft = ''; }
+  if (input) { input.style.width = '0'; input.style.flex = ''; input.style.opacity = '0'; input.style.pointerEvents = 'none'; input.value = ''; }
+  if (clearBtn) { clearBtn.style.display = 'none'; }
+  if (searchBtn) { searchBtn.style.color = 'var(--text-secondary)'; searchBtn.style.minWidth = '46px'; searchBtn.style.width = '46px'; }
   onHeaderSearchInput();
 }
 // Routes header search input to the active tab's underlying search field
@@ -2178,7 +2220,24 @@ function syncHeaderFilterDot() {
   dot.style.display = (btn && btn.classList.contains('has-active-filter')) ? 'block' : 'none';
 }
 
+function _refreshSidebarActive() {
+  // Lightweight: just update active state styles without rebuilding HTML
+  ['songs','setlists','users','admin','profile'].forEach(tid => {
+    const btn = document.getElementById('sidebar-nav-' + tid);
+    if (!btn) return;
+    const isActive = tid === activeTab;
+    btn.style.background = isActive ? 'var(--accent-glow)' : 'transparent';
+    btn.style.color = isActive ? 'var(--accent-soft)' : 'var(--text-secondary)';
+  });
+}
+
 function buildNav() {
+  // Don't build nav until we have a profile — prevents role flash on first load
+  if (!currentUserProfile) {
+    const sidebarNav = document.getElementById('sidebar-nav');
+    if (sidebarNav) sidebarNav.innerHTML = '';
+    return;
+  }
   const role = currentUserProfile?.role || 'Musician';
   const photoURL = escHtml(currentUserProfile?.photoURL || '');
   const displayName = escHtml(currentUserProfile?.displayName || 'My Profile');
@@ -2314,12 +2373,17 @@ function updateHomeBtn(show) {
   const shouldShow = show && !atSongsRoot;
   if (backBtn) backBtn.style.display = shouldShow ? 'flex' : 'none';
   if (hamburger) hamburger.style.display = shouldShow ? 'none' : 'flex';
-  // Hide floating search/filter on admin/profile tabs or when drilling into detail views
+  // Hide search/filter only on tabs that don't need it (admin/profile) or song sheet open
   const actions = document.getElementById('header-actions');
   const songSheetOpen = document.getElementById('song-sheet-view')?.style.display === 'block';
   if (actions) {
     const noSearchNeeded = ['admin','profile'].includes(activeTab) || songSheetOpen;
     actions.style.display = noSearchNeeded ? 'none' : 'flex';
+    // Always ensure pointer events and visibility are restored
+    actions.style.opacity = '1';
+    actions.style.pointerEvents = 'auto';
+    actions.style.visibility = 'visible';
+    actions.style.transform = 'translateX(0)';
   }
 }
 
@@ -2454,18 +2518,42 @@ function positionFloatingMenu(menuId) {
   const isOpen = menu.style.display === 'block';
   allMenus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
   if (isOpen) return;
+  // Position below the floating filter button.
+  // The button is at fixed top:(14px + safeAreaTop), right:14px, size 46x46px.
+  // getBoundingClientRect is unreliable when element has opacity transition.
+  // Use known CSS position instead.
+  const safeTop = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0'
+  ) || 0;
+  const btnTop = 14 + safeTop;
+  const btnRight = 14;
+  const btnHeight = 46;
+  // Try getBoundingClientRect first — if it gives non-zero use it, else fall back
   const btn = document.getElementById('header-filter-btn');
+  let top = btnTop + btnHeight + 8;
+  let right = btnRight;
   if (btn) {
+    // Temporarily make btn visible for measurement if needed
+    const savedOpacity = btn.style.opacity;
+    const savedVis = btn.style.visibility;
+    btn.style.visibility = 'hidden';
+    btn.style.opacity = '1';
     const r = btn.getBoundingClientRect();
-    menu.style.position = 'fixed';
-    menu.style.top = (r.bottom + 8) + 'px';
-    menu.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
-    menu.style.left = 'auto';
-    menu.style.zIndex = '9000';
-    menu.style.minWidth = '190px';
-    menu.style.maxHeight = '70vh';
-    menu.style.overflowY = 'auto';
+    btn.style.opacity = savedOpacity;
+    btn.style.visibility = savedVis;
+    if (r.bottom > 0) {
+      top = r.bottom + 8;
+      right = Math.max(8, window.innerWidth - r.right);
+    }
   }
+  menu.style.position = 'fixed';
+  menu.style.top = top + 'px';
+  menu.style.right = right + 'px';
+  menu.style.left = 'auto';
+  menu.style.zIndex = '9000';
+  menu.style.minWidth = '200px';
+  menu.style.maxHeight = '70vh';
+  menu.style.overflowY = 'auto';
   menu.style.display = 'block';
 }
 function toggleSongFilterMenu() {
