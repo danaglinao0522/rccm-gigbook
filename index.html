@@ -438,6 +438,67 @@
       position: relative;
     }
     /* Subtle purple status dot on filter icon when non-default sort active */
+    /* ── Button / interactive element highlights ── */
+    /* All buttons: highlight fills the exact button shape */
+    button, .btn-primary, .btn-secondary, .btn-danger,
+    .ctrl-pill, .zoom-btn, .filter-btn, .key-btn,
+    .theme-preset-btn, .theme-preset-card, .onboarding-btn,
+    .list-icon-btn, .camera-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    button::after, .ctrl-pill::after, .zoom-btn::after,
+    .filter-btn::after, .key-btn::after, .theme-preset-card::after,
+    .onboarding-btn::after, .list-icon-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      border-radius: inherit;
+      transition: background 0.15s ease;
+      pointer-events: none;
+    }
+    button:hover::after  { background: rgba(255,255,255,0.06); }
+    button:active::after { background: rgba(255,255,255,0.12); }
+    /* Circular floating buttons */
+    #hamburger-btn:hover, #home-btn:hover,
+    #header-search-btn:hover, #header-filter-btn:hover {
+      background: var(--surface-2) !important;
+      border-color: var(--border-subtle) !important;
+    }
+    #hamburger-btn:active, #home-btn:active,
+    #header-search-btn:active, #header-filter-btn:active {
+      transform: scale(0.92);
+    }
+    /* Sidebar nav buttons */
+    #sidebar-nav button:hover { background: var(--surface-2) !important; }
+    /* List cards */
+    .song-card, .setlist-card, .user-row, .setlist-song-item, .list-item {
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .song-card::after, .setlist-card::after, .user-row::after,
+    .setlist-song-item::after, .list-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: transparent;
+      transition: background 0.12s ease;
+      pointer-events: none;
+    }
+    .song-card:hover::after, .setlist-card:hover::after,
+    .user-row:hover::after, .setlist-song-item:hover::after,
+    .list-item:hover::after   { background: rgba(255,255,255,0.04); }
+    .song-card:active::after, .setlist-card:active::after,
+    .user-row:active::after, .setlist-song-item:active::after,
+    .list-item:active::after  { background: rgba(255,255,255,0.09); }
+    /* FAB */
+    .fab:hover { opacity: 0.9; }
+    /* Remove old conflicting transform scale on cards */
+    .song-card:active, .setlist-card:active, .user-row:active, .setlist-song-item:active { transform: none; }
+
     /* Floating filter dropdown menus */
     #song-filter-menu, #setlist-filter-menu, #user-filter-menu {
       background: var(--surface-1);
@@ -701,7 +762,7 @@
           </button>
         </div>
     <div id="songs-list" class="songs-list-wrap"></div>
-        <div id="songs-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
+        <div id="songs-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:music-off" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No songs yet.</p>
         </div>
@@ -820,7 +881,7 @@
             <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort</span>
           </div>
     <div id="setlists-list" class="setlists-list-wrap"></div>
-        <div id="setlists-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
+        <div id="setlists-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
           <iconify-icon icon="mdi:playlist-music" style="font-size:40px;display:block;margin:0 auto 12px;"></iconify-icon>
           <p>No setlists yet.</p>
         </div>
@@ -859,6 +920,11 @@
       </button>
     </div><!-- /user-filter-menu -->
     <div id="users-list" class="users-list-wrap"></div>
+      <div id="users-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
+        <iconify-icon icon="mdi:account-group-outline" style="font-size:48px;display:block;margin:0 auto 14px;opacity:0.4;"></iconify-icon>
+        <p style="font-size:15px;font-weight:600;margin:0 0 6px;color:var(--text-secondary);">No team members</p>
+        <p style="font-size:13px;margin:0;">Members will appear here once they join.</p>
+      </div>
       </div><!-- /users-list-panel -->
       <div id="user-detail-view" style="display:none;"></div>
     </div><!-- /tab-users -->
@@ -2429,25 +2495,27 @@ function positionFloatingMenu(menuId) {
   const menu = document.getElementById(menuId);
   if (!menu) return;
   const allMenus = ['song-filter-menu','setlist-filter-menu','user-filter-menu'];
-  const wasOpen = menu.style.display !== 'none';
-  allMenus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display='none'; });
-  if (wasOpen) return;
+  const isOpen = menu.style.display === 'block';
+  allMenus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
+  if (isOpen) return;
   const btn = document.getElementById('header-filter-btn');
   if (btn) {
     const r = btn.getBoundingClientRect();
     menu.style.position = 'fixed';
     menu.style.top = (r.bottom + 8) + 'px';
-    menu.style.right = (window.innerWidth - r.right) + 'px';
+    menu.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
     menu.style.left = 'auto';
     menu.style.zIndex = '9000';
+    menu.style.minWidth = '190px';
+    menu.style.maxHeight = '70vh';
+    menu.style.overflowY = 'auto';
   }
   menu.style.display = 'block';
 }
 function toggleSongFilterMenu() {
+  positionFloatingMenu('song-filter-menu');
   const menu = document.getElementById('song-filter-menu');
-  const isOpen = menu.style.display === 'block';
-  closeAllDropdowns();
-  if (!isOpen) { menu.style.display = 'block'; _updateSongMenuMarkers(); }
+  if (menu && menu.style.display === 'block') _updateSongMenuMarkers();
 }
 
 function setSongSort(mode) {
@@ -2469,10 +2537,9 @@ function setSongSort(mode) {
 }
 
 function toggleSetlistFilterMenu() {
+  positionFloatingMenu('setlist-filter-menu');
   const menu = document.getElementById('setlist-filter-menu');
-  const isOpen = menu.style.display === 'block';
-  closeAllDropdowns();
-  if (!isOpen) { menu.style.display = 'block'; _updateSetlistMenuMarkers(); }
+  if (menu && menu.style.display === 'block') _updateSetlistMenuMarkers();
 }
 
 function _updateSetlistFilterBtn() {
@@ -2543,12 +2610,15 @@ function toggleFavourite(songId) {
   let favs = getFavourites();
   if (favs.includes(songId)) {
     favs = favs.filter(id => id !== songId);
+    // Reset the displayed key for this song back to original when unfavouriting
+    if (currentUser) {
+      try { localStorage.removeItem(`rccm_key_${currentUser.uid}_${songId}`); } catch(e) {}
+    }
   } else {
     favs.push(songId);
   }
   setFavourites(favs);
   renderSongsList();
-  // If song sheet is open for this song, update the heart button there too
   if (currentSongId === songId) updateSongSheetHeartBtn();
 }
 function updateSongSheetHeartBtn() {
@@ -2577,10 +2647,17 @@ function renderSongsList() {
   const emptyEl = document.getElementById('songs-empty');
   if (songs.length === 0) {
     listEl.innerHTML = '';
-    emptyEl.style.display = 'block';
+    if (emptyEl) {
+      const isSearch = !!songSearchQuery;
+      const icon = isSearch ? 'mdi:magnify-close' : 'mdi:music-off';
+      const title = isSearch ? `No results for "${escHtml(songSearchQuery)}"` : 'No songs yet';
+      const sub = isSearch ? 'Try a different search term.' : 'Songs added by admin will appear here.';
+      emptyEl.innerHTML = `<iconify-icon icon="${icon}" style="font-size:48px;display:block;margin:0 auto 14px;opacity:0.4;"></iconify-icon><p style="font-size:15px;font-weight:600;margin:0 0 6px;color:var(--text-secondary);">${title}</p><p style="font-size:13px;margin:0;">${sub}</p>`;
+      emptyEl.style.display = 'block';
+    }
     return;
   }
-  emptyEl.style.display = 'none';
+  if (emptyEl) emptyEl.style.display = 'none';
   const isAdmin = (currentUserProfile?.role || '') === 'Admin';
   listEl.innerHTML = songs.map(song => {
     const fav = isFavourite(song.id);
@@ -4151,7 +4228,10 @@ function renderUsersList() {
     return matchSearch && matchFilter;
   });
   const listEl = document.getElementById('users-list');
+  const usersEmptyEl = document.getElementById('users-empty');
   if (!listEl) return;
+  if (usersEmptyEl) usersEmptyEl.style.display = users.length === 0 ? 'block' : 'none';
+  if (users.length === 0) { listEl.innerHTML = ''; return; }
   listEl.innerHTML = users.map(u => {
     const instruments = (u.instruments||[]).join(', ');
     const isAdminUser = u.email === ADMIN_EMAIL;
