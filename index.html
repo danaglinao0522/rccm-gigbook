@@ -19,33 +19,36 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     :root {
-      /* ── RCCM Gigbook — Maroon · Off-White · Black ── */
-      --canvas-bg: #0d0d0d;
-      --surface-1: #1a1010;
-      --surface-2: #221414;
-      --surface-3: #1e1212;
-      --surface-input: #1e1212;
-      --border-color: #2e1818;
-      --border-subtle: #3d2020;
-      --nav-bg: rgba(10,8,8,0.90);
-      --text-muted: #8a7070;
-      --text-secondary: #c4a8a8;
-      --modal-overlay: rgba(0,0,0,0.80);
-      --toggle-track: #3d2020;
-      --scrollbar-thumb: #4d2828;
+      /* ── RCCM Gigbook — Maroon · Off-White · Black (MD3) ── */
+      --canvas-bg: #0f0a0a;
+      --surface-1: #1c1010;
+      --surface-2: #261616;
+      --surface-3: #201212;
+      --surface-input: #201212;
+      --border-color: #321c1c;
+      --border-subtle: #3f2222;
+      --nav-bg: rgba(12,8,8,0.92);
+      --text-muted: #917070;
+      --text-secondary: #c9aaaa;
+      --modal-overlay: rgba(0,0,0,0.82);
+      --toggle-track: #3f2222;
+      --scrollbar-thumb: #5a3030;
       --accent: #c0392b;
-      --accent-strong: #922b21;
+      --accent-strong: #96281b;
       --accent-soft: #e74c3c;
-      --accent-glow: rgba(192,57,43,0.18);
-      --lyrics-color: #f5f0ee;
-      --chords-color: #e88080;
-      --btn-primary-bg: linear-gradient(135deg, #922b21, #c0392b);
+      --accent-glow: rgba(192,57,43,0.15);
+      --lyrics-color: #faf5f3;
+      --chords-color: #e8a0a0;
+      --btn-primary-bg: linear-gradient(135deg, #96281b, #c0392b);
       --btn-primary-text: #fff;
+      --radius-card: 16px;
+      --radius-pill: 999px;
+      --ease-smooth: cubic-bezier(0.25,0.1,0.25,1);
       --sheet-font-size: 15px;
       --nav-font-size: 13px;
       --btn-font-size: 13px;
       --meta-font-size: 14px;
-      --app-font-family: 'Google Sans', 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --app-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       /* Unified view side padding — used by ALL tab content areas */
       --view-px: 6px;
       --radius-card: 16px;
@@ -66,7 +69,7 @@
     * { box-sizing: border-box; }
     #app-root { background: var(--canvas-bg); height: 100vh; overflow: hidden; }
     .song-sheet-content { font-size: var(--sheet-font-size); }
-    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: 'Google Sans Mono', monospace; font-weight: 600; }
+    .chord-line { color: var(--chords-color); white-space: pre-wrap; font-family: 'Roboto Mono', monospace; font-weight: 600; }
     .lyric-line { color: var(--lyrics-color); white-space: pre-wrap; }
     .section-header { color: var(--accent-soft); font-weight: 700; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.75em; }
     .nav-text { font-size: var(--nav-font-size); }
@@ -386,7 +389,7 @@
     .privacy-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 600; }
     .badge-public { background: #064e3b; color: #34d399; }
     .badge-private { background: #431407; color: #fb923c; }
-    .badge-custom { background: #2e1065; color: #c4b5fd; }
+    .badge-custom { background: #2e1065; color: #e88080; }
     textarea.input-field { resize: vertical; min-height: 120px; }
     :root {
       --btn-primary-bg: linear-gradient(135deg, var(--accent-strong), var(--accent));
@@ -514,14 +517,17 @@
     /* Admin branding logo hover */
     #admin-logo-preview:hover { opacity: 0.85; }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="no-select">
 
 <!-- SPLASH SCREEN -->
 <div id="splash-screen" style="position:fixed;inset:0;background:var(--canvas-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
   <img src="icons/logo.png" alt="RCCM Gigbook" class="splash-logo-anim" style="width:100px;height:100px;border-radius:20px;object-fit:cover;" onerror="this.style.display='none';document.getElementById('splash-fallback').style.display='flex'" />
-  <div id="splash-fallback" style="display:none;width:100px;height:100px;border-radius:20px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;" class="splash-logo-anim">
+  <div id="splash-fallback" style="display:none;width:100px;height:100px;border-radius:20px;background:linear-gradient(135deg,#922b21,#c0392b);align-items:center;justify-content:center;" class="splash-logo-anim">
     <iconify-icon icon="mdi:music-note" style="font-size:50px;color:var(--lyrics-color);"></iconify-icon>
   </div>
   <p style="color:var(--text-muted);font-size:13px;margin-top:20px;letter-spacing:0.1em;">RCCM GIGBOOK</p>
@@ -530,7 +536,7 @@
 
 <!-- AUTH VIEW -->
 <div id="auth-view" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);flex-direction:column;align-items:center;justify-content:center;padding:24px;z-index:8000;">
-  <img src="icons/logo.png" alt="RCCM Gigbook" style="width:90px;height:90px;border-radius:18px;object-fit:cover;margin-bottom:28px;" onerror="this.style.background='linear-gradient(135deg,#8b5cf6,#a78bfa)';this.style.display='flex'" />
+  <img src="icons/logo.png" alt="RCCM Gigbook" style="width:90px;height:90px;border-radius:18px;object-fit:cover;margin-bottom:28px;" onerror="this.style.background='linear-gradient(135deg,#922b21,#c0392b)';this.style.display='flex'" />
   <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin-bottom:4px;">RCCM Gigbook</h1>
   <p style="color:var(--text-muted);font-size:13px;margin-bottom:36px;">Your performance companion</p>
   <button id="google-signin-btn" style="display:flex;align-items:center;gap:10px;background:#fff;color:#111;border:none;border-radius:12px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.3);">
@@ -630,28 +636,30 @@
 
   <!-- FLOATING SEARCH + FILTER (top-right, per-tab) -->
   <div id="header-actions" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:400;display:flex;align-items:center;gap:8px;transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
-    <button id="header-search-btn" onclick="openHeaderSearch()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
-      <iconify-icon icon="mdi:magnify" style="font-size:21px;"></iconify-icon>
-    </button>
+    <!-- Expandable search pill -->
+    <div id="header-search-pill" style="display:flex;align-items:center;background:var(--surface-1);border:1px solid var(--border-color);border-radius:23px;box-shadow:0 4px 16px rgba(0,0,0,0.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;transition:width 0.28s cubic-bezier(0.4,0,0.2,1);width:46px;height:46px;">
+      <button id="header-search-btn" onclick="toggleHeaderSearch()" style="width:46px;height:46px;min-width:46px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s;">
+        <iconify-icon icon="mdi:magnify" style="font-size:21px;"></iconify-icon>
+      </button>
+      <input id="header-search-input" type="text" placeholder="Search..." oninput="onHeaderSearchInput()"
+        style="width:0;opacity:0;border:none;background:transparent;color:var(--lyrics-color);font-size:14px;font-family:var(--app-font-family);outline:none;padding:0;transition:width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;pointer-events:none;" />
+      <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:32px;height:32px;min-width:32px;margin-right:6px;background:var(--surface-2);border:none;border-radius:50%;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:background 0.15s;">✕</button>
+    </div>
+    <!-- Filter button -->
     <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
       <iconify-icon icon="mdi:tune-variant" style="font-size:20px;"></iconify-icon>
       <span id="header-filter-dot" style="display:none;position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);border:1.5px solid var(--surface-1);"></span>
     </button>
   </div>
 
-  <!-- Inline expanding search bar (slides down from top, full width) -->
-  <div id="header-search-wrap" style="position:fixed;top:0;left:0;right:0;z-index:401;display:flex;align-items:center;gap:8px;padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-sizing:border-box;border-bottom:1px solid var(--border-color);box-shadow:0 4px 16px rgba(0,0,0,0.25);opacity:0;pointer-events:none;transform:translateY(-100%);transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
-    <iconify-icon icon="mdi:magnify" style="font-size:18px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
-    <input type="text" id="header-search-input" placeholder="Search..." oninput="onHeaderSearchInput()" style="flex:1;background:transparent;border:none;color:var(--lyrics-color);font-size:15px;outline:none;min-width:0;" />
-    <button onclick="closeHeaderSearch()" style="background:var(--surface-2);border:none;color:var(--text-secondary);cursor:pointer;padding:6px 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;flex-shrink:0;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);">Cancel</button>
-  </div>
+  <!-- header-search-wrap removed: using expandable pill instead -->
 
   <!-- SIDEBAR DRAWER -->
   <div id="sidebar-overlay" onclick="closeSidebar()" style="position:fixed;inset:0;background:rgba(8,6,14,0.6);backdrop-filter:blur(2px);z-index:550;opacity:0;pointer-events:none;transition:opacity 0.25s var(--ease-smooth);"></div>
   <div id="sidebar-drawer" style="position:fixed;top:0;left:0;bottom:0;width:78%;max-width:300px;background:var(--surface-1);border-right:1px solid var(--border-color);z-index:560;transform:translateX(-100%);transition:transform 0.28s var(--ease-smooth), background 0.3s var(--ease-smooth);display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 20px;box-shadow:8px 0 32px rgba(0,0,0,0.4);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;padding:0 4px;">
       <img src="icons/logo.png" alt="Logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-      <div style="display:none;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
+      <div style="display:none;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#922b21,#c0392b);align-items:center;justify-content:center;">
         <iconify-icon icon="mdi:music-note" style="font-size:19px;color:#fff;"></iconify-icon>
       </div>
       <span id="sidebar-app-name" style="color:var(--lyrics-color);font-size:16px;font-weight:700;">RCCM Gigbook</span>
@@ -660,9 +668,9 @@
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-top:calc(80px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-top:calc(64px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
 
-<div id="tab-songs" class="tab-panel active" style="padding:12px var(--view-px);">
+<div id="tab-songs" class="tab-panel active" style="padding:8px var(--view-px);">
     <!-- Tab header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;">
       <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin:0;letter-spacing:-0.02em;">Songs</h1>
@@ -835,17 +843,27 @@
         </button>
       </div>
       
-    <div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:160px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
-  <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
-    <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
-  </div>
+    <div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:180px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
+      <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
+        <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
+      </div>
+      <button onclick="setUserFilter('all')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">All Roles</button>
+      <button onclick="setUserFilter('Admin')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Admin</button>
+      <button onclick="setUserFilter('Sub-Admin')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Sub-Admin</button>
+      <button onclick="setUserFilter('Lead')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Lead</button>
+      <button onclick="setUserFilter('Musician')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Musician</button>
+      <button onclick="setUserFilter('Singer')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">Singer</button>
+      <button onclick="setUserFilter('Tech')" style="width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:var(--lyrics-color);cursor:pointer;border-radius:8px;font-size:13px;font-family:var(--app-font-family);">
+        <iconify-icon icon="mdi:headphones" style="font-size:15px;vertical-align:middle;margin-right:4px;flex-shrink:0;"></iconify-icon>
+        <span>Tech</span>
+      </button>
+    </div><!-- /user-filter-menu -->
     <div id="users-list" class="users-list-wrap"></div>
       </div><!-- /users-list-panel -->
       <div id="user-detail-view" style="display:none;"></div>
-    </div>
+    </div><!-- /tab-users -->
 
-    <!-- ADMIN PANEL TAB -->
-    <div id="tab-admin" class="tab-panel" style="padding:12px var(--view-px);padding-top:16px;">
+    <div id="tab-admin" class="tab-panel" style="padding:8px var(--view-px);">
       <!-- Sync broadcast toast -->
       <div id="sync-toast" style="display:none;position:fixed;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--surface-1);border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
         <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
@@ -864,7 +882,7 @@
                 <img id="admin-logo-preview" src="icons/logo.png" alt="Logo"
                   style="width:46px;height:46px;border-radius:8px;object-fit:cover;"
                   onerror="this.style.display='none';document.getElementById('admin-logo-fallback').style.display='flex'" />
-                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
+                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#922b21,#c0392b);align-items:center;justify-content:center;">
                   <iconify-icon icon="mdi:music-note" style="font-size:24px;color:var(--lyrics-color);"></iconify-icon>
                 </div>
                 <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--accent);background:var(--surface-1);border-radius:50%;padding:1px;"></iconify-icon>
@@ -1027,7 +1045,7 @@
                     <label style="color:var(--text-secondary);font-size:12px;">Text / Lyrics</label>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-chords" value="#c4b5fd" oninput="livePreviewTheme()" />
+                    <input type="color" id="custom-chords" value="#e88080" oninput="livePreviewTheme()" />
                     <label style="color:var(--text-secondary);font-size:12px;">Chords / Accent</label>
                   </div>
                   <div class="color-input-wrapper">
@@ -1035,357 +1053,7 @@
                     <label style="color:var(--text-secondary);font-size:12px;">Card Surface</label>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-btn-bg" value="#8b5cf6" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Button Color</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-btn-text" value="#ffffff" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Button Text</label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- List Layout -->
-              <div>
-                <div class="section-label" style="margin-bottom:8px;">List Layout</div>
-                <div style="display:flex;gap:8px;">
-                  <button id="layout-card-btn" onclick="setListLayout('card')"
-                    style="flex:1;padding:8px;border-radius:10px;border:2px solid var(--accent);background:var(--accent-glow);color:var(--accent-soft);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s var(--ease-smooth);">
-                    <iconify-icon icon="mdi:card-multiple" style="font-size:16px;"></iconify-icon>Card
-                  </button>
-                  <button id="layout-line-btn" onclick="setListLayout('line')"
-                    style="flex:1;padding:8px;border-radius:10px;border:2px solid var(--border-color);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s var(--ease-smooth);">
-                    <iconify-icon icon="mdi:format-list-bulleted" style="font-size:16px;"></iconify-icon>Line
-                  </button>
-                </div>
-              </div>
-
-              <!-- Scope + Save -->
-              <div style="background:var(--surface-2);border:1px solid var(--border-color);border-radius:14px;padding:14px;">
-                <div class="section-label" style="margin-bottom:10px;">Apply To</div>
-                <div style="display:flex;gap:4px;background:var(--surface-3);border-radius:var(--radius-pill);padding:4px;margin-bottom:10px;">
-                  <button id="theme-scope-global-btn" onclick="setThemeScope('global')"
-                    style="flex:1;padding:9px 6px;border-radius:var(--radius-pill);border:none;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s var(--ease-smooth);background:transparent;color:var(--text-secondary);">
-                    <iconify-icon icon="mdi:account-group" style="font-size:14px;"></iconify-icon>All Users
-                  </button>
-                  <button id="theme-scope-admin-btn" onclick="setThemeScope('admin')"
-                    style="flex:1;padding:9px 6px;border-radius:var(--radius-pill);border:none;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s var(--ease-smooth);background:linear-gradient(135deg,var(--accent-strong),var(--accent));color:#fff;box-shadow:0 2px 10px var(--accent-glow);">
-                    <iconify-icon icon="mdi:crown" style="font-size:14px;"></iconify-icon>Admin Only
-                  </button>
-                </div>
-                <p id="theme-scope-hint" style="color:var(--text-muted);font-size:11px;margin:0 0 12px;line-height:1.4;">Theme will only apply to your admin account.</p>
-                <button class="btn-primary" onclick="saveCustomTheme()" style="width:100%;">
-                  <iconify-icon icon="mdi:content-save" style="font-size:16px;margin-right:6px;vertical-align:middle;"></iconify-icon>Save Theme
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TYPOGRAPHY — Collapsible -->
-        <div id="admin-sec-typography">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('typography')">
-            <div class="section-label" style="margin-bottom:0;">Typography</div>
-            <iconify-icon id="typography-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
-          </div>
-          <div id="typography-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:600px;opacity:1;">
-            <div style="background:var(--surface-1);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;">
-              <div>
-                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Font</label>
-                <select class="select-field" onchange="setFontFamily(this.value)" style="font-size:12px;padding:6px 8px;">
-                  <option value="system">System</option>
-                  <option value="mono">Monospace</option>
-                  <option value="serif">Serif</option>
-                  <option value="display">Display</option>
-                </select>
-              </div>
-              <div>
-                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Nav: <span id="nav-font-label">13px</span></label>
-                <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setNavFont(this.value)" />
-              </div>
-              <div>
-                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Btn: <span id="btn-font-label">13px</span></label>
-                <input type="range" min="10" max="18" value="13" class="autoscroll-slider" oninput="setBtnFont(this.value)" />
-              </div>
-              <div>
-                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:4px;">Meta: <span id="meta-font-label">14px</span></label>
-                <input type="range" min="10" max="20" value="14" class="autoscroll-slider" oninput="setMetaFont(this.value)" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- PROFILE TAB -->
-    <div id="tab-profile" class="tab-panel" style="padding:12px var(--view-px);">
-  <!-- Header row matching other tabs -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-    <h2 style="color:var(--lyrics-color);font-size:18px;font-weight:700;margin:0;">My Profile</h2>
-    <button id="profile-admin-btn" onclick="switchTab('admin');" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;align-items:center;padding:8px;flex-shrink:0;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Admin Panel">
-      <iconify-icon icon="mdi:cog" style="font-size:20px;"></iconify-icon>
-    </button>
-  </div>
-
-  <!-- Hero section -->
-  <div style="padding:24px 12px 20px;display:flex;flex-direction:column;align-items:center;gap:0;background:var(--surface-1);border-radius:var(--radius-card);border:1px solid var(--border-color);margin-bottom:12px;">
-    <div style="position:relative;margin-bottom:14px;">
-      <div id="profile-avatar-wrap" style="width:88px;height:88px;border-radius:50%;background:var(--surface-2);border:3px solid var(--accent);box-shadow:0 0 0 6px var(--accent-glow);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
-        <img id="profile-view-pic" src="" alt="Profile"
-          style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />
-        <iconify-icon id="profile-view-placeholder" icon="mdi:account" style="font-size:44px;color:var(--text-muted);position:relative;z-index:1;"></iconify-icon>
-      </div>
-    </div>
-    <!-- Name row with edit pencil -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      <span id="profile-view-name" style="color:var(--lyrics-color);font-size:19px;font-weight:700;letter-spacing:0.01em;"></span>
-      <button onclick="openNameEditModal()" title="Edit name"
-        style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--accent);transition:background 0.15s var(--ease-smooth);">
-        <iconify-icon icon="mdi:pencil" style="font-size:15px;"></iconify-icon>
-      </button>
-    </div>
-    <!-- Role | Instruments row -->
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
-      <span id="profile-view-role-badge"></span>
-      <span id="profile-view-instruments-inline" style="color:var(--text-secondary);font-size:13px;"></span>
-    </div>
-  </div>
-
-  <!-- Settings card -->
-  <div style="margin-bottom:12px;">
-    <div style="background:var(--surface-1);border:1px solid var(--border-color);border-radius:var(--radius-card);overflow:hidden;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
-          <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <!-- My Setlists -->
-  <div style="margin-bottom:12px;">
-    <div class="section-label" style="margin-bottom:8px;padding-left:1px;">My Setlists</div>
-    <div id="profile-my-setlists" class="setlists-list-wrap"></div>
-    <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
-  </div>
-
-  <!-- Update Available Banner (shown when a new version is detected) -->
-  <div id="profile-update-banner" style="display:none;margin-bottom:12px;">
-    <button onclick="showUpdateModal(window._pendingUpdateVersion||'')"
-      style="width:100%;background:linear-gradient(135deg,#065f46,#047857);border:1px solid #34d399;color:#d1fae5;border-radius:var(--radius-card);padding:14px 16px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity 0.2s;animation:pulseGreen 2s ease-in-out infinite;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-      <iconify-icon icon="mdi:update" style="font-size:20px;"></iconify-icon>
-      Update Available — Tap to Reload
-    </button>
-  </div>
-
-  <!-- Sign out -->
-  <div style="margin-bottom:8px;">
-    <button onclick="signOut()" style="width:100%;background:#7f1d1d;border:1px solid #dc2626;color:#fca5a5;border-radius:var(--radius-card);padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;">
-      <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
-      Sign Out
-    </button>
-  </div>
-</div>
-  </div>
-
-<div id="tab-admin" class="tab-panel" style="padding:12px var(--view-px);padding-top:16px;">
-      <!-- Sync broadcast toast -->
-      <div id="sync-toast" style="display:none;position:fixed;top:calc(66px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--surface-1);border:1px solid #34d399;border-radius:10px;padding:10px 16px;z-index:9000;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
-        <div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#34d399;flex-shrink:0;"></div>
-        <span style="color:#34d399;font-size:13px;font-weight:600;">Applying to all users…</span>
-      </div>
-      <div id="admin-sections-grid" style="display:flex;flex-direction:column;gap:16px;">
-
-        <!-- APP BRANDING -->
-        <div>
-          <div class="section-label">App Branding</div>
-          <div style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;">
-            <!-- Logo + Name row -->
-            <div style="display:flex;align-items:center;gap:14px;">
-              <button onclick="openLogoChangeModal()" title="Change app logo"
-                style="flex-shrink:0;background:var(--surface-2);border:2px dashed var(--border-subtle);border-radius:12px;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;position:relative;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-subtle)'">
-                <img id="admin-logo-preview" src="icons/logo.png" alt="Logo"
-                  style="width:46px;height:46px;border-radius:8px;object-fit:cover;"
-                  onerror="this.style.display='none';document.getElementById('admin-logo-fallback').style.display='flex'" />
-                <div id="admin-logo-fallback" style="display:none;width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);align-items:center;justify-content:center;">
-                  <iconify-icon icon="mdi:music-note" style="font-size:24px;color:var(--lyrics-color);"></iconify-icon>
-                </div>
-                <iconify-icon icon="mdi:pencil" style="position:absolute;bottom:2px;right:2px;font-size:12px;color:var(--accent);background:var(--surface-1);border-radius:50%;padding:1px;"></iconify-icon>
-              </button>
-              <div style="flex:1;min-width:0;">
-                <label style="color:var(--text-secondary);font-size:11px;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em;">App Name</label>
-                <input type="text" class="input-field" id="admin-app-name" placeholder="RCCM Gigbook" style="font-size:15px;font-weight:600;" />
-              </div>
-            </div>
-            <button class="btn-primary" onclick="saveAdminSettings()" style="width:100%;">Save Branding</button>
-          </div>
-        </div>
-
-        <!-- SONG LIMITS PER ROLE -->
-        <div id="admin-sec-songlimit">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleRoleLimits()">
-            <div class="section-label" style="margin-bottom:0;">Song Limit Per Setlist · By Role</div>
-            <iconify-icon id="role-limits-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
-          </div>
-          <div id="role-limits-body" style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:600px;opacity:1;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                  <span class="role-badge badge-admin" style="font-size:10px;">Admin</span>
-                </div>
-                <input type="number" class="input-field" id="limit-admin" value="999" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
-                <p style="color:var(--text-muted);font-size:10px;margin:4px 0 0;">Default: unlimited</p>
-              </div>
-              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                  <span class="role-badge badge-subadmin" style="font-size:10px;">Sub-Admin</span>
-                </div>
-                <input type="number" class="input-field" id="limit-subadmin" value="30" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
-              </div>
-              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                  <span class="role-badge badge-lead" style="font-size:10px;">Lead</span>
-                </div>
-                <input type="number" class="input-field" id="limit-lead" value="20" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
-              </div>
-              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                  <span class="role-badge badge-musician" style="font-size:10px;">Musician</span>
-                </div>
-                <input type="number" class="input-field" id="limit-musician" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
-              </div>
-              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                  <span class="role-badge badge-singer" style="font-size:10px;">Singer</span>
-                </div>
-                <input type="number" class="input-field" id="limit-singer" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
-              </div>
-              <div style="background:var(--surface-3);border-radius:8px;padding:10px;">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                  <span class="role-badge badge-tech" style="font-size:10px;">Tech</span>
-                </div>
-                <input type="number" class="input-field" id="limit-tech" value="4" min="1" max="999" style="font-size:13px;padding:6px 8px;" />
-              </div>
-            </div>
-            <!-- Keep old id for compat -->
-            <input type="hidden" id="admin-song-limit" value="4" />
-            <button class="btn-primary" onclick="saveRoleLimits()" style="width:100%;">Save Limits</button>
-          </div><!-- /role-limits-body -->
-        </div>
-
-        <!-- THEME PRESETS — Collapsible -->
-        <div id="admin-sec-themepresets">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('theme-presets')">
-            <div class="section-label" style="margin-bottom:0;">Theme Presets</div>
-            <iconify-icon id="theme-presets-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
-          </div>
-          <div id="theme-presets-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:200px;opacity:1;">
-            <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
-              <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
-                <!-- MD Purple (Default) -->
-                <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
-                  style="background:#0d0d0d;border:2px solid #c0392b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(192,57,43,0.2);">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#c0392b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e88080;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a1010;"></div></div>
-                  <span style="color:#e88080;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Maroon & Black</span>
-                </button>
-                <!-- MD Blue -->
-                <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
-                  style="background:#0a1929;border:2px solid #1e3a5f;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#42a5f5;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e3f2fd;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1565c0;"></div></div>
-                  <span style="color:#90caf9;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Blue</span>
-                </button>
-                <!-- MD Teal -->
-                <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
-                  style="background:#fafafa;border:2px solid #b2dfdb;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#00897b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#212121;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e0f2f1;"></div></div>
-                  <span style="color:#00897b;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">MD Light Teal</span>
-                </button>
-                <!-- MD Deep Orange -->
-                <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
-                  style="background:#1a0a00;border:2px solid #3e1a00;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ff6d00;"></div><div style="width:14px;height:14px;border-radius:4px;background:#ffab40;"></div><div style="width:14px;height:14px;border-radius:4px;background:#241508;"></div></div>
-                  <span style="color:#ff9e40;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Deep Orange</span>
-                </button>
-                <!-- MD Grey / Charcoal -->
-                <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
-                  style="background:#212121;border:2px solid #424242;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ef9a9a;"></div><div style="width:14px;height:14px;border-radius:4px;background:#eeeeee;"></div><div style="width:14px;height:14px;border-radius:4px;background:#424242;"></div></div>
-                  <span style="color:#eeeeee;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Dark</span>
-                </button>
-                <!-- MD Indigo -->
-                <button id="theme-btn-indigo" class="theme-preset-card" onclick="applyTheme('indigo')"
-                  style="background:#0d0e2e;border:2px solid #1a1b4b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#7986cb;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e8eaf6;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a237e;"></div></div>
-                  <span style="color:#9fa8da;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Indigo Night</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CUSTOM THEME — Collapsible -->
-        <div id="admin-sec-customtheme">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('custom-theme')">
-            <div class="section-label" style="margin-bottom:0;">Custom Theme</div>
-            <iconify-icon id="custom-theme-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
-          </div>
-          <div id="custom-theme-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:1000px;opacity:1;">
-            <div style="background:var(--surface-1);border:1px solid var(--border-color);border-radius:var(--radius-card);padding:16px;display:flex;flex-direction:column;gap:16px;">
-
-              <!-- Live Preview Card -->
-              <div>
-                <div class="section-label" style="margin-bottom:8px;">Live Preview</div>
-                <div id="theme-preview-card" style="border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;border:1px solid transparent;">
-                  <div style="display:flex;align-items:center;gap:10px;">
-                    <div id="preview-avatar" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                      <iconify-icon icon="mdi:music-note" style="font-size:18px;"></iconify-icon>
-                    </div>
-                    <div style="flex:1;min-width:0;">
-                      <p id="preview-title" style="font-size:14px;font-weight:700;margin:0;">How Great Is Our God</p>
-                      <p id="preview-artist" style="font-size:11px;margin:2px 0 0;">Chris Tomlin</p>
-                    </div>
-                    <span id="preview-chord" style="font-size:13px;font-weight:700;font-family:monospace;">G</span>
-                  </div>
-                  <div id="preview-lyrics" style="font-size:13px;line-height:1.8;font-family:monospace;">
-                    <div id="preview-chord-line" style="font-weight:600;">G&nbsp;&nbsp;&nbsp;&nbsp;D&nbsp;&nbsp;&nbsp;Em&nbsp;&nbsp;&nbsp;C</div>
-                    <div id="preview-lyric-line">How great is our God</div>
-                  </div>
-                  <div style="display:flex;gap:8px;">
-                    <button id="preview-btn" style="flex:1;padding:8px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:default;">Open Song</button>
-                    <button id="preview-btn2" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:default;background:transparent;">Cancel</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Color Pickers -->
-              <div>
-                <div class="section-label" style="margin-bottom:10px;">Colors</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-bg" value="#0e0c14" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Background</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-lyrics" value="#f5f3fa" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Text / Lyrics</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-chords" value="#c4b5fd" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Chords / Accent</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-card-bg" value="#1a1726" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Card Surface</label>
-                  </div>
-                  <div class="color-input-wrapper">
-                    <input type="color" id="custom-btn-bg" value="#8b5cf6" oninput="livePreviewTheme()" />
+                    <input type="color" id="custom-btn-bg" value="#922b21" oninput="livePreviewTheme()" />
                     <label style="color:var(--text-secondary);font-size:12px;">Button Color</label>
                   </div>
                   <div class="color-input-wrapper">
@@ -1541,8 +1209,8 @@
       <iconify-icon icon="mdi:logout" style="font-size:20px;"></iconify-icon>
       Sign Out
     </button>
-  </div>
-</div>
+  </div><!-- /sign-out -->
+</div><!-- /tab-profile -->
 
   </div><!-- /main-content -->
 
@@ -2426,32 +2094,36 @@ function closeSidebar() {
 // ============================================================
 // HEADER SEARCH (animates inline into header)
 // ============================================================
+let _searchExpanded = false;
+function toggleHeaderSearch() {
+  if (_searchExpanded) closeHeaderSearch();
+  else openHeaderSearch();
+}
 function openHeaderSearch() {
-  const wrap = document.getElementById('header-search-wrap');
-  const actions = document.getElementById('header-actions');
-  const hamburger = document.getElementById('hamburger-btn');
-  wrap.style.opacity = '1';
-  wrap.style.pointerEvents = 'auto';
-  wrap.style.transform = 'translateY(0)';
-  actions.style.opacity = '0';
-  actions.style.transform = 'translateX(16px)';
-  actions.style.pointerEvents = 'none';
-  if (hamburger) { hamburger.style.opacity = '0'; hamburger.style.pointerEvents = 'none'; }
-  setTimeout(() => document.getElementById('header-search-input').focus(), 200);
+  _searchExpanded = true;
+  const pill = document.getElementById('header-search-pill');
+  const input = document.getElementById('header-search-input');
+  const clearBtn = document.getElementById('header-search-clear');
+  const searchBtn = document.getElementById('header-search-btn');
+  if (!pill) return;
+  pill.style.width = '220px';
+  setTimeout(() => {
+    if (input) { input.style.width = '120px'; input.style.opacity = '1'; input.style.pointerEvents = 'auto'; input.focus(); }
+    if (clearBtn) clearBtn.style.display = 'flex';
+    if (searchBtn) searchBtn.style.color = 'var(--accent)';
+  }, 50);
 }
 function closeHeaderSearch() {
-  const wrap = document.getElementById('header-search-wrap');
-  const actions = document.getElementById('header-actions');
-  const hamburger = document.getElementById('hamburger-btn');
-  wrap.style.opacity = '0';
-  wrap.style.pointerEvents = 'none';
-  wrap.style.transform = 'translateY(-100%)';
-  actions.style.opacity = '1';
-  actions.style.transform = 'translateX(0)';
-  actions.style.pointerEvents = 'auto';
-  if (hamburger) { hamburger.style.opacity = '1'; hamburger.style.pointerEvents = 'auto'; }
+  _searchExpanded = false;
+  const pill = document.getElementById('header-search-pill');
   const input = document.getElementById('header-search-input');
-  input.value = '';
+  const clearBtn = document.getElementById('header-search-clear');
+  const searchBtn = document.getElementById('header-search-btn');
+  if (!pill) return;
+  pill.style.width = '46px';
+  if (input) { input.style.width = '0'; input.style.opacity = '0'; input.style.pointerEvents = 'none'; input.value = ''; }
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (searchBtn) searchBtn.style.color = 'var(--text-secondary)';
   onHeaderSearchInput();
 }
 // Routes header search input to the active tab's underlying search field
@@ -2620,12 +2292,12 @@ function updateHomeBtn(show) {
   const shouldShow = show && !atSongsRoot;
   if (backBtn) backBtn.style.display = shouldShow ? 'flex' : 'none';
   if (hamburger) hamburger.style.display = shouldShow ? 'none' : 'flex';
-  // Hide floating search/filter: on admin/profile tabs, or when song sheet is open
+  // Hide floating search/filter on admin/profile tabs or when drilling into detail views
   const actions = document.getElementById('header-actions');
   const songSheetOpen = document.getElementById('song-sheet-view')?.style.display === 'block';
   if (actions) {
-    const hideActions = ['admin','profile'].includes(activeTab) || songSheetOpen || shouldShow;
-    actions.style.display = hideActions ? 'none' : 'flex';
+    const noSearchNeeded = ['admin','profile'].includes(activeTab) || songSheetOpen;
+    actions.style.display = noSearchNeeded ? 'none' : 'flex';
   }
 }
 
@@ -2753,6 +2425,24 @@ function closeAllDropdowns() {
   ids.forEach(id => { const m = document.getElementById(id); if (m) m.style.display = 'none'; });
 }
 
+function positionFloatingMenu(menuId) {
+  const menu = document.getElementById(menuId);
+  if (!menu) return;
+  const allMenus = ['song-filter-menu','setlist-filter-menu','user-filter-menu'];
+  const wasOpen = menu.style.display !== 'none';
+  allMenus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display='none'; });
+  if (wasOpen) return;
+  const btn = document.getElementById('header-filter-btn');
+  if (btn) {
+    const r = btn.getBoundingClientRect();
+    menu.style.position = 'fixed';
+    menu.style.top = (r.bottom + 8) + 'px';
+    menu.style.right = (window.innerWidth - r.right) + 'px';
+    menu.style.left = 'auto';
+    menu.style.zIndex = '9000';
+  }
+  menu.style.display = 'block';
+}
 function toggleSongFilterMenu() {
   const menu = document.getElementById('song-filter-menu');
   const isOpen = menu.style.display === 'block';
@@ -5316,7 +5006,7 @@ function setThemeScope(scope) {
 function _buildCustomThemeObject() {
   const bg      = document.getElementById('custom-bg')?.value     || '#0e0c14';
   const lyrics  = document.getElementById('custom-lyrics')?.value || '#f5f3fa';
-  const chords  = document.getElementById('custom-chords')?.value || '#c4b5fd';
+  const chords  = document.getElementById('custom-chords')?.value || '#e88080';
   const btnBg   = document.getElementById('custom-btn-bg')?.value || chords;
   const btnText = document.getElementById('custom-btn-text')?.value || '#ffffff';
   const cardBg  = document.getElementById('custom-card-bg')?.value || null;
@@ -5346,7 +5036,7 @@ function _buildCustomThemeObject() {
 function livePreviewTheme() {
   const bg     = document.getElementById('custom-bg')?.value     || '#0e0c14';
   const lyrics = document.getElementById('custom-lyrics')?.value || '#f5f3fa';
-  const chords = document.getElementById('custom-chords')?.value || '#c4b5fd';
+  const chords = document.getElementById('custom-chords')?.value || '#e88080';
   const btnBg  = document.getElementById('custom-btn-bg')?.value || chords;
   const btnTxt = document.getElementById('custom-btn-text')?.value || '#ffffff';
   const cardBg = document.getElementById('custom-card-bg')?.value || null;
@@ -5708,7 +5398,7 @@ function _startModalDrag(e, sheet) {
       <div style="text-align:center;margin-bottom:4px;">
         <img id="logo-modal-preview" src="icons/logo.png" alt="Preview"
           style="width:80px;height:80px;border-radius:16px;object-fit:cover;background:var(--surface-2);border:2px dashed var(--border-subtle);"
-          onerror="this.style.background='linear-gradient(135deg,#8b5cf6,#a78bfa)'" />
+          onerror="this.style.background='linear-gradient(135deg,#922b21,#c0392b)'" />
       </div>
       <div>
         <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Logo URL or Path</label>
