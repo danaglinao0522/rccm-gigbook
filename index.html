@@ -370,7 +370,10 @@
     .song-selector-row:hover { background: var(--surface-2); }
     .setlist-song-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-1); border: 1px solid var(--border-color); border-radius: 12px; }
     .color-input-wrapper { display: flex; align-items: center; gap: 8px; }
-    .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
+    .color-input-wrapper input[type=color] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; flex-shrink: 0; }
+    .hex-input { width: 100%; max-width: 90px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 3px 6px; color: var(--text-secondary); font-size: 11px; font-family: monospace; margin-top: 2px; text-transform: lowercase; transition: border-color 0.15s; }
+    .hex-input:focus { border-color: var(--accent); outline: none; }
+    .hex-input.invalid { border-color: #e74c3c; }
     .tutorial-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
     .key-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .key-btn { padding: 10px 4px; border-radius: 10px; text-align: center; cursor: pointer; background: var(--surface-2); border: 2px solid transparent; color: var(--lyrics-color); font-weight: 600; font-size: 15px; transition: all 0.15s var(--ease-smooth); }
@@ -533,6 +536,8 @@
       cursor: pointer;
       display: flex;
       align-items: center;
+      position: relative;
+      overflow: hidden;
       gap: 8px;
       transition: background 0.12s ease !important;
     }
@@ -1070,28 +1075,46 @@
                 <div class="section-label" style="margin-bottom:10px;">Colors</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-bg" value="#0e0c14" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Background</label>
+                    <input type="color" id="custom-bg" value="#0e0c14" oninput="livePreviewTheme();_syncHexFromColor('custom-bg')" />
+                    <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+                      <label style="color:var(--text-secondary);font-size:12px;">Background</label>
+                      <input type="text" id="custom-bg-hex" class="hex-input" value="#0e0c14" maxlength="7" oninput="_syncColorFromHex('custom-bg', this.value)" />
+                    </div>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-lyrics" value="#f5f3fa" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Text / Lyrics</label>
+                    <input type="color" id="custom-lyrics" value="#f5f3fa" oninput="livePreviewTheme();_syncHexFromColor('custom-lyrics')" />
+                    <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+                      <label style="color:var(--text-secondary);font-size:12px;">Text / Lyrics</label>
+                      <input type="text" id="custom-lyrics-hex" class="hex-input" value="#f5f3fa" maxlength="7" oninput="_syncColorFromHex('custom-lyrics', this.value)" />
+                    </div>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-chords" value="#e88080" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Chords / Accent</label>
+                    <input type="color" id="custom-chords" value="#e88080" oninput="livePreviewTheme();_syncHexFromColor('custom-chords')" />
+                    <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+                      <label style="color:var(--text-secondary);font-size:12px;">Chords / Accent</label>
+                      <input type="text" id="custom-chords-hex" class="hex-input" value="#e88080" maxlength="7" oninput="_syncColorFromHex('custom-chords', this.value)" />
+                    </div>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-card-bg" value="#1a1726" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Card Surface</label>
+                    <input type="color" id="custom-card-bg" value="#1a1726" oninput="livePreviewTheme();_syncHexFromColor('custom-card-bg')" />
+                    <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+                      <label style="color:var(--text-secondary);font-size:12px;">Card Surface</label>
+                      <input type="text" id="custom-card-bg-hex" class="hex-input" value="#1a1726" maxlength="7" oninput="_syncColorFromHex('custom-card-bg', this.value)" />
+                    </div>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-btn-bg" value="#922b21" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Button Color</label>
+                    <input type="color" id="custom-btn-bg" value="#922b21" oninput="livePreviewTheme();_syncHexFromColor('custom-btn-bg')" />
+                    <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+                      <label style="color:var(--text-secondary);font-size:12px;">Button Color</label>
+                      <input type="text" id="custom-btn-bg-hex" class="hex-input" value="#922b21" maxlength="7" oninput="_syncColorFromHex('custom-btn-bg', this.value)" />
+                    </div>
                   </div>
                   <div class="color-input-wrapper">
-                    <input type="color" id="custom-btn-text" value="#ffffff" oninput="livePreviewTheme()" />
-                    <label style="color:var(--text-secondary);font-size:12px;">Button Text</label>
+                    <input type="color" id="custom-btn-text" value="#ffffff" oninput="livePreviewTheme();_syncHexFromColor('custom-btn-text')" />
+                    <div style="display:flex;flex-direction:column;min-width:0;flex:1;">
+                      <label style="color:var(--text-secondary);font-size:12px;">Button Text</label>
+                      <input type="text" id="custom-btn-text-hex" class="hex-input" value="#ffffff" maxlength="7" oninput="_syncColorFromHex('custom-btn-text', this.value)" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1259,18 +1282,22 @@
 </button>
 
 <!-- AUTOSCROLL FAB — floating button, vertical BPM slider pops up above it -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;width:46px;">
-  <!-- Vertical slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:8px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(30,10,10,0.32);width:46px;">
-    <span style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">BPM</span>
-    <span id="bpm-value" style="color:var(--accent);font-size:14px;font-weight:800;min-width:24px;text-align:center;">72</span>
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:flex-end;flex-direction:column;gap:0;">
+  <!-- Horizontal slider popup -->
+  <div id="autoscroll-popup" style="display:none;flex-direction:row;align-items:center;gap:8px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:10px 12px;margin-bottom:8px;box-shadow:0 4px 20px rgba(30,10,10,0.32);width:200px;">
+    <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+      <span style="color:var(--text-muted);font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">BPM</span>
+      <span id="bpm-value" style="color:var(--accent);font-size:14px;font-weight:800;min-width:24px;text-align:center;">72</span>
+    </div>
     <input type="range" id="bpm-slider" min="20" max="200" value="72"
-      style="writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:28px;height:100px;accent-color:var(--accent);cursor:pointer;background:transparent;"
+      style="flex:1;height:28px;accent-color:var(--accent);cursor:pointer;background:transparent;"
       oninput="setBpmFromSlider(this.value)" />
-    <button onclick="tapBpm()" title="Tap to set BPM"
-      style="background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:9px;font-weight:700;cursor:pointer;padding:5px 7px;border-radius:6px;letter-spacing:0.05em;width:100%;transition:background 0.15s,border-color 0.15s;">TAP</button>
-    <button onclick="stopAutoscrollFromPopup()" title="Stop scrolling"
-      style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:9px;font-weight:700;cursor:pointer;padding:5px 7px;border-radius:6px;letter-spacing:0.05em;width:100%;transition:background 0.15s,border-color 0.15s;">STOP</button>
+    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+      <button onclick="tapBpm()" title="Tap to set BPM"
+        style="background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:8px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px;letter-spacing:0.05em;transition:background 0.15s,border-color 0.15s;">TAP</button>
+      <button onclick="stopAutoscrollFromPopup()" title="Stop scrolling"
+        style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:8px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px;letter-spacing:0.05em;transition:background 0.15s,border-color 0.15s;">STOP</button>
+    </div>
   </div>
   <!-- FAB button -->
   <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
@@ -5089,9 +5116,10 @@ function applyThemeData(theme) {
   if (el('custom-bg'))       el('custom-bg').value       = theme.bg;
   if (el('custom-lyrics'))   el('custom-lyrics').value   = theme.lyrics;
   if (el('custom-chords'))   el('custom-chords').value   = theme.chords;
-  if (el('custom-btn-bg')  && theme.btnBg)  el('custom-btn-bg').value  = theme.btnBg;
+  if (el('custom-btn-bg'))   el('custom-btn-bg').value   = theme.btnColor || theme.accent || theme.chords;
   if (el('custom-btn-text') && theme.btnText) el('custom-btn-text').value = theme.btnText;
   if (el('custom-card-bg') && theme.s1)    el('custom-card-bg').value  = theme.s1;
+  _syncHexInputs();
   livePreviewTheme();
 }
 
@@ -5128,7 +5156,7 @@ function _buildCustomThemeObject() {
   const bg      = document.getElementById('custom-bg')?.value     || '#0e0c14';
   const lyrics  = document.getElementById('custom-lyrics')?.value || '#f5f3fa';
   const chords  = document.getElementById('custom-chords')?.value || '#e88080';
-  const btnBg   = document.getElementById('custom-btn-bg')?.value || chords;
+  const btnColor = document.getElementById('custom-btn-bg')?.value || chords;
   const btnText = document.getElementById('custom-btn-text')?.value || '#ffffff';
   const cardBg  = document.getElementById('custom-card-bg')?.value || null;
   const ab = adjustBrightness;
@@ -5138,6 +5166,13 @@ function _buildCustomThemeObject() {
   const s3 = ab(bg, isDark ? 17 : -14);
   const border = ab(bg, isDark ? 24 : -20);
   const borderSubtle = ab(bg, isDark ? 32 : -28);
+  // Derive accent system from the button color, the same way every Theme Preset does:
+  // accentStrong = darker shade, accent = base, accentSoft = lighter shade.
+  const accentStrong = ab(btnColor, isDark ? -18 : -28);
+  const accent        = btnColor;
+  const accentSoft    = ab(btnColor, isDark ? 30 : 18);
+  // Button background is always a gradient (accentStrong -> accent), matching preset style
+  const btnBg = `linear-gradient(135deg,${accentStrong},${accent})`;
   return {
     bg, lyrics, chords, s1, s2, s3, sInput: s2,
     border, borderSubtle,
@@ -5146,8 +5181,9 @@ function _buildCustomThemeObject() {
     textSecondary: isDark ? '#b3aecb' : '#8a7560',
     modalOverlay: isDark ? 'rgba(0,0,0,0.78)' : 'rgba(40,20,10,0.55)',
     toggleTrack: border, scrollbar: borderSubtle,
-    accentGlow: hexToRgba(chords, 0.18),
-    btnBg, btnText,
+    accentGlow: hexToRgba(accent, 0.18),
+    accent, accentStrong, accentSoft,
+    btnBg, btnText, btnColor,
     navTextColor: lyrics, navIconColor: chords,
     navShadow: '0 1px 8px rgba(0,0,0,0.3)'
   };
@@ -5192,6 +5228,45 @@ function livePreviewTheme() {
 
 function applyCustomTheme() {
   // Applied only when Save Theme is clicked
+}
+
+// ── Hex <-> color input sync ──────────────────────────────────
+const _CUSTOM_COLOR_IDS = ['custom-bg','custom-lyrics','custom-chords','custom-card-bg','custom-btn-bg','custom-btn-text'];
+
+// Color swatch changed -> update its hex text field
+function _syncHexFromColor(colorId) {
+  const colorEl = document.getElementById(colorId);
+  const hexEl = document.getElementById(colorId + '-hex');
+  if (colorEl && hexEl) {
+    hexEl.value = colorEl.value;
+    hexEl.classList.remove('invalid');
+  }
+}
+
+// Hex text field typed -> validate and update the color swatch
+function _syncColorFromHex(colorId, value) {
+  const hexEl = document.getElementById(colorId + '-hex');
+  const colorEl = document.getElementById(colorId);
+  if (!colorEl || !hexEl) return;
+  let v = value.trim();
+  if (v && v[0] !== '#') v = '#' + v;
+  const isValid = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/.test(v);
+  if (isValid) {
+    // Expand 3-digit shorthand to 6-digit
+    if (v.length === 4) {
+      v = '#' + v[1]+v[1] + v[2]+v[2] + v[3]+v[3];
+    }
+    colorEl.value = v;
+    hexEl.classList.remove('invalid');
+    livePreviewTheme();
+  } else {
+    hexEl.classList.add('invalid');
+  }
+}
+
+// Sync all hex fields from their color swatches (used after applying a preset)
+function _syncHexInputs() {
+  _CUSTOM_COLOR_IDS.forEach(_syncHexFromColor);
 }
 
 function isColorDark(hex) {
