@@ -355,7 +355,6 @@
       /* FABs and font buttons: absolutely positioned inside app-root, just above
          the sticky bottom nav. Since bottom-nav is no longer fixed/overlapping,
          we anchor to the bottom of #app-root (which ends at the top of bottom-nav). */
-      #autoscroll-fab,
       #add-song-fab,
       #fab-btn {
         position: absolute !important;
@@ -460,16 +459,26 @@
     }
     button:hover::after  { background: rgba(255,255,255,0.06); }
     button:active::after { background: rgba(255,255,255,0.12); }
-    /* Circular floating buttons */
+    /* Circular floating buttons — shape-matched highlight */
     #hamburger-btn:hover, #home-btn:hover,
     #header-search-btn:hover, #header-filter-btn:hover {
       background: var(--surface-2) !important;
       border-color: var(--border-subtle) !important;
     }
+    #hamburger-btn:hover::after, #home-btn:hover::after,
+    #header-search-btn:hover::after, #header-filter-btn:hover::after,
+    #header-search-clear:hover::after { background: transparent; }
     #hamburger-btn:active, #home-btn:active,
     #header-search-btn:active, #header-filter-btn:active {
       transform: scale(0.92);
     }
+    #header-search-clear:hover { background: var(--surface-3) !important; }
+    #header-search-clear:active { transform: scale(0.90); }
+    #header-search-clear::after { border-radius: 50% !important; }
+    /* FAB & add-song-fab — always circular highlight */
+    .fab::after, #add-song-fab::after { border-radius: 50% !important; }
+    .fab:active, #add-song-fab:active { transform: scale(0.92) !important; }
+    .fab:active::after, #add-song-fab:active::after { background: rgba(255,255,255,0.14); }
     /* Sidebar nav buttons */
     #sidebar-nav button:hover { background: var(--surface-2) !important; }
     /* List cards */
@@ -719,7 +728,7 @@
       </button>
       <input id="header-search-input" type="text" placeholder="Search..." oninput="onHeaderSearchInput()"
         style="width:0;opacity:0;border:none;background:transparent;color:var(--lyrics-color);font-size:14px;font-family:var(--app-font-family);outline:none;padding:0;transition:width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;pointer-events:none;" />
-      <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:32px;height:32px;min-width:32px;margin:0 7px;background:var(--surface-2);border:none;border-radius:50%;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:background 0.15s;">✕</button>
+      <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:32px;height:32px;min-width:32px;margin:0 6px;background:var(--surface-2);border:none;border-radius:50%;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:background 0.15s;">✕</button>
     </div>
     <!-- Filter button -->
     <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(60,30,30,0.18);position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
@@ -830,7 +839,7 @@
             </div>
           </div>
         </div>
-        <div id="song-sheet-content" class="song-sheet-content swipe-container" style="overflow-x:hidden;max-width:100%;word-wrap:break-word;padding:0 var(--view-px) 20px;line-height:1.6;"></div>
+        <div id="song-sheet-content" class="song-sheet-content swipe-container" style="overflow-x:hidden;max-width:100%;word-wrap:break-word;padding:0 var(--view-px) calc(90px + env(safe-area-inset-bottom,0px));line-height:1.6;"></div>
       </div>
     </div>
 
@@ -1248,23 +1257,28 @@
   <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
 </button>
 
-<!-- AUTOSCROLL FAB — far right, vertical slider pops up above button -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;width:46px;">
-  <!-- Vertical slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:6px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:46px;">
-    <span style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Speed</span>
-    <span id="autoscroll-speed-label" style="color:var(--accent);font-size:13px;font-weight:700;min-width:16px;text-align:center;">0</span>
-    <input type="range" id="autoscroll-slider" min="0" max="10" value="0"
-      style="writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:28px;height:100px;accent-color:var(--accent);cursor:pointer;background:transparent;"
-      oninput="setAutoScroll(this.value);document.getElementById('autoscroll-speed-label').textContent=this.value;updateAutoscrollFabIcon();" />
-    <button onclick="setAutoScroll(0);document.getElementById('autoscroll-slider').value=0;document.getElementById('autoscroll-speed-label').textContent='0';updateAutoscrollFabIcon();"
-      style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:9px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;letter-spacing:0.05em;">STOP</button>
+<!-- AUTOSCROLL BPM BAR — horizontal bar at bottom of song sheet -->
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--surface-1);border-top:1px solid var(--border-subtle);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 12px rgba(30,10,10,0.22);">
+  <div style="display:flex;align-items:center;gap:10px;max-width:600px;margin:0 auto;">
+    <!-- Play/Stop toggle -->
+    <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPlayback()"
+      style="width:40px;height:40px;min-width:40px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(60,30,30,0.18);transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;">
+      <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:20px;"></iconify-icon>
+    </button>
+    <!-- BPM label -->
+    <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0;">BPM</span>
+    <!-- BPM decrement -->
+    <button onclick="adjustBpm(-1)" style="width:32px;height:32px;min-width:32px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0;transition:background 0.15s;">−</button>
+    <!-- BPM display + tap zone -->
+    <button id="bpm-display" onclick="tapBpm()"
+      title="Tap to set BPM"
+      style="flex:1;height:36px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;color:var(--accent);font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;letter-spacing:0.02em;transition:background 0.15s,border-color 0.15s;min-width:64px;">
+      <span id="bpm-value">72</span>
+      <span style="font-size:9px;color:var(--text-muted);font-weight:600;margin-left:4px;margin-top:4px;">TAP</span>
+    </button>
+    <!-- BPM increment -->
+    <button onclick="adjustBpm(1)" style="width:32px;height:32px;min-width:32px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0;transition:background 0.15s;">+</button>
   </div>
-  <!-- FAB button — same fixed width as the container -->
-  <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
-    style="width:46px;height:46px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(60,30,30,0.18);transition:background 0.2s,color 0.2s;flex-shrink:0;">
-    <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
-  </button>
 </div>
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
@@ -1309,13 +1323,13 @@
     </div>
 
     <!-- Expanding zone: fills all remaining height, textarea grows/shrinks with modal -->
-    <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:10px;">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:120px;margin-top:10px;overflow:hidden;">
 
       <!-- Add mode: text intake -->
       <div id="intake-text-area" style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <textarea class="input-field" id="new-song-content"
           placeholder="Paste chord sheet here...&#10;&#10;VERSE 1&#10;G    D    Em   C&#10;Great is Thy faithfulness..."
-          style="flex:1;min-height:100px;height:1px;font-family:monospace;font-size:13px;resize:none;"></textarea>
+          style="flex:1;min-height:80px;height:1px;font-family:monospace;font-size:13px;resize:none;overflow-y:auto;"></textarea>
       </div>
 
       <!-- Add mode: file intake -->
@@ -1358,7 +1372,7 @@
     </div>
 
     <!-- Fixed footer -->
-    <div style="flex-shrink:0;padding-top:10px;margin-top:auto;">
+    <div style="flex-shrink:0;padding-top:10px;">
       <button id="save-song-btn" class="btn-primary" onclick="saveSong()" style="width:100%;" disabled>Save Song</button>
     </div>
 
@@ -2146,7 +2160,6 @@ function closeHeaderSearch() {
   pill.style.width = '46px';
   if (input) { input.style.width = '0'; input.style.opacity = '0'; input.style.pointerEvents = 'none'; input.value = ''; }
   if (clearBtn) clearBtn.style.display = 'none';
-  if (searchBtn) searchBtn.style.color = 'var(--text-secondary)';
   onHeaderSearchInput();
 }
 // Routes header search input to the active tab's underlying search field
@@ -2796,9 +2809,7 @@ function openSongSheet(songId, fromSetlist) {
   setupSwipeListeners();
   pushState();
   stopAutoScroll();
-  document.getElementById('autoscroll-slider').value = 0;
-  document.getElementById('autoscroll-speed-label').textContent = '0';
-  document.getElementById('autoscroll-popup').style.display = 'none';
+  _bpmActive = false;
   updateAutoscrollFabIcon();
   document.getElementById('autoscroll-fab').style.display = 'flex';
   const addSongFabEl = document.getElementById('add-song-fab');
@@ -2891,9 +2902,10 @@ function openSetlistSongsSheet() {
 
 function closeSongSheet() {
   stopAutoScroll();
+  _bpmActive = false;
+  updateAutoscrollFabIcon();
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
-  document.getElementById('autoscroll-popup').style.display = 'none';
   const navTitle = document.getElementById('top-nav-title');
   if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
@@ -3110,34 +3122,114 @@ function hideSyncBar() {
 }
 let autoScrollAnimFrame = null;
 let autoScrollAccumulator = 0;
+let _bpm = 72;
+let _bpmActive = false;
+let _tapTimes = [];
+
+function bpmToPixelsPerSecond(bpm) {
+  // 60 BPM → ~20 px/s feels comfortable for reading; scales linearly
+  return bpm * (20 / 60);
+}
+
 function setAutoScroll(val) {
+  // Legacy shim — val 0–10 → treated as speed; convert to rough BPM equiv
   autoScrollSpeed = parseInt(val);
   stopAutoScroll();
   if (autoScrollSpeed > 0) startAutoScroll();
 }
-function toggleAutoscrollPopup() {
-  const popup = document.getElementById('autoscroll-popup');
-  popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+
+function adjustBpm(delta) {
+  _bpm = Math.max(20, Math.min(300, _bpm + delta));
+  _updateBpmDisplay();
+  if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
 }
+
+function tapBpm() {
+  const now = Date.now();
+  // Reset if last tap was > 2.5s ago
+  if (_tapTimes.length > 0 && now - _tapTimes[_tapTimes.length - 1] > 2500) {
+    _tapTimes = [];
+  }
+  _tapTimes.push(now);
+  if (_tapTimes.length > 8) _tapTimes.shift();
+  if (_tapTimes.length >= 2) {
+    const gaps = [];
+    for (let i = 1; i < _tapTimes.length; i++) gaps.push(_tapTimes[i] - _tapTimes[i - 1]);
+    const avg = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+    _bpm = Math.max(20, Math.min(300, Math.round(60000 / avg)));
+    _updateBpmDisplay();
+    if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
+  }
+  // Flash the display
+  const disp = document.getElementById('bpm-display');
+  if (disp) { disp.style.borderColor = 'var(--accent)'; disp.style.background = 'var(--accent-glow)'; setTimeout(() => { disp.style.borderColor = ''; disp.style.background = ''; }, 150); }
+}
+
+function _updateBpmDisplay() {
+  const el = document.getElementById('bpm-value');
+  if (el) el.textContent = _bpm;
+}
+
+function toggleAutoscrollPlayback() {
+  if (_bpmActive) {
+    _bpmActive = false;
+    stopAutoScroll();
+  } else {
+    _bpmActive = true;
+    startAutoScroll();
+  }
+  updateAutoscrollFabIcon();
+}
+
+// Legacy shim kept for popup toggle calls elsewhere (now no-op)
+function toggleAutoscrollPopup() {}
+
 function updateAutoscrollFabIcon() {
   const btn = document.getElementById('autoscroll-fab-btn');
   const icon = document.getElementById('autoscroll-fab-icon');
-  const val = parseInt(document.getElementById('autoscroll-slider').value || 0);
-  if (val > 0) {
+  if (!btn || !icon) return;
+  if (_bpmActive) {
     btn.style.background = 'linear-gradient(135deg, var(--accent-strong), var(--accent))';
     btn.style.color = '#fff';
     btn.style.borderColor = 'var(--accent)';
-    icon.style.color = '#fff';
+    icon.setAttribute('icon', 'mdi:pause');
   } else {
     btn.style.background = 'var(--surface-2)';
     btn.style.color = 'var(--text-secondary)';
     btn.style.borderColor = 'var(--border-subtle)';
-    icon.style.color = 'var(--text-secondary)';
+    icon.setAttribute('icon', 'mdi:play');
   }
 }
+
 function updateAutoscrollFabPosition() {
-  // Autoscroll FAB always pinned far right; main FAB never overlaps (different states)
+  // BPM bar is full-width fixed bottom — nothing to reposition
 }
+
+function startAutoScroll() {
+  stopAutoScroll();
+  const content = document.getElementById('main-content');
+  let lastTime = null;
+  function step(ts) {
+    if (!lastTime) lastTime = ts;
+    const delta = ts - lastTime;
+    lastTime = ts;
+    const pps = bpmToPixelsPerSecond(_bpm);
+    autoScrollAccumulator += (pps * delta) / 1000;
+    if (autoScrollAccumulator >= 1) {
+      const px = Math.floor(autoScrollAccumulator);
+      content.scrollTop += px;
+      autoScrollAccumulator -= px;
+    }
+    autoScrollAnimFrame = requestAnimationFrame(step);
+  }
+  autoScrollAnimFrame = requestAnimationFrame(step);
+}
+
+function stopAutoScroll() {
+  if (autoScrollAnimFrame) { cancelAnimationFrame(autoScrollAnimFrame); autoScrollAnimFrame = null; }
+  autoScrollAccumulator = 0;
+}
+
 // Close filter menus when tapping outside them
 document.addEventListener('click', (e) => {
   const menus = ['song-filter-menu','setlist-filter-menu','user-filter-menu'];
@@ -3148,37 +3240,6 @@ document.addEventListener('click', (e) => {
     menus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
   }
 });
-
-// Close autoscroll popup when tapping outside it
-document.addEventListener('click', (e) => {
-  const fab = document.getElementById('autoscroll-fab');
-  const popup = document.getElementById('autoscroll-popup');
-  if (fab && popup && popup.style.display === 'flex') {
-    if (!fab.contains(e.target)) popup.style.display = 'none';
-  }
-});
-function startAutoScroll() {
-  const content = document.getElementById('main-content');
-  let lastTime = null;
-  function step(ts) {
-    if (!lastTime) lastTime = ts;
-    const delta = ts - lastTime;
-    lastTime = ts;
-    const pixelsPerSecond = autoScrollSpeed * 12;
-    autoScrollAccumulator += (pixelsPerSecond * delta) / 1000;
-    if (autoScrollAccumulator >= 1) {
-      const px = Math.floor(autoScrollAccumulator);
-      content.scrollTop += px;
-      autoScrollAccumulator -= px;
-    }
-    autoScrollAnimFrame = requestAnimationFrame(step);
-  }
-  autoScrollAnimFrame = requestAnimationFrame(step);
-}
-function stopAutoScroll() {
-  if (autoScrollAnimFrame) { cancelAnimationFrame(autoScrollAnimFrame); autoScrollAnimFrame = null; }
-  autoScrollAccumulator = 0;
-}
 
 // ============================================================
 // FONT ZOOM — PINCH & TAP CONTROLS (0.6x – 3x)
@@ -3436,7 +3497,7 @@ function handleCameraCapture(input) {
             role: 'user',
             content: [
               { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64Data } },
-              { type: 'text', text: 'Extract all text from this chord sheet image exactly as written. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, and all spacing/line breaks. Output only the raw chord sheet text — no commentary, no markdown, no explanation.' }
+              { type: 'text', text: 'Extract all text from this chord sheet image exactly as written, reading from top to bottom. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, and all spacing/line breaks. Output only the raw chord sheet text in top-to-bottom reading order — no commentary, no markdown, no explanation.' }
             ]
           }]
         })
@@ -3482,19 +3543,18 @@ async function _readPdfAsText(file) {
     const content = await page.getTextContent();
     const items   = content.items;
     if (!items.length) continue;
-    let lines = [], currentLine = [], lastY = null;
+
+    // Group items into lines by Y coordinate (PDF Y is bottom-up, so we sort descending = top first)
+    const lineMap = new Map();
     for (const item of items) {
       const y = Math.round(item.transform[5]);
-      if (lastY === null) lastY = y;
-      if (Math.abs(y - lastY) > 2) {
-        if (currentLine.length) lines.push(currentLine.join(''));
-        currentLine = [];
-        lastY = y;
-      }
-      currentLine.push(item.str);
+      if (!lineMap.has(y)) lineMap.set(y, []);
+      lineMap.get(y).push(item.str);
     }
-    if (currentLine.length) lines.push(currentLine.join(''));
-    pages.push(lines.reverse().join('\n'));
+    // Sort Y values descending (largest Y = top of page)
+    const sortedYs = [...lineMap.keys()].sort((a, b) => b - a);
+    const lines = sortedYs.map(y => lineMap.get(y).join(''));
+    pages.push(lines.join('\n'));
   }
   return pages.join('\n\n').replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\x00/g, '');
 }
@@ -3564,7 +3624,7 @@ function handleFileInput(input) {
               role: 'user',
               content: [
                 { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64Data } },
-                { type: 'text', text: 'Extract all text from this chord sheet image exactly as written. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, and all spacing/line breaks. Output only the raw chord sheet text — no commentary, no markdown, no explanation.' }
+                { type: 'text', text: 'Extract all text from this chord sheet image exactly as written, reading from top to bottom. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, and all spacing/line breaks. Output only the raw chord sheet text in top-to-bottom reading order — no commentary, no markdown, no explanation.' }
               ]
             }]
           })
