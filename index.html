@@ -232,12 +232,13 @@
     .profile-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 1px solid var(--border-color); }
     .theme-preset-btn { border-radius: 10px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s var(--ease-smooth); }
     .theme-preset-btn.active { border-color: var(--accent); }
-    ::-webkit-scrollbar { width: 4px; }
+    * { scrollbar-width: thin; }
+    ::-webkit-scrollbar { width: 3px; height: 3px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
     /* Main content scrollbar — clipped so it never appears under top/bottom nav */
-    #main-content { scrollbar-gutter: stable; }
-    #main-content::-webkit-scrollbar { width: 4px; }
+    #main-content { scrollbar-gutter: stable; scrollbar-width: thin; }
+    #main-content::-webkit-scrollbar { width: 3px; }
     #main-content::-webkit-scrollbar-track {
       background: transparent;
       /* match the exact padding values used on #main-content so the track
@@ -440,51 +441,87 @@
       transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth);
       position: relative;
     }
-    /* Subtle purple status dot on filter icon when non-default sort active */
-    /* ── Button / interactive element highlights ── */
-    /* All buttons: highlight fills the exact button shape */
-    button, .btn-primary, .btn-secondary, .btn-danger,
-    .ctrl-pill, .zoom-btn, .filter-btn, .key-btn,
-    .theme-preset-btn, .theme-preset-card, .onboarding-btn,
-    .list-icon-btn, .camera-btn {
-      position: relative;
-      overflow: hidden;
-    }
-    button::after, .ctrl-pill::after, .zoom-btn::after,
-    .filter-btn::after, .key-btn::after, .theme-preset-card::after,
-    .onboarding-btn::after, .list-icon-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: transparent;
-      border-radius: inherit;
-      transition: background 0.15s ease;
-      pointer-events: none;
-    }
-    button:hover::after  { background: rgba(255,255,255,0.06); }
-    button:active::after { background: rgba(255,255,255,0.12); }
-    /* Circular floating buttons — shape-matched highlight */
-    #hamburger-btn:hover, #home-btn:hover,
-    #header-search-btn:hover, #header-filter-btn:hover {
-      background: var(--surface-2) !important;
-      border-color: var(--border-subtle) !important;
-    }
-    #hamburger-btn:hover::after, #home-btn:hover::after,
-    #header-search-btn:hover::after, #header-filter-btn:hover::after,
-    #header-search-clear:hover::after { background: transparent; }
-    #hamburger-btn:active, #home-btn:active,
-    #header-search-btn:active, #header-filter-btn:active {
-      transform: scale(0.92);
-    }
-    #header-search-clear:hover { background: var(--surface-3) !important; }
-    #header-search-clear:active { transform: scale(0.90); }
-    #header-search-clear::after { border-radius: 50% !important; }
-    /* FAB & add-song-fab — always circular highlight */
-    .fab::after, #add-song-fab::after { border-radius: 50% !important; }
-    .fab:active, #add-song-fab:active { transform: scale(0.92) !important; }
-    .fab:active::after, #add-song-fab:active::after { background: rgba(255,255,255,0.14); }
-    /* Sidebar nav buttons */
-    #sidebar-nav button:hover { background: var(--surface-2) !important; }
+/* ── Button / interactive element highlights (single unified system) ──
+   Every interactive element gets its OWN explicit border-radius matched
+   highlight. No reliance on `inherit` quirks, no competing rule sets. */
+button, .btn-primary, .btn-secondary, .btn-danger,
+.ctrl-pill, .zoom-btn, .filter-btn, .key-btn,
+.theme-preset-btn, .theme-preset-card, .onboarding-btn,
+.list-icon-btn, .camera-btn {
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+button::after, .ctrl-pill::after, .zoom-btn::after,
+.filter-btn::after, .key-btn::after, .theme-preset-card::after,
+.onboarding-btn::after, .list-icon-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border-radius: inherit;
+  transition: background 0.15s ease;
+  pointer-events: none;
+}
+button:hover::after  { background: rgba(255,255,255,0.06); }
+button:active::after { background: rgba(255,255,255,0.12); }
+
+/* Circular floating buttons — each has explicit overflow+radius so the
+   highlight is always perfectly circular, never square. */
+#hamburger-btn, #home-btn, #header-filter-btn,
+#header-search-clear, #autoscroll-fab-btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+#hamburger-btn::after, #home-btn::after,
+#header-filter-btn::after, #header-search-clear::after, #autoscroll-fab-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.15s ease;
+  pointer-events: none;
+}
+#hamburger-btn:hover::after, #home-btn:hover::after,
+#header-filter-btn:hover::after,
+#header-search-clear:hover::after, #autoscroll-fab-btn:hover::after {
+  background: rgba(255,255,255,0.07);
+}
+#hamburger-btn:active::after, #home-btn:active::after,
+#header-filter-btn:active::after,
+#header-search-clear:active::after, #autoscroll-fab-btn:active::after {
+  background: rgba(255,255,255,0.14);
+}
+#hamburger-btn:active, #home-btn:active,
+#header-filter-btn:active,
+#header-search-clear:active, #autoscroll-fab-btn:active {
+  transform: scale(0.92);
+}
+/* Search icon button: no own highlight — the pill it lives inside handles
+   hover/active feedback as a single rounded capsule. */
+#header-search-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+#header-search-btn::after { display: none !important; }
+#header-search-pill {
+  position: relative;
+  transition: width 0.28s cubic-bezier(0.4,0,0.2,1), background 0.15s ease;
+}
+#header-search-pill:active { background: var(--surface-2); }
+/* FAB & add-song-fab — always circular highlight */
+.fab, #add-song-fab { position: relative; overflow: hidden; border-radius: 50%; -webkit-tap-highlight-color: transparent; }
+.fab::after, #add-song-fab::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: transparent; transition: background 0.15s ease; pointer-events: none;
+}
+.fab:hover::after, #add-song-fab:hover::after { background: rgba(255,255,255,0.07); }
+.fab:active, #add-song-fab:active { transform: scale(0.92); }
+.fab:active::after, #add-song-fab:active::after { background: rgba(255,255,255,0.14); }
+/* Sidebar nav buttons */
+#sidebar-nav button:hover { background: var(--surface-2) !important; }
     /* List cards */
     .song-card, .setlist-card, .user-row, .setlist-song-item, .list-item {
       cursor: pointer;
@@ -728,13 +765,13 @@
   <!-- FLOATING SEARCH + FILTER (top-right, per-tab) -->
   <div id="header-actions" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:400;display:flex;align-items:center;gap:8px;transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
     <!-- Expandable search pill -->
-    <div id="header-search-pill" style="display:flex;align-items:center;background:var(--surface-1);border:1px solid var(--border-color);border-radius:23px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;transition:width 0.28s cubic-bezier(0.4,0,0.2,1);width:46px;height:46px;">
+    <div id="header-search-pill" style="display:flex;align-items:center;background:var(--surface-1);border:1px solid var(--border-color);border-radius:23px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;width:46px;height:46px;">
       <button id="header-search-btn" onclick="toggleHeaderSearch()" style="width:46px;height:46px;min-width:46px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s;">
         <iconify-icon icon="mdi:magnify" style="font-size:21px;"></iconify-icon>
       </button>
       <input id="header-search-input" type="text" placeholder="Search..." oninput="onHeaderSearchInput()"
         style="width:0;opacity:0;border:none;background:transparent;color:var(--lyrics-color);font-size:14px;font-family:var(--app-font-family);outline:none;padding:0;transition:width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;pointer-events:none;" />
-      <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:32px;height:32px;min-width:32px;margin:0 6px;background:var(--surface-2);border:none;border-radius:50%;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:background 0.15s;">✕</button>
+      <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:32px;height:32px;min-width:32px;margin:7px;background:var(--surface-2);border:none;border-radius:50%;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:background 0.15s;">✕</button>
     </div>
     <!-- Filter button -->
     <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(60,30,30,0.18);position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
@@ -1282,28 +1319,23 @@
 </button>
 
 <!-- AUTOSCROLL FAB — floating button, vertical BPM slider pops up above it -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:flex-end;flex-direction:column;gap:0;">
-  <!-- Horizontal slider popup -->
-  <div id="autoscroll-popup" style="display:none;flex-direction:row;align-items:center;gap:8px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:10px 12px;margin-bottom:8px;box-shadow:0 4px 20px rgba(30,10,10,0.32);width:200px;">
-    <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
-      <span style="color:var(--text-muted);font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">BPM</span>
-      <span id="bpm-value" style="color:var(--accent);font-size:14px;font-weight:800;min-width:24px;text-align:center;">72</span>
-    </div>
-    <input type="range" id="bpm-slider" min="20" max="200" value="72"
-      style="flex:1;height:28px;accent-color:var(--accent);cursor:pointer;background:transparent;"
-      oninput="setBpmFromSlider(this.value)" />
-    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-      <button onclick="tapBpm()" title="Tap to set BPM"
-        style="background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:8px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px;letter-spacing:0.05em;transition:background 0.15s,border-color 0.15s;">TAP</button>
-      <button onclick="stopAutoscrollFromPopup()" title="Stop scrolling"
-        style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:8px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px;letter-spacing:0.05em;transition:background 0.15s,border-color 0.15s;">STOP</button>
+<!-- AUTOSCROLL CONTROL — single horizontal bar, always visible together: Play/Pause + BPM slider -->
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;">
+  <div style="display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:27px;padding:6px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+    <!-- Play/Pause — the one clear primary action -->
+    <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPlay()" title="Start/stop auto-scroll"
+      style="width:42px;height:42px;min-width:42px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;">
+      <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:22px;"></iconify-icon>
+    </button>
+    <!-- BPM slider — collapses to 0 width when idle, expands once playing -->
+    <div id="autoscroll-slider-wrap" style="display:flex;align-items:center;gap:8px;width:0;opacity:0;overflow:hidden;transition:width 0.25s ease,opacity 0.2s ease;">
+      <iconify-icon icon="mdi:metronome" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
+      <input type="range" id="bpm-slider" min="20" max="200" value="72"
+        style="width:110px;height:28px;accent-color:var(--accent);cursor:pointer;background:transparent;flex-shrink:0;"
+        oninput="setBpmFromSlider(this.value)" />
+      <span id="bpm-value" style="color:var(--accent);font-size:13px;font-weight:800;min-width:28px;text-align:left;flex-shrink:0;">72</span>
     </div>
   </div>
-  <!-- FAB button -->
-  <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
-    style="width:46px;height:46px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(60,30,30,0.18);transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;">
-    <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
-  </button>
 </div>
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
@@ -2837,7 +2869,6 @@ function openSongSheet(songId, fromSetlist) {
   _bpmActive = false;
   updateAutoscrollFabIcon();
   document.getElementById('autoscroll-fab').style.display = 'flex';
-  document.getElementById('autoscroll-popup').style.display = 'none';
   const addSongFabEl = document.getElementById('add-song-fab');
   if (addSongFabEl) addSongFabEl.style.display = 'none';
   document.getElementById('fab-btn').style.display = 'none';
@@ -2932,7 +2963,6 @@ function closeSongSheet() {
   updateAutoscrollFabIcon();
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
-  document.getElementById('autoscroll-popup').style.display = 'none';
   const navTitle = document.getElementById('top-nav-title');
   if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
@@ -3151,7 +3181,6 @@ let autoScrollAnimFrame = null;
 let autoScrollAccumulator = 0;
 let _bpm = 72;
 let _bpmActive = false;
-let _tapTimes = [];
 
 function bpmToPixelsPerSecond(bpm) {
   // 60 BPM → ~20 px/s feels comfortable for reading; scales linearly
@@ -3165,43 +3194,11 @@ function setAutoScroll(val) {
   if (autoScrollSpeed > 0) startAutoScroll();
 }
 
+// Slider moved while playing (or while paused, just updates the stored BPM)
 function setBpmFromSlider(val) {
   _bpm = parseInt(val);
   _updateBpmDisplay();
-  if (!_bpmActive) {
-    _bpmActive = true;
-    startAutoScroll();
-    updateAutoscrollFabIcon();
-  } else {
-    stopAutoScroll();
-    startAutoScroll();
-  }
-}
-
-function tapBpm() {
-  const now = Date.now();
-  // Reset if last tap was > 2.5s ago
-  if (_tapTimes.length > 0 && now - _tapTimes[_tapTimes.length - 1] > 2500) {
-    _tapTimes = [];
-  }
-  _tapTimes.push(now);
-  if (_tapTimes.length > 8) _tapTimes.shift();
-  if (_tapTimes.length >= 2) {
-    const gaps = [];
-    for (let i = 1; i < _tapTimes.length; i++) gaps.push(_tapTimes[i] - _tapTimes[i - 1]);
-    const avg = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-    _bpm = Math.max(20, Math.min(200, Math.round(60000 / avg)));
-    _updateBpmDisplay();
-    const slider = document.getElementById('bpm-slider');
-    if (slider) slider.value = _bpm;
-    if (!_bpmActive) {
-      _bpmActive = true;
-      updateAutoscrollFabIcon();
-    } else {
-      stopAutoScroll();
-    }
-    startAutoScroll();
-  }
+  if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
 }
 
 function _updateBpmDisplay() {
@@ -3209,36 +3206,35 @@ function _updateBpmDisplay() {
   if (el) el.textContent = _bpm;
 }
 
-function stopAutoscrollFromPopup() {
-  _bpmActive = false;
-  stopAutoScroll();
-  updateAutoscrollFabIcon();
-}
-
-function toggleAutoscrollPopup() {
-  const popup = document.getElementById('autoscroll-popup');
-  const isOpen = popup.style.display === 'flex';
-  if (isOpen) {
-    popup.style.display = 'none';
+// THE one control: tap to start, tap again to stop. No other state to manage.
+function toggleAutoscrollPlay() {
+  if (_bpmActive) {
+    _bpmActive = false;
+    stopAutoScroll();
   } else {
-    popup.style.display = 'flex';
+    _bpmActive = true;
+    startAutoScroll();
   }
+  updateAutoscrollFabIcon();
 }
 
 function updateAutoscrollFabIcon() {
   const btn = document.getElementById('autoscroll-fab-btn');
   const icon = document.getElementById('autoscroll-fab-icon');
+  const sliderWrap = document.getElementById('autoscroll-slider-wrap');
   if (!btn || !icon) return;
   if (_bpmActive) {
     btn.style.background = 'linear-gradient(135deg, var(--accent-strong), var(--accent))';
     btn.style.color = '#fff';
     btn.style.borderColor = 'var(--accent)';
     icon.setAttribute('icon', 'mdi:pause');
+    if (sliderWrap) { sliderWrap.style.width = '160px'; sliderWrap.style.opacity = '1'; }
   } else {
     btn.style.background = 'var(--surface-2)';
     btn.style.color = 'var(--text-secondary)';
     btn.style.borderColor = 'var(--border-subtle)';
-    icon.setAttribute('icon', 'mdi:play-speed');
+    icon.setAttribute('icon', 'mdi:play');
+    if (sliderWrap) { sliderWrap.style.width = '0'; sliderWrap.style.opacity = '0'; }
   }
 }
 
@@ -3279,15 +3275,6 @@ document.addEventListener('click', (e) => {
   const clickedFilterBtn = filterBtn?.contains(e.target);
   if (!clickedInsideMenu && !clickedFilterBtn) {
     menus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
-  }
-});
-
-// Close autoscroll popup when tapping outside it
-document.addEventListener('click', (e) => {
-  const fab = document.getElementById('autoscroll-fab');
-  const popup = document.getElementById('autoscroll-popup');
-  if (fab && popup && popup.style.display === 'flex') {
-    if (!fab.contains(e.target)) popup.style.display = 'none';
   }
 });
 
