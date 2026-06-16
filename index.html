@@ -361,7 +361,7 @@
       #fab-btn {
         position: absolute !important;
         bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
-        right: 16px !important;
+        right: 20px !important;
       }
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
@@ -551,11 +551,13 @@ button:active::after { background: rgba(255,255,255,0.12); }
 
     /* Floating filter dropdown menus */
     #song-filter-menu, #setlist-filter-menu, #user-filter-menu {
+      position: fixed !important;
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-radius: 14px;
       padding: 8px;
       min-width: 180px;
+      max-width: 240px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -1320,7 +1322,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
 
 <!-- AUTOSCROLL FAB — floating button, vertical BPM slider pops up above it -->
 <!-- AUTOSCROLL CONTROL — single horizontal bar, always visible together: Play/Pause + BPM slider -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;">
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;z-index:500;align-items:center;">
   <div style="display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:27px;padding:6px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
     <!-- Play/Pause — the one clear primary action -->
     <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPlay()" title="Start/stop auto-scroll"
@@ -1333,7 +1335,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
       <input type="range" id="bpm-slider" min="20" max="200" value="72"
         style="width:110px;height:28px;accent-color:var(--accent);cursor:pointer;background:transparent;flex-shrink:0;"
         oninput="setBpmFromSlider(this.value)" />
-      <span id="bpm-value" style="color:var(--accent);font-size:13px;font-weight:800;min-width:28px;text-align:left;flex-shrink:0;">72</span>
+      <span id="bpm-value" style="color:var(--accent);font-size:13px;font-weight:800;min-width:32px;text-align:left;flex-shrink:0;overflow:visible;">72</span>
     </div>
   </div>
 </div>
@@ -2525,17 +2527,21 @@ function positionFloatingMenu(menuId) {
   allMenus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
   if (isOpen) return;
   const btn = document.getElementById('header-filter-btn');
-  if (btn) {
-    const r = btn.getBoundingClientRect();
-    menu.style.position = 'fixed';
-    menu.style.top = (r.bottom + 8) + 'px';
-    menu.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
-    menu.style.left = 'auto';
-    menu.style.zIndex = '9000';
-    menu.style.minWidth = '190px';
-    menu.style.maxHeight = '70vh';
-    menu.style.overflowY = 'auto';
-  }
+  // Guard: if the filter button isn't in the DOM yet (e.g. during a slow/partial
+  // app load), bail out instead of showing the menu unpositioned full-width.
+  if (!btn) return;
+  const r = btn.getBoundingClientRect();
+  // Guard: a detached/zero-size button (not yet laid out) would also produce
+  // a bad position — bail rather than show the menu in the wrong place.
+  if (r.width === 0 && r.height === 0) return;
+  menu.style.position = 'fixed';
+  menu.style.top = (r.bottom + 8) + 'px';
+  menu.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
+  menu.style.left = 'auto';
+  menu.style.zIndex = '9000';
+  menu.style.minWidth = '190px';
+  menu.style.maxHeight = '70vh';
+  menu.style.overflowY = 'auto';
   menu.style.display = 'block';
 }
 function toggleSongFilterMenu() {
@@ -3228,7 +3234,7 @@ function updateAutoscrollFabIcon() {
     btn.style.color = '#fff';
     btn.style.borderColor = 'var(--accent)';
     icon.setAttribute('icon', 'mdi:pause');
-    if (sliderWrap) { sliderWrap.style.width = '160px'; sliderWrap.style.opacity = '1'; }
+    if (sliderWrap) { sliderWrap.style.width = '186px'; sliderWrap.style.opacity = '1'; }
   } else {
     btn.style.background = 'var(--surface-2)';
     btn.style.color = 'var(--text-secondary)';
@@ -3775,10 +3781,30 @@ function renderSetlistsList() {
   const emptyEl = document.getElementById('setlists-empty');
   if (setlists.length === 0) {
     listEl.innerHTML = '';
-    emptyEl.style.display = 'block';
+    if (emptyEl) {
+      const isSearch = !!setlistSearchQuery;
+      const filterLabels = { public: 'public', private: 'private', custom: 'custom group' };
+      const isFiltered = !isSearch && currentSetlistFilter && currentSetlistFilter !== 'all';
+      let icon, title, sub;
+      if (isSearch) {
+        icon = 'mdi:magnify-close';
+        title = `No results for "${escHtml(setlistSearchQuery)}"`;
+        sub = 'Try a different search term.';
+      } else if (isFiltered) {
+        icon = 'mdi:filter-off';
+        title = `No ${filterLabels[currentSetlistFilter] || ''} setlists`;
+        sub = 'Try a different filter, or create one using the + button.';
+      } else {
+        icon = 'mdi:playlist-music';
+        title = 'No setlists yet';
+        sub = 'Create a setlist using the + button.';
+      }
+      emptyEl.innerHTML = `<iconify-icon icon="${icon}" style="font-size:48px;display:block;margin:0 auto 14px;opacity:0.4;"></iconify-icon><p style="font-size:15px;font-weight:600;margin:0 0 6px;color:var(--text-secondary);">${title}</p><p style="font-size:13px;margin:0;">${sub}</p>`;
+      emptyEl.style.display = 'block';
+    }
     return;
   }
-  emptyEl.style.display = 'none';
+  if (emptyEl) emptyEl.style.display = 'none';
   listEl.innerHTML = setlists.map(setlist => {
     const isOwner = setlist.createdBy === currentUser?.uid;
     const role = currentUserProfile?.role || '';
