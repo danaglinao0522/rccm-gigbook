@@ -355,6 +355,7 @@
       /* FABs and font buttons: absolutely positioned inside app-root, just above
          the sticky bottom nav. Since bottom-nav is no longer fixed/overlapping,
          we anchor to the bottom of #app-root (which ends at the top of bottom-nav). */
+      #autoscroll-fab,
       #add-song-fab,
       #fab-btn {
         position: absolute !important;
@@ -839,7 +840,7 @@
             </div>
           </div>
         </div>
-        <div id="song-sheet-content" class="song-sheet-content swipe-container" style="overflow-x:hidden;max-width:100%;word-wrap:break-word;padding:0 var(--view-px) calc(90px + env(safe-area-inset-bottom,0px));line-height:1.6;"></div>
+        <div id="song-sheet-content" class="song-sheet-content swipe-container" style="overflow-x:hidden;max-width:100%;word-wrap:break-word;padding:0 var(--view-px) calc(40px + env(safe-area-inset-bottom,0px));line-height:1.6;"></div>
       </div>
     </div>
 
@@ -1257,28 +1258,25 @@
   <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
 </button>
 
-<!-- AUTOSCROLL BPM BAR — horizontal bar at bottom of song sheet -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--surface-1);border-top:1px solid var(--border-subtle);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 12px rgba(30,10,10,0.22);">
-  <div style="display:flex;align-items:center;gap:10px;max-width:600px;margin:0 auto;">
-    <!-- Play/Stop toggle -->
-    <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPlayback()"
-      style="width:40px;height:40px;min-width:40px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(60,30,30,0.18);transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;">
-      <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:20px;"></iconify-icon>
-    </button>
-    <!-- BPM label -->
-    <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0;">BPM</span>
-    <!-- BPM decrement -->
-    <button onclick="adjustBpm(-1)" style="width:32px;height:32px;min-width:32px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0;transition:background 0.15s;">−</button>
-    <!-- BPM display + tap zone -->
-    <button id="bpm-display" onclick="tapBpm()"
-      title="Tap to set BPM"
-      style="flex:1;height:36px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;color:var(--accent);font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;letter-spacing:0.02em;transition:background 0.15s,border-color 0.15s;min-width:64px;">
-      <span id="bpm-value">72</span>
-      <span style="font-size:9px;color:var(--text-muted);font-weight:600;margin-left:4px;margin-top:4px;">TAP</span>
-    </button>
-    <!-- BPM increment -->
-    <button onclick="adjustBpm(1)" style="width:32px;height:32px;min-width:32px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;flex-shrink:0;transition:background 0.15s;">+</button>
+<!-- AUTOSCROLL FAB — floating button, vertical BPM slider pops up above it -->
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:16px;z-index:500;align-items:center;flex-direction:column;gap:0;width:46px;">
+  <!-- Vertical slider popup -->
+  <div id="autoscroll-popup" style="display:none;flex-direction:column;align-items:center;gap:8px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:12px 10px 10px;margin-bottom:8px;box-shadow:0 4px 20px rgba(30,10,10,0.32);width:46px;">
+    <span style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">BPM</span>
+    <span id="bpm-value" style="color:var(--accent);font-size:14px;font-weight:800;min-width:24px;text-align:center;">72</span>
+    <input type="range" id="bpm-slider" min="20" max="200" value="72"
+      style="writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:28px;height:100px;accent-color:var(--accent);cursor:pointer;background:transparent;"
+      oninput="setBpmFromSlider(this.value)" />
+    <button onclick="tapBpm()" title="Tap to set BPM"
+      style="background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);font-size:9px;font-weight:700;cursor:pointer;padding:5px 7px;border-radius:6px;letter-spacing:0.05em;width:100%;transition:background 0.15s,border-color 0.15s;">TAP</button>
+    <button onclick="stopAutoscrollFromPopup()" title="Stop scrolling"
+      style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);font-size:9px;font-weight:700;cursor:pointer;padding:5px 7px;border-radius:6px;letter-spacing:0.05em;width:100%;transition:background 0.15s,border-color 0.15s;">STOP</button>
   </div>
+  <!-- FAB button -->
+  <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPopup()"
+    style="width:46px;height:46px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(60,30,30,0.18);transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;">
+    <iconify-icon id="autoscroll-fab-icon" icon="mdi:play-speed" style="font-size:22px;"></iconify-icon>
+  </button>
 </div>
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
@@ -2812,6 +2810,7 @@ function openSongSheet(songId, fromSetlist) {
   _bpmActive = false;
   updateAutoscrollFabIcon();
   document.getElementById('autoscroll-fab').style.display = 'flex';
+  document.getElementById('autoscroll-popup').style.display = 'none';
   const addSongFabEl = document.getElementById('add-song-fab');
   if (addSongFabEl) addSongFabEl.style.display = 'none';
   document.getElementById('fab-btn').style.display = 'none';
@@ -2906,6 +2905,7 @@ function closeSongSheet() {
   updateAutoscrollFabIcon();
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
+  document.getElementById('autoscroll-popup').style.display = 'none';
   const navTitle = document.getElementById('top-nav-title');
   if (navTitle) navTitle.style.display = 'none';
   currentSongId = null;
@@ -3138,10 +3138,17 @@ function setAutoScroll(val) {
   if (autoScrollSpeed > 0) startAutoScroll();
 }
 
-function adjustBpm(delta) {
-  _bpm = Math.max(20, Math.min(300, _bpm + delta));
+function setBpmFromSlider(val) {
+  _bpm = parseInt(val);
   _updateBpmDisplay();
-  if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
+  if (!_bpmActive) {
+    _bpmActive = true;
+    startAutoScroll();
+    updateAutoscrollFabIcon();
+  } else {
+    stopAutoScroll();
+    startAutoScroll();
+  }
 }
 
 function tapBpm() {
@@ -3156,13 +3163,18 @@ function tapBpm() {
     const gaps = [];
     for (let i = 1; i < _tapTimes.length; i++) gaps.push(_tapTimes[i] - _tapTimes[i - 1]);
     const avg = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-    _bpm = Math.max(20, Math.min(300, Math.round(60000 / avg)));
+    _bpm = Math.max(20, Math.min(200, Math.round(60000 / avg)));
     _updateBpmDisplay();
-    if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
+    const slider = document.getElementById('bpm-slider');
+    if (slider) slider.value = _bpm;
+    if (!_bpmActive) {
+      _bpmActive = true;
+      updateAutoscrollFabIcon();
+    } else {
+      stopAutoScroll();
+    }
+    startAutoScroll();
   }
-  // Flash the display
-  const disp = document.getElementById('bpm-display');
-  if (disp) { disp.style.borderColor = 'var(--accent)'; disp.style.background = 'var(--accent-glow)'; setTimeout(() => { disp.style.borderColor = ''; disp.style.background = ''; }, 150); }
 }
 
 function _updateBpmDisplay() {
@@ -3170,19 +3182,21 @@ function _updateBpmDisplay() {
   if (el) el.textContent = _bpm;
 }
 
-function toggleAutoscrollPlayback() {
-  if (_bpmActive) {
-    _bpmActive = false;
-    stopAutoScroll();
-  } else {
-    _bpmActive = true;
-    startAutoScroll();
-  }
+function stopAutoscrollFromPopup() {
+  _bpmActive = false;
+  stopAutoScroll();
   updateAutoscrollFabIcon();
 }
 
-// Legacy shim kept for popup toggle calls elsewhere (now no-op)
-function toggleAutoscrollPopup() {}
+function toggleAutoscrollPopup() {
+  const popup = document.getElementById('autoscroll-popup');
+  const isOpen = popup.style.display === 'flex';
+  if (isOpen) {
+    popup.style.display = 'none';
+  } else {
+    popup.style.display = 'flex';
+  }
+}
 
 function updateAutoscrollFabIcon() {
   const btn = document.getElementById('autoscroll-fab-btn');
@@ -3197,12 +3211,12 @@ function updateAutoscrollFabIcon() {
     btn.style.background = 'var(--surface-2)';
     btn.style.color = 'var(--text-secondary)';
     btn.style.borderColor = 'var(--border-subtle)';
-    icon.setAttribute('icon', 'mdi:play');
+    icon.setAttribute('icon', 'mdi:play-speed');
   }
 }
 
 function updateAutoscrollFabPosition() {
-  // BPM bar is full-width fixed bottom — nothing to reposition
+  // FAB pinned bottom-right — nothing to reposition
 }
 
 function startAutoScroll() {
@@ -3238,6 +3252,15 @@ document.addEventListener('click', (e) => {
   const clickedFilterBtn = filterBtn?.contains(e.target);
   if (!clickedInsideMenu && !clickedFilterBtn) {
     menus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
+  }
+});
+
+// Close autoscroll popup when tapping outside it
+document.addEventListener('click', (e) => {
+  const fab = document.getElementById('autoscroll-fab');
+  const popup = document.getElementById('autoscroll-popup');
+  if (fab && popup && popup.style.display === 'flex') {
+    if (!fab.contains(e.target)) popup.style.display = 'none';
   }
 });
 
