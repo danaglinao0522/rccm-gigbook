@@ -203,8 +203,19 @@
     .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s var(--ease-smooth); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
     input:checked + .toggle-slider { background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
-    .fab { position: fixed; bottom: calc(24px + env(safe-area-inset-bottom,0px)); right: 20px; left: auto; width: 56px; height: 56px; border-radius: 50%; background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 18px rgba(80,20,20,0.32); cursor: pointer; z-index: 510; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); }
+    .fab,
+    #add-song-fab,
+    #autoscroll-fab {
+      position: fixed !important;
+      bottom: 24px !important;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+      right: 20px !important;
+      left: auto !important;
+      z-index: 510 !important;
+    }
+    .fab { width: 56px; height: 56px; border-radius: 50%; background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 18px rgba(80,20,20,0.32); cursor: pointer; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); }
     .fab:active { transform: scale(0.92); }
+    #add-song-fab { width: 56px; height: 56px; border-radius: 50%; background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 18px rgba(80,20,20,0.32); cursor: pointer; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth); }
     .zoom-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 11px; font-weight: 600; min-width: 44px; justify-content: center; transition: color 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth); }
     .zoom-indicator-active { color: var(--accent-soft); border-color: var(--accent); background: var(--accent-glow); }
     .zoom-btn { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth); flex-shrink: 0; }
@@ -358,15 +369,7 @@
         margin-top: 0;
         margin-bottom: 0;
       }
-      /* FABs: fixed bottom-right, same as mobile */
-      #autoscroll-fab,
-      #add-song-fab,
-      #fab-btn {
-        position: fixed !important;
-        bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
-        right: 20px !important;
-        left: auto !important;
-      }
+      /* FABs position is handled globally in base CSS — no override needed here */
     }
     .checkbox-custom { width: 18px; height: 18px; border-radius: 4px; border:2px solid var(--border-subtle); appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; transition: all 0.2s; flex-shrink: 0; }
     .checkbox-custom:checked { background: var(--accent); border-color: var(--accent); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E"); background-size: 12px; background-position: center; background-repeat: no-repeat; }
@@ -1359,29 +1362,27 @@ button:active::after { background: rgba(255,255,255,0.12); }
   <!-- navigation via hamburger sidebar -->
 </div><!-- /app-root -->
 
-<!-- FAB -->
-<button id="fab-btn" class="fab" style="display:none;z-index:510;" onclick="handleFabClick()">
+<!-- FAB — Create Setlist or Add Song (context-aware) -->
+<button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">
   <iconify-icon id="fab-icon" icon="mdi:plus" style="font-size:26px;pointer-events:none;"></iconify-icon>
 </button>
 
 <!-- ADD SONG FAB (inside setlist detail) -->
-<button id="add-song-fab" style="display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:20px;left:auto;width:56px;height:56px;border-radius:50%;background:var(--btn-primary-bg,linear-gradient(135deg,var(--accent-strong),var(--accent)));color:var(--btn-primary-text,#fff);flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 18px rgba(80,20,20,0.32);cursor:pointer;z-index:510;border:none;transition:transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);" onclick="openSongSelectorModal()" title="Add Song">
-  <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
+<button id="add-song-fab" style="display:none;" onclick="openSongSelectorModal()" title="Add Song">
+  <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;pointer-events:none;"></iconify-icon>
 </button>
 
-<!-- AUTOSCROLL CONTROL — horizontal bar bottom-right -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:20px;left:auto;z-index:510;align-items:center;">
+<!-- AUTOSCROLL CONTROL — horizontal pill, bottom-right -->
+<div id="autoscroll-fab" style="display:none;">
   <div style="display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:27px;padding:6px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
-    <!-- Play/Pause — the one clear primary action -->
     <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPlay()" title="Start/stop auto-scroll"
       style="width:42px;height:42px;min-width:42px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;">
       <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:22px;"></iconify-icon>
     </button>
-    <!-- BPM slider — collapses to 0 width when idle, expands once playing -->
     <div id="autoscroll-slider-wrap" style="display:flex;align-items:center;gap:8px;width:0;opacity:0;overflow:hidden;transition:width 0.25s ease,opacity 0.2s ease;">
       <iconify-icon icon="mdi:metronome" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
       <input type="range" id="bpm-slider" min="20" max="200" value="72"
-        style="width:110px;height:28px;accent-color:var(--accent);cursor:pointer;background:transparent;flex-shrink:0;"
+        style="width:110px;height:28px;cursor:pointer;flex-shrink:0;"
         oninput="setBpmFromSlider(this.value)" />
       <span id="bpm-value" style="color:var(--accent);font-size:13px;font-weight:800;min-width:32px;text-align:left;flex-shrink:0;overflow:visible;">72</span>
     </div>
