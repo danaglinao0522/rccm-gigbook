@@ -1879,6 +1879,15 @@ let _splashTimer = setTimeout(() => {
   }
 }, 5000);
 
+// Some mobile browsers restore the page from the back/forward cache (bfcache)
+// instead of re-running JS from scratch on "refresh"/navigation. If a dropdown
+// (e.g. the role filter menu) was open in that frozen snapshot, it would
+// otherwise reappear exactly as it was. Force-close any open dropdown whenever
+// the page becomes visible again, regardless of how it became visible.
+window.addEventListener('pageshow', () => {
+  closeAllDropdowns();
+});
+
 auth.onAuthStateChanged(async (user) => {
   clearTimeout(_splashTimer); // Cancel fallback timer
   if (_signingOut) return;    // Ignore during explicit sign-out
@@ -3519,6 +3528,7 @@ let _asLongPressActive = false;
 let _asDragStartY = 0;
 let _asDragStartBpm = 72;
 let _asMovedDuringPress = false;
+let _asStartY = 0;
 
 function _asShowSpeedBadge(show) {
   const badge = document.getElementById('autoscroll-speed-badge');
@@ -3533,6 +3543,7 @@ function _asUpdateSpeedBadge() {
 function _asHandlePressStart(clientY) {
   _asMovedDuringPress = false;
   _asLongPressActive = false;
+  _asStartY = clientY;
   clearTimeout(_asPressTimer);
   _asPressTimer = setTimeout(() => {
     _asLongPressActive = true;
@@ -3546,11 +3557,16 @@ function _asHandlePressStart(clientY) {
 
 function _asHandlePressMove(clientY) {
   if (!_asLongPressActive) {
-    // Movement before long-press fires just means it wasn't a clean tap; cancel the timer
-    _asMovedDuringPress = true;
+    // Before the long-press timer fires, ignore tiny finger jitter (a few px is
+    // normal even on a clean tap). Only cancel the pending tap if the finger
+    // genuinely moves a meaningful distance — and in that case, also cancel the
+    // long-press timer so a moving finger never accidentally arms speed-adjust.
+    if (Math.abs(clientY - _asStartY) > 10) {
+      _asMovedDuringPress = true;
+      clearTimeout(_asPressTimer);
+    }
     return;
   }
-  _asMovedDuringPress = true;
   // Dragging up increases speed, down decreases. ~2.5 BPM per pixel of drag, clamped to slider range.
   const deltaY = _asDragStartY - clientY;
   const newBpm = Math.round(_asDragStartBpm + deltaY / 2.5);
@@ -3566,7 +3582,7 @@ function _asHandlePressEnd() {
     _asLongPressActive = false;
     _asShowSpeedBadge(false);
   } else if (!_asMovedDuringPress) {
-    // Clean tap with no movement — toggle play/pause
+    // Clean tap with no meaningful movement — toggle play/pause
     toggleAutoscrollPlay();
   }
   _asMovedDuringPress = false;
@@ -6223,36 +6239,6 @@ function _startModalDrag(e, sheet) {
 </div>
 
 
-<!-- USER FILTER PORTAL MENU -->
-
-  <button onclick="setUserFilter('all')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:account-group" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
-    <span>All Roles</span>
-  </button>
-  <button onclick="setUserFilter('Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:crown" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
-    <span>Admin</span>
-  </button>
-  <button onclick="setUserFilter('Sub-Admin')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:account-tie" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
-    <span>Sub-Admin</span>
-  </button>
-  <button onclick="setUserFilter('Lead')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:account-star" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
-    <span>Lead</span>
-  </button>
-  <button onclick="setUserFilter('Musician')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:guitar-electric" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
-    <span>Musician</span>
-  </button>
-  <button onclick="setUserFilter('Singer')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:microphone" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
-    <span>Singer</span>
-  </button>
-  <button onclick="setUserFilter('Tech')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:8px 10px;text-align:left;font-size:13px;cursor:pointer;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
-    <iconify-icon icon="mdi:monitor" style="font-size:16px;color:var(--text-secondary);flex-shrink:0;"></iconify-icon>
-    <span>Tech</span>
-  </button>
 <!-- UPDATE AVAILABLE MODAL -->
 <div id="update-modal" class="modal-overlay center" style="display:none;z-index:10000;">
   <div class="modal-sheet center-card" style="max-width:340px;border-radius:20px;padding:24px;text-align:center;">
