@@ -224,13 +224,14 @@
     .ctrl-pill { display: flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 10px; color: var(--text-secondary); cursor: pointer; font-size: 12px; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth); white-space: nowrap; }
     .ctrl-pill:hover { background: var(--surface-3); border-color: var(--border-subtle); }
     .ctrl-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-soft); }
-    .autoscroll-slider { width: 100%; accent-color: var(--accent); }
-    input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
-    input[type=range]::-webkit-slider-runnable-track { -webkit-appearance: none; height: 4px; border-radius: 2px; }
-    input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--toggle-track); }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px var(--accent-glow); margin-top: -7px; }
-    input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px var(--accent-glow); border: none; }
-    input[type=range]::-moz-range-progress { background: var(--accent); height: 4px; border-radius: 2px; }
+    .autoscroll-slider { width: 100%; }
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 18px; background: transparent; outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-container { overflow: visible; }
+    input[type=range]::-webkit-slider-runnable-track { -webkit-appearance: none; height: 3px; border-radius: 2px; background: var(--toggle-track); }
+    input[type=range]::-moz-range-track { height: 3px; border-radius: 2px; background: var(--toggle-track); border: none; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.35); margin-top: -7.5px; }
+    input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.35); border: none; }
+    input[type=range]::-moz-range-progress { background: var(--accent); height: 3px; border-radius: 2px; }
     .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 14px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth); }
     .drag-zone.dragover { border-color: var(--accent); color: var(--accent); }
     .btn-primary { background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); border: none; border-radius: 12px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); min-height: 44px; box-shadow: 0 4px 16px rgba(100,40,40,0.18); }
@@ -1506,18 +1507,21 @@ button:active::after { background: rgba(255,255,255,0.12); }
 
     <!-- Fixed: private toggle -->
     <div id="private-setlist-section" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <iconify-icon icon="mdi:lock" style="font-size:16px;color:var(--text-muted);"></iconify-icon>
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+        <iconify-icon icon="mdi:lock" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
         <span style="color:var(--lyrics-color);font-size:14px;">Private Setlist</span>
       </div>
-      <label class="toggle-switch"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
+      <label class="toggle-switch" style="flex-shrink:0;margin-left:12px;"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
     </div>
 
     <!-- Fixed: custom-group toggle -->
     <div id="custom-group-section" style="flex-shrink:0;">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="color:var(--lyrics-color);font-size:14px;">Custom-Group Setlist</span>
-        <label class="toggle-switch"><input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span></label>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+          <iconify-icon icon="mdi:lightning-bolt" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
+          <span style="color:var(--lyrics-color);font-size:14px;">Custom-Group Setlist</span>
+        </div>
+        <label class="toggle-switch" style="flex-shrink:0;margin-left:12px;"><input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span></label>
       </div>
     </div>
 
@@ -3121,6 +3125,9 @@ function openSongSheet(songId, fromSetlist) {
   if (addSongFabEl) addSongFabEl.style.display = 'none';
   document.getElementById('fab-btn').style.display = 'none';
   updateAutoscrollFabPosition();
+  // Init slider value and fill colour on first show
+  const initSlider = document.getElementById('bpm-slider');
+  if (initSlider) { initSlider.value = _bpm; _updateSliderFill(); }
   updateZoomIndicator();
 }
 
@@ -3451,8 +3458,15 @@ function _updateSliderFill() {
   const min = parseInt(slider.min) || 20;
   const max = parseInt(slider.max) || 200;
   const val = parseInt(slider.value) || _bpm;
-  const pct = (((val - min) / (max - min)) * 100).toFixed(1);
-  slider.style.background = 'linear-gradient(to right, var(--accent) 0%, var(--accent) ' + pct + '%, var(--toggle-track) ' + pct + '%, var(--toggle-track) 100%)';
+  const pct = Math.round(((val - min) / (max - min)) * 100);
+  // Paint the track: accent colour left of thumb, muted right of thumb
+  // We target the runnable-track background via the input's own background
+  // which WebKit renders as the track surface
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c0392b';
+  const track  = getComputedStyle(document.documentElement).getPropertyValue('--toggle-track').trim() || '#3a2a2a';
+  slider.style.setProperty('background',
+    'linear-gradient(to right,' + accent + ' 0%,' + accent + ' ' + pct + '%,' + track + ' ' + pct + '%,' + track + ' 100%)',
+    'important');
 }
 
 // Slider moved while playing (or while paused, just updates the stored BPM)
