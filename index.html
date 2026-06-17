@@ -1254,10 +1254,17 @@ button:active::after { background: rgba(255,255,255,0.12); }
 <div id="tab-profile" class="tab-panel" style="padding:12px var(--view-px);">
   <!-- Header row matching other tabs -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="width:36px;flex-shrink:0;">
+      <button id="profile-close-btn" onclick="closeProfileView();" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;align-items:center;padding:8px;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Close">
+        <iconify-icon icon="mdi:arrow-left" style="font-size:20px;"></iconify-icon>
+      </button>
+    </div>
     <h2 style="color:var(--lyrics-color);font-size:18px;font-weight:700;margin:0;">My Profile</h2>
-    <button id="profile-admin-btn" onclick="switchTab('admin');" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;align-items:center;padding:8px;flex-shrink:0;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Admin Panel">
-      <iconify-icon icon="mdi:cog" style="font-size:20px;"></iconify-icon>
-    </button>
+    <div style="width:36px;flex-shrink:0;display:flex;justify-content:flex-end;">
+      <button id="profile-admin-btn" onclick="switchTab('admin');" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;align-items:center;padding:8px;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Admin Panel">
+        <iconify-icon icon="mdi:cog" style="font-size:20px;"></iconify-icon>
+      </button>
+    </div>
   </div>
 
   <!-- Hero section -->
@@ -2070,7 +2077,12 @@ function signOut() {
     if (el) el.style.display = 'none';
   });
   // Reset nav — sidebar rebuilt on next login
-  firebase.auth().signOut().catch(err => {
+  firebase.auth().signOut().then(() => {
+    _signingOut = false;
+    // onAuthStateChanged ignores this transition (guarded by _signingOut while the
+    // promise was pending), so explicitly show the sign-in screen here.
+    showAuthView();
+  }).catch(err => {
     _signingOut = false;
     console.error('Sign out error:', err);
   });
@@ -2424,7 +2436,6 @@ function buildNav() {
     + avatarHtml
     + '<div style="flex:1;min-width:0;">'
     + '<p style="margin:0;font-size:13px;font-weight:' + (profileActive ? '700' : '600') + ';color:' + (profileActive ? 'var(--accent-soft)' : 'var(--lyrics-color)') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + firstName + '</p>'
-    + '<p style="margin:0;font-size:11px;color:var(--text-muted);">' + escHtml(roles.join(' · ')) + '</p>'
     + '</div></button>'
     + adminBtnHtml
     + '</div></div>';
@@ -4621,11 +4632,9 @@ function renderUsersList() {
         ${isPending ? '<span style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;background:#f59e0b;border-radius:50%;border:2px solid var(--surface-1);display:flex;align-items:center;justify-content:center;"><iconify-icon icon=\'mdi:clock\' style=\'font-size:8px;color:#fff;\'></iconify-icon></span>' : ''}
       </div>
       <div style="flex:1;min-width:0;">
+        <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
           ${isPending ? '<span style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:700;">Pending</span>' : ''}
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;">
           ${renderUserBadges(u)}
         </div>
       </div>
@@ -4716,6 +4725,7 @@ function openUserDetail(uid) {
       <div style="flex:1;min-width:0;">
         <p style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;">${escHtml(u.displayName||'')}</p>
         <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">
+          ${isPending ? '<span style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:700;">Pending</span>' : ''}
           ${renderUserBadges(u)}
         </div>
       </div>
@@ -4750,6 +4760,8 @@ function openUserDetail(uid) {
         }).join('') + `</div>`}
   `;
   document.getElementById('users-list-panel').style.display = 'none';
+  const subtabsU = document.getElementById('users-subtabs');
+  if (subtabsU) subtabsU.style.display = 'none';
   detail.style.display = 'block';
   const navTitleU = document.getElementById('top-nav-title');
   if (navTitleU) navTitleU.textContent = u.displayName || 'User';
@@ -4839,6 +4851,12 @@ function closeSetlistFromUserDetail() {
 function closeUserDetail() {
   document.getElementById('user-detail-view').style.display = 'none';
   document.getElementById('users-list-panel').style.display = 'block';
+  const subtabsC = document.getElementById('users-subtabs');
+  if (subtabsC) {
+    const roleC = currentUserProfile?.role || 'Guest';
+    const rolesC = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [roleC];
+    subtabsC.style.display = rolesC.includes('Admin') ? 'block' : 'none';
+  }
   currentDetailUserId = null;
   updateHomeBtn(false);
 }
@@ -5208,6 +5226,8 @@ function populateProfileTab() {
   tutorialEnabled = p.showTutorial !== false;
   const adminBtn = document.getElementById('profile-admin-btn');
   if (adminBtn) adminBtn.style.display = roles.includes('Admin') ? 'flex' : 'none';
+  const closeBtn = document.getElementById('profile-close-btn');
+  if (closeBtn) closeBtn.style.display = (p.role === 'Guest') ? 'flex' : 'none';
   renderProfileSetlists();
   buildNav(); // refresh sidebar avatar/name
 }
