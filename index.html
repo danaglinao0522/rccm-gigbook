@@ -196,13 +196,14 @@
     .badge-musician { background: #c026d3; color:#fff; }
     .badge-singer { background: #db2777; color:#fff; }
     .badge-tech { background: #0891b2; color:#fff; }
+    .badge-guest { background: #374151; color:#9ca3af; }
     .toggle-switch { position: relative; width: 44px; height: 24px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-slider { position: absolute; inset: 0; background: var(--toggle-track); border-radius: 12px; cursor: pointer; transition: 0.3s var(--ease-smooth); }
     .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s var(--ease-smooth); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
     input:checked + .toggle-slider { background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); }
     input:checked + .toggle-slider:before { transform: translateX(20px); }
-    .fab { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom,0px)); right: 20px; width: 54px; height: 54px; border-radius: 50%; background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 18px rgba(80,20,20,0.22); cursor: pointer; z-index: 500; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); }
+    .fab { position: fixed; bottom: calc(80px + env(safe-area-inset-bottom,0px)); right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 18px rgba(80,20,20,0.32); cursor: pointer; z-index: 510; border: none; transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); }
     .fab:active { transform: scale(0.92); }
     .zoom-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-pill); background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 11px; font-weight: 600; min-width: 44px; justify-content: center; transition: color 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth); }
     .zoom-indicator-active { color: var(--accent-soft); border-color: var(--accent); background: var(--accent-glow); }
@@ -214,7 +215,11 @@
     .ctrl-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-soft); }
     .autoscroll-slider { width: 100%; accent-color: var(--accent); }
     input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); outline: none; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px var(--accent-glow); }
+    input[type=range]::-webkit-slider-runnable-track { -webkit-appearance: none; height: 4px; border-radius: 2px; background: var(--toggle-track); }
+    input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--toggle-track); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px var(--accent-glow); margin-top: -7px; }
+    input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 2px 6px var(--accent-glow); border: none; }
+    .autoscroll-slider::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--slider-pct, 50%), var(--toggle-track) var(--slider-pct, 50%), var(--toggle-track) 100%); }
     .drag-zone { border: 2px dashed var(--border-subtle); border-radius: 14px; padding: 20px; text-align: center; color:var(--text-muted); cursor: pointer; transition: border-color 0.2s var(--ease-smooth), color 0.2s var(--ease-smooth); }
     .drag-zone.dragover { border-color: var(--accent); color: var(--accent); }
     .btn-primary { background: var(--btn-primary-bg, linear-gradient(135deg, var(--accent-strong), var(--accent))); color: var(--btn-primary-text, #fff); border: none; border-radius: 12px; padding: 11px 18px; font-weight: 700; cursor: pointer; font-size: var(--btn-font-size); transition: opacity 0.2s var(--ease-smooth), transform 0.15s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth), background 0.3s var(--ease-smooth); min-height: 44px; box-shadow: 0 4px 16px rgba(100,40,40,0.18); }
@@ -681,6 +686,26 @@ button:active::after { background: rgba(255,255,255,0.12); }
   <div id="prev-account-chip" style="display:none;margin-top:20px;"></div>
 </div>
 
+<!-- PENDING APPROVAL SCREEN -->
+<div id="pending-approval-screen" style="display:none;position:fixed;inset:0;background:var(--canvas-bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;z-index:7500;text-align:center;">
+  <div style="width:88px;height:88px;border-radius:50%;background:var(--surface-2);border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 0 0 8px var(--accent-glow);">
+    <iconify-icon icon="mdi:clock-outline" style="font-size:44px;color:var(--accent);"></iconify-icon>
+  </div>
+  <h2 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin:0 0 10px;">Account Pending Approval</h2>
+  <p style="color:var(--text-secondary);font-size:14px;line-height:1.6;margin:0 0 8px;max-width:320px;">Your account has been registered and is awaiting approval from an Admin.</p>
+  <p style="color:var(--text-muted);font-size:13px;margin:0 0 32px;max-width:320px;">You'll get full access once your role is assigned. In the meantime, you can browse public setlists.</p>
+  <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;">
+    <button onclick="proceedAsGuest()" style="background:var(--btn-primary-bg);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <iconify-icon icon="mdi:playlist-music" style="font-size:18px;"></iconify-icon>
+      Continue as Guest
+    </button>
+    <button onclick="signOut()" style="background:transparent;border:1px solid var(--border-subtle);color:var(--text-secondary);border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">
+      Sign Out
+    </button>
+  </div>
+  <p id="pending-user-email" style="color:var(--text-muted);font-size:11px;margin-top:24px;"></p>
+</div>
+
 <!-- ONBOARDING MODAL -->
 <div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:7000;align-items:flex-end;justify-content:center;">
   <div style="background:var(--surface-1);border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:24px;max-height:90vh;overflow-y:auto;">
@@ -906,19 +931,42 @@ button:active::after { background: rgba(255,255,255,0.12); }
         
 
       <div id="setlists-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text-muted);">
-        <iconify-icon icon="mdi:playlist-music" style="font-size:48px;display:block;margin:0 auto 14px;opacity:0.4;"></iconify-icon>
-        <p style="font-size:15px;font-weight:600;margin:0 0 6px;color:var(--text-secondary);">No setlists yet</p>
-        <p style="font-size:13px;margin:0;">Create a setlist using the + button.</p>
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--surface-2);border:2px dashed var(--border-subtle);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <iconify-icon icon="mdi:playlist-music" style="font-size:34px;opacity:0.5;"></iconify-icon>
+        </div>
+        <p style="font-size:15px;font-weight:700;margin:0 0 6px;color:var(--text-secondary);">No setlists yet</p>
+        <p style="font-size:13px;margin:0 0 20px;line-height:1.5;">Create your first setlist by tapping the <strong style="color:var(--accent);">+</strong> button below.</p>
+        <button onclick="openCreateSetlistModal()" id="setlists-empty-create-btn" style="display:none;background:var(--accent-glow);border:1px solid var(--accent);color:var(--accent-soft);border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;">
+          <iconify-icon icon="mdi:playlist-plus" style="font-size:16px;vertical-align:middle;margin-right:6px;"></iconify-icon>
+          Create Setlist
+        </button>
       </div>
-      <div id="setlist-detail-view" style="display:none;"></div>
-    </div>
+      <div id="setlists-list" class="setlists-list-wrap"></div>
+    </div><!-- /setlists-list-view -->
+    <div id="setlist-detail-view" style="display:none;"></div>
 
     </div><!-- /tab-setlists -->
 <div id="tab-users" class="tab-panel" style="padding:12px var(--view-px);">
       <!-- Tab header -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;">
         <h1 style="color:var(--lyrics-color);font-size:22px;font-weight:700;margin:0;letter-spacing:-0.02em;">Team</h1>
       </div>
+
+      <!-- Admin sub-tabs: Approved / Unapproved -->
+      <div id="users-subtabs" style="display:none;margin-bottom:12px;">
+        <div style="display:flex;gap:4px;background:var(--surface-2);border-radius:var(--radius-pill);padding:4px;">
+          <button id="users-tab-approved-btn" onclick="switchUsersSubTab('approved')"
+            style="flex:1;padding:8px 6px;border-radius:var(--radius-pill);border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s var(--ease-smooth);background:linear-gradient(135deg,var(--accent-strong),var(--accent));color:#fff;box-shadow:0 2px 8px var(--accent-glow);">
+            <iconify-icon icon="mdi:account-check" style="font-size:15px;"></iconify-icon>Approved
+          </button>
+          <button id="users-tab-unapproved-btn" onclick="switchUsersSubTab('unapproved')"
+            style="flex:1;padding:8px 6px;border-radius:var(--radius-pill);border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s var(--ease-smooth);background:transparent;color:var(--text-secondary);">
+            <iconify-icon icon="mdi:account-clock" style="font-size:15px;"></iconify-icon>Pending
+            <span id="unapproved-count-badge" style="display:none;background:#ef4444;color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:800;min-width:16px;text-align:center;"></span>
+          </button>
+        </div>
+      </div>
+
       <div id="users-list-panel">
       <div class="search-row">
         <iconify-icon icon="mdi:magnify" class="search-icon"></iconify-icon>
@@ -1313,16 +1361,18 @@ button:active::after { background: rgba(255,255,255,0.12); }
 </div><!-- /app-root -->
 
 <!-- FAB -->
-<button id="fab-btn" class="fab" style="display:none;" onclick="handleFabClick()">+</button>
+<button id="fab-btn" class="fab" style="display:none;z-index:510;" onclick="handleFabClick()">
+  <iconify-icon id="fab-icon" icon="mdi:plus" style="font-size:26px;pointer-events:none;"></iconify-icon>
+</button>
 
 <!-- ADD SONG FAB (inside setlist detail) -->
-<button id="add-song-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;width:54px;height:54px;border-radius:50%;background:var(--btn-primary-bg,linear-gradient(135deg,var(--accent-strong),var(--accent)));color:var(--btn-primary-text,#fff);flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 14px rgba(80,20,20,0.22);cursor:pointer;z-index:500;border:none;transition:transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);" onclick="openSongSelectorModal()" title="Add Song">
+<button id="add-song-fab" style="display:none;position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));right:20px;width:56px;height:56px;border-radius:50%;background:var(--btn-primary-bg,linear-gradient(135deg,var(--accent-strong),var(--accent)));color:var(--btn-primary-text,#fff);flex-direction:row;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 18px rgba(80,20,20,0.32);cursor:pointer;z-index:510;border:none;transition:transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);" onclick="openSongSelectorModal()" title="Add Song">
   <iconify-icon icon="mdi:music-note-plus" style="font-size:24px;"></iconify-icon>
 </button>
 
 <!-- AUTOSCROLL FAB — floating button, vertical BPM slider pops up above it -->
 <!-- AUTOSCROLL CONTROL — single horizontal bar, always visible together: Play/Pause + BPM slider -->
-<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;z-index:500;align-items:center;">
+<div id="autoscroll-fab" style="display:none;position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));right:20px;z-index:510;align-items:center;">
   <div style="display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:27px;padding:6px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
     <!-- Play/Pause — the one clear primary action -->
     <button id="autoscroll-fab-btn" onclick="toggleAutoscrollPlay()" title="Start/stop auto-scroll"
@@ -1456,8 +1506,11 @@ button:active::after { background: rgba(255,255,255,0.12); }
     </div>
 
     <!-- Fixed: private toggle -->
-    <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <span style="color:var(--lyrics-color);font-size:14px;">Private Setlist</span>
+    <div id="private-setlist-section" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <iconify-icon icon="mdi:lock" style="font-size:16px;color:var(--text-muted);"></iconify-icon>
+        <span style="color:var(--lyrics-color);font-size:14px;">Private Setlist</span>
+      </div>
       <label class="toggle-switch"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
     </div>
 
@@ -1562,9 +1615,24 @@ button:active::after { background: rgba(255,255,255,0.12); }
           <label class="toggle-switch"><input type="checkbox" id="edit-can-add"><span class="toggle-slider"></span></label>
         </label>
       </div>
+
+      <!-- ABILITIES SECTION (Admin only) -->
+      <div id="edit-abilities-section" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;" onclick="toggleAbilitiesCollapse()">
+          <div class="section-label" style="margin-bottom:0;display:flex;align-items:center;gap:6px;">
+            <iconify-icon icon="mdi:shield-edit" style="font-size:14px;color:var(--accent-soft);"></iconify-icon>
+            Extra Abilities
+          </div>
+          <iconify-icon id="abilities-chevron" icon="mdi:chevron-down" style="font-size:16px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
+        </div>
+        <div id="edit-abilities-body" style="overflow:hidden;max-height:0;transition:max-height 0.3s ease;">
+          <div id="edit-abilities-container" style="display:flex;flex-direction:column;"></div>
+        </div>
+      </div>
+
       <div style="display:flex;gap:8px;margin-top:4px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeUserEditModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1;" onclick="saveUserEdit()">Save Changes</button>
+        <button id="user-edit-save-btn" class="btn-primary" style="flex:1;" onclick="saveUserEdit()">Save Changes</button>
       </div>
     </div>
   </div>
@@ -1816,6 +1884,20 @@ auth.onAuthStateChanged(async (user) => {
   }
 });
 
+function showPendingApprovalScreen() {
+  document.getElementById('splash-screen').style.display = 'none';
+  document.getElementById('auth-view').style.display = 'none';
+  const screen = document.getElementById('pending-approval-screen');
+  screen.style.display = 'flex';
+  const emailEl = document.getElementById('pending-user-email');
+  if (emailEl && currentUserProfile?.email) emailEl.textContent = 'Signed in as: ' + currentUserProfile.email;
+}
+
+function proceedAsGuest() {
+  document.getElementById('pending-approval-screen').style.display = 'none';
+  mountApp();
+}
+
 function showAuthView() {
   document.getElementById('splash-screen').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
@@ -1901,25 +1983,39 @@ async function initApp(user) {
       if (user.email === ADMIN_EMAIL) {
         await db.collection('users').doc(user.uid).set({
           uid: user.uid, email: user.email, displayName: user.displayName,
-          photoURL: user.photoURL, role: 'Admin', instruments: [],
+          photoURL: user.photoURL, role: 'Admin', roles: ['Admin'], instruments: [],
           canAddSongs: true, canDeleteSongs: true, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          showTutorial: true, maxSetlistsOverride: null
+          showTutorial: true, maxSetlistsOverride: null, approved: true, abilities: []
         });
         profileSnap = await db.collection('users').doc(user.uid).get();
         currentUserProfile = profileSnap.data();
         mountApp();
       } else {
-        const authView = document.getElementById('auth-view');
-        authView.style.display = 'none';
-        document.getElementById('splash-screen').style.display = 'none';
-        currentUserProfile = { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL };
-        showOnboarding();
+        // New user → assign Guest role, mark as unapproved, show pending screen
+        const profileData = {
+          uid: user.uid, email: user.email,
+          displayName: user.displayName, photoURL: user.photoURL,
+          role: 'Guest', roles: ['Guest'], instruments: [],
+          canAddSongs: false, canDeleteSongs: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          showTutorial: true, maxSetlistsOverride: null, approved: false, abilities: []
+        };
+        await db.collection('users').doc(user.uid).set(profileData);
+        currentUserProfile = profileData;
+        showPendingApprovalScreen();
       }
     } else {
       currentUserProfile = profileSnap.data();
       if (user.email === ADMIN_EMAIL && currentUserProfile.role !== 'Admin') {
-        await db.collection('users').doc(user.uid).update({ role: 'Admin' });
+        await db.collection('users').doc(user.uid).update({ role: 'Admin', roles: ['Admin'], approved: true });
         currentUserProfile.role = 'Admin';
+        currentUserProfile.roles = ['Admin'];
+        currentUserProfile.approved = true;
+      }
+      // Guest not yet approved → show pending screen
+      if (!currentUserProfile.approved && currentUserProfile.role === 'Guest' && user.email !== ADMIN_EMAIL) {
+        showPendingApprovalScreen();
+        return;
       }
       mountApp();
     }
@@ -2039,10 +2135,11 @@ async function confirmOnboarding() {
   const profileData = {
     uid: currentUser.uid, email: currentUser.email,
     displayName: currentUser.displayName, photoURL: currentUser.photoURL,
-    role: selectedOnboardingRole, instruments,
+    role: 'Guest', roles: ['Guest'], instruments,
     canAddSongs: false, canDeleteSongs: false,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    showTutorial: true, maxSetlistsOverride: null
+    showTutorial: true, maxSetlistsOverride: null,
+    approved: false, abilities: []
   };
   if (selectedOnboardingRole === 'Musician') {
     profileData.canSing = document.getElementById('ob-can-sing').checked;
@@ -2065,10 +2162,24 @@ function mountApp() {
   document.getElementById('splash-screen').style.display = 'none';
   document.getElementById('auth-view').style.display = 'none';
   document.getElementById('onboarding-modal').style.display = 'none';
+  const pendingScreen = document.getElementById('pending-approval-screen');
+  if (pendingScreen) pendingScreen.style.display = 'none';
   const appRoot = document.getElementById('app-root');
   appRoot.style.display = 'flex';
   appRoot.style.opacity = '0';
   document.getElementById('top-profile-pic') && (document.getElementById('top-profile-pic').src = currentUserProfile.photoURL || '');
+
+  const role = currentUserProfile?.role || 'Guest';
+  const isGuest = role === 'Guest';
+
+  // Guest starts on setlists, others on songs
+  if (isGuest) {
+    activeTab = 'setlists';
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const setlistsPanel = document.getElementById('tab-setlists');
+    if (setlistsPanel) setlistsPanel.classList.add('active');
+  }
+
   buildNav();
   setupListeners();
   checkDesktop();
@@ -2251,70 +2362,111 @@ function syncHeaderFilterDot() {
 }
 
 function buildNav() {
-  const role = currentUserProfile?.role || 'Musician';
+  const role = currentUserProfile?.role || 'Guest';
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
   const photoURL = escHtml(currentUserProfile?.photoURL || '');
   const displayName = escHtml(currentUserProfile?.displayName || 'My Profile');
   const firstName = displayName.split(' ')[0] || 'Profile';
-  let mainTabs = [
-    { id: 'songs',    icon: 'mdi:music-note',       label: 'Songs' },
-    { id: 'setlists', icon: 'mdi:playlist-music',    label: 'Setlists' },
-  ];
-  if (['Admin','Sub-Admin','Lead'].includes(role)) {
-    mainTabs.push({ id: 'users', icon: 'mdi:account-group', label: 'Team' });
-  }
-  const isAdmin = role === 'Admin';
+  const isGuest = role === 'Guest';
 
+  // Update hamburger vs profile button for Guest
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  if (hamburgerBtn) {
+    if (isGuest) {
+      if (photoURL) {
+        const img = document.createElement('img');
+        img.src = photoURL;
+        img.style.cssText = 'width:30px;height:30px;border-radius:50%;object-fit:cover;';
+        img.onerror = function() { this.replaceWith(Object.assign(document.createElement('iconify-icon'), {icon:'mdi:account-circle', style:'font-size:26px;'})); };
+        hamburgerBtn.innerHTML = '';
+        hamburgerBtn.appendChild(img);
+      } else {
+        hamburgerBtn.innerHTML = '<iconify-icon icon="mdi:account-circle" style="font-size:26px;"></iconify-icon>';
+      }
+      hamburgerBtn.title = 'My Profile';
+      hamburgerBtn.onclick = () => openProfileView();
+    } else {
+      hamburgerBtn.innerHTML = '<iconify-icon icon="mdi:menu" style="font-size:23px;"></iconify-icon>';
+      hamburgerBtn.title = 'Menu';
+      hamburgerBtn.onclick = () => toggleSidebar();
+    }
+  }
+
+  // Determine visible tabs
+  let mainTabs = [];
+  if (!isGuest) mainTabs.push({ id: 'songs', icon: 'mdi:music-note', label: 'Songs' });
+  mainTabs.push({ id: 'setlists', icon: 'mdi:playlist-music', label: 'Setlists' });
+
+  const canSeeUsers = roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) ||
+    abilities.includes('viewApprovedUsers') || abilities.includes('viewUnapprovedUsers');
+  if (!isGuest && canSeeUsers) mainTabs.push({ id: 'users', icon: 'mdi:account-group', label: 'Team' });
+
+  const isAdmin = roles.includes('Admin');
   const sidebarNav = document.getElementById('sidebar-nav');
   if (!sidebarNav) return;
+
+  if (isGuest) { sidebarNav.innerHTML = ''; return; }
 
   // Main nav items
   const mainHtml = mainTabs.map(t => {
     const isActive = t.id === activeTab;
     const activeBg = isActive ? 'var(--accent-glow)' : 'transparent';
     const activeColor = isActive ? 'var(--accent-soft)' : 'var(--text-secondary)';
-    return `<button id="sidebar-nav-${t.id}" onclick="switchTab('${t.id}');closeSidebar();"
-      style="display:flex;align-items:center;gap:12px;background:${activeBg};border:none;color:${activeColor};cursor:pointer;padding:11px 14px;border-radius:12px;width:100%;text-align:left;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);"
-      onmouseover="if(this.id!=='sidebar-nav-${activeTab}')this.style.background='var(--surface-2)'"
-      onmouseout="this.style.background='${activeBg}'">
-      <iconify-icon icon="${t.icon}" style="font-size:20px;flex-shrink:0;"></iconify-icon>
-      <span style="font-size:14px;font-weight:${isActive ? '700' : '500'};">${t.label}</span>
-      ${isActive ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent);"></span>' : ''}
-    </button>`;
+    const dotHtml = isActive ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent);"></span>' : '';
+    return '<button id="sidebar-nav-' + t.id + '" onclick="switchTab(\'' + t.id + '\');closeSidebar();"'
+      + ' style="display:flex;align-items:center;gap:12px;background:' + activeBg + ';border:none;color:' + activeColor + ';cursor:pointer;padding:11px 14px;border-radius:12px;width:100%;text-align:left;transition:background 0.15s;">'
+      + '<iconify-icon icon="' + t.icon + '" style="font-size:20px;flex-shrink:0;"></iconify-icon>'
+      + '<span style="font-size:14px;font-weight:' + (isActive ? '700' : '500') + ';">' + t.label + '</span>'
+      + dotHtml
+      + '</button>';
   }).join('');
 
-  // Profile row at the bottom with optional admin cog icon
+  // Profile row
   const profileActive = activeTab === 'profile';
   const adminActive = activeTab === 'admin';
   const avatarHtml = photoURL
-    ? `<img src="${photoURL}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid ${profileActive ? 'var(--accent)' : 'var(--border-subtle)'};flex-shrink:0;" onerror="this.outerHTML='<div style=\'width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;\'><iconify-icon icon=\'mdi:account\' style=\'font-size:18px;color:var(--text-secondary);\'></iconify-icon></div>'" />`
-    : `<div style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);border:2px solid ${profileActive ? 'var(--accent)' : 'var(--border-subtle)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><iconify-icon icon="mdi:account" style="font-size:18px;color:var(--text-secondary);"></iconify-icon></div>`;
+    ? '<img src="' + photoURL + '" id="sidebar-avatar-img" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid ' + (profileActive ? 'var(--accent)' : 'var(--border-subtle)') + ';flex-shrink:0;" />'
+    : '<div style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);border:2px solid ' + (profileActive ? 'var(--accent)' : 'var(--border-subtle)') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;"><iconify-icon icon="mdi:account" style="font-size:18px;color:var(--text-secondary);"></iconify-icon></div>';
 
-  const profileHtml = `
-    <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-color);">
-      <div style="display:flex;align-items:center;gap:4px;">
-        <button id="sidebar-nav-profile" onclick="switchTab('profile');closeSidebar();"
-          style="flex:1;display:flex;align-items:center;gap:10px;background:${profileActive ? 'var(--accent-glow)' : 'transparent'};border:none;color:${profileActive ? 'var(--accent-soft)' : 'var(--text-secondary)'};cursor:pointer;padding:10px 10px;border-radius:12px;text-align:left;transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);"
-          onmouseover="if(activeTab!=='profile')this.style.background='var(--surface-2)'"
-          onmouseout="this.style.background='${profileActive ? 'var(--accent-glow)' : 'transparent'}'">
-          ${avatarHtml}
-          <div style="flex:1;min-width:0;">
-            <p style="margin:0;font-size:13px;font-weight:${profileActive ? '700' : '600'};color:${profileActive ? 'var(--accent-soft)' : 'var(--lyrics-color)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${firstName}</p>
-            <p style="margin:0;font-size:11px;color:var(--text-muted);">${escHtml(role)}</p>
-          </div>
-        </button>
-        ${isAdmin ? `<button id="sidebar-nav-admin" onclick="switchTab('admin');closeSidebar();" title="Admin Panel"
-          style="width:38px;height:38px;border-radius:50%;background:${adminActive ? 'var(--accent-glow)' : 'var(--surface-2)'};border:1px solid ${adminActive ? 'var(--accent)' : 'var(--border-subtle)'};color:${adminActive ? 'var(--accent-soft)' : 'var(--text-secondary)'};cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s var(--ease-smooth);"
-          onmouseover="this.style.background='var(--surface-3)'"
-          onmouseout="this.style.background='${adminActive ? 'var(--accent-glow)' : 'var(--surface-2)'}'">
-          <iconify-icon icon="mdi:shield-crown" style="font-size:18px;"></iconify-icon>
-        </button>` : ''}
-      </div>
-    </div>`;
+  const adminBtnHtml = isAdmin
+    ? '<button id="sidebar-nav-admin" onclick="switchTab(\'admin\');closeSidebar();" title="Admin Panel"'
+      + ' style="width:38px;height:38px;border-radius:50%;background:' + (adminActive ? 'var(--accent-glow)' : 'var(--surface-2)') + ';border:1px solid ' + (adminActive ? 'var(--accent)' : 'var(--border-subtle)') + ';color:' + (adminActive ? 'var(--accent-soft)' : 'var(--text-secondary)') + ';cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;">'
+      + '<iconify-icon icon="mdi:shield-crown" style="font-size:18px;"></iconify-icon></button>'
+    : '';
+
+  const profileHtml = '<div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border-color);">'
+    + '<div style="display:flex;align-items:center;gap:4px;">'
+    + '<button id="sidebar-nav-profile" onclick="switchTab(\'profile\');closeSidebar();"'
+    + ' style="flex:1;display:flex;align-items:center;gap:10px;background:' + (profileActive ? 'var(--accent-glow)' : 'transparent') + ';border:none;color:' + (profileActive ? 'var(--accent-soft)' : 'var(--text-secondary)') + ';cursor:pointer;padding:10px;border-radius:12px;text-align:left;transition:background 0.15s;">'
+    + avatarHtml
+    + '<div style="flex:1;min-width:0;">'
+    + '<p style="margin:0;font-size:13px;font-weight:' + (profileActive ? '700' : '600') + ';color:' + (profileActive ? 'var(--accent-soft)' : 'var(--lyrics-color)') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + firstName + '</p>'
+    + '<p style="margin:0;font-size:11px;color:var(--text-muted);">' + escHtml(roles.join(' · ')) + '</p>'
+    + '</div></button>'
+    + adminBtnHtml
+    + '</div></div>';
 
   sidebarNav.innerHTML = mainHtml + profileHtml;
+
+  // Fix broken img onerror for sidebar avatar
+  if (photoURL) {
+    const avatarImg = document.getElementById('sidebar-avatar-img');
+    if (avatarImg) {
+      avatarImg.onerror = function() {
+        this.style.display = 'none';
+      };
+    }
+  }
 }
 
 function switchTab(tab) {
+  const role = currentUserProfile?.role || 'Guest';
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const isGuest = role === 'Guest';
+  // Guest can only access setlists and profile
+  if (isGuest && !['setlists','profile'].includes(tab)) return;
+
   closeSongSheet();
   closeSetlistDetail();
   closeAllDropdowns();
@@ -2324,6 +2476,13 @@ function switchTab(tab) {
   const panel = document.getElementById('tab-' + tab);
   if (panel) {
     panel.classList.add('active');
+  }
+
+  // Show/hide admin Users sub-tabs
+  const subtabs = document.getElementById('users-subtabs');
+  if (subtabs) {
+    const isAdmin = roles.includes('Admin');
+    subtabs.style.display = (tab === 'users' && isAdmin) ? 'block' : 'none';
   }
 
   // Populate profile data when switching to profile tab
@@ -2344,13 +2503,46 @@ function switchTab(tab) {
   buildNav(); // refresh sidebar active states
 }
 
+// Users sub-tab state
+let currentUsersSubTab = 'approved';
+
+function switchUsersSubTab(subtab) {
+  currentUsersSubTab = subtab;
+  const approvedBtn = document.getElementById('users-tab-approved-btn');
+  const unapprovedBtn = document.getElementById('users-tab-unapproved-btn');
+  if (approvedBtn && unapprovedBtn) {
+    if (subtab === 'approved') {
+      approvedBtn.style.background = 'linear-gradient(135deg,var(--accent-strong),var(--accent))';
+      approvedBtn.style.color = '#fff';
+      approvedBtn.style.boxShadow = '0 2px 8px var(--accent-glow)';
+      unapprovedBtn.style.background = 'transparent';
+      unapprovedBtn.style.color = 'var(--text-secondary)';
+      unapprovedBtn.style.boxShadow = 'none';
+    } else {
+      unapprovedBtn.style.background = 'linear-gradient(135deg,var(--accent-strong),var(--accent))';
+      unapprovedBtn.style.color = '#fff';
+      unapprovedBtn.style.boxShadow = '0 2px 8px var(--accent-glow)';
+      approvedBtn.style.background = 'transparent';
+      approvedBtn.style.color = 'var(--text-secondary)';
+      approvedBtn.style.boxShadow = 'none';
+    }
+  }
+  renderUsersList();
+}
+
 function updateFAB() {
   const role = currentUserProfile?.role || '';
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
   const fabEl = document.getElementById('fab-btn');
+  const fabIcon = document.getElementById('fab-icon');
   const addSongFab = document.getElementById('add-song-fab');
-  const canCreateSong = ['Admin','Sub-Admin','Lead'].includes(role);
-  // ALL users can create a setlist
-  const canCreateSetlist = !!currentUser;
+  // Setlist creation: Admin can create all types; Sub-Admin and Lead can create Public only
+  const canCreateSetlist = ['Admin','Sub-Admin','Lead'].includes(role) ||
+    roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) ||
+    (currentUserProfile?.canCreateSetlist === true);
+  const canCreateSong = ['Admin','Sub-Admin','Lead'].includes(role) ||
+    roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) ||
+    (currentUserProfile?.canAddSongs === true);
   const songSheetOpen = document.getElementById('song-sheet-view')?.style.display === 'block';
   const setlistDetailOpen = currentSetlistId !== null;
 
@@ -2358,12 +2550,17 @@ function updateFAB() {
   const onSetlistList = activeTab === 'setlists' && !setlistDetailOpen && !songSheetOpen;
   const showFab = (onSongList && canCreateSong) || (onSetlistList && canCreateSetlist);
   fabEl.style.display = showFab ? 'flex' : 'none';
+  // Update FAB icon based on context
+  if (fabIcon) {
+    fabIcon.setAttribute('icon', onSetlistList ? 'mdi:playlist-plus' : 'mdi:plus');
+  }
 
   // Add-Song FAB: only inside a setlist detail, when canEdit, under song limit, no song sheet
   if (addSongFab) {
     const setlist = allSetlists.find(s => s.id === currentSetlistId);
     const isOwner = setlist?.createdBy === currentUser?.uid;
-    const canEdit = isOwner || ['Admin','Sub-Admin','Lead'].includes(role);
+    const canEdit = isOwner || ['Admin','Sub-Admin','Lead'].includes(role) ||
+      roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r));
     const underLimit = setlist ? currentSetlistSongs.length < getSetlistSongLimit() : false;
     const showAddSong = setlistDetailOpen && !songSheetOpen && canEdit && underLimit;
     addSongFab.style.display = showAddSong ? 'flex' : 'none';
@@ -2382,10 +2579,28 @@ function handleFabClick() {
 function updateHomeBtn(show) {
   const backBtn = document.getElementById('home-btn');
   const hamburger = document.getElementById('hamburger-btn');
+  const role = currentUserProfile?.role || 'Guest';
+  const isGuest = role === 'Guest';
   const atSongsRoot = activeTab === 'songs' && !currentSongId && !currentSetlistId && !currentDetailUserId;
   const shouldShow = show && !atSongsRoot;
   if (backBtn) backBtn.style.display = shouldShow ? 'flex' : 'none';
-  if (hamburger) hamburger.style.display = shouldShow ? 'none' : 'flex';
+  if (hamburger) {
+    hamburger.style.display = shouldShow ? 'none' : 'flex';
+    // Keep Guest profile icon intact when back button hides
+    if (!shouldShow && isGuest) {
+      const photoURL = currentUserProfile?.photoURL || '';
+      hamburger.innerHTML = '';
+      if (photoURL) {
+        const img = document.createElement('img');
+        img.src = photoURL;
+        img.style.cssText = 'width:30px;height:30px;border-radius:50%;object-fit:cover;';
+        hamburger.appendChild(img);
+      } else {
+        hamburger.innerHTML = '<iconify-icon icon="mdi:account-circle" style="font-size:26px;"></iconify-icon>';
+      }
+      hamburger.onclick = () => openProfileView();
+    }
+  }
   // Hide floating search/filter on admin/profile tabs or when drilling into detail views
   const actions = document.getElementById('header-actions');
   const songSheetOpen = document.getElementById('song-sheet-view')?.style.display === 'block';
@@ -2448,12 +2663,23 @@ function setupListeners() {
   }, err => { console.error('Setlists listener:', err); hideSyncBar(); });
 
   const role = currentUserProfile?.role || '';
-  if (['Admin','Sub-Admin','Lead'].includes(role)) {
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  const canSeeUsers = roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) ||
+    abilities.includes('viewApprovedUsers') || abilities.includes('viewUnapprovedUsers');
+  if (canSeeUsers) {
     if (usersUnsubscribe) usersUnsubscribe();
     usersUnsubscribe = db.collection('users').onSnapshot(snap => {
       showSyncBar();
       allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderUsersList();
+      // Update pending badge
+      const unapprovedCount = allUsers.filter(u => u.approved === false && u.role === 'Guest' && u.email !== ADMIN_EMAIL).length;
+      const badge = document.getElementById('unapproved-count-badge');
+      if (badge) {
+        badge.textContent = unapprovedCount;
+        badge.style.display = unapprovedCount > 0 ? 'inline-block' : 'none';
+      }
       hideSyncBar();
     }, err => { console.error('Users listener:', err); hideSyncBar(); });
   }
@@ -2690,7 +2916,10 @@ function renderSongsList() {
     return;
   }
   if (emptyEl) emptyEl.style.display = 'none';
-  const isAdmin = (currentUserProfile?.role || '') === 'Admin';
+  const _roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [currentUserProfile?.role || ''];
+  const _abilities = currentUserProfile?.abilities || [];
+  const isAdmin = _roles.includes('Admin');
+  const canEdit = isAdmin || _roles.some(r => ['Sub-Admin','Lead'].includes(r)) || _abilities.includes('editSong');
   listEl.innerHTML = songs.map(song => {
     const fav = isFavourite(song.id);
     // Show the user's saved key for this song if it exists
@@ -2702,7 +2931,7 @@ function renderSongsList() {
       } catch(e) {}
     }
     const cardInner = `
-    <div class="song-card${isAdmin ? ' song-swipe-item' : ''}" onclick="openSongSheet('${song.id}')">
+    <div class="song-card${canEdit ? ' song-swipe-item' : ''}" onclick="openSongSheet('${song.id}')">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="flex:1;min-width:0;">
           <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(song.title)}</p>
@@ -2713,11 +2942,11 @@ function renderSongsList() {
           <button onclick="event.stopPropagation();toggleFavourite('${song.id}')" class="list-icon-btn" title="${fav ? 'Remove from Favourites' : 'Add to Favourites'}">
             <iconify-icon icon="${fav ? 'mdi:heart' : 'mdi:heart-outline'}" style="font-size:18px;color:${fav ? '#ef4444' : 'var(--text-muted)'};"></iconify-icon>
           </button>
-          ${canDeleteSong() && !isAdmin ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" class="list-icon-btn danger" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
+          ${canDeleteSong() && !canEdit ? `<button onclick="event.stopPropagation();deleteSong('${song.id}')" class="list-icon-btn danger" title="Delete"><iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon></button>` : ''}
         </div>
       </div>
     </div>`;
-    if (!isAdmin) return cardInner;
+    if (!canEdit) return cardInner;
     return `
     <div class="song-swipe-wrapper" data-song-id="${song.id}">
       <div class="song-swipe-bg-edit">
@@ -2731,13 +2960,16 @@ function renderSongsList() {
       ${cardInner}
     </div>`;
   }).join('');
-  // Attach swipe handlers for admin
-  if (isAdmin) initSongSwipe();
+  // Attach swipe handlers for editors
+  if (canEdit) initSongSwipe();
 }
 
 function canDeleteSong() {
   const role = currentUserProfile?.role || '';
-  return role === 'Admin' || role === 'Sub-Admin' || currentUserProfile?.canDeleteSongs === true;
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  return roles.some(r => ['Admin','Sub-Admin'].includes(r)) ||
+    currentUserProfile?.canDeleteSongs === true || abilities.includes('deleteSong');
 }
 
 // ─── ADMIN SONG SWIPE GESTURE ───────────────────────────────────────────────
@@ -3204,6 +3436,15 @@ function setAutoScroll(val) {
 function setBpmFromSlider(val) {
   _bpm = parseInt(val);
   _updateBpmDisplay();
+  // Update slider track fill
+  const slider = document.getElementById('bpm-slider');
+  if (slider) {
+    const min = parseInt(slider.min) || 20;
+    const max = parseInt(slider.max) || 200;
+    const pct = (((_bpm - min) / (max - min)) * 100).toFixed(1) + '%';
+    slider.style.setProperty('--slider-pct', pct);
+    slider.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${pct}, var(--toggle-track) ${pct}, var(--toggle-track) 100%)`;
+  }
   if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
 }
 
@@ -3222,6 +3463,16 @@ function toggleAutoscrollPlay() {
     startAutoScroll();
   }
   updateAutoscrollFabIcon();
+  // Init slider fill when opening
+  if (_bpmActive) {
+    const slider = document.getElementById('bpm-slider');
+    if (slider) {
+      const min = parseInt(slider.min) || 20;
+      const max = parseInt(slider.max) || 200;
+      const pct = (((_bpm - min) / (max - min)) * 100).toFixed(1) + '%';
+      slider.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${pct}, var(--toggle-track) ${pct}, var(--toggle-track) 100%)`;
+    }
+  }
 }
 
 function updateAutoscrollFabIcon() {
@@ -3419,7 +3670,10 @@ function _updateSaveSongBtn() {
 
 function openCreateSongModal() {
   const role = currentUserProfile?.role || '';
-  const canAdd = role === 'Admin' || role === 'Sub-Admin' || role === 'Lead' || currentUserProfile?.canAddSongs === true;
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  const canAdd = roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) ||
+    currentUserProfile?.canAddSongs === true || abilities.includes('addSong');
   if (!canAdd) { showAlert('Permission Denied', 'You do not have permission to add songs.', 'mdi:lock'); return; }
   document.getElementById('new-song-title').value = '';
   document.getElementById('new-song-artist').value = '';
@@ -3750,8 +4004,10 @@ async function saveSong() {
 // ============================================================
 function canSeeSetlist(setlist) {
   const role = currentUserProfile?.role || '';
-  // Only Admin sees every setlist regardless of type
-  if (role === 'Admin') return true;
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  // Admin sees every setlist
+  if (roles.includes('Admin') || abilities.includes('viewPrivateSetlists')) return true;
   // Custom group: only creator or whitelisted members
   if (setlist.isCustomGroup) {
     if (setlist.createdBy === currentUser?.uid) return true;
@@ -3765,6 +4021,12 @@ function canSeeSetlist(setlist) {
 }
 
 function renderSetlistsList() {
+  const role = currentUserProfile?.role || '';
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  const canCreateSetlist = roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) ||
+    abilities.includes('createPublicSetlist') || abilities.includes('canCreateSetlist');
+
   let setlists = allSetlists.filter(s => canSeeSetlist(s));
   if (setlistSearchQuery) {
     setlists = setlists.filter(s => (s.name||'').toLowerCase().includes(setlistSearchQuery));
@@ -3780,7 +4042,7 @@ function renderSetlistsList() {
   const listEl = document.getElementById('setlists-list');
   const emptyEl = document.getElementById('setlists-empty');
   if (setlists.length === 0) {
-    listEl.innerHTML = '';
+    if (listEl) listEl.innerHTML = '';
     if (emptyEl) {
       const isSearch = !!setlistSearchQuery;
       const filterLabels = { public: 'public', private: 'private', custom: 'custom group' };
@@ -3797,9 +4059,17 @@ function renderSetlistsList() {
       } else {
         icon = 'mdi:playlist-music';
         title = 'No setlists yet';
-        sub = 'Create a setlist using the + button.';
+        sub = canCreateSetlist ? 'Create your first setlist by tapping the + button below.' : 'Setlists created by your team will appear here.';
       }
-      emptyEl.innerHTML = `<iconify-icon icon="${icon}" style="font-size:48px;display:block;margin:0 auto 14px;opacity:0.4;"></iconify-icon><p style="font-size:15px;font-weight:600;margin:0 0 6px;color:var(--text-secondary);">${title}</p><p style="font-size:13px;margin:0;">${sub}</p>`;
+      // Update the existing styled empty element's inner content
+      const iconEl = emptyEl.querySelector('iconify-icon');
+      if (iconEl) iconEl.setAttribute('icon', icon);
+      const titleEl = emptyEl.querySelector('p:first-of-type');
+      if (titleEl) titleEl.textContent = title;
+      const subEl = emptyEl.querySelectorAll('p')[1];
+      if (subEl) subEl.textContent = sub;
+      const createBtn = document.getElementById('setlists-empty-create-btn');
+      if (createBtn) createBtn.style.display = canCreateSetlist && !isSearch && !isFiltered ? 'inline-flex' : 'none';
       emptyEl.style.display = 'block';
     }
     return;
@@ -3807,8 +4077,9 @@ function renderSetlistsList() {
   if (emptyEl) emptyEl.style.display = 'none';
   listEl.innerHTML = setlists.map(setlist => {
     const isOwner = setlist.createdBy === currentUser?.uid;
-    const role = currentUserProfile?.role || '';
-    const canEdit = isOwner || ['Admin','Sub-Admin'].includes(role);
+    const _roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [currentUserProfile?.role || ''];
+    const _abilities = currentUserProfile?.abilities || [];
+    const canEdit = isOwner || _roles.some(r => ['Admin','Sub-Admin'].includes(r)) || _abilities.includes('editSetlist') || _abilities.includes('deleteSetlist');
     const badgeHtml = setlist.isCustomGroup
       ? `<span class="privacy-badge badge-custom">⚡ Custom Group</span>`
       : setlist.isPrivate
@@ -3871,11 +4142,13 @@ function closeSetlistDetail() {
 
 function renderSetlistDetail(setlist) {
   const role = currentUserProfile?.role || '';
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
   const isOwner = setlist.createdBy === currentUser?.uid;
-  const canEdit = isOwner || ['Admin','Sub-Admin','Lead'].includes(role);
+  const canEdit = isOwner || roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) || abilities.includes('editSetlist');
+  const isTech = roles.includes('Tech');
   const detail = document.getElementById('setlist-detail-view');
   const songs = currentSetlistSongs.map(sid => allSongs.find(s => s.id === sid)).filter(Boolean);
-  const isTech = (currentUserProfile?.role || '') === 'Tech';
   detail.innerHTML = `
     <div style="margin-bottom:12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -3924,8 +4197,9 @@ async function loadSetlistCreator(uid) {
     if (!snap.exists) return;
     const d = snap.data();
     const myRole = currentUserProfile?.role || '';
+    const myRoles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [myRole];
     const isOwner = uid === currentUser?.uid;
-    const canManage = isOwner || myRole === 'Admin';
+    const canManage = isOwner || myRoles.includes('Admin');
     const setlist = allSetlists.find(s => s.id === currentSetlistId);
     const isCustomGroup = setlist?.isCustomGroup;
     document.getElementById('setlist-creator-info').innerHTML = `
@@ -4176,8 +4450,14 @@ async function addSongToSetlist(songId) {
 // ============================================================
 function openCreateSetlistModal() {
   const role = currentUserProfile?.role || '';
-  if (role === 'Tech') {
-    showAlert('Permission Denied', 'Tech team members cannot create setlists.', 'mdi:lock');
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  const canCreatePublic = roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) || abilities.includes('createPublicSetlist') || abilities.includes('canCreateSetlist');
+  const canCreatePrivate = roles.includes('Admin') || abilities.includes('createPrivateSetlist');
+  const canCreateCustom = roles.includes('Admin') || abilities.includes('createCustomSetlist');
+
+  if (!canCreatePublic && !canCreatePrivate && !canCreateCustom) {
+    showAlert('Permission Denied', 'You do not have permission to create setlists.', 'mdi:lock');
     return;
   }
   document.getElementById('new-setlist-name').value = '';
@@ -4189,10 +4469,15 @@ function openCreateSetlistModal() {
   selectedCustomMembers = [];
   const scm = document.getElementById('selected-custom-members');
   if (scm) scm.innerHTML = '';
-  // Only Admin, Sub-Admin, Lead can create custom group setlists
-  const canCustom = ['Admin','Sub-Admin','Lead'].includes(role);
+
+  // Show/hide private option based on role
+  const privateSection = document.getElementById('private-setlist-section');
+  if (privateSection) privateSection.style.display = canCreatePrivate ? 'block' : 'none';
+
+  // Show/hide custom group option
   const cgSection = document.getElementById('custom-group-section');
-  if (cgSection) cgSection.style.display = canCustom ? 'block' : 'none';
+  if (cgSection) cgSection.style.display = canCreateCustom ? 'block' : 'none';
+
   document.getElementById('create-setlist-modal').style.display = 'flex';
   pushState();
 }
@@ -4300,62 +4585,103 @@ function renderUsersList() {
   const search = (document.getElementById('user-search-input')?.value || '').toLowerCase();
   const filter = userFilterActive;
   const role = currentUserProfile?.role || '';
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  const isAdmin = roles.includes('Admin');
+  const canSeeUnapproved = isAdmin || abilities.includes('viewUnapprovedUsers');
+
   let users = allUsers.filter(u => {
+    // Admin sub-tab filtering
+    if (isAdmin) {
+      if (currentUsersSubTab === 'approved') {
+        if (!u.approved && u.role === 'Guest') return false;
+      } else {
+        // unapproved sub-tab: only show unapproved Guest accounts
+        if (u.approved !== false || u.role !== 'Guest') return false;
+        if (u.email === ADMIN_EMAIL) return false;
+      }
+    } else if (canSeeUnapproved) {
+      // Non-admin with ability can see unapproved
+      if (!u.approved && u.role === 'Guest') return false; // hide in normal view unless sub-tab
+    } else {
+      // Sub-Admin, Lead: only approved users
+      if (!u.approved && u.role === 'Guest') return false;
+    }
     const matchSearch = (u.displayName||'').toLowerCase().includes(search) || (u.email||'').toLowerCase().includes(search);
-    const matchFilter = filter === 'all' || u.role === filter;
+    const matchFilter = filter === 'all' || u.role === filter || (Array.isArray(u.roles) && u.roles.includes(filter));
     return matchSearch && matchFilter;
   });
+
+  // Update unapproved count badge
+  const unapprovedCount = allUsers.filter(u => u.approved === false && u.role === 'Guest' && u.email !== ADMIN_EMAIL).length;
+  const badge = document.getElementById('unapproved-count-badge');
+  if (badge) {
+    badge.textContent = unapprovedCount;
+    badge.style.display = unapprovedCount > 0 ? 'inline-block' : 'none';
+  }
+
   const listEl = document.getElementById('users-list');
   const usersEmptyEl = document.getElementById('users-empty');
   if (!listEl) return;
   if (usersEmptyEl) usersEmptyEl.style.display = users.length === 0 ? 'block' : 'none';
   if (users.length === 0) { listEl.innerHTML = ''; return; }
+
+  const canEditAny = roles.some(r => ['Admin','Sub-Admin'].includes(r)) || abilities.includes('approveUsers') || abilities.includes('changeUserRole');
+  const canDeleteAny = isAdmin || abilities.includes('deleteUsers');
+
   listEl.innerHTML = users.map(u => {
     const instruments = (u.instruments||[]).join(', ');
     const isAdminUser = u.email === ADMIN_EMAIL;
-    const canEdit = (role === 'Admin' || role === 'Sub-Admin') && !isAdminUser;
-    const canDelete = role === 'Admin' && !isAdminUser;
+    const canEdit = canEditAny && !isAdminUser;
+    const canDelete = canDeleteAny && !isAdminUser;
+    const isPending = u.approved === false;
     return `
     <div class="user-row" onclick="openUserDetail('${u.uid}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;">
-      <img src="${escHtml(u.photoURL||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--surface-2);flex-shrink:0;" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
+      <div style="position:relative;flex-shrink:0;">
+        <img src="${escHtml(u.photoURL||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--surface-2);" onerror="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--surface-2')" />
+        ${isPending ? '<span style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;background:#f59e0b;border-radius:50%;border:2px solid var(--surface-1);display:flex;align-items:center;justify-content:center;"><iconify-icon icon=\'mdi:clock\' style=\'font-size:8px;color:#fff;\'></iconify-icon></span>' : ''}
+      </div>
       <div style="flex:1;min-width:0;">
-        <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <p style="color:var(--lyrics-color);font-size:14px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.displayName||'')}</p>
+          ${isPending ? '<span style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:700;">Pending</span>' : ''}
+        </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;">
           ${renderUserBadges(u)}
         </div>
       </div>
-      ${canEdit ? `<div style="display:flex;align-items:center;gap:0;flex-shrink:0;" onclick="event.stopPropagation()">
-        <button onclick="openUserEditModal('${u.uid}')" class="list-icon-btn" title="Edit User">
+      <div style="display:flex;align-items:center;gap:0;flex-shrink:0;" onclick="event.stopPropagation()">
+        ${isPending && isAdmin ? `<button onclick="approveUser('${u.uid}')" class="list-icon-btn" title="Approve User" style="color:#34d399;">
+          <iconify-icon icon="mdi:account-check" style="font-size:18px;"></iconify-icon>
+        </button>` : ''}
+        ${canEdit ? `<button onclick="openUserEditModal('${u.uid}')" class="list-icon-btn" title="Edit User">
           <iconify-icon icon="mdi:pencil" style="font-size:18px;"></iconify-icon>
-        </button>
+        </button>` : ''}
         ${canDelete ? `<button onclick="deleteUser('${u.uid}')" class="list-icon-btn danger" title="Delete User">
           <iconify-icon icon="mdi:delete" style="font-size:18px;"></iconify-icon>
         </button>` : ''}
-      </div>` : ''}
+      </div>
     </div>`;
   }).join('');
 }
 
 function getRoleBadgeClass(role) {
-  const map = { 'Admin':'badge-admin','Sub-Admin':'badge-subadmin','Lead':'badge-lead','Musician':'badge-musician','Singer':'badge-singer','Tech':'badge-tech' };
-  return map[role] || 'badge-musician';
+  const map = { 'Admin':'badge-admin','Sub-Admin':'badge-subadmin','Lead':'badge-lead','Musician':'badge-musician','Singer':'badge-singer','Tech':'badge-tech','Guest':'badge-guest' };
+  return map[role] || 'badge-guest';
 }
 
 // Build smart badge list: show instruments, singer, tech — NOT Musician badge
 function renderUserBadges(u) {
-  const primaryRole = u.role || '';
-  // Support multi-role array saved by edit modal
-  const allRoles = Array.isArray(u.roles) ? u.roles : (primaryRole ? [primaryRole] : []);
+  const primaryRole = u.role || 'Guest';
+  const allRoles = Array.isArray(u.roles) ? u.roles : (primaryRole ? [primaryRole] : ['Guest']);
   const instruments = u.instruments || [];
-  // canSing: explicit flag OR Singer in roles
-  const canSing = u.canSing || allRoles.includes('Singer');
-  // isAlsoTech: explicit flag OR Tech in roles
-  const isAlsoTech = u.isAlsoTech || allRoles.includes('Tech');
   let badges = [];
-  // Admin / Sub-Admin / Lead always show their role badge
-  ['Admin','Sub-Admin','Lead'].forEach(r => {
+  // Show all role badges
+  const ALL_ROLES = ['Admin','Sub-Admin','Lead','Musician','Singer','Tech','Guest'];
+  ALL_ROLES.forEach(r => {
     if (allRoles.includes(r)) {
-      badges.push(`<span class="role-badge ${getRoleBadgeClass(r)}">${escHtml(r)}</span>`);
+      const icons = { Admin:'mdi:shield-crown', 'Sub-Admin':'mdi:shield-half-full', Lead:'mdi:account-star', Musician:'mdi:music', Singer:'mdi:microphone', Tech:'mdi:monitor', Guest:'mdi:clock-outline' };
+      badges.push(`<span class="role-badge ${getRoleBadgeClass(r)}"><iconify-icon icon="${icons[r]||'mdi:account'}" style="font-size:10px;margin-right:3px;vertical-align:middle;"></iconify-icon>${escHtml(r)}</span>`);
     }
   });
   // Instruments as tags
@@ -4363,15 +4689,7 @@ function renderUserBadges(u) {
     const icons = { Guitar: 'mdi:guitar-electric', Keyboard: 'mdi:piano', Djembe: 'mdi:drum' };
     badges.push(`<span class="instrument-tag"><iconify-icon icon="${icons[inst]||'mdi:music'}" style="font-size:11px;margin-right:3px;"></iconify-icon>${escHtml(inst)}</span>`);
   });
-  // Singer badge
-  if (canSing) {
-    badges.push(`<span class="role-badge badge-singer"><iconify-icon icon="mdi:microphone" style="font-size:10px;margin-right:3px;"></iconify-icon>Singer</span>`);
-  }
-  // Tech badge
-  if (isAlsoTech) {
-    badges.push(`<span class="role-badge badge-tech"><iconify-icon icon="mdi:monitor" style="font-size:10px;margin-right:3px;"></iconify-icon>Tech</span>`);
-  }
-  if (badges.length === 0) badges.push(`<span class="role-badge badge-musician">${escHtml(primaryRole||'Musician')}</span>`);
+  if (badges.length === 0) badges.push(`<span class="role-badge badge-guest">Guest</span>`);
   return badges.join('');
 }
 
@@ -4402,9 +4720,13 @@ function openUserDetail(uid) {
   if (!u) return;
   currentDetailUserId = uid;
   const myRole = currentUserProfile?.role || '';
+  const myRoles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [myRole];
+  const myAbilities = currentUserProfile?.abilities || [];
   const isAdminUser = u.email === ADMIN_EMAIL;
-  const canEdit = (myRole === 'Admin' || myRole === 'Sub-Admin') && !isAdminUser;
-  const canDelete = myRole === 'Admin' && !isAdminUser;
+  const isAdmin = myRoles.includes('Admin');
+  const canEdit = (myRoles.some(r => ['Admin','Sub-Admin'].includes(r)) || myAbilities.includes('changeUserRole')) && !isAdminUser;
+  const canDelete = (isAdmin || myAbilities.includes('deleteUsers')) && !isAdminUser;
+  const isPending = u.approved === false;
   // Setlists created by this user that the current viewer can see
   const userSetlists = allSetlists.filter(s => s.createdBy === uid && canSeeSetlist(s));
   const instruments = (u.instruments||[]).join(', ');
@@ -4596,6 +4918,44 @@ async function deleteUser(uid) {
   try { await db.collection('users').doc(uid).delete(); } catch(e) { console.error(e); }
 }
 
+async function approveUser(uid) {
+  const u = allUsers.find(x => x.uid === uid);
+  if (!u) return;
+  const role = currentUserProfile?.role || '';
+  const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
+  const abilities = currentUserProfile?.abilities || [];
+  const isAdmin = roles.includes('Admin') || abilities.includes('approveUsers');
+  if (!isAdmin) { showAlert('Permission Denied', 'Only Admin can approve users.', 'mdi:lock'); return; }
+  // Open the edit modal to let Admin assign a role when approving
+  openUserEditModalForApproval(uid);
+}
+
+function openUserEditModalForApproval(uid) {
+  openUserEditModal(uid);
+  // Show a banner inside the modal
+  const modal = document.getElementById('user-edit-modal');
+  if (!modal) return;
+  let banner = document.getElementById('approval-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'approval-banner';
+    banner.style.cssText = 'background:#f59e0b22;border:1px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:12px;color:#f59e0b;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;';
+    banner.innerHTML = '<iconify-icon icon="mdi:account-clock" style="font-size:18px;flex-shrink:0;"></iconify-icon><span>Assign a role to approve this account</span>';
+    const handle = modal.querySelector('.modal-handle');
+    if (handle && handle.nextSibling) {
+      handle.parentNode.insertBefore(banner, handle.nextSibling);
+    }
+  } else {
+    banner.style.display = 'flex';
+  }
+  // Override save to also approve
+  const saveBtn = document.getElementById('user-edit-save-btn');
+  if (saveBtn) {
+    saveBtn.textContent = 'Approve & Save';
+    saveBtn.dataset.approving = uid;
+  }
+}
+
 // ============================================================
 // USER EDIT MODAL
 // ============================================================
@@ -4603,15 +4963,17 @@ function openUserEditModal(uid) {
   const user = allUsers.find(u => u.uid === uid);
   if (!user) return;
   currentEditUserId = uid;
-  const role = currentUserProfile?.role || '';
+  const myRole = currentUserProfile?.role || '';
+  const myRoles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [myRole];
+  const isAdmin = myRoles.includes('Admin');
   document.getElementById('edit-user-pic').src = user.photoURL || '';
   document.getElementById('edit-user-name').textContent = user.displayName || '';
   document.getElementById('edit-user-email').textContent = maskEmail(user.email || '');
   const isAdminTarget = user.email === ADMIN_EMAIL;
-  const canEditRole = role === 'Admin' && !isAdminTarget;
+  const canEditRole = isAdmin && !isAdminTarget;
   // Initialise selected roles from the user's current roles array (or single role field)
   const userRoles = Array.isArray(user.roles) ? user.roles
-    : (user.role ? [user.role] : ['Musician']);
+    : (user.role ? [user.role] : ['Guest']);
   _selectedEditRoles = new Set(userRoles);
   // Build role toggle buttons
   const roleSection = document.getElementById('edit-role-section');
@@ -4627,8 +4989,60 @@ function openUserEditModal(uid) {
   document.getElementById('edit-max-setlists').value = user.maxSetlistsOverride ?? '';
   document.getElementById('edit-can-delete').checked = user.canDeleteSongs || false;
   document.getElementById('edit-can-add').checked = user.canAddSongs || false;
+
+  // Build abilities section (Admin only)
+  const abilitiesSection = document.getElementById('edit-abilities-section');
+  if (abilitiesSection) {
+    if (isAdmin && !isAdminTarget) {
+      abilitiesSection.style.display = 'block';
+      _renderAbilityToggles(user.abilities || []);
+    } else {
+      abilitiesSection.style.display = 'none';
+    }
+  }
+
+  // Reset approval banner
+  const banner = document.getElementById('approval-banner');
+  if (banner) banner.style.display = 'none';
+  const saveBtn = document.getElementById('user-edit-save-btn');
+  if (saveBtn) { saveBtn.textContent = 'Save Changes'; delete saveBtn.dataset.approving; }
+
   document.getElementById('user-edit-modal').style.display = 'flex';
   pushState();
+}
+
+const ALL_ABILITIES = [
+  { id: 'viewApprovedUsers',   label: 'View Approved Users',   icon: 'mdi:account-eye' },
+  { id: 'viewUnapprovedUsers', label: 'View Pending Users',    icon: 'mdi:account-clock' },
+  { id: 'approveUsers',        label: 'Approve Users',         icon: 'mdi:account-check' },
+  { id: 'changeUserRole',      label: 'Change User Role',      icon: 'mdi:account-cog' },
+  { id: 'grantAbilities',      label: 'Grant/Revoke Abilities',icon: 'mdi:shield-edit' },
+  { id: 'deleteUsers',         label: 'Delete Users',          icon: 'mdi:account-remove' },
+  { id: 'addSong',             label: 'Add Song',              icon: 'mdi:music-note-plus' },
+  { id: 'editSong',            label: 'Edit Song',             icon: 'mdi:pencil' },
+  { id: 'deleteSong',          label: 'Delete Song',           icon: 'mdi:delete' },
+  { id: 'createPublicSetlist', label: 'Create Public Setlist', icon: 'mdi:earth' },
+  { id: 'createPrivateSetlist',label: 'Create Private Setlist',icon: 'mdi:lock' },
+  { id: 'createCustomSetlist', label: 'Create Custom Setlist', icon: 'mdi:lightning-bolt' },
+  { id: 'editSetlist',         label: 'Edit Setlist',          icon: 'mdi:playlist-edit' },
+  { id: 'deleteSetlist',       label: 'Delete Setlist',        icon: 'mdi:playlist-remove' },
+  { id: 'canCreateSetlist',    label: 'Create Any Setlist',    icon: 'mdi:playlist-plus' },
+  { id: 'accessAdminSettings', label: 'Access Admin Settings', icon: 'mdi:cog' }
+];
+
+function _renderAbilityToggles(userAbilities) {
+  const container = document.getElementById('edit-abilities-container');
+  if (!container) return;
+  container.innerHTML = ALL_ABILITIES.map(a => {
+    const isActive = userAbilities.includes(a.id);
+    return `<label style="display:flex;align-items:center;justify-content:space-between;padding:8px 4px;border-bottom:1px solid var(--border-color);cursor:pointer;gap:8px;" title="${a.label}">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+        <iconify-icon icon="${a.icon}" style="font-size:16px;color:var(--accent-soft);flex-shrink:0;"></iconify-icon>
+        <span style="color:var(--lyrics-color);font-size:13px;">${a.label}</span>
+      </div>
+      <label class="toggle-switch" style="flex-shrink:0;"><input type="checkbox" value="${a.id}" ${isActive ? 'checked' : ''} /><span class="toggle-slider"></span></label>
+    </label>`;
+  }).join('');
 }
 
 function toggleEditInstrument(inst) {
@@ -4655,15 +5069,29 @@ function _renderEditInstrumentToggles() {
 
 let _selectedEditRoles = new Set(['Musician']);
 
+function toggleAbilitiesCollapse() {
+  const body = document.getElementById('edit-abilities-body');
+  const chevron = document.getElementById('abilities-chevron');
+  if (!body) return;
+  const isOpen = body.style.maxHeight !== '0px' && body.style.maxHeight !== '';
+  if (isOpen) {
+    body.style.maxHeight = '0';
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  } else {
+    body.style.maxHeight = '600px';
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+  }
+}
+
 function _renderEditRoleToggles() {
   const rolesContainer = document.getElementById('edit-role-toggles');
   if (!rolesContainer) return;
-  const roleOptions = ['Musician', 'Singer', 'Tech', 'Lead', 'Sub-Admin'];
-  const colorMap = { Musician:'#d97706', Singer:'#db2777', Tech:'#0891b2', Lead:'#059669', 'Sub-Admin':'#2563eb' };
+  const roleOptions = ['Guest', 'Musician', 'Singer', 'Tech', 'Lead', 'Sub-Admin'];
+  const colorMap = { Guest:'#6b7280', Musician:'#d97706', Singer:'#db2777', Tech:'#0891b2', Lead:'#059669', 'Sub-Admin':'#2563eb' };
   rolesContainer.innerHTML = roleOptions.map(r => {
     const isActive = _selectedEditRoles.has(r);
     const col = colorMap[r] || 'var(--text-muted)';
-    return `<button onclick="selectEditRole('${r}')" id="edit-role-btn-${r.replace('-','_')}"
+    return `<button onclick="selectEditRole('${r}')" id="edit-role-btn-${r.replace('-','_').replace(' ','_')}"
       style="padding:6px 14px;border-radius:999px;border:2px solid ${isActive ? col : 'var(--border-color)'};background:${isActive ? col + '22' : 'transparent'};color:${isActive ? col : 'var(--text-secondary)'};font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;">
       ${isActive ? '<iconify-icon icon="mdi:check" style="font-size:11px;margin-right:4px;vertical-align:middle;"></iconify-icon>' : ''}${r}
     </button>`;
@@ -4700,9 +5128,12 @@ async function saveUserEdit() {
   if (!currentEditUserId) return;
   const user = allUsers.find(u => u.uid === currentEditUserId);
   const myRole = currentUserProfile?.role || '';
+  const myRoles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [myRole];
+  const myAbilities = currentUserProfile?.abilities || [];
   const isAdminTarget = user?.email === ADMIN_EMAIL;
+  const isAdmin = myRoles.includes('Admin');
   // Validate: at least one role
-  if (myRole === 'Admin' && !isAdminTarget && _selectedEditRoles.size === 0) {
+  if (isAdmin && !isAdminTarget && _selectedEditRoles.size === 0) {
     const warn = document.getElementById('edit-role-warning');
     if (warn) warn.style.display = 'block';
     return;
@@ -4712,24 +5143,46 @@ async function saveUserEdit() {
   if (document.getElementById('edit-keyboard').checked) instruments.push('Keyboard');
   if (document.getElementById('edit-djembe').checked) instruments.push('Djembe');
   const maxVal = document.getElementById('edit-max-setlists').value;
+
+  // Collect ability toggles
+  const abilityCheckboxes = document.querySelectorAll('#edit-abilities-container input[type=checkbox]');
+  const selectedAbilities = [];
+  abilityCheckboxes.forEach(cb => { if (cb.checked) selectedAbilities.push(cb.value); });
+
   const updates = {
     instruments,
     canDeleteSongs: document.getElementById('edit-can-delete').checked,
     canAddSongs: document.getElementById('edit-can-add').checked,
-    maxSetlistsOverride: maxVal ? parseInt(maxVal) : null
+    maxSetlistsOverride: maxVal ? parseInt(maxVal) : null,
+    abilities: selectedAbilities
   };
-  if (myRole === 'Admin' && !isAdminTarget) {
+  if (isAdmin && !isAdminTarget) {
     const rolesArr = [..._selectedEditRoles];
-    // Primary role = first in array (for badge display); store full array too
     updates.role = rolesArr[0];
     updates.roles = rolesArr;
-    // Derive convenience flags from roles
     updates.canSing = rolesArr.includes('Singer');
     updates.isAlsoTech = rolesArr.includes('Tech');
+    // Approving: if they were Guest/pending, mark as approved
+    if (user?.approved === false || user?.role === 'Guest') {
+      updates.approved = true;
+    }
   }
+
+  // Check if this was an approval action
+  const saveBtn = document.getElementById('user-edit-save-btn');
+  const approving = saveBtn?.dataset?.approving;
+  if (approving && isAdmin) {
+    updates.approved = true;
+  }
+
   try {
     await db.collection('users').doc(currentEditUserId).update(updates);
+    if (saveBtn) { saveBtn.textContent = 'Save Changes'; delete saveBtn.dataset.approving; }
+    const banner = document.getElementById('approval-banner');
+    if (banner) banner.style.display = 'none';
     closeUserEditModal();
+    // Switch back to approved sub-tab after approving
+    if (updates.approved) switchUsersSubTab('approved');
   } catch(e) { console.error(e); }
 }
 
@@ -4759,15 +5212,23 @@ function populateProfileTab() {
   }
   const nameEl = document.getElementById('profile-view-name');
   if (nameEl) nameEl.textContent = p.displayName || '';
+  const roles = Array.isArray(p.roles) ? p.roles : (p.role ? [p.role] : ['Guest']);
   const roleBadge = document.getElementById('profile-view-role-badge');
-  if (roleBadge) { roleBadge.className = 'role-badge ' + getRoleBadgeClass(p.role); roleBadge.textContent = p.role || ''; }
+  if (roleBadge) {
+    roleBadge.className = 'role-badge ' + getRoleBadgeClass(roles[0]);
+    roleBadge.textContent = roles.join(' · ');
+    if (p.approved === false) {
+      roleBadge.textContent = '⏳ Pending Approval';
+      roleBadge.className = 'role-badge badge-guest';
+    }
+  }
   const instInline = document.getElementById('profile-view-instruments-inline');
   if (instInline) instInline.textContent = (p.instruments||[]).length ? (p.instruments||[]).join(' · ') : '';
   const tutToggle = document.getElementById('tutorial-toggle');
   if (tutToggle) { tutToggle.checked = p.showTutorial !== false; }
   tutorialEnabled = p.showTutorial !== false;
   const adminBtn = document.getElementById('profile-admin-btn');
-  if (adminBtn) adminBtn.style.display = (p.role === 'Admin') ? 'flex' : 'none';
+  if (adminBtn) adminBtn.style.display = roles.includes('Admin') ? 'flex' : 'none';
   renderProfileSetlists();
   buildNav(); // refresh sidebar avatar/name
 }
@@ -4806,7 +5267,8 @@ function closeProfileAndOpenSetlist(id) {
 }
 
 function closeProfileView() {
-  switchTab('songs');
+  const role = currentUserProfile?.role || 'Guest';
+  switchTab(role === 'Guest' ? 'setlists' : 'songs');
 }
 
 async function saveTutorialPref(val) {
