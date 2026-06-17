@@ -296,7 +296,7 @@
       .modal-sheet.center-card { max-width: 480px; }
       #bottom-nav { justify-content: center; }
 
-      /* Admin panel: 2-column grid for Song Limit, Custom Theme (includes Theme Presets), Typography */
+      /* Admin panel: 2-column grid for Song Limit, Theme Presets, Custom Theme, Typography */
       #admin-sections-grid {
         display: grid !important;
         grid-template-columns: 1fr 1fr;
@@ -307,8 +307,9 @@
       #admin-sections-grid > div:first-child {
         grid-column: 1 / -1;
       }
-      /* Each remaining section occupies one grid cell */
+      /* The four target sections each occupy one grid cell */
       #admin-sec-songlimit,
+      #admin-sec-themepresets,
       #admin-sec-customtheme,
       #admin-sec-typography {
         min-width: 0;
@@ -558,12 +559,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
 
     /* Floating filter dropdown menus */
     #song-filter-menu, #setlist-filter-menu, #user-filter-menu {
-      /* Hidden by default from first paint (early <style>, parsed before <body>).
-         This prevents the menu from flashing visible at its unpositioned
-         top-left default spot while the page is still loading/signing in —
-         the .menu-open class (toggled only by JS, after positioning) is what
-         actually reveals it. */
-      display: none;
       position: fixed !important;
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
@@ -574,9 +569,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
       box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-    }
-    #song-filter-menu.menu-open, #setlist-filter-menu.menu-open, #user-filter-menu.menu-open {
-      display: block;
     }
     #song-filter-menu button, #setlist-filter-menu button, #user-filter-menu button {
       border-radius: 8px !important;
@@ -1051,8 +1043,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
           </div>
         </div>
 
-        <!-- (Theme Presets relocated below — now lives inside Custom Theme, just under Live Preview,
-             so picking a preset and choosing Global/Admin scope both happen in one place before saving.) -->
         <!-- CUSTOM THEME — Collapsible -->
         <div id="admin-sec-customtheme">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('custom-theme')">
@@ -1083,52 +1073,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
                   <div style="display:flex;gap:8px;">
                     <button id="preview-btn" style="flex:1;padding:8px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:default;">Open Song</button>
                     <button id="preview-btn2" style="flex:1;padding:8px;border-radius:10px;font-size:12px;font-weight:700;cursor:default;background:transparent;">Cancel</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Theme Presets — now lives here, below Live Preview, so a preset can be
-                   picked and previewed before deciding the Global/Admin scope below. -->
-              <div>
-                <div class="section-label" style="margin-bottom:8px;">Theme Presets</div>
-                <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
-                  <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
-                    <!-- MD Purple (Default) -->
-                    <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
-                      style="background:#0d0d0d;border:2px solid #c0392b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(192,57,43,0.2);">
-                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#c0392b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e88080;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a1010;"></div></div>
-                      <span style="color:#e88080;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Maroon & Black</span>
-                    </button>
-                    <!-- MD Blue -->
-                    <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
-                      style="background:#0a1929;border:2px solid #1e3a5f;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#42a5f5;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e3f2fd;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1565c0;"></div></div>
-                      <span style="color:#90caf9;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Blue</span>
-                    </button>
-                    <!-- MD Teal -->
-                    <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
-                      style="background:#fafafa;border:2px solid #b2dfdb;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#00897b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#212121;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e0f2f1;"></div></div>
-                      <span style="color:#00897b;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">MD Light Teal</span>
-                    </button>
-                    <!-- MD Deep Orange -->
-                    <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
-                      style="background:#1a0a00;border:2px solid #3e1a00;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ff6d00;"></div><div style="width:14px;height:14px;border-radius:4px;background:#ffab40;"></div><div style="width:14px;height:14px;border-radius:4px;background:#241508;"></div></div>
-                      <span style="color:#ff9e40;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Deep Orange</span>
-                    </button>
-                    <!-- MD Grey / Charcoal -->
-                    <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
-                      style="background:#212121;border:2px solid #424242;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ef9a9a;"></div><div style="width:14px;height:14px;border-radius:4px;background:#eeeeee;"></div><div style="width:14px;height:14px;border-radius:4px;background:#424242;"></div></div>
-                      <span style="color:#eeeeee;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Dark</span>
-                    </button>
-                    <!-- MD Indigo -->
-                    <button id="theme-btn-indigo" class="theme-preset-card" onclick="applyTheme('indigo')"
-                      style="background:#0d0e2e;border:2px solid #1a1b4b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#7986cb;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e8eaf6;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a237e;"></div></div>
-                      <span style="color:#9fa8da;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Indigo Night</span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -1219,6 +1163,56 @@ button:active::after { background: rgba(255,255,255,0.12); }
           </div>
         </div>
 
+        <!-- THEME PRESETS — Collapsible -->
+        <div id="admin-sec-themepresets">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('theme-presets')">
+            <div class="section-label" style="margin-bottom:0;">Theme Presets</div>
+            <iconify-icon id="theme-presets-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
+          </div>
+          <div id="theme-presets-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:200px;opacity:1;">
+            <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
+              <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
+                <!-- MD Purple (Default) -->
+                <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
+                  style="background:#0d0d0d;border:2px solid #c0392b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(192,57,43,0.2);">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#c0392b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e88080;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a1010;"></div></div>
+                  <span style="color:#e88080;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Maroon & Black</span>
+                </button>
+                <!-- MD Blue -->
+                <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
+                  style="background:#0a1929;border:2px solid #1e3a5f;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#42a5f5;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e3f2fd;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1565c0;"></div></div>
+                  <span style="color:#90caf9;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Blue</span>
+                </button>
+                <!-- MD Teal -->
+                <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
+                  style="background:#fafafa;border:2px solid #b2dfdb;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#00897b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#212121;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e0f2f1;"></div></div>
+                  <span style="color:#00897b;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">MD Light Teal</span>
+                </button>
+                <!-- MD Deep Orange -->
+                <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
+                  style="background:#1a0a00;border:2px solid #3e1a00;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ff6d00;"></div><div style="width:14px;height:14px;border-radius:4px;background:#ffab40;"></div><div style="width:14px;height:14px;border-radius:4px;background:#241508;"></div></div>
+                  <span style="color:#ff9e40;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Deep Orange</span>
+                </button>
+                <!-- MD Grey / Charcoal -->
+                <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
+                  style="background:#212121;border:2px solid #424242;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ef9a9a;"></div><div style="width:14px;height:14px;border-radius:4px;background:#eeeeee;"></div><div style="width:14px;height:14px;border-radius:4px;background:#424242;"></div></div>
+                  <span style="color:#eeeeee;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Dark</span>
+                </button>
+                <!-- MD Indigo -->
+                <button id="theme-btn-indigo" class="theme-preset-card" onclick="applyTheme('indigo')"
+                  style="background:#0d0e2e;border:2px solid #1a1b4b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#7986cb;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e8eaf6;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a237e;"></div></div>
+                  <span style="color:#9fa8da;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Indigo Night</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- TYPOGRAPHY — Collapsible -->
         <div id="admin-sec-typography">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('typography')">
@@ -1300,23 +1294,13 @@ button:active::after { background: rgba(255,255,255,0.12); }
   <!-- Settings card -->
   <div style="margin-bottom:12px;">
     <div style="background:var(--surface-1);border:1px solid var(--border-color);border-radius:var(--radius-card);overflow:hidden;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border-color);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
         <div style="display:flex;align-items:center;gap:10px;">
           <iconify-icon icon="mdi:book-open-page-variant" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
           <span style="color:var(--lyrics-color);font-size:14px;">Tutorial on Song Open</span>
         </div>
         <label class="toggle-switch">
           <input type="checkbox" id="tutorial-toggle" checked onchange="saveTutorialPref(this.checked)" />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <iconify-icon icon="mdi:gesture-swipe-vertical" style="font-size:18px;color:var(--text-muted);"></iconify-icon>
-          <span style="color:var(--lyrics-color);font-size:14px;">Show Auto-Scroll Button</span>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="autoscroll-visibility-toggle" checked onchange="saveAutoscrollHiddenPref(!this.checked)" />
           <span class="toggle-slider"></span>
         </label>
       </div>
@@ -1365,32 +1349,26 @@ button:active::after { background: rgba(255,255,255,0.12); }
 
 <!-- AUTOSCROLL CONTROL — horizontal pill, bottom-right -->
 <div id="autoscroll-fab" style="display:none;">
-  <div style="display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:27px;padding:6px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
-    <button id="autoscroll-fab-btn" title="Tap: start/stop. Hold + swipe up/down: adjust speed."
-      style="width:42px;height:42px;min-width:42px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s,transform 0.15s;flex-shrink:0;touch-action:none;user-select:none;-webkit-user-select:none;">
-      <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:22px;pointer-events:none;"></iconify-icon>
+  <!-- Floating speed readout — only visible while long-press-dragging to adjust speed -->
+  <div id="autoscroll-speed-badge" style="display:none;position:absolute;bottom:56px;right:0;background:var(--surface-1);border:1px solid var(--accent);border-radius:14px;padding:8px 14px;box-shadow:0 2px 14px rgba(60,30,30,0.25);white-space:nowrap;text-align:center;">
+    <div style="color:var(--accent);font-size:18px;font-weight:800;line-height:1.1;"><span id="autoscroll-speed-value">72</span> <span style="font-size:11px;font-weight:600;color:var(--text-muted);">BPM</span></div>
+    <div style="color:var(--text-muted);font-size:10px;margin-top:2px;">Swipe up/down to adjust</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <button id="autoscroll-hide-btn" onclick="hideAutoscrollFab()" title="Hide auto-scroll button"
+      style="width:26px;height:26px;min-width:26px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-subtle);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;opacity:0.85;">
+      <iconify-icon icon="mdi:close" style="font-size:14px;"></iconify-icon>
     </button>
-    <!-- Floating BPM readout shown only while long-press speed-adjust is active -->
-    <div id="autoscroll-speed-bubble" style="display:none;position:absolute;bottom:56px;right:8px;background:var(--surface-1);border:1px solid var(--accent);border-radius:12px;padding:6px 12px;box-shadow:0 4px 16px rgba(0,0,0,0.35);white-space:nowrap;">
-      <span style="color:var(--accent);font-size:15px;font-weight:800;">
-        <iconify-icon icon="mdi:swap-vertical" style="font-size:14px;vertical-align:-2px;margin-right:2px;"></iconify-icon><span id="autoscroll-speed-bubble-value">72</span> BPM
-      </span>
-    </div>
-    <div id="autoscroll-slider-wrap" style="display:flex;align-items:center;gap:8px;width:0;opacity:0;overflow:hidden;transition:width 0.25s ease,opacity 0.2s ease;">
-      <iconify-icon icon="mdi:metronome" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
-      <!-- Custom track: visible line + thumb div, transparent range input on top -->
-      <div style="position:relative;width:110px;height:18px;flex-shrink:0;display:flex;align-items:center;">
-        <div style="position:absolute;left:0;right:0;height:3px;border-radius:2px;background:var(--toggle-track);top:50%;transform:translateY(-50%);pointer-events:none;"></div>
-        <div id="bpm-track-fill" style="position:absolute;left:0;height:3px;border-radius:2px;background:var(--accent);top:50%;transform:translateY(-50%);width:50%;pointer-events:none;"></div>
-        <input type="range" id="bpm-slider" min="20" max="200" value="72"
-          style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;margin:0;padding:0;"
-          oninput="setBpmFromSlider(this.value)" />
-        <div id="bpm-thumb" style="position:absolute;left:50%;width:18px;height:18px;border-radius:50%;background:var(--accent);box-shadow:0 1px 8px rgba(0,0,0,0.4);transform:translate(-50%,-50%);top:50%;pointer-events:none;z-index:1;"></div>
-      </div>
-      <span id="bpm-value" style="color:var(--accent);font-size:13px;font-weight:800;min-width:32px;text-align:left;flex-shrink:0;overflow:visible;">72</span>
-    </div>
+    <button id="autoscroll-fab-btn" title="Tap: start/stop. Hold + swipe: adjust speed."
+      style="width:48px;height:48px;min-width:48px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;box-shadow:0 2px 10px rgba(60,30,30,0.18);touch-action:none;">
+      <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:24px;"></iconify-icon>
+    </button>
   </div>
 </div>
+<!-- Tiny re-show pill, appears bottom-right when the auto-scroll button has been hidden -->
+<button id="autoscroll-reshow-btn" onclick="showAutoscrollFab()" title="Show auto-scroll button" style="display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom, 0px));right:20px;z-index:510;width:36px;height:36px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-subtle);color:var(--text-muted);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(60,30,30,0.18);opacity:0.7;">
+  <iconify-icon icon="mdi:play-circle-outline" style="font-size:18px;"></iconify-icon>
+</button>
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
   <div class="modal-sheet" style="min-height:420px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -1501,23 +1479,32 @@ button:active::after { background: rgba(255,255,255,0.12); }
       <button onclick="closeCreateSetlistModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;">✕</button>
     </div>
 
-    <!-- Fixed: setlist name + far-right toggle pair (Private / Custom-Group) -->
-    <div style="flex-shrink:0;margin-bottom:12px;display:flex;align-items:flex-end;gap:10px;">
-      <div style="flex:1;min-width:0;">
-        <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Setlist Name *</label>
-        <input type="text" class="input-field" id="new-setlist-name" placeholder="e.g., Sunday Morning Service" />
+    <!-- Fixed: setlist name -->
+    <div style="flex-shrink:0;margin-bottom:12px;">
+      <label style="color:var(--text-secondary);font-size:12px;display:block;margin-bottom:4px;">Setlist Name *</label>
+      <input type="text" class="input-field" id="new-setlist-name" placeholder="e.g., Sunday Morning Service" />
+    </div>
+
+    <!-- Fixed: private toggle -->
+    <div id="private-setlist-section" style="flex-shrink:0;display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;overflow:hidden;">
+        <iconify-icon icon="mdi:lock" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
+        <span style="color:var(--lyrics-color);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Private Setlist</span>
       </div>
-      <!-- Far-right toggle pair: each is icon + mini switch, stacked vertically -->
-      <div style="flex-shrink:0;display:flex;flex-direction:column;gap:6px;">
-        <div id="private-setlist-section" style="display:flex;align-items:center;gap:6px;" title="Private Setlist">
-          <iconify-icon icon="mdi:lock" style="font-size:14px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
-          <label class="toggle-switch" style="flex-shrink:0;display:block;transform:scale(0.8);transform-origin:right center;"><input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span></label>
-        </div>
-        <div id="custom-group-section" style="display:flex;align-items:center;gap:6px;" title="Custom-Group Setlist">
-          <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
-          <label class="toggle-switch" style="flex-shrink:0;display:block;transform:scale(0.8);transform-origin:right center;"><input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span></label>
-        </div>
+      <label class="toggle-switch" style="flex:0 0 44px;display:block;">
+        <input type="checkbox" id="new-setlist-private"><span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Fixed: custom-group toggle -->
+    <div id="custom-group-section" style="flex-shrink:0;display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;overflow:hidden;">
+        <iconify-icon icon="mdi:lightning-bolt" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
+        <span style="color:var(--lyrics-color);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Custom-Group Setlist</span>
       </div>
+      <label class="toggle-switch" style="flex:0 0 44px;display:block;">
+        <input type="checkbox" id="new-setlist-custom" onchange="toggleCustomGroupUI(this.checked)"><span class="toggle-slider"></span>
+      </label>
     </div>
 
     <!-- Expanding zone: only visible when custom-group is ON -->
@@ -1680,17 +1667,21 @@ button:active::after { background: rgba(255,255,255,0.12); }
 <div id="autoscroll-tutorial-modal" class="tutorial-overlay" style="display:none;">
   <div style="background:var(--surface-1);border-radius:16px;padding:24px;max-width:360px;width:100%;">
     <div style="text-align:center;margin-bottom:16px;">
-      <iconify-icon icon="mdi:gesture-swipe-vertical" style="font-size:48px;color:var(--accent);display:block;margin:0 auto 12px;"></iconify-icon>
+      <iconify-icon icon="mdi:play-circle" style="font-size:48px;color:var(--accent);display:block;margin:0 auto 12px;"></iconify-icon>
       <h3 style="color:var(--lyrics-color);font-size:17px;font-weight:700;margin:0 0 8px;">Auto-Scroll Controls</h3>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <iconify-icon icon="mdi:gesture-tap" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Tap:</strong> Start or stop auto-scrolling the song sheet.</p>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Tap</strong> the button to start or stop auto-scrolling.</p>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <iconify-icon icon="mdi:gesture-swipe-vertical" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Hold + Swipe:</strong> Press and hold the button, then swipe <strong style="color:var(--accent);">up</strong> to speed up or <strong style="color:var(--accent);">down</strong> to slow down — release to lock in the new speed.</p>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Hold</strong> the button, then swipe <strong style="color:var(--accent);">up</strong> or <strong style="color:var(--accent);">down</strong> to adjust the speed.</p>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <iconify-icon icon="mdi:eye-off-outline" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;">Tap the small <strong style="color:var(--lyrics-color);">×</strong> next to it to hide the button. Tap the small play icon to bring it back.</p>
       </div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;cursor:pointer;margin-bottom:16px;">
@@ -1863,7 +1854,6 @@ function handleBackButton() {
     if (_isVisible('name-edit-modal')) { closeNameEditModal(); return; }
     if (_isVisible('song-selector-modal')) { closeSongSelectorModal(); return; }
     if (_isVisible('tutorial-modal')) { closeTutorialModal(); return; }
-    if (_isVisible('autoscroll-tutorial-modal')) { closeAutoscrollTutorialModal(); return; }
     if (_isVisible('alert-modal')) { closeAlertModal(); return; }
     if (_isVisible('setlist-limit-modal')) { closeSetlistLimitModal(); return; }
     if (activeTab === 'profile') { switchTab('songs'); return; }
@@ -1925,6 +1915,10 @@ function proceedAsGuest() {
 function showAuthView() {
   document.getElementById('splash-screen').style.display = 'none';
   document.getElementById('app-root').style.display = 'none';
+  // Defensive: a dropdown (e.g. the role filter menu) left open from a previous
+  // session/DOM state can otherwise render on top of this screen since it shares
+  // the same z-index as the splash screen and comes later in the DOM.
+  closeAllDropdowns();
   
   const authView = document.getElementById('auth-view');
   authView.style.display = 'flex';
@@ -2115,7 +2109,7 @@ function signOut() {
   // Close any open modals
   ['create-song-modal','create-setlist-modal','user-edit-modal','key-modal',
    'song-selector-modal','manage-members-modal','alert-modal','setlist-limit-modal',
-   'tutorial-modal','autoscroll-tutorial-modal','name-edit-modal'].forEach(id => {
+   'tutorial-modal','name-edit-modal'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
@@ -2193,6 +2187,9 @@ function mountApp() {
   document.getElementById('onboarding-modal').style.display = 'none';
   const pendingScreen = document.getElementById('pending-approval-screen');
   if (pendingScreen) pendingScreen.style.display = 'none';
+  // Defensive: close any dropdown (e.g. role filter menu) left open from a
+  // previous DOM/session state before it can render on top of the app.
+  closeAllDropdowns();
   const appRoot = document.getElementById('app-root');
   appRoot.style.display = 'flex';
   appRoot.style.opacity = '1'; // Never animate app-root opacity — it breaks position:fixed on iOS
@@ -2773,15 +2770,15 @@ function filterSongs() {
 
 function closeAllDropdowns() {
   const ids = ['song-filter-menu','setlist-filter-menu','user-filter-menu'];
-  ids.forEach(id => { const m = document.getElementById(id); if (m) m.classList.remove('menu-open'); });
+  ids.forEach(id => { const m = document.getElementById(id); if (m) m.style.display = 'none'; });
 }
 
 function positionFloatingMenu(menuId) {
   const menu = document.getElementById(menuId);
   if (!menu) return;
   const allMenus = ['song-filter-menu','setlist-filter-menu','user-filter-menu'];
-  const isOpen = menu.classList.contains('menu-open');
-  allMenus.forEach(id => { const m = document.getElementById(id); if(m) m.classList.remove('menu-open'); });
+  const isOpen = menu.style.display === 'block';
+  allMenus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
   if (isOpen) return;
   const btn = document.getElementById('header-filter-btn');
   // Guard: if the filter button isn't in the DOM yet (e.g. during a slow/partial
@@ -2799,12 +2796,12 @@ function positionFloatingMenu(menuId) {
   menu.style.minWidth = '190px';
   menu.style.maxHeight = '70vh';
   menu.style.overflowY = 'auto';
-  menu.classList.add('menu-open');
+  menu.style.display = 'block';
 }
 function toggleSongFilterMenu() {
   positionFloatingMenu('song-filter-menu');
   const menu = document.getElementById('song-filter-menu');
-  if (menu && menu.classList.contains('menu-open')) _updateSongMenuMarkers();
+  if (menu && menu.style.display === 'block') _updateSongMenuMarkers();
 }
 
 function setSongSort(mode) {
@@ -2828,7 +2825,7 @@ function setSongSort(mode) {
 function toggleSetlistFilterMenu() {
   positionFloatingMenu('setlist-filter-menu');
   const menu = document.getElementById('setlist-filter-menu');
-  if (menu && menu.classList.contains('menu-open')) _updateSetlistMenuMarkers();
+  if (menu && menu.style.display === 'block') _updateSetlistMenuMarkers();
 }
 
 function _updateSetlistFilterBtn() {
@@ -3140,15 +3137,23 @@ function openSongSheet(songId, fromSetlist) {
   stopAutoScroll();
   _bpmActive = false;
   updateAutoscrollFabIcon();
-  document.getElementById('autoscroll-fab').style.display = getAutoscrollHiddenPref() ? 'none' : 'flex';
-  setupAutoscrollFabGestures();
+  if (_isAutoscrollFabHidden()) {
+    document.getElementById('autoscroll-fab').style.display = 'none';
+    const reshowEl = document.getElementById('autoscroll-reshow-btn');
+    if (reshowEl) reshowEl.style.display = 'flex';
+  } else {
+    document.getElementById('autoscroll-fab').style.display = 'block';
+    const reshowEl = document.getElementById('autoscroll-reshow-btn');
+    if (reshowEl) reshowEl.style.display = 'none';
+  }
+  _setupAutoscrollGestures();
   const addSongFabEl = document.getElementById('add-song-fab');
   if (addSongFabEl) addSongFabEl.style.display = 'none';
   document.getElementById('fab-btn').style.display = 'none';
   updateAutoscrollFabPosition();
-  // Init slider value and fill colour on first show
-  const initSlider = document.getElementById('bpm-slider');
-  if (initSlider) { initSlider.value = _bpm; _updateSliderFill(); }
+  if (tutorialEnabled && (currentUserProfile?.showAutoscrollTutorial !== false)) {
+    setTimeout(showAutoscrollTutorialModal, currentUserProfile?.showTutorial !== false ? 4500 : 500);
+  }
   updateZoomIndicator();
 }
 
@@ -3237,9 +3242,10 @@ function closeSongSheet() {
   stopAutoScroll();
   _bpmActive = false;
   updateAutoscrollFabIcon();
-  _exitAutoscrollSpeedAdjust();
   document.getElementById('song-sheet-view').style.display = 'none';
   document.getElementById('autoscroll-fab').style.display = 'none';
+  const reshowClose = document.getElementById('autoscroll-reshow-btn');
+  if (reshowClose) reshowClose.style.display = 'none';
   const navTitle = document.getElementById('top-nav-title');
   if (navTitle) navTitle.style.display = 'none';
   // Restore Songs tab title
@@ -3462,52 +3468,6 @@ let autoScrollAccumulator = 0;
 let _bpm = 72;
 let _bpmActive = false;
 
-// ── Auto-scroll button visibility (user can hide/unhide via Profile) ──
-function getAutoscrollHiddenPref() {
-  if (!currentUser) return false;
-  try { return localStorage.getItem(`rccm_autoscroll_hidden_${currentUser.uid}`) === '1'; } catch(e) { return false; }
-}
-function saveAutoscrollHiddenPref(val) {
-  if (!currentUser) return;
-  try { localStorage.setItem(`rccm_autoscroll_hidden_${currentUser.uid}`, val ? '1' : '0'); } catch(e) {}
-  // If a song sheet is currently open, reflect the change immediately
-  const fab = document.getElementById('autoscroll-fab');
-  if (fab && document.getElementById('song-sheet-view')?.style.display === 'block') {
-    fab.style.display = val ? 'none' : 'flex';
-  }
-}
-
-// ── Auto-scroll tutorial (long-press + swipe to adjust speed) ──
-function getAutoscrollTutorialPref() {
-  if (!currentUser) return true;
-  try { return localStorage.getItem(`rccm_autoscroll_tut_${currentUser.uid}`) !== '0'; } catch(e) { return true; }
-}
-function saveAutoscrollTutorialPref(val) {
-  if (!currentUser) return;
-  try { localStorage.setItem(`rccm_autoscroll_tut_${currentUser.uid}`, val ? '1' : '0'); } catch(e) {}
-}
-function showAutoscrollTutorialModal() {
-  const dont = document.getElementById('dont-show-autoscroll-tutorial');
-  if (dont) dont.checked = false;
-  const modal = document.getElementById('autoscroll-tutorial-modal');
-  if (modal) modal.style.display = 'flex';
-}
-function closeAutoscrollTutorialModal() {
-  const dontShow = document.getElementById('dont-show-autoscroll-tutorial')?.checked;
-  const modal = document.getElementById('autoscroll-tutorial-modal');
-  if (modal) modal.style.display = 'none';
-  if (dontShow) saveAutoscrollTutorialPref(false);
-}
-
-// ── Long-press + swipe-to-adjust-speed state ──
-let _ascrollPressTimer = null;
-let _ascrollLongPressActive = false;
-let _ascrollPressStartY = 0;
-let _ascrollPressStartBpm = 72;
-let _ascrollPressMoved = false;
-const ASCROLL_LONGPRESS_MS = 350;
-const ASCROLL_SWIPE_PX_PER_BPM = 4; // every 4px of vertical drag = 1 BPM
-
 function bpmToPixelsPerSecond(bpm) {
   // 60 BPM → ~20 px/s feels comfortable for reading; scales linearly
   return bpm * (20 / 60);
@@ -3520,34 +3480,7 @@ function setAutoScroll(val) {
   if (autoScrollSpeed > 0) startAutoScroll();
 }
 
-function _updateSliderFill() {
-  const slider = document.getElementById('bpm-slider');
-  if (!slider) return;
-  const min = parseInt(slider.min) || 20;
-  const max = parseInt(slider.max) || 200;
-  const val = parseInt(slider.value) || _bpm;
-  const pct = Math.round(((val - min) / (max - min)) * 100);
-  // Drive the custom visible track fill and thumb
-  const fill  = document.getElementById('bpm-track-fill');
-  const thumb = document.getElementById('bpm-thumb');
-  if (fill)  fill.style.width = pct + '%';
-  if (thumb) thumb.style.left = pct + '%';
-}
-
-// Slider moved while playing (or while paused, just updates the stored BPM)
-function setBpmFromSlider(val) {
-  _bpm = parseInt(val);
-  _updateBpmDisplay();
-  _updateSliderFill();
-  if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
-}
-
-function _updateBpmDisplay() {
-  const el = document.getElementById('bpm-value');
-  if (el) el.textContent = _bpm;
-}
-
-// THE one control: tap to start, tap again to stop. No other state to manage.
+// THE one control: tap to start, tap again to stop.
 function toggleAutoscrollPlay() {
   if (_bpmActive) {
     _bpmActive = false;
@@ -3557,123 +3490,126 @@ function toggleAutoscrollPlay() {
     startAutoScroll();
   }
   updateAutoscrollFabIcon();
-  // Init slider fill when opening
-  if (_bpmActive) {
-    const slider = document.getElementById('bpm-slider');
-    if (slider) { slider.value = _bpm; _updateSliderFill(); }
-  }
-}
-
-function _setBpmClamped(val) {
-  const slider = document.getElementById('bpm-slider');
-  const min = slider ? (parseInt(slider.min) || 20) : 20;
-  const max = slider ? (parseInt(slider.max) || 200) : 200;
-  _bpm = Math.max(min, Math.min(max, Math.round(val)));
-  if (slider) slider.value = _bpm;
-  _updateBpmDisplay();
-  _updateSliderFill();
-  const bubbleVal = document.getElementById('autoscroll-speed-bubble-value');
-  if (bubbleVal) bubbleVal.textContent = _bpm;
-  if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
-}
-
-function _enterAutoscrollSpeedAdjust() {
-  _ascrollLongPressActive = true;
-  const btn = document.getElementById('autoscroll-fab-btn');
-  const bubble = document.getElementById('autoscroll-speed-bubble');
-  if (btn) btn.style.transform = 'scale(1.12)';
-  if (bubble) {
-    const bubbleVal = document.getElementById('autoscroll-speed-bubble-value');
-    if (bubbleVal) bubbleVal.textContent = _bpm;
-    bubble.style.display = 'block';
-  }
-  // First time only: show the tutorial explaining the gesture
-  if (getAutoscrollTutorialPref()) {
-    showAutoscrollTutorialModal();
-  }
-  // Light haptic cue on devices that support it
-  if (window.navigator?.vibrate) window.navigator.vibrate(15);
-}
-
-function _exitAutoscrollSpeedAdjust() {
-  _ascrollLongPressActive = false;
-  const btn = document.getElementById('autoscroll-fab-btn');
-  const bubble = document.getElementById('autoscroll-speed-bubble');
-  if (btn) btn.style.transform = 'scale(1)';
-  if (bubble) bubble.style.display = 'none';
-}
-
-function setupAutoscrollFabGestures() {
-  const btn = document.getElementById('autoscroll-fab-btn');
-  if (!btn || btn._gesturesBound) return;
-  btn._gesturesBound = true;
-
-  function onDown(e) {
-    e.preventDefault();
-    _ascrollPressMoved = false;
-    _ascrollPressStartY = e.clientY;
-    _ascrollPressStartBpm = _bpm;
-    clearTimeout(_ascrollPressTimer);
-    _ascrollPressTimer = setTimeout(_enterAutoscrollSpeedAdjust, ASCROLL_LONGPRESS_MS);
-    document.addEventListener('pointermove', onMove);
-    document.addEventListener('pointerup', onUp);
-    document.addEventListener('pointercancel', onUp);
-  }
-
-  function onMove(e) {
-    const dy = e.clientY - _ascrollPressStartY;
-    if (Math.abs(dy) > 6) _ascrollPressMoved = true;
-    if (_ascrollLongPressActive) {
-      e.preventDefault();
-      // Swipe up (negative dy) → faster; swipe down → slower
-      const bpmDelta = -dy / ASCROLL_SWIPE_PX_PER_BPM;
-      _setBpmClamped(_ascrollPressStartBpm + bpmDelta);
-    } else if (_ascrollPressMoved) {
-      // Moved before the long-press threshold fired — treat as a scroll/drag
-      // gesture, not a tap or a speed-adjust. Cancel the pending long-press.
-      clearTimeout(_ascrollPressTimer);
-    }
-  }
-
-  function onUp(e) {
-    clearTimeout(_ascrollPressTimer);
-    document.removeEventListener('pointermove', onMove);
-    document.removeEventListener('pointerup', onUp);
-    document.removeEventListener('pointercancel', onUp);
-    if (_ascrollLongPressActive) {
-      _exitAutoscrollSpeedAdjust();
-      return; // long-press+swipe already adjusted speed — don't also toggle play
-    }
-    if (!_ascrollPressMoved) {
-      toggleAutoscrollPlay();
-    }
-  }
-
-  btn.addEventListener('pointerdown', onDown);
 }
 
 function updateAutoscrollFabIcon() {
   const btn = document.getElementById('autoscroll-fab-btn');
   const icon = document.getElementById('autoscroll-fab-icon');
-  const sliderWrap = document.getElementById('autoscroll-slider-wrap');
   if (!btn || !icon) return;
   if (_bpmActive) {
     btn.style.background = 'linear-gradient(135deg, var(--accent-strong), var(--accent))';
     btn.style.color = '#fff';
     btn.style.borderColor = 'var(--accent)';
     icon.setAttribute('icon', 'mdi:pause');
-    if (sliderWrap) { sliderWrap.style.width = '186px'; sliderWrap.style.opacity = '1'; }
   } else {
     btn.style.background = 'var(--surface-2)';
     btn.style.color = 'var(--text-secondary)';
     btn.style.borderColor = 'var(--border-subtle)';
     icon.setAttribute('icon', 'mdi:play');
-    if (sliderWrap) { sliderWrap.style.width = '0'; sliderWrap.style.opacity = '0'; }
   }
 }
 
 function updateAutoscrollFabPosition() {
   // FAB pinned bottom-right — nothing to reposition
+}
+
+// ── Auto-scroll gesture handling: tap = play/pause, long-press + vertical drag = adjust speed ──
+let _asPressTimer = null;
+let _asLongPressActive = false;
+let _asDragStartY = 0;
+let _asDragStartBpm = 72;
+let _asMovedDuringPress = false;
+
+function _asShowSpeedBadge(show) {
+  const badge = document.getElementById('autoscroll-speed-badge');
+  if (badge) badge.style.display = show ? 'block' : 'none';
+}
+
+function _asUpdateSpeedBadge() {
+  const val = document.getElementById('autoscroll-speed-value');
+  if (val) val.textContent = _bpm;
+}
+
+function _asHandlePressStart(clientY) {
+  _asMovedDuringPress = false;
+  _asLongPressActive = false;
+  clearTimeout(_asPressTimer);
+  _asPressTimer = setTimeout(() => {
+    _asLongPressActive = true;
+    _asDragStartY = clientY;
+    _asDragStartBpm = _bpm;
+    _asShowSpeedBadge(true);
+    _asUpdateSpeedBadge();
+    if (navigator.vibrate) navigator.vibrate(15);
+  }, 350);
+}
+
+function _asHandlePressMove(clientY) {
+  if (!_asLongPressActive) {
+    // Movement before long-press fires just means it wasn't a clean tap; cancel the timer
+    _asMovedDuringPress = true;
+    return;
+  }
+  _asMovedDuringPress = true;
+  // Dragging up increases speed, down decreases. ~2.5 BPM per pixel of drag, clamped to slider range.
+  const deltaY = _asDragStartY - clientY;
+  const newBpm = Math.round(_asDragStartBpm + deltaY / 2.5);
+  _bpm = Math.max(20, Math.min(200, newBpm));
+  _asUpdateSpeedBadge();
+  if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
+}
+
+function _asHandlePressEnd() {
+  clearTimeout(_asPressTimer);
+  if (_asLongPressActive) {
+    // Was a long-press/drag — don't toggle play, just close the badge
+    _asLongPressActive = false;
+    _asShowSpeedBadge(false);
+  } else if (!_asMovedDuringPress) {
+    // Clean tap with no movement — toggle play/pause
+    toggleAutoscrollPlay();
+  }
+  _asMovedDuringPress = false;
+}
+
+function _setupAutoscrollGestures() {
+  const btn = document.getElementById('autoscroll-fab-btn');
+  if (!btn || btn._gesturesBound) return;
+  btn._gesturesBound = true;
+  btn.addEventListener('touchstart', (e) => {
+    _asHandlePressStart(e.touches[0].clientY);
+  }, { passive: true });
+  btn.addEventListener('touchmove', (e) => {
+    _asHandlePressMove(e.touches[0].clientY);
+    if (_asLongPressActive) e.preventDefault();
+  }, { passive: false });
+  btn.addEventListener('touchend', _asHandlePressEnd);
+  btn.addEventListener('touchcancel', _asHandlePressEnd);
+  // Mouse support for desktop/testing
+  btn.addEventListener('mousedown', (e) => { _asHandlePressStart(e.clientY); });
+  document.addEventListener('mousemove', (e) => { if (_asPressTimer || _asLongPressActive) _asHandlePressMove(e.clientY); });
+  document.addEventListener('mouseup', () => { if (_asPressTimer || _asLongPressActive) _asHandlePressEnd(); });
+}
+
+// ── Hide / show the auto-scroll button (per-device preference) ──
+function _autoscrollHideKey() { return `rccm_hide_autoscroll_${currentUser?.uid || 'anon'}`; }
+
+function hideAutoscrollFab() {
+  document.getElementById('autoscroll-fab').style.display = 'none';
+  const reshow = document.getElementById('autoscroll-reshow-btn');
+  if (reshow) reshow.style.display = 'flex';
+  try { localStorage.setItem(_autoscrollHideKey(), '1'); } catch(e) {}
+}
+
+function showAutoscrollFab() {
+  document.getElementById('autoscroll-fab').style.display = 'block';
+  const reshow = document.getElementById('autoscroll-reshow-btn');
+  if (reshow) reshow.style.display = 'none';
+  try { localStorage.setItem(_autoscrollHideKey(), '0'); } catch(e) {}
+}
+
+function _isAutoscrollFabHidden() {
+  try { return localStorage.getItem(_autoscrollHideKey()) === '1'; } catch(e) { return false; }
 }
 
 function startAutoScroll() {
@@ -3708,7 +3644,7 @@ document.addEventListener('click', (e) => {
   const clickedInsideMenu = menus.some(id => document.getElementById(id)?.contains(e.target));
   const clickedFilterBtn = filterBtn?.contains(e.target);
   if (!clickedInsideMenu && !clickedFilterBtn) {
-    menus.forEach(id => { const m = document.getElementById(id); if(m) m.classList.remove('menu-open'); });
+    menus.forEach(id => { const m = document.getElementById(id); if(m) m.style.display = 'none'; });
   }
 });
 
@@ -3778,7 +3714,7 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive: false });
 
-window.addEventListener('load', () => { setupPinchZoom(); setupAutoscrollFabGestures(); });
+window.addEventListener('load', () => { setupPinchZoom(); });
 
 // ============================================================
 // SWIPE GESTURE (Song Navigation)
@@ -4641,11 +4577,11 @@ function openCreateSetlistModal() {
 
   // Show/hide private option based on role
   const privateSection = document.getElementById('private-setlist-section');
-  if (privateSection) privateSection.style.display = canCreatePrivate ? 'flex' : 'none';
+  if (privateSection) privateSection.style.display = canCreatePrivate ? 'block' : 'none';
 
   // Show/hide custom group option
   const cgSection = document.getElementById('custom-group-section');
-  if (cgSection) cgSection.style.display = canCreateCustom ? 'flex' : 'none';
+  if (cgSection) cgSection.style.display = canCreateCustom ? 'block' : 'none';
 
   document.getElementById('create-setlist-modal').style.display = 'flex';
   pushState();
@@ -5057,9 +4993,9 @@ document.addEventListener('click', function(e) {
   dropdowns.forEach(({ menu: mid, btn: bid }) => {
     const m = document.getElementById(mid);
     const b = document.getElementById(bid);
-    if (m && m.classList.contains('menu-open')) {
+    if (m && m.style.display === 'block') {
       if (!m.contains(e.target) && (!b || !b.contains(e.target))) {
-        m.classList.remove('menu-open');
+        m.style.display = 'none';
       }
     }
   });
@@ -5083,7 +5019,7 @@ function setUserFilter(filter) {
       b.style.background = isActive ? 'var(--surface-2)' : 'transparent';
       b.style.color = isActive ? 'var(--accent-soft)' : 'var(--lyrics-color)';
     });
-    menu.classList.remove('menu-open');
+    menu.style.display = 'none';
   }
   renderUsersList();
 }
@@ -5403,8 +5339,6 @@ function populateProfileTab() {
   const tutToggle = document.getElementById('tutorial-toggle');
   if (tutToggle) { tutToggle.checked = p.showTutorial !== false; }
   tutorialEnabled = p.showTutorial !== false;
-  const ascrollToggle = document.getElementById('autoscroll-visibility-toggle');
-  if (ascrollToggle) { ascrollToggle.checked = !getAutoscrollHiddenPref(); }
   const adminBtn = document.getElementById('profile-admin-btn');
   if (adminBtn) adminBtn.style.display = roles.includes('Admin') ? 'flex' : 'none';
   const closeBtn = document.getElementById('profile-close-btn');
@@ -5490,6 +5424,27 @@ function closeTutorialModal() {
   const dontShow = document.getElementById('dont-show-tutorial').checked;
   document.getElementById('tutorial-modal').style.display = 'none';
   if (dontShow) saveTutorialPref(false);
+}
+
+function showAutoscrollTutorialModal() {
+  if (!tutorialEnabled || currentUserProfile?.showAutoscrollTutorial === false) return;
+  const cb = document.getElementById('dont-show-autoscroll-tutorial');
+  if (cb) cb.checked = false;
+  const modal = document.getElementById('autoscroll-tutorial-modal');
+  if (modal) modal.style.display = 'flex';
+}
+function closeAutoscrollTutorialModal() {
+  const dontShow = document.getElementById('dont-show-autoscroll-tutorial')?.checked;
+  const modal = document.getElementById('autoscroll-tutorial-modal');
+  if (modal) modal.style.display = 'none';
+  if (dontShow) saveAutoscrollTutorialPref(false);
+}
+async function saveAutoscrollTutorialPref(val) {
+  if (!currentUser) return;
+  try {
+    await db.collection('users').doc(currentUser.uid).update({ showAutoscrollTutorial: val });
+    if (currentUserProfile) currentUserProfile.showAutoscrollTutorial = val;
+  } catch(e) { console.error(e); }
 }
 
 // ============================================================
@@ -6323,7 +6278,7 @@ function _startModalDrag(e, sheet) {
 
 
 <!-- FILTER MENUS — at body level to avoid tab-panel opacity cascade -->
-<div id="song-filter-menu" style="position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:168px;z-index:900;box-shadow:0 4px 20px rgba(30,10,10,0.32);" onclick="event.stopPropagation()">
+<div id="song-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:168px;z-index:900;box-shadow:0 4px 20px rgba(30,10,10,0.32);" onclick="event.stopPropagation()">
           <button id="song-sort-az" onclick="setSongSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
@@ -6337,7 +6292,7 @@ function _startModalDrag(e, sheet) {
             <iconify-icon icon="mdi:heart" style="font-size:14px;color:#ef4444;"></iconify-icon><span style="flex:1;">Favourites</span><iconify-icon id="song-sort-favourites-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
           </button>
         </div>
-<div id="setlist-filter-menu" style="position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:200px;z-index:9000;box-shadow:0 4px 20px rgba(30,10,10,0.32);max-height:70vh;overflow-y:auto;" onclick="event.stopPropagation()">
+<div id="setlist-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:200px;z-index:9000;box-shadow:0 4px 20px rgba(30,10,10,0.32);max-height:70vh;overflow-y:auto;" onclick="event.stopPropagation()">
   <div style="padding:4px 8px 6px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
     <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Sort &amp; Filter</span>
   </div>
@@ -6369,7 +6324,7 @@ function _startModalDrag(e, sheet) {
             <iconify-icon icon="mdi:lightning-bolt" style="font-size:14px;color:var(--accent-soft);"></iconify-icon><span style="flex:1;">Custom Group</span><iconify-icon icon="mdi:check" style="font-size:13px;color:var(--accent-soft);" class="filter-chk" data-for="custom"></iconify-icon>
           </button>
 </div><!-- /setlist-filter-menu -->
-<div id="user-filter-menu" style="position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:180px;z-index:9999;box-shadow:0 4px 20px rgba(30,10,10,0.32);" onclick="event.stopPropagation()">
+<div id="user-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:12px;padding:6px;min-width:180px;z-index:9000;box-shadow:0 4px 20px rgba(30,10,10,0.32);" onclick="event.stopPropagation()">
       <div style="padding:6px 10px 4px;border-bottom:1px solid var(--border-color);margin-bottom:4px;">
         <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Filter by Role</span>
       </div>
