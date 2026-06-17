@@ -773,7 +773,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
 <div id="desktop-sidebar" style="display:none !important;"></div>
 
 <!-- MAIN APP ROOT -->
-<div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);opacity:0;">
+<div id="app-root" style="display:none;flex-direction:column;height:100vh;background:var(--canvas-bg);">
 
   <!-- Sync loading bar -->
   <div id="sync-bar"><div id="sync-bar-fill"></div></div>
@@ -822,7 +822,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
   </div>
 
   <!-- MAIN CONTENT AREA -->
-  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-top:calc(64px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;">
+  <div id="main-content" style="flex:1;height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-top:calc(64px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch;opacity:0;">
 
 <div id="tab-songs" class="tab-panel active" style="padding:8px var(--view-px);">
     <!-- Tab header -->
@@ -2164,7 +2164,11 @@ function mountApp() {
   if (pendingScreen) pendingScreen.style.display = 'none';
   const appRoot = document.getElementById('app-root');
   appRoot.style.display = 'flex';
-  appRoot.style.opacity = '0';
+  appRoot.style.opacity = '1'; // Never animate app-root opacity — it breaks position:fixed on iOS
+  appRoot.style.transition = 'none';
+  // Fade in only main-content to avoid the fixed-position bug
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) { mainContent.style.opacity = '0'; mainContent.style.transition = 'none'; }
   document.getElementById('top-profile-pic') && (document.getElementById('top-profile-pic').src = currentUserProfile.photoURL || '');
 
   const role = currentUserProfile?.role || 'Guest';
@@ -2182,11 +2186,15 @@ function mountApp() {
   setupListeners();
   checkDesktop();
   pushState();
-  // Reveal app after nav is built to prevent roles/content flash
+  // Reveal app after nav is built — fade only main-content, never app-root
   requestAnimationFrame(() => {
-    appRoot.style.transition = 'opacity 0.3s ease';
     appRoot.style.opacity = '1';
+    appRoot.style.transition = 'none';
     appRoot.classList.add('fade-in');
+    if (mainContent) {
+      mainContent.style.transition = 'opacity 0.3s ease';
+      mainContent.style.opacity = '1';
+    }
   });
   runTTLCleanup();
   seedSongsIfEmpty();
