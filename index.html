@@ -797,12 +797,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
   </button>
 
   <!-- FLOATING SEARCH + FILTER (top-right, per-tab) -->
-  <!-- Notifications bell — always visible regardless of tab, independent of header-actions -->
-  <button id="notif-bell-btn" onclick="toggleNotificationsPanel()" style="display:none;position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:68px;z-index:400;width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth), filter 0.2s ease;">
-    <iconify-icon icon="mdi:bell-outline" style="font-size:20px;pointer-events:none;"></iconify-icon>
-    <span id="notif-bell-badge" style="display:none;position:absolute;top:5px;right:5px;min-width:16px;height:16px;border-radius:999px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;align-items:center;justify-content:center;padding:0 3px;box-shadow:0 0 0 1.5px var(--surface-1);"></span>
-  </button>
-
   <div id="header-actions" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:400;display:flex;align-items:center;gap:8px;transition:opacity 0.22s var(--ease-smooth), transform 0.22s var(--ease-smooth);">
     <!-- Expandable search pill -->
     <div id="header-search-pill" style="display:flex;align-items:center;background:var(--surface-1);border:1px solid var(--border-color);border-radius:23px;box-shadow:0 2px 10px rgba(60,30,30,0.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden;width:46px;height:46px;">
@@ -816,7 +810,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
     <!-- Filter button -->
     <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(60,30,30,0.18);position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
       <iconify-icon icon="mdi:tune-variant" style="font-size:20px;"></iconify-icon>
-      <span id="header-filter-dot" style="display:none;position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);border:1.5px solid var(--surface-1);"></span>
+      <span id="header-filter-dot" style="display:none;position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);border:1.5px solid var(--surface-1);"></span>
     </button>
   </div>
 
@@ -1264,7 +1258,11 @@ button:active::after { background: rgba(255,255,255,0.12); }
 <div id="tab-profile" class="tab-panel" style="padding:12px var(--view-px);">
   <!-- Header row matching other tabs -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-    <div style="width:36px;flex-shrink:0;"></div>
+    <div style="width:36px;flex-shrink:0;">
+      <button id="profile-close-btn" onclick="closeProfileView();" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;align-items:center;padding:8px;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Close">
+        <iconify-icon icon="mdi:arrow-left" style="font-size:20px;"></iconify-icon>
+      </button>
+    </div>
     <h2 style="color:var(--lyrics-color);font-size:18px;font-weight:700;margin:0;">My Profile</h2>
     <div style="width:36px;flex-shrink:0;display:flex;justify-content:flex-end;">
       <button id="profile-admin-btn" onclick="switchTab('admin');" style="display:none;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:10px;cursor:pointer;align-items:center;padding:8px;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Admin Panel">
@@ -1274,11 +1272,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
   </div>
 
   <!-- Hero section -->
-  <div style="position:relative;padding:24px 12px 20px;display:flex;flex-direction:column;align-items:center;gap:0;background:var(--surface-1);border-radius:var(--radius-card);border:1px solid var(--border-color);margin-bottom:12px;">
-    <!-- Close button — top-right, aligned with the profile card (guests only) -->
-    <button id="profile-close-btn" onclick="closeProfileView();" style="display:none;position:absolute;top:10px;right:10px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:50%;cursor:pointer;align-items:center;justify-content:center;width:30px;height:30px;color:var(--text-secondary);transition:background 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth);" title="Close">
-      <iconify-icon icon="mdi:close" style="font-size:17px;"></iconify-icon>
-    </button>
+  <div style="padding:24px 12px 20px;display:flex;flex-direction:column;align-items:center;gap:0;background:var(--surface-1);border-radius:var(--radius-card);border:1px solid var(--border-color);margin-bottom:12px;">
     <div style="position:relative;margin-bottom:14px;">
       <div id="profile-avatar-wrap" style="width:88px;height:88px;border-radius:50%;background:var(--surface-2);border:3px solid var(--accent);box-shadow:0 0 0 6px var(--accent-glow);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
         <img id="profile-view-pic" src="" alt="Profile"
@@ -1317,8 +1311,8 @@ button:active::after { background: rgba(255,255,255,0.12); }
     </div>
   </div>
 
-  <!-- My Setlists — only shown to users who can create setlists -->
-  <div id="profile-my-setlists-section" style="margin-bottom:12px;display:none;">
+  <!-- My Setlists -->
+  <div style="margin-bottom:12px;">
     <div class="section-label" style="margin-bottom:8px;padding-left:1px;">My Setlists</div>
     <div id="profile-my-setlists" class="setlists-list-wrap"></div>
     <div id="profile-setlists-empty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No setlists created yet.</div>
@@ -1387,20 +1381,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
 <button id="autoscroll-reshow-btn" onclick="showAutoscrollFab()" title="Show auto-scroll button" style="display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom, 0px));right:20px;z-index:510;width:36px;height:36px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-subtle);color:var(--text-muted);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(60,30,30,0.18);opacity:0.7;">
   <iconify-icon icon="mdi:play-circle-outline" style="font-size:18px;"></iconify-icon>
 </button>
-<!-- NOTIFICATIONS PANEL -->
-<div id="notifications-panel-overlay" onclick="closeNotificationsPanel()" style="display:none;position:fixed;inset:0;z-index:870;background:transparent;"></div>
-<div id="notifications-panel" style="display:none;flex-direction:column;position:fixed;top:calc(64px + env(safe-area-inset-top,0px));left:14px;right:14px;max-width:380px;max-height:60vh;background:var(--surface-1);border:1px solid var(--border-color);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:880;overflow:hidden;">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border-color);flex-shrink:0;">
-    <span style="color:var(--lyrics-color);font-size:14px;font-weight:700;">Notifications</span>
-    <button onclick="markAllNotificationsRead()" style="background:transparent;border:none;color:var(--accent-soft);font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px;">Mark all read</button>
-  </div>
-  <div id="notifications-list" style="overflow-y:auto;flex:1;"></div>
-  <div id="notifications-empty" style="display:none;text-align:center;padding:32px 16px;color:var(--text-muted);font-size:13px;">
-    <iconify-icon icon="mdi:bell-off-outline" style="font-size:32px;display:block;margin:0 auto 8px;opacity:0.6;"></iconify-icon>
-    No notifications yet.
-  </div>
-</div>
-
 <!-- CREATE SONG MODAL -->
 <div id="create-song-modal" class="modal-overlay" style="display:none;">
   <div class="modal-sheet" style="min-height:420px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -1832,8 +1812,6 @@ let songsUnsubscribe = null;
 let setlistsUnsubscribe = null;
 let usersUnsubscribe = null;
 let adminSettingsUnsubscribe = null;
-let notificationsUnsubscribe = null;
-let allNotifications = [];
 let currentSetlistSongs = [];
 let tutorialEnabled = true;
 let _signingOut = false;
@@ -1880,7 +1858,6 @@ function _isVisible(id) {
 }
 function handleBackButton() {
   try {
-    if (_isVisible('notifications-panel')) { closeNotificationsPanel(); return; }
     if (_isVisible('manage-members-modal')) { closeManageMembersModal(); return; }
     if (_isVisible('logo-change-modal')) { closeLogoChangeModal(); return; }
     if (_isVisible('create-song-modal')) { closeCreateSongModal(); return; }
@@ -2065,7 +2042,6 @@ async function initApp(user) {
         };
         await db.collection('users').doc(user.uid).set(profileData);
         currentUserProfile = profileData;
-        _notifyAdminsOfNewPendingUser(profileData);
         showPendingApprovalScreen();
       }
     } else {
@@ -2258,9 +2234,6 @@ function mountApp() {
 
   buildNav();
   setupListeners();
-  const bellBtn = document.getElementById('notif-bell-btn');
-  if (bellBtn) bellBtn.style.display = 'flex';
-  setupNotificationsListener();
   checkDesktop();
   pushState();
   // Reveal app after nav is built — fade only main-content, never app-root
@@ -2461,65 +2434,6 @@ function syncHeaderFilterDot() {
   dot.style.display = (btn && btn.classList.contains('has-active-filter')) ? 'block' : 'none';
 }
 
-// ============================================================
-// NOTIFICATIONS
-// ============================================================
-// Each notification is a doc in /notifications, scoped to one recipient via
-// `userId`. Kept intentionally simple: type, title, message, a link describing
-// where to navigate on tap, read state, and a timestamp.
-async function _createNotification(userId, type, title, message, link) {
-  try {
-    await db.collection('notifications').add({
-      userId, type, title, message, link: link || null,
-      read: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } catch (e) { console.error('Failed to create notification:', e); }
-}
-
-// Fired once, right when a brand-new Guest profile is created during sign-up.
-async function _notifyAdminsOfNewPendingUser(newUser) {
-  try {
-    const adminSnap = await db.collection('users').where('roles', 'array-contains', 'Admin').get();
-    const name = newUser.displayName || newUser.email || 'A new user';
-    const tasks = adminSnap.docs
-      .filter(d => d.id !== newUser.uid)
-      .map(d => _createNotification(
-        d.id, 'pending_user',
-        'New user awaiting approval',
-        `${name} signed up and is waiting for approval.`,
-        { tab: 'users', subtab: 'unapproved' }
-      ));
-    await Promise.all(tasks);
-  } catch (e) { console.error('Failed to notify admins of new user:', e); }
-}
-
-// Fired whenever a user is added to a custom-group setlist's whitelist,
-// whether at creation time or later via Manage Members.
-async function _notifyUserAddedToCustomGroup(userId, setlistName, setlistId) {
-  if (!userId || userId === currentUser?.uid) return; // don't notify yourself
-  await _createNotification(
-    userId, 'custom_group_added',
-    'Added to a setlist',
-    `You were added to "${setlistName}".`,
-    { tab: 'setlists', setlistId }
-  );
-}
-
-function _updatePendingBadges() {
-  const unapprovedCount = (allUsers || []).filter(u => u.approved === false && u.role === 'Guest' && u.email !== ADMIN_EMAIL).length;
-  const inTabBadge = document.getElementById('unapproved-count-badge');
-  if (inTabBadge) {
-    inTabBadge.textContent = unapprovedCount;
-    inTabBadge.style.display = unapprovedCount > 0 ? 'inline-block' : 'none';
-  }
-  const sidebarBadge = document.getElementById('sidebar-pending-badge');
-  if (sidebarBadge) {
-    sidebarBadge.textContent = unapprovedCount;
-    sidebarBadge.style.display = unapprovedCount > 0 ? 'inline-flex' : 'none';
-  }
-}
-
 function buildNav() {
   const role = currentUserProfile?.role || 'Guest';
   const roles = Array.isArray(currentUserProfile?.roles) ? currentUserProfile.roles : [role];
@@ -2568,20 +2482,15 @@ function buildNav() {
   if (isGuest) { sidebarNav.innerHTML = ''; return; }
 
   // Main nav items
-  const pendingCount = (typeof allUsers !== 'undefined' ? allUsers : []).filter(u => u.approved === false && u.role === 'Guest' && u.email !== ADMIN_EMAIL).length;
   const mainHtml = mainTabs.map(t => {
     const isActive = t.id === activeTab;
     const activeBg = isActive ? 'var(--accent-glow)' : 'transparent';
     const activeColor = isActive ? 'var(--accent-soft)' : 'var(--text-secondary)';
     const dotHtml = isActive ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent);"></span>' : '';
-    const pendingBadgeHtml = (t.id === 'users')
-      ? '<span id="sidebar-pending-badge" style="display:' + (pendingCount > 0 ? 'inline-flex' : 'none') + ';align-items:center;justify-content:center;background:#ef4444;color:#fff;border-radius:999px;min-width:18px;height:18px;padding:0 5px;font-size:11px;font-weight:800;margin-left:auto;flex-shrink:0;">' + pendingCount + '</span>'
-      : '';
     return '<button id="sidebar-nav-' + t.id + '" onclick="switchTab(\'' + t.id + '\');closeSidebar();"'
       + ' style="display:flex;align-items:center;gap:12px;background:' + activeBg + ';border:none;color:' + activeColor + ';cursor:pointer;padding:11px 14px;border-radius:12px;width:100%;text-align:left;transition:background 0.15s;">'
       + '<iconify-icon icon="' + t.icon + '" style="font-size:20px;flex-shrink:0;"></iconify-icon>'
       + '<span style="font-size:14px;font-weight:' + (isActive ? '700' : '500') + ';">' + t.label + '</span>'
-      + pendingBadgeHtml
       + dotHtml
       + '</button>';
   }).join('');
@@ -2790,117 +2699,6 @@ function goHome() {
 // ============================================================
 // FIRESTORE REAL-TIME LISTENERS
 // ============================================================
-function setupNotificationsListener() {
-  if (!currentUser) return;
-  if (notificationsUnsubscribe) notificationsUnsubscribe();
-  notificationsUnsubscribe = db.collection('notifications')
-    .where('userId', '==', currentUser.uid)
-    .orderBy('createdAt', 'desc')
-    .limit(50)
-    .onSnapshot(snap => {
-      allNotifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      _updateNotifBellBadge();
-      if (_isVisible('notifications-panel')) renderNotificationsPanel();
-    }, err => console.error('Notifications listener:', err));
-}
-
-function _updateNotifBellBadge() {
-  const unread = allNotifications.filter(n => !n.read).length;
-  const badge = document.getElementById('notif-bell-badge');
-  if (badge) {
-    badge.textContent = unread > 9 ? '9+' : String(unread);
-    badge.style.display = unread > 0 ? 'flex' : 'none';
-  }
-}
-
-function toggleNotificationsPanel() {
-  const panel = document.getElementById('notifications-panel');
-  if (!panel) return;
-  if (_isVisible('notifications-panel')) {
-    closeNotificationsPanel();
-  } else {
-    renderNotificationsPanel();
-    panel.style.display = 'flex';
-    const overlay = document.getElementById('notifications-panel-overlay');
-    if (overlay) overlay.style.display = 'block';
-    pushState();
-  }
-}
-
-function closeNotificationsPanel() {
-  const panel = document.getElementById('notifications-panel');
-  if (panel) panel.style.display = 'none';
-  const overlay = document.getElementById('notifications-panel-overlay');
-  if (overlay) overlay.style.display = 'none';
-}
-
-function _timeAgo(ts) {
-  if (!ts) return '';
-  const date = ts.toDate ? ts.toDate() : new Date(ts);
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return 'just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return minutes + 'm ago';
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours + 'h ago';
-  const days = Math.floor(hours / 24);
-  if (days < 7) return days + 'd ago';
-  return date.toLocaleDateString();
-}
-
-function renderNotificationsPanel() {
-  const list = document.getElementById('notifications-list');
-  const empty = document.getElementById('notifications-empty');
-  if (!list) return;
-  if (!allNotifications.length) {
-    list.innerHTML = '';
-    if (empty) empty.style.display = 'block';
-    return;
-  }
-  if (empty) empty.style.display = 'none';
-  const iconMap = { pending_user: 'mdi:account-clock', custom_group_added: 'mdi:playlist-music' };
-  list.innerHTML = allNotifications.map(n => `
-    <div onclick="handleNotificationClick('${n.id}')" style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border-color);cursor:pointer;background:${n.read ? 'transparent' : 'var(--accent-glow)'};transition:background 0.15s;">
-      <div style="width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <iconify-icon icon="${iconMap[n.type] || 'mdi:bell'}" style="font-size:17px;color:var(--accent-soft);"></iconify-icon>
-      </div>
-      <div style="flex:1;min-width:0;">
-        <p style="color:var(--lyrics-color);font-size:13px;font-weight:${n.read ? '500' : '700'};margin:0 0 2px;">${escHtml(n.title || '')}</p>
-        <p style="color:var(--text-secondary);font-size:12px;margin:0 0 4px;line-height:1.4;">${escHtml(n.message || '')}</p>
-        <p style="color:var(--text-muted);font-size:11px;margin:0;">${_timeAgo(n.createdAt)}</p>
-      </div>
-      ${!n.read ? '<span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px;"></span>' : ''}
-    </div>`).join('');
-}
-
-async function handleNotificationClick(notifId) {
-  const notif = allNotifications.find(n => n.id === notifId);
-  if (!notif) return;
-  if (!notif.read) {
-    try { await db.collection('notifications').doc(notifId).update({ read: true }); }
-    catch(e) { console.error(e); }
-  }
-  closeNotificationsPanel();
-  const link = notif.link || {};
-  if (link.tab === 'users') {
-    switchTab('users');
-    if (link.subtab) setTimeout(() => switchUsersSubTab(link.subtab), 50);
-  } else if (link.tab === 'setlists') {
-    switchTab('setlists');
-    if (link.setlistId) setTimeout(() => openSetlistDetail(link.setlistId), 50);
-  }
-}
-
-async function markAllNotificationsRead() {
-  const unread = allNotifications.filter(n => !n.read);
-  if (!unread.length) return;
-  try {
-    const batch = db.batch();
-    unread.forEach(n => batch.update(db.collection('notifications').doc(n.id), { read: true }));
-    await batch.commit();
-  } catch(e) { console.error(e); }
-}
-
 function setupListeners() {
   if (songsUnsubscribe) songsUnsubscribe();
   songsUnsubscribe = db.collection('songs').orderBy('title').onSnapshot(snap => {
@@ -2947,7 +2745,13 @@ function setupListeners() {
       showSyncBar();
       allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderUsersList();
-      _updatePendingBadges();
+      // Update pending badge
+      const unapprovedCount = allUsers.filter(u => u.approved === false && u.role === 'Guest' && u.email !== ADMIN_EMAIL).length;
+      const badge = document.getElementById('unapproved-count-badge');
+      if (badge) {
+        badge.textContent = unapprovedCount;
+        badge.style.display = unapprovedCount > 0 ? 'inline-block' : 'none';
+      }
       hideSyncBar();
     }, err => { console.error('Users listener:', err); hideSyncBar(); });
   }
@@ -4805,7 +4609,6 @@ async function addMemberToSetlist(uid) {
     // Refresh avatars in setlist detail
     renderSetlistDetail(setlist);
     loadSetlistCreator(setlist.createdBy);
-    _notifyUserAddedToCustomGroup(uid, setlist.name, setlist.id);
   } catch(e) { console.error(e); showAlert('Error', 'Failed to add member.', 'mdi:alert-circle'); }
 }
 
@@ -5056,9 +4859,6 @@ async function saveSetlist() {
     const newSetlist = { id: docRef.id, ...data, songs: [] };
     allSetlists.unshift(newSetlist);
     openSetlistDetail(docRef.id);
-    if (isCustomGroup) {
-      selectedCustomMembers.forEach(uid => _notifyUserAddedToCustomGroup(uid, name, docRef.id));
-    }
   } catch(e) { console.error(e); showAlert('Error', 'Failed to create setlist.', 'mdi:alert-circle'); }
 }
 
@@ -5096,8 +4896,13 @@ function renderUsersList() {
     return matchSearch && matchFilter;
   });
 
-  // Update unapproved count badges (in-tab pill + sidebar nav)
-  _updatePendingBadges();
+  // Update unapproved count badge
+  const unapprovedCount = allUsers.filter(u => u.approved === false && u.role === 'Guest' && u.email !== ADMIN_EMAIL).length;
+  const badge = document.getElementById('unapproved-count-badge');
+  if (badge) {
+    badge.textContent = unapprovedCount;
+    badge.style.display = unapprovedCount > 0 ? 'inline-block' : 'none';
+  }
 
   const listEl = document.getElementById('users-list');
   const usersEmptyEl = document.getElementById('users-empty');
@@ -5717,16 +5522,6 @@ function populateProfileTab() {
   if (adminBtn) adminBtn.style.display = roles.includes('Admin') ? 'flex' : 'none';
   const closeBtn = document.getElementById('profile-close-btn');
   if (closeBtn) closeBtn.style.display = (p.role === 'Guest') ? 'flex' : 'none';
-
-  // My Setlists is only relevant to users who can actually create setlists
-  const abilities = p.abilities || [];
-  const canCreatePublic = roles.some(r => ['Admin','Sub-Admin','Lead'].includes(r)) || abilities.includes('createPublicSetlist') || abilities.includes('canCreateSetlist');
-  const canCreatePrivate = roles.includes('Admin') || abilities.includes('createPrivateSetlist');
-  const canCreateCustom = roles.includes('Admin') || abilities.includes('createCustomSetlist');
-  const canCreateAnySetlist = canCreatePublic || canCreatePrivate || canCreateCustom;
-  const mySetlistsSection = document.getElementById('profile-my-setlists-section');
-  if (mySetlistsSection) mySetlistsSection.style.display = canCreateAnySetlist ? 'block' : 'none';
-
   renderProfileSetlists();
   buildNav(); // refresh sidebar avatar/name
 }
