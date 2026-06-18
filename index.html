@@ -4015,7 +4015,7 @@ function handleCameraCapture(input) {
             role: 'user',
             content: [
               { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64Data } },
-              { type: 'text', text: 'Extract all text from this chord sheet image exactly as written, reading from top to bottom. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, and all spacing/line breaks. Output only the raw chord sheet text in top-to-bottom reading order — no commentary, no markdown, no explanation.' }
+              { type: 'text', text: 'Extract all text from this chord sheet image exactly as written, reading from top to bottom, as plain monospace text. The most important detail: when a chord symbol sits above a specific word or syllable in the image, reproduce that exact horizontal alignment using spaces — count the approximate character columns from the left edge so the chord lands directly above the same letters it sits above in the source. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, blank lines between sections, and indentation exactly as shown. Do not collapse multiple spaces into one, and do not center or re-justify any line. Output only the raw chord sheet text — no commentary, no markdown, no code fences, no explanation.' }
             ]
           }]
         })
@@ -4062,16 +4062,55 @@ async function _readPdfAsText(file) {
     const items   = content.items;
     if (!items.length) continue;
 
-    // Group items into lines by Y coordinate (PDF Y is bottom-up, so we sort descending = top first)
+    // Group items into lines by Y coordinate (PDF Y is bottom-up, so we sort descending = top first).
+    // Nearby Y values (within ~2.5pt) are snapped together first, since chord and
+    // lyric text runs on the same visual row can have tiny baseline differences
+    // that would otherwise split one row into two output lines.
+    const rawYs = [...new Set(items.map(it => it.transform[5]))].sort((a, b) => b - a);
+    const yToKey = new Map();
+    let lastKey = null;
+    for (const y of rawYs) {
+      if (lastKey === null || Math.abs(lastKey - y) > 2.5) lastKey = y;
+      yToKey.set(y, lastKey);
+    }
     const lineMap = new Map();
     for (const item of items) {
-      const y = Math.round(item.transform[5]);
+      const y = yToKey.get(item.transform[5]);
       if (!lineMap.has(y)) lineMap.set(y, []);
-      lineMap.get(y).push(item.str);
+      lineMap.get(y).push(item);
     }
     // Sort Y values descending (largest Y = top of page)
     const sortedYs = [...lineMap.keys()].sort((a, b) => b - a);
-    const lines = sortedYs.map(y => lineMap.get(y).join(''));
+
+    // Estimate a monospace "character width" for this page from the most common
+    // font size, so X-coordinates can be converted into a column position —
+    // this is what lets a chord positioned above a specific lyric stay aligned
+    // with that same lyric once converted to plain monospace text.
+    const fontSizes = items.map(it => Math.abs(it.transform[3]) || 10).filter(Boolean);
+    const avgFontSize = fontSizes.length ? fontSizes.reduce((a,b) => a+b, 0) / fontSizes.length : 10;
+    const charWidth = Math.max(3, avgFontSize * 0.52); // rough average glyph width for typical fonts
+
+    const lines = sortedYs.map(y => {
+      // Sort the items on this line left-to-right by X position
+      const lineItems = lineMap.get(y).slice().sort((a, b) => a.transform[4] - b.transform[4]);
+      let line = '';
+      let cursorCol = 0;
+      for (const it of lineItems) {
+        const x = it.transform[4];
+        const targetCol = Math.round(x / charWidth);
+        // Pad with spaces to reach this item's horizontal position, but never
+        // remove characters already placed (avoids overlap from rounding).
+        if (targetCol > cursorCol) {
+          line += ' '.repeat(targetCol - cursorCol);
+          cursorCol = targetCol;
+        }
+        line += it.str;
+        cursorCol += it.str.length;
+      }
+      // Collapse only truly excessive runs (40+ spaces, suggesting estimation
+      // error) while still preserving legitimate wide chord-over-lyric gaps.
+      return line.replace(/ {40,}/g, ' '.repeat(40)).replace(/[ \t]+$/, '');
+    });
     pages.push(lines.join('\n'));
   }
   return pages.join('\n\n').replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\x00/g, '');
@@ -4142,7 +4181,7 @@ function handleFileInput(input) {
               role: 'user',
               content: [
                 { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64Data } },
-                { type: 'text', text: 'Extract all text from this chord sheet image exactly as written, reading from top to bottom. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, and all spacing/line breaks. Output only the raw chord sheet text in top-to-bottom reading order — no commentary, no markdown, no explanation.' }
+                { type: 'text', text: 'Extract all text from this chord sheet image exactly as written, reading from top to bottom, as plain monospace text. The most important detail: when a chord symbol sits above a specific word or syllable in the image, reproduce that exact horizontal alignment using spaces — count the approximate character columns from the left edge so the chord lands directly above the same letters it sits above in the source. Preserve chord symbols (e.g. G, Am, D/F#), section labels (VERSE, CHORUS, BRIDGE), lyric lines, blank lines between sections, and indentation exactly as shown. Do not collapse multiple spaces into one, and do not center or re-justify any line. Output only the raw chord sheet text — no commentary, no markdown, no code fences, no explanation.' }
               ]
             }]
           })
