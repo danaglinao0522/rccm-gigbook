@@ -2341,6 +2341,15 @@ function openSidebar() {
   actions.style.pointerEvents = 'none';
   const hamburger = document.getElementById('hamburger-btn');
   if (hamburger) hamburger.style.opacity = '0.4';
+  // Blur and disable any visible FAB so it can't be tapped behind the sidebar
+  ['fab-btn', 'add-song-fab', 'autoscroll-fab', 'autoscroll-reshow-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.filter = 'blur(4px)';
+      el.style.pointerEvents = 'none';
+      el.style.transition = el.style.transition ? el.style.transition + ', filter 0.2s ease' : 'filter 0.2s ease';
+    }
+  });
 }
 function closeSidebar() {
   document.getElementById('sidebar-drawer').style.transform = 'translateX(-100%)';
@@ -2353,6 +2362,14 @@ function closeSidebar() {
   actions.style.pointerEvents = 'auto';
   const hamburger = document.getElementById('hamburger-btn');
   if (hamburger) hamburger.style.opacity = '1';
+  // Restore FABs
+  ['fab-btn', 'add-song-fab', 'autoscroll-fab', 'autoscroll-reshow-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.filter = '';
+      el.style.pointerEvents = 'auto';
+    }
+  });
 }
 
 // ============================================================
@@ -6265,6 +6282,10 @@ function initModalDragResize() {
 }
 let _modalDragState = null;
 function handleModalDragStart(e) {
+  // Never treat a press on an interactive element as a drag start — this is
+  // what was silently swallowing clicks on close (✕) buttons, Cancel, or any
+  // other control that happens to sit within a modal's top drag-fallback zone.
+  if (e.target.closest('button, a, input, select, textarea, label, [onclick]')) return;
   // Check if touch/click is on or very near a modal handle (within 20px vertically)
   const handle = e.target.closest('.modal-handle');
   if (!handle) {
