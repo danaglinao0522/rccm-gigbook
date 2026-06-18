@@ -94,8 +94,8 @@
     .view { display: none; }
     .view.active { display: flex; flex-direction: column; }
     .tab-panel { display: none; }
-    .tab-panel.active { display: block; animation: tabFadeIn 0.18s ease forwards; }
-    @keyframes tabFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .tab-panel.active { display: block; animation: tabFadeIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    @keyframes tabFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     #app-root { display: none; }
     /* Song swipe actions (admin) */
     .song-swipe-wrapper { position: relative; overflow: hidden; border-radius: var(--radius-card); }
@@ -182,10 +182,24 @@
     }
     body.layout-line .song-swipe-bg-edit,
     body.layout-line .song-swipe-bg-delete { border-radius: 0 !important; }
+    @keyframes modalSlideUp {
+      from { transform: translateY(100%); opacity: 0.6; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    @keyframes modalScaleIn {
+      from { transform: scale(0.92) translateY(10px); opacity: 0; }
+      to   { transform: scale(1)    translateY(0);    opacity: 1; }
+    }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .modal-overlay { animation: overlayFadeIn 0.22s ease forwards; }
+    .modal-sheet   { animation: modalSlideUp 0.38s cubic-bezier(0.32, 0.72, 0, 1) forwards; }
     .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
     .modal-overlay.center { align-items: center; }
     .modal-sheet { background: var(--surface-1); border: 1px solid var(--border-color); border-bottom: none; border-radius: 22px 22px 0 0; width: 100%; max-width: 600px; min-height: 280px; max-height: 92vh; overflow-y: auto; padding: 18px; transition: height 0.05s linear, max-height 0.05s linear; box-shadow: 0 -4px 24px rgba(60,20,20,0.18); }
-    .modal-sheet.center-card { border: 1px solid var(--border-color); border-radius: 18px; max-height: 88vh; min-height: unset; }
+    .modal-sheet.center-card { border: 1px solid var(--border-color); border-radius: 18px; max-height: 88vh; min-height: unset; animation: modalScaleIn 0.28s cubic-bezier(0.34, 1.3, 0.64, 1) forwards; }
     .modal-sheet.key-modal { max-height: 55vh; min-height: unset; }
     .modal-handle { width: 48px; height: 5px; background: var(--border-subtle); border-radius: var(--radius-pill); margin: 0 auto 14px; cursor: ns-resize; touch-action: none; padding: 10px 20px; box-sizing: content-box; margin-top: -10px; background-clip: content-box; }
     .modal-handle:hover { background-color: var(--accent); background-clip: content-box; opacity: 0.7; }
@@ -311,9 +325,8 @@
       #admin-sections-grid > div:first-child {
         grid-column: 1 / -1;
       }
-      /* The four target sections each occupy one grid cell */
+      /* The three target sections each occupy one grid cell */
       #admin-sec-songlimit,
-      #admin-sec-themepresets,
       #admin-sec-customtheme,
       #admin-sec-typography {
         min-width: 0;
@@ -416,8 +429,9 @@
     }
     /* btn-primary uses CSS vars directly — no override needed */
     /* Line layout mode */
-    /* Active filter/sort indicator dot on filter button */
-    .filter-btn.has-active-filter { color: var(--accent-soft); border-color: var(--accent); }
+    /* Active filter — accent border + background glow (no dot) */
+    .filter-btn { transition: border-color 0.22s var(--ease-smooth), color 0.22s var(--ease-smooth), background 0.22s var(--ease-smooth), box-shadow 0.22s var(--ease-smooth); }
+    .filter-btn.has-active-filter { color: var(--accent-soft); border-color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 0 1px var(--accent) inset; }
     .filter-btn.has-active-filter iconify-icon { color: var(--accent-soft); }
     /* Active checkmark in filter menu items */
     .filter-menu-item-active { color: var(--accent-soft) !important; font-weight: 700 !important; }
@@ -598,16 +612,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
     #song-filter-menu button::after, #setlist-filter-menu button::after, #user-filter-menu button::after {
       display: none !important; /* no ripple overlay in menus */
     }
-    .filter-btn.has-active-filter::after {
-      content: '';
-      position: absolute;
-      top: 4px; right: 4px;
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
-      border: 1.5px solid var(--surface-2);
-    }
+    /* Filter dot removed — accent border + background glow is the sole active indicator */
     /* Uniform search row wrapper */
     .search-row {
       display: none !important; /* Replaced by floating header search/filter buttons */
@@ -1081,6 +1086,46 @@ button:active::after { background: rgba(255,255,255,0.12); }
                 </div>
               </div>
 
+              <!-- Start from a Preset -->
+              <div>
+                <div class="section-label" style="margin-bottom:8px;">Start from a Preset</div>
+                <p style="color:var(--text-muted);font-size:11px;margin:0 0 10px;line-height:1.4;">Tap a preset to load its colors into the pickers below — then save when ready.</p>
+                <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;margin:0 -4px;">
+                  <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 4px;min-width:max-content;">
+                    <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="_loadPresetToCustom('gigbook')"
+                      style="background:#0d0d0d;border:2px solid #c0392b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(192,57,43,0.2);">
+                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#c0392b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e88080;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a1010;"></div></div>
+                      <span style="color:#e88080;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Maroon & Black</span>
+                    </button>
+                    <button id="theme-btn-nordic" class="theme-preset-card" onclick="_loadPresetToCustom('nordic')"
+                      style="background:#0a1929;border:2px solid #1e3a5f;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#42a5f5;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e3f2fd;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1565c0;"></div></div>
+                      <span style="color:#90caf9;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Blue</span>
+                    </button>
+                    <button id="theme-btn-parchment" class="theme-preset-card" onclick="_loadPresetToCustom('parchment')"
+                      style="background:#fafafa;border:2px solid #b2dfdb;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#00897b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#212121;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e0f2f1;"></div></div>
+                      <span style="color:#00897b;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">MD Light Teal</span>
+                    </button>
+                    <button id="theme-btn-cyber" class="theme-preset-card" onclick="_loadPresetToCustom('cyber')"
+                      style="background:#1a0a00;border:2px solid #3e1a00;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ff6d00;"></div><div style="width:14px;height:14px;border-radius:4px;background:#ffab40;"></div><div style="width:14px;height:14px;border-radius:4px;background:#241508;"></div></div>
+                      <span style="color:#ff9e40;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Deep Orange</span>
+                    </button>
+                    <button id="theme-btn-charcoal" class="theme-preset-card" onclick="_loadPresetToCustom('charcoal')"
+                      style="background:#212121;border:2px solid #424242;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ef9a9a;"></div><div style="width:14px;height:14px;border-radius:4px;background:#eeeeee;"></div><div style="width:14px;height:14px;border-radius:4px;background:#424242;"></div></div>
+                      <span style="color:#eeeeee;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Dark</span>
+                    </button>
+                    <button id="theme-btn-indigo" class="theme-preset-card" onclick="_loadPresetToCustom('indigo')"
+                      style="background:#0d0e2e;border:2px solid #1a1b4b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
+                      <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#7986cb;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e8eaf6;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a237e;"></div></div>
+                      <span style="color:#9fa8da;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Indigo Night</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <!-- Color Pickers -->
               <div>
                 <div class="section-label" style="margin-bottom:10px;">Colors</div>
@@ -1167,55 +1212,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
           </div>
         </div>
 
-        <!-- THEME PRESETS — Collapsible -->
-        <div id="admin-sec-themepresets">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:pointer;" onclick="toggleAdminSection('theme-presets')">
-            <div class="section-label" style="margin-bottom:0;">Theme Presets</div>
-            <iconify-icon id="theme-presets-chevron" icon="mdi:chevron-down" style="font-size:18px;color:var(--text-muted);transition:transform 0.25s;"></iconify-icon>
-          </div>
-          <div id="theme-presets-body" style="overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:200px;opacity:1;">
-            <div style="overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">
-              <div id="theme-carousel" style="display:flex;gap:10px;padding:4px 2px;min-width:max-content;">
-                <!-- MD Purple (Default) -->
-                <button id="theme-btn-gigbook" class="theme-preset-card active" onclick="applyTheme('gigbook')"
-                  style="background:#0d0d0d;border:2px solid #c0392b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(192,57,43,0.2);">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#c0392b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e88080;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a1010;"></div></div>
-                  <span style="color:#e88080;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Maroon & Black</span>
-                </button>
-                <!-- MD Blue -->
-                <button id="theme-btn-nordic" class="theme-preset-card" onclick="applyTheme('nordic')"
-                  style="background:#0a1929;border:2px solid #1e3a5f;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#42a5f5;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e3f2fd;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1565c0;"></div></div>
-                  <span style="color:#90caf9;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Blue</span>
-                </button>
-                <!-- MD Teal -->
-                <button id="theme-btn-parchment" class="theme-preset-card" onclick="applyTheme('parchment')"
-                  style="background:#fafafa;border:2px solid #b2dfdb;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#00897b;"></div><div style="width:14px;height:14px;border-radius:4px;background:#212121;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e0f2f1;"></div></div>
-                  <span style="color:#00897b;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">MD Light Teal</span>
-                </button>
-                <!-- MD Deep Orange -->
-                <button id="theme-btn-cyber" class="theme-preset-card" onclick="applyTheme('cyber')"
-                  style="background:#1a0a00;border:2px solid #3e1a00;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ff6d00;"></div><div style="width:14px;height:14px;border-radius:4px;background:#ffab40;"></div><div style="width:14px;height:14px;border-radius:4px;background:#241508;"></div></div>
-                  <span style="color:#ff9e40;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Deep Orange</span>
-                </button>
-                <!-- MD Grey / Charcoal -->
-                <button id="theme-btn-charcoal" class="theme-preset-card" onclick="applyTheme('charcoal')"
-                  style="background:#212121;border:2px solid #424242;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#ef9a9a;"></div><div style="width:14px;height:14px;border-radius:4px;background:#eeeeee;"></div><div style="width:14px;height:14px;border-radius:4px;background:#424242;"></div></div>
-                  <span style="color:#eeeeee;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Material Dark</span>
-                </button>
-                <!-- MD Indigo -->
-                <button id="theme-btn-indigo" class="theme-preset-card" onclick="applyTheme('indigo')"
-                  style="background:#0d0e2e;border:2px solid #1a1b4b;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:96px;transition:all 0.2s;">
-                  <div style="display:flex;gap:4px;"><div style="width:14px;height:14px;border-radius:4px;background:#7986cb;"></div><div style="width:14px;height:14px;border-radius:4px;background:#e8eaf6;"></div><div style="width:14px;height:14px;border-radius:4px;background:#1a237e;"></div></div>
-                  <span style="color:#9fa8da;font-size:10px;font-weight:700;letter-spacing:0.03em;white-space:nowrap;">Indigo Night</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Theme Presets are now inside Custom Theme section -->
 
         <!-- TYPOGRAPHY — Collapsible -->
         <div id="admin-sec-typography">
@@ -1751,9 +1748,42 @@ button:active::after { background: rgba(255,255,255,0.12); }
 </div>
 
 <script>
-// ============================================================
-// FIREBASE CONFIGURATION
-// ============================================================
+// ── INSTANT THEME PRE-PAINT ──────────────────────────────────────────────────
+// Runs synchronously before any paint so the app renders with the correct theme
+// from frame 1 — eliminates the maroon-default flash on startup.
+(function() {
+  try {
+    // Try global theme first (applies to all users), then admin-only theme
+    const globalStr = localStorage.getItem('rccm_last_global_theme');
+    const adminStr  = localStorage.getItem('rccm_admin_theme');
+    const raw = globalStr || adminStr;
+    if (!raw) return;
+    const t = JSON.parse(raw);
+    if (!t || !t.bg) return;
+    const r = document.documentElement;
+    const ab = (hex, amt) => {
+      const n = parseInt((hex||'#000000').replace('#',''), 16);
+      const c = v => Math.min(255, Math.max(0, v + amt));
+      return '#' + ((1<<24)|(c(n>>16))<<16|(c((n>>8)&0xff))<<8|c(n&0xff)).toString(16).slice(1);
+    };
+    r.style.setProperty('--canvas-bg',      t.bg);
+    r.style.setProperty('--lyrics-color',   t.lyrics);
+    r.style.setProperty('--chords-color',   t.chords);
+    r.style.setProperty('--surface-1',      t.s1    || ab(t.bg, 12));
+    r.style.setProperty('--surface-2',      t.s2    || ab(t.bg, 22));
+    r.style.setProperty('--surface-3',      t.s3    || ab(t.bg, 17));
+    r.style.setProperty('--border-color',   t.border || ab(t.bg, 22));
+    r.style.setProperty('--border-subtle',  t.borderSubtle || ab(t.bg, 30));
+    r.style.setProperty('--nav-bg',         t.navBg || (t.bg + 'f5'));
+    if (t.accent)       r.style.setProperty('--accent',        t.accent);
+    if (t.accentStrong) r.style.setProperty('--accent-strong', t.accentStrong);
+    if (t.accentSoft)   r.style.setProperty('--accent-soft',   t.accentSoft);
+    if (t.btnBg)        r.style.setProperty('--btn-primary-bg',   t.btnBg);
+    if (t.btnText)      r.style.setProperty('--btn-primary-text',  t.btnText);
+    if (t.accentGlow)   r.style.setProperty('--accent-glow',   t.accentGlow);
+  } catch(e) {}
+})();
+// ────────────────────────────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyAlE76KUY17bv8J5mM_9SBN6p23gNUyc0Y",
   authDomain: "rccm-gigbook.firebaseapp.com",
@@ -2245,6 +2275,13 @@ function mountApp() {
       mainContent.style.transition = 'opacity 0.3s ease';
       mainContent.style.opacity = '1';
     }
+    // Replay entry animation on the initially active tab
+    const activePanel = document.querySelector('.tab-panel.active');
+    if (activePanel) {
+      activePanel.style.animation = 'none';
+      void activePanel.offsetWidth;
+      activePanel.style.animation = '';
+    }
   });
   runTTLCleanup();
   seedSongsIfEmpty();
@@ -2295,6 +2332,7 @@ function showUpdateModal(newVersion) {
   const verEl = document.getElementById('update-new-version');
   if (verEl) verEl.textContent = newVersion;
   modal.style.display = 'flex';
+  _animateModalIn(modal);
   // Also show the profile update banner
   const banner = document.getElementById('profile-update-banner');
   if (banner) banner.style.display = 'block';
@@ -2547,6 +2585,10 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); });
   const panel = document.getElementById('tab-' + tab);
   if (panel) {
+    // Force animation replay: remove, reflow, add
+    panel.style.animation = 'none';
+    void panel.offsetWidth; // reflow
+    panel.style.animation = '';
     panel.classList.add('active');
   }
 
@@ -3436,6 +3478,7 @@ function openKeyModal() {
     <button class="key-btn ${k === localKey ? 'active' : ''}" onclick="selectKey('${k}')">${k}</button>
   `).join('');
   document.getElementById('key-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('key-modal'));
   pushState();
 }
 function closeKeyModal() { document.getElementById('key-modal').style.display = 'none'; }
@@ -3555,17 +3598,29 @@ function updateAutoscrollFabIcon() {
   const btn = document.getElementById('autoscroll-fab-btn');
   const icon = document.getElementById('autoscroll-fab-icon');
   if (!btn || !icon) return;
-  if (_bpmActive) {
-    btn.style.background = 'linear-gradient(135deg, var(--accent-strong), var(--accent))';
-    btn.style.color = '#fff';
-    btn.style.borderColor = 'var(--accent)';
-    icon.setAttribute('icon', 'mdi:pause');
-  } else {
-    btn.style.background = 'var(--surface-2)';
-    btn.style.color = 'var(--text-secondary)';
-    btn.style.borderColor = 'var(--border-subtle)';
-    icon.setAttribute('icon', 'mdi:play');
-  }
+  // Smooth transition: fade/scale icon out, swap, fade/scale back in
+  icon.style.transition = 'transform 0.15s ease, opacity 0.15s ease';
+  icon.style.transform = 'scale(0.5)';
+  icon.style.opacity = '0';
+  setTimeout(() => {
+    if (_bpmActive) {
+      btn.style.transition = 'background 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth)';
+      btn.style.background = 'linear-gradient(135deg, var(--accent-strong), var(--accent))';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.boxShadow = '0 0 12px var(--accent-glow)';
+      icon.setAttribute('icon', 'mdi:pause');
+    } else {
+      btn.style.transition = 'background 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth)';
+      btn.style.background = 'var(--surface-2)';
+      btn.style.color = 'var(--text-secondary)';
+      btn.style.borderColor = 'var(--border-subtle)';
+      btn.style.boxShadow = 'none';
+      icon.setAttribute('icon', 'mdi:play');
+    }
+    icon.style.transform = 'scale(1)';
+    icon.style.opacity = '1';
+  }, 120);
 }
 
 function updateAutoscrollFabPosition() {
@@ -3892,6 +3947,22 @@ function getSortedSongs() {
   return songs;
 }
 
+// ── Modal animation helper: replays entry animation each time a modal is shown ──
+function _animateModalIn(modalOverlayEl) {
+  if (!modalOverlayEl) return;
+  const sheet = modalOverlayEl.querySelector('.modal-sheet');
+  // Replay overlay fade
+  modalOverlayEl.style.animation = 'none';
+  void modalOverlayEl.offsetWidth; // reflow
+  modalOverlayEl.style.animation = '';
+  // Replay sheet slide / scale
+  if (sheet) {
+    sheet.style.animation = 'none';
+    void sheet.offsetWidth;
+    sheet.style.animation = '';
+  }
+}
+
 // ============================================================
 // CREATE SONG MODAL
 // ============================================================
@@ -3929,6 +4000,7 @@ function openCreateSongModal() {
   const saveBtn = document.getElementById('save-song-btn');
   if (saveBtn) saveBtn.textContent = 'Save Song';
   modal.style.display = 'flex';
+  _animateModalIn(modal);
   setIntakeMode('text');
   pushState();
   _updateSaveSongBtn();
@@ -3960,6 +4032,7 @@ function openEditSongModal(songId) {
   const saveBtn = document.getElementById('save-song-btn');
   if (saveBtn) saveBtn.textContent = 'Update Song';
   modal.style.display = 'flex';
+  _animateModalIn(modal);
   pushState();
   _updateSaveSongBtn();
 }
@@ -4506,6 +4579,7 @@ function openManageMembersModal() {
   renderManageCurrentMembers();
   renderManageAddList('');
   document.getElementById('manage-members-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('manage-members-modal'));
   pushState();
 }
 
@@ -4749,6 +4823,7 @@ function openCreateSetlistModal() {
   if (cgSection) cgSection.style.display = canCreateCustom ? 'flex' : 'none';
 
   document.getElementById('create-setlist-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('create-setlist-modal'));
   pushState();
 }
 function closeCreateSetlistModal() { document.getElementById('create-setlist-modal').style.display = 'none'; }
@@ -5299,6 +5374,7 @@ function openUserEditModal(uid) {
   if (saveBtn) { saveBtn.textContent = 'Save Changes'; delete saveBtn.dataset.approving; }
 
   document.getElementById('user-edit-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('user-edit-modal'));
   pushState();
 }
 
@@ -5576,6 +5652,7 @@ async function saveTutorialPref(val) {
 function openNameEditModal() {
   document.getElementById('new-display-name').value = currentUserProfile?.displayName || '';
   document.getElementById('name-edit-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('name-edit-modal'));
   pushState();
 }
 function closeNameEditModal() { document.getElementById('name-edit-modal').style.display = 'none'; }
@@ -5597,7 +5674,9 @@ async function saveDisplayName() {
 // ============================================================
 function showTutorialModal() {
   document.getElementById('dont-show-tutorial').checked = false;
-  document.getElementById('tutorial-modal').style.display = 'flex';
+  const m = document.getElementById('tutorial-modal');
+  m.style.display = 'flex';
+  _animateModalIn(m);
 }
 function closeTutorialModal() {
   const dontShow = document.getElementById('dont-show-tutorial').checked;
@@ -5610,7 +5689,7 @@ function showAutoscrollTutorialModal() {
   const cb = document.getElementById('dont-show-autoscroll-tutorial');
   if (cb) cb.checked = false;
   const modal = document.getElementById('autoscroll-tutorial-modal');
-  if (modal) modal.style.display = 'flex';
+  if (modal) { modal.style.display = 'flex'; _animateModalIn(modal); }
 }
 function closeAutoscrollTutorialModal() {
   const dontShow = document.getElementById('dont-show-autoscroll-tutorial')?.checked;
@@ -5711,6 +5790,7 @@ function openLogoChangeModal() {
   document.getElementById('logo-url-input').value = cur;
   document.getElementById('logo-modal-preview').src = cur;
   document.getElementById('logo-change-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('logo-change-modal'));
 }
 function closeLogoChangeModal() {
   document.getElementById('logo-change-modal').style.display = 'none';
@@ -5846,6 +5926,22 @@ function applyTheme(key) {
   saveThemeToDb(theme).then(() => hideSyncToast());
 }
 
+// Load a preset into the Custom Theme pickers + live preview ONLY — no global save.
+// The admin must still press "Save Theme" to apply.
+function _loadPresetToCustom(key) {
+  const theme = THEMES[key];
+  if (!theme) return;
+  // Populate pickers and trigger live preview (applyThemeData handles both)
+  applyThemeData(theme);
+  // Highlight chosen preset card, clear others
+  document.querySelectorAll('.theme-preset-card').forEach(btn => {
+    const isActive = btn.id === 'theme-btn-' + key;
+    btn.style.outline = isActive ? '2px solid var(--accent)' : 'none';
+    btn.style.outlineOffset = isActive ? '2px' : '0';
+    btn.classList.toggle('active', isActive);
+  });
+}
+
 function applyThemeData(theme) {
   const root = document.documentElement;
   const ab = adjustBrightness;
@@ -5885,6 +5981,8 @@ function applyThemeData(theme) {
   if (el('custom-card-bg') && theme.s1)    el('custom-card-bg').value  = theme.s1;
   _syncHexInputs();
   livePreviewTheme();
+  // Persist to localStorage so next load can pre-paint instantly (no Firestore flash)
+  try { localStorage.setItem('rccm_last_global_theme', JSON.stringify(theme)); } catch(e) {}
 }
 
 // Helper: lighten/darken a hex color by amount (positive = lighter)
@@ -6201,6 +6299,7 @@ function showAlert(title, message, icon='mdi:information') {
   document.getElementById('alert-message').textContent = message;
   document.getElementById('alert-icon').setAttribute('icon', icon);
   document.getElementById('alert-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('alert-modal'));
   pushState();
 }
 function closeAlertModal() { document.getElementById('alert-modal').style.display = 'none'; }
@@ -6229,6 +6328,7 @@ function showSetlistLimitModal(maxAllowed) {
     </div>
   `).join('');
   document.getElementById('setlist-limit-modal').style.display = 'flex';
+  _animateModalIn(document.getElementById('setlist-limit-modal'));
   pushState();
 }
 
