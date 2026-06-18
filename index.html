@@ -477,14 +477,14 @@ button:active::after { background: rgba(255,255,255,0.12); }
 /* Circular floating buttons — each has explicit overflow+radius so the
    highlight is always perfectly circular, never square. */
 #hamburger-btn, #home-btn, #header-filter-btn,
-#header-search-clear, #autoscroll-fab-btn {
+#header-search-clear {
   position: relative;
   overflow: hidden;
   border-radius: 50%;
   -webkit-tap-highlight-color: transparent;
 }
 #hamburger-btn::after, #home-btn::after,
-#header-filter-btn::after, #header-search-clear::after, #autoscroll-fab-btn::after {
+#header-filter-btn::after, #header-search-clear::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -495,17 +495,17 @@ button:active::after { background: rgba(255,255,255,0.12); }
 }
 #hamburger-btn:hover::after, #home-btn:hover::after,
 #header-filter-btn:hover::after,
-#header-search-clear:hover::after, #autoscroll-fab-btn:hover::after {
+#header-search-clear:hover::after {
   background: rgba(255,255,255,0.07);
 }
 #hamburger-btn:active::after, #home-btn:active::after,
 #header-filter-btn:active::after,
-#header-search-clear:active::after, #autoscroll-fab-btn:active::after {
+#header-search-clear:active::after {
   background: rgba(255,255,255,0.14);
 }
 #hamburger-btn:active, #home-btn:active,
 #header-filter-btn:active,
-#header-search-clear:active, #autoscroll-fab-btn:active {
+#header-search-clear:active {
   transform: scale(0.92);
 }
 /* Search icon button: no own highlight — the pill it lives inside handles
@@ -1367,8 +1367,8 @@ button:active::after { background: rgba(255,255,255,0.12); }
         <circle cx="28" cy="28" r="25" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="157" stroke-dashoffset="157" id="autoscroll-press-ring-circle" stroke-linecap="round"></circle>
       </svg>
       <button id="autoscroll-fab-btn" title="Tap: start/stop. Hold + swipe: adjust speed."
-        style="position:absolute;inset:4px;width:48px;height:48px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s,transform 0.15s;flex-shrink:0;box-shadow:0 2px 10px rgba(60,30,30,0.18);touch-action:none;">
-        <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:24px;"></iconify-icon>
+        style="position:absolute;top:4px;left:4px;right:4px;bottom:4px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s,transform 0.15s;box-shadow:0 2px 10px rgba(60,30,30,0.18);touch-action:none;padding:0;margin:0;-webkit-tap-highlight-color:transparent;">
+        <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:24px;pointer-events:none;"></iconify-icon>
       </button>
     </div>
   </div>
@@ -3643,19 +3643,35 @@ function _setupAutoscrollGestures() {
   const btn = document.getElementById('autoscroll-fab-btn');
   if (!btn || btn._gesturesBound) return;
   btn._gesturesBound = true;
+  let _asUsingTouch = false;
+  let _asTouchCooldown = null;
   btn.addEventListener('touchstart', (e) => {
+    _asUsingTouch = true;
+    clearTimeout(_asTouchCooldown);
     _asHandlePressStart(e.touches[0].clientY);
   }, { passive: true });
   btn.addEventListener('touchmove', (e) => {
     _asHandlePressMove(e.touches[0].clientY);
     if (_asLongPressActive) e.preventDefault();
   }, { passive: false });
-  btn.addEventListener('touchend', _asHandlePressEnd);
-  btn.addEventListener('touchcancel', _asHandlePressEnd);
-  // Mouse support for desktop/testing
-  btn.addEventListener('mousedown', (e) => { _asHandlePressStart(e.clientY); });
-  document.addEventListener('mousemove', (e) => { if (_asPressTimer || _asLongPressActive) _asHandlePressMove(e.clientY); });
-  document.addEventListener('mouseup', () => { if (_asPressTimer || _asLongPressActive) _asHandlePressEnd(); });
+  btn.addEventListener('touchend', (e) => {
+    _asHandlePressEnd();
+    // Mobile browsers fire a synthetic mousedown/mouseup/click shortly after a
+    // real touch, which would otherwise toggle play/pause a second time for
+    // every single tap. Swallow mouse events for a short window after touch.
+    clearTimeout(_asTouchCooldown);
+    _asTouchCooldown = setTimeout(() => { _asUsingTouch = false; }, 800);
+  });
+  btn.addEventListener('touchcancel', () => {
+    _asHandlePressEnd();
+    clearTimeout(_asTouchCooldown);
+    _asTouchCooldown = setTimeout(() => { _asUsingTouch = false; }, 800);
+  });
+  // Mouse support for desktop/testing — ignored while a real touch interaction
+  // is active or in its synthetic-event cooldown window.
+  btn.addEventListener('mousedown', (e) => { if (_asUsingTouch) return; _asHandlePressStart(e.clientY); });
+  document.addEventListener('mousemove', (e) => { if (_asUsingTouch) return; if (_asPressTimer || _asLongPressActive) _asHandlePressMove(e.clientY); });
+  document.addEventListener('mouseup', () => { if (_asUsingTouch) return; if (_asPressTimer || _asLongPressActive) _asHandlePressEnd(); });
 }
 
 // ── Hide / show the auto-scroll button (per-device preference) ──
