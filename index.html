@@ -1350,19 +1350,27 @@ button:active::after { background: rgba(255,255,255,0.12); }
 <!-- AUTOSCROLL CONTROL — horizontal pill, bottom-right -->
 <div id="autoscroll-fab" style="display:none;">
   <!-- Floating speed readout — only visible while long-press-dragging to adjust speed -->
-  <div id="autoscroll-speed-badge" style="display:none;position:absolute;bottom:56px;right:0;background:var(--surface-1);border:1px solid var(--accent);border-radius:14px;padding:8px 14px;box-shadow:0 2px 14px rgba(60,30,30,0.25);white-space:nowrap;text-align:center;">
-    <div style="color:var(--accent);font-size:18px;font-weight:800;line-height:1.1;"><span id="autoscroll-speed-value">72</span> <span style="font-size:11px;font-weight:600;color:var(--text-muted);">BPM</span></div>
-    <div style="color:var(--text-muted);font-size:10px;margin-top:2px;">Swipe up/down to adjust</div>
+  <div id="autoscroll-speed-badge" style="display:none;position:absolute;bottom:60px;right:0;background:var(--surface-1);border:2px solid var(--accent);border-radius:16px;padding:10px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.35);white-space:nowrap;text-align:center;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+      <iconify-icon id="autoscroll-speed-arrow" icon="mdi:minus" style="font-size:16px;color:var(--text-muted);"></iconify-icon>
+      <span style="color:var(--accent);font-size:20px;font-weight:800;line-height:1;"><span id="autoscroll-speed-value">72</span> <span style="font-size:11px;font-weight:600;color:var(--text-muted);">BPM</span></span>
+    </div>
+    <div style="color:var(--text-muted);font-size:10px;margin-top:4px;">↑ faster &nbsp;·&nbsp; ↓ slower</div>
   </div>
   <div style="display:flex;align-items:center;gap:6px;">
     <button id="autoscroll-hide-btn" onclick="hideAutoscrollFab()" title="Hide auto-scroll button"
       style="width:26px;height:26px;min-width:26px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-subtle);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;opacity:0.85;">
       <iconify-icon icon="mdi:close" style="font-size:14px;"></iconify-icon>
     </button>
-    <button id="autoscroll-fab-btn" title="Tap: start/stop. Hold + swipe: adjust speed."
-      style="width:48px;height:48px;min-width:48px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s;flex-shrink:0;box-shadow:0 2px 10px rgba(60,30,30,0.18);touch-action:none;">
-      <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:24px;"></iconify-icon>
-    </button>
+    <div style="position:relative;width:56px;height:56px;flex-shrink:0;">
+      <svg id="autoscroll-press-ring" width="56" height="56" viewBox="0 0 56 56" style="position:absolute;inset:0;transform:rotate(-90deg);pointer-events:none;opacity:0;">
+        <circle cx="28" cy="28" r="25" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="157" stroke-dashoffset="157" id="autoscroll-press-ring-circle" stroke-linecap="round"></circle>
+      </svg>
+      <button id="autoscroll-fab-btn" title="Tap: start/stop. Hold + swipe: adjust speed."
+        style="position:absolute;inset:4px;width:48px;height:48px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,color 0.2s,border-color 0.2s,transform 0.15s;flex-shrink:0;box-shadow:0 2px 10px rgba(60,30,30,0.18);touch-action:none;">
+        <iconify-icon id="autoscroll-fab-icon" icon="mdi:play" style="font-size:24px;"></iconify-icon>
+      </button>
+    </div>
   </div>
 </div>
 <!-- Tiny re-show pill, appears bottom-right when the auto-scroll button has been hidden -->
@@ -1673,15 +1681,15 @@ button:active::after { background: rgba(255,255,255,0.12); }
     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <iconify-icon icon="mdi:gesture-tap" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Tap</strong> the button to start or stop auto-scrolling.</p>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Tap once</strong> to play or pause the scroll.</p>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <iconify-icon icon="mdi:gesture-swipe-vertical" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Hold</strong> the button, then swipe <strong style="color:var(--accent);">up</strong> or <strong style="color:var(--accent);">down</strong> to adjust the speed.</p>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;"><strong style="color:var(--lyrics-color);">Press and hold</strong>, then drag <strong style="color:var(--accent);">up</strong> (faster) or <strong style="color:var(--accent);">down</strong> (slower) to change speed. A ring fills around the button while you hold — once it's full, you're in speed mode.</p>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <iconify-icon icon="mdi:eye-off-outline" style="font-size:22px;color:var(--text-muted);flex-shrink:0;margin-top:2px;"></iconify-icon>
-        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;">Tap the small <strong style="color:var(--lyrics-color);">×</strong> next to it to hide the button. Tap the small play icon to bring it back.</p>
+        <p style="color:var(--text-secondary);font-size:13px;margin:0;line-height:1.5;">The small <strong style="color:var(--lyrics-color);">×</strong> hides the button; tap the small play icon that appears to bring it back.</p>
       </div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;cursor:pointer;margin-bottom:16px;">
@@ -3523,36 +3531,71 @@ function updateAutoscrollFabPosition() {
 }
 
 // ── Auto-scroll gesture handling: tap = play/pause, long-press + vertical drag = adjust speed ──
+const AS_HOLD_MS = 280; // time to hold before speed-adjust mode arms
 let _asPressTimer = null;
+let _asRingRAF = null;
 let _asLongPressActive = false;
 let _asDragStartY = 0;
 let _asDragStartBpm = 72;
 let _asMovedDuringPress = false;
 let _asStartY = 0;
+let _asPressStartTime = 0;
 
 function _asShowSpeedBadge(show) {
   const badge = document.getElementById('autoscroll-speed-badge');
   if (badge) badge.style.display = show ? 'block' : 'none';
 }
 
-function _asUpdateSpeedBadge() {
+function _asUpdateSpeedBadge(direction) {
   const val = document.getElementById('autoscroll-speed-value');
   if (val) val.textContent = _bpm;
+  const arrow = document.getElementById('autoscroll-speed-arrow');
+  if (arrow) {
+    if (direction === 'up') { arrow.setAttribute('icon', 'mdi:chevron-up'); arrow.style.color = 'var(--accent)'; }
+    else if (direction === 'down') { arrow.setAttribute('icon', 'mdi:chevron-down'); arrow.style.color = 'var(--accent)'; }
+    else { arrow.setAttribute('icon', 'mdi:minus'); arrow.style.color = 'var(--text-muted)'; }
+  }
+}
+
+function _asSetRingProgress(pct) {
+  const circle = document.getElementById('autoscroll-press-ring-circle');
+  const ring = document.getElementById('autoscroll-press-ring');
+  if (!circle || !ring) return;
+  ring.style.opacity = pct > 0 ? '1' : '0';
+  const dash = 157; // circumference of r=25 circle
+  circle.style.strokeDashoffset = String(dash - dash * pct);
+}
+
+function _asAnimateRing() {
+  const elapsed = performance.now() - _asPressStartTime;
+  const pct = Math.min(1, elapsed / AS_HOLD_MS);
+  _asSetRingProgress(pct);
+  if (pct < 1 && _asPressTimer) {
+    _asRingRAF = requestAnimationFrame(_asAnimateRing);
+  }
 }
 
 function _asHandlePressStart(clientY) {
   _asMovedDuringPress = false;
   _asLongPressActive = false;
   _asStartY = clientY;
+  _asPressStartTime = performance.now();
   clearTimeout(_asPressTimer);
+  if (_asRingRAF) cancelAnimationFrame(_asRingRAF);
+  // Immediate press-down feedback so the button never feels unresponsive
+  const btn = document.getElementById('autoscroll-fab-btn');
+  if (btn) btn.style.transform = 'scale(0.9)';
+  _asRingRAF = requestAnimationFrame(_asAnimateRing);
   _asPressTimer = setTimeout(() => {
     _asLongPressActive = true;
     _asDragStartY = clientY;
     _asDragStartBpm = _bpm;
     _asShowSpeedBadge(true);
-    _asUpdateSpeedBadge();
-    if (navigator.vibrate) navigator.vibrate(15);
-  }, 350);
+    _asUpdateSpeedBadge(null);
+    _asSetRingProgress(0); // ring fades out once armed — badge takes over as the feedback
+    if (btn) { btn.style.transform = 'scale(1.08)'; btn.style.borderColor = 'var(--accent)'; }
+    if (navigator.vibrate) navigator.vibrate(20);
+  }, AS_HOLD_MS);
 }
 
 function _asHandlePressMove(clientY) {
@@ -3561,9 +3604,13 @@ function _asHandlePressMove(clientY) {
     // normal even on a clean tap). Only cancel the pending tap if the finger
     // genuinely moves a meaningful distance — and in that case, also cancel the
     // long-press timer so a moving finger never accidentally arms speed-adjust.
-    if (Math.abs(clientY - _asStartY) > 10) {
+    if (Math.abs(clientY - _asStartY) > 12) {
       _asMovedDuringPress = true;
       clearTimeout(_asPressTimer);
+      if (_asRingRAF) cancelAnimationFrame(_asRingRAF);
+      _asSetRingProgress(0);
+      const btn = document.getElementById('autoscroll-fab-btn');
+      if (btn) btn.style.transform = 'scale(1)';
     }
     return;
   }
@@ -3571,12 +3618,16 @@ function _asHandlePressMove(clientY) {
   const deltaY = _asDragStartY - clientY;
   const newBpm = Math.round(_asDragStartBpm + deltaY / 2.5);
   _bpm = Math.max(20, Math.min(200, newBpm));
-  _asUpdateSpeedBadge();
+  _asUpdateSpeedBadge(deltaY > 2 ? 'up' : (deltaY < -2 ? 'down' : null));
   if (_bpmActive) { stopAutoScroll(); startAutoScroll(); }
 }
 
 function _asHandlePressEnd() {
   clearTimeout(_asPressTimer);
+  if (_asRingRAF) cancelAnimationFrame(_asRingRAF);
+  _asSetRingProgress(0);
+  const btn = document.getElementById('autoscroll-fab-btn');
+  if (btn) { btn.style.transform = 'scale(1)'; btn.style.borderColor = _bpmActive ? 'var(--accent)' : 'var(--border-subtle)'; }
   if (_asLongPressActive) {
     // Was a long-press/drag — don't toggle play, just close the badge
     _asLongPressActive = false;
