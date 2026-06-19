@@ -4600,11 +4600,26 @@ function openSetlistDetail(setlistId) {
   if (!setlist) return;
   currentSetlistId = setlistId;
   currentSetlistSongs = setlist.songs ? [...setlist.songs] : [];
-  // Ensure setlists tab is active
+  // Switch to setlists tab
   activeTab = 'setlists';
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-setlists').classList.add('active');
-  // bottom-nav removed — sidebar rebuilt via buildNav()
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.style.animation = 'none';
+    p.classList.remove('active');
+  });
+  const panel = document.getElementById('tab-setlists');
+  if (panel) {
+    void panel.offsetWidth;
+    panel.style.animation = '';
+    panel.classList.add('active');
+  }
+  // Show detail view, hide list view
+  document.getElementById('setlist-detail-view').style.display = 'block';
+  document.getElementById('setlists-list-view').style.display = 'none';
+  // Render content
+  renderSetlistDetail(setlist);
+  updateHomeBtn(true);
+  updateFAB();
+  pushState();
 }
 
 function closeSetlistDetail() {
