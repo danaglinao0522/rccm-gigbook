@@ -882,21 +882,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
                 <span id="lyrics-toggle-label">Lyrics Only</span>
               </button>
             </div>
-            <!-- Zoom controls -->
-            <div style="display:flex;align-items:center;gap:8px;">
-              <button class="zoom-btn" onclick="zoomStep(-1)" title="Zoom out" aria-label="Zoom out">
-                <iconify-icon icon="mdi:minus" style="font-size:16px;"></iconify-icon>
-              </button>
-              <span class="zoom-indicator zoom-pct-display">100%</span>
-              <button class="zoom-btn" onclick="zoomStep(1)" title="Zoom in" aria-label="Zoom in">
-                <iconify-icon icon="mdi:plus" style="font-size:16px;"></iconify-icon>
-              </button>
-              <div style="flex:1;"></div>
-              <span style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
-                <iconify-icon icon="mdi:gesture-pinch" style="font-size:14px;"></iconify-icon>
-                Pinch to zoom
-              </span>
-            </div>
           </div>
           <!-- SINGER/TECH CONTROLS -->
           <div id="singer-controls" style="display:none;margin-top:8px;">
@@ -908,6 +893,21 @@ button:active::after { background: rgba(255,255,255,0.12); }
                 </button>
               </div>
             </div>
+          </div>
+          <!-- SHARED ZOOM CONTROLS — visible to all roles -->
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <button class="zoom-btn" onclick="zoomStep(-1)" title="Zoom out" aria-label="Zoom out">
+              <iconify-icon icon="mdi:minus" style="font-size:16px;"></iconify-icon>
+            </button>
+            <span class="zoom-indicator zoom-pct-display">100%</span>
+            <button class="zoom-btn" onclick="zoomStep(1)" title="Zoom in" aria-label="Zoom in">
+              <iconify-icon icon="mdi:plus" style="font-size:16px;"></iconify-icon>
+            </button>
+            <div style="flex:1;"></div>
+            <span style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+              <iconify-icon icon="mdi:gesture-pinch" style="font-size:14px;"></iconify-icon>
+              Pinch to zoom
+            </span>
           </div>
         </div>
         <div id="song-sheet-content" class="song-sheet-content swipe-container" style="overflow-x:hidden;max-width:100%;word-wrap:break-word;padding:0 var(--view-px) calc(40px + env(safe-area-inset-bottom,0px));line-height:1.6;"></div>
@@ -1198,6 +1198,40 @@ button:active::after { background: rgba(255,255,255,0.12); }
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- SETLIST EXPIRY -->
+        <div id="admin-sec-setlistttl">
+          <div style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+              <iconify-icon icon="mdi:clock-remove-outline" style="font-size:16px;color:var(--accent-soft);"></iconify-icon>
+              <span class="section-label" style="margin-bottom:0;">Setlist Expiry</span>
+            </div>
+            <p style="color:var(--text-muted);font-size:12px;margin:0;">Setlists older than this many days are automatically deleted on next app load. Default is 7 days.</p>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="number" class="input-field" id="admin-setlist-ttl" value="7" min="1" max="365" style="width:90px;font-size:16px;font-weight:700;text-align:center;padding:8px;" />
+              <span style="color:var(--text-muted);font-size:13px;">days</span>
+            </div>
+            <button class="btn-primary" onclick="saveSetlistTTL()" style="width:100%;">
+              <iconify-icon icon="mdi:content-save" style="font-size:16px;vertical-align:middle;margin-right:6px;"></iconify-icon>
+              Save Expiry
+            </button>
+          </div>
+        </div>
+
+        <!-- DANGER ZONE -->
+        <div id="admin-sec-dangerzone">
+          <div style="background:var(--surface-1);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;border:1px solid rgba(220,50,50,0.25);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+              <iconify-icon icon="mdi:alert-octagon" style="font-size:16px;color:#e05555;"></iconify-icon>
+              <span class="section-label" style="margin-bottom:0;color:#e05555;">Danger Zone</span>
+            </div>
+            <p style="color:var(--text-muted);font-size:12px;margin:0;">Permanently delete <strong style="color:var(--lyrics-color);">all setlists</strong> from the database. A confirmation code will be sent to your admin email before this action runs.</p>
+            <button onclick="initiateDeleteAllSetlists()" style="width:100%;background:rgba(220,50,50,0.12);border:1.5px solid rgba(220,50,50,0.4);color:#e05555;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">
+              <iconify-icon icon="mdi:delete-sweep" style="font-size:18px;"></iconify-icon>
+              Delete All Setlists
+            </button>
           </div>
         </div>
 
@@ -1748,14 +1782,16 @@ button:active::after { background: rgba(255,255,255,0.12); }
 
 <script>
 // ── INSTANT THEME PRE-PAINT ──────────────────────────────────────────────────
-// Runs synchronously before any paint so the app renders with the correct theme
-// from frame 1 — eliminates the maroon-default flash on startup.
+// Admin gets their personal override (rccm_admin_theme) painted first.
+// All other users get the global theme (rccm_last_global_theme).
+// rccm_admin_theme is only ever written when admin saves "Admin Only" scope,
+// so its presence is a reliable signal that this device is the admin's device.
 (function() {
   try {
-    // Try global theme first (applies to all users), then admin-only theme
-    const globalStr = localStorage.getItem('rccm_last_global_theme');
     const adminStr  = localStorage.getItem('rccm_admin_theme');
-    const raw = globalStr || adminStr;
+    const globalStr = localStorage.getItem('rccm_last_global_theme');
+    // Prefer admin-only theme if it exists (this is the admin's device)
+    const raw = adminStr || globalStr;
     if (!raw) return;
     const t = JSON.parse(raw);
     if (!t || !t.bg) return;
@@ -2285,15 +2321,6 @@ function mountApp() {
   runTTLCleanup();
   seedSongsIfEmpty();
   loadAdminSettings();
-  // Restore admin-only local theme if it exists and no global theme is loaded
-  try {
-    const adminThemeStr = localStorage.getItem('rccm_admin_theme');
-    if (adminThemeStr && currentUserProfile?.role === 'Admin') {
-      const adminTheme = JSON.parse(adminThemeStr);
-      // Applied after loadAdminSettings may override — load with a slight delay
-      setTimeout(() => applyThemeData(adminTheme), 200);
-    }
-  } catch(e) {}
   checkForUpdates();
   // Ensure FAB is visible on first load
   setTimeout(updateFAB, 100);
@@ -2821,12 +2848,27 @@ function loadAdminSettings() {
         const limitEl = document.getElementById('admin-song-limit');
         if (limitEl) limitEl.value = data.songLimit;
       }
+      if (data.setlistTTLDays) {
+        globalSetlistTTLDays = data.setlistTTLDays;
+        const ttlEl = document.getElementById('admin-setlist-ttl');
+        if (ttlEl) ttlEl.value = data.setlistTTLDays;
+      }
       if (data.theme) {
-        applyThemeData(data.theme);
+        applyThemeData(data.theme, 'global');
       } else {
         // No saved theme — apply logo-inspired purple default
-        applyThemeData(THEMES.gigbook); // maroon+black default
+        applyThemeData(THEMES.gigbook, 'global');
         updateThemeCarousel('gigbook');
+      }
+      // If this user is Admin and has a personal admin-only theme, apply it on top
+      if (currentUserProfile?.role === 'Admin') {
+        try {
+          const adminStr = localStorage.getItem('rccm_admin_theme');
+          if (adminStr) {
+            const adminTheme = JSON.parse(adminStr);
+            if (adminTheme && adminTheme.bg) applyThemeData(adminTheme, 'admin');
+          }
+        } catch(e) {}
       }
       if (data.typography) applyTypographyData(data.typography);
       if (data.appName) {
@@ -6060,7 +6102,7 @@ const THEMES = {
 function applyTheme(key) {
   const theme = THEMES[key];
   if (!theme) return;
-  applyThemeData(theme);
+  applyThemeData(theme, 'global');
   updateThemeCarousel(key);
   showSyncToast();
   saveThemeToDb(theme).then(() => hideSyncToast());
@@ -6092,7 +6134,10 @@ function _loadPresetToCustom(key) {
   });
 }
 
-function applyThemeData(theme) {
+function applyThemeData(theme, scope) {
+  // scope: 'global' = save to rccm_last_global_theme (all users)
+  //        'admin'  = save to rccm_admin_theme (admin personal override)
+  //        undefined = apply visually only, no localStorage write (e.g. live preview callers)
   const root = document.documentElement;
   const ab = adjustBrightness;
   root.style.setProperty('--canvas-bg',      theme.bg);
@@ -6111,14 +6156,11 @@ function applyThemeData(theme) {
   root.style.setProperty('--toggle-track',   theme.toggleTrack   || '#3a3450');
   root.style.setProperty('--scrollbar-thumb',theme.scrollbar     || '#4a4262');
   root.style.setProperty('--accent-glow',    theme.accentGlow    || 'var(--accent-glow)');
-  // Accent system — updates ALL accent-colored components
   if (theme.accent)       root.style.setProperty('--accent',        theme.accent);
   if (theme.accentStrong) root.style.setProperty('--accent-strong', theme.accentStrong);
   if (theme.accentSoft)   root.style.setProperty('--accent-soft',   theme.accentSoft);
-  // Primary button
   if (theme.btnBg)        root.style.setProperty('--btn-primary-bg',   theme.btnBg);
   if (theme.btnText)      root.style.setProperty('--btn-primary-text',  theme.btnText);
-  // Update meta theme-color
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) metaTheme.content = theme.bg;
   // Sync custom theme pickers
@@ -6128,11 +6170,14 @@ function applyThemeData(theme) {
   if (el('custom-chords'))   el('custom-chords').value   = theme.chords;
   if (el('custom-btn-bg'))   el('custom-btn-bg').value   = theme.btnColor || theme.accent || theme.chords;
   if (el('custom-btn-text') && theme.btnText) el('custom-btn-text').value = theme.btnText;
-  if (el('custom-card-bg') && theme.s1)    el('custom-card-bg').value  = theme.s1;
+  if (el('custom-card-bg') && theme.s1)       el('custom-card-bg').value  = theme.s1;
   _syncHexInputs();
   livePreviewTheme();
-  // Persist to localStorage so next load can pre-paint instantly (no Firestore flash)
-  try { localStorage.setItem('rccm_last_global_theme', JSON.stringify(theme)); } catch(e) {}
+  // Persist to correct localStorage key based on scope
+  try {
+    if (scope === 'global') localStorage.setItem('rccm_last_global_theme', JSON.stringify(theme));
+    if (scope === 'admin')  localStorage.setItem('rccm_admin_theme',       JSON.stringify(theme));
+  } catch(e) {}
 }
 
 // Helper: lighten/darken a hex color by amount (positive = lighter)
@@ -6294,17 +6339,16 @@ function hexToRgba(hex, alpha) {
 
 function saveCustomTheme() {
   const theme = _buildCustomThemeObject();
-  // Apply locally immediately so admin sees the result
-  applyThemeData(theme);
   if (_themeScope === 'global') {
+    applyThemeData(theme, 'global');
     showSyncToast();
     saveThemeToDb(theme).then(() => {
       hideSyncToast();
       showAlert('Theme Saved', 'Custom theme applied and pushed to all users.', 'mdi:palette');
     });
   } else {
-    // Admin-only: save to localStorage, not Firestore
-    try { localStorage.setItem('rccm_admin_theme', JSON.stringify(theme)); } catch(e) {}
+    // Admin-only: apply visually and save to localStorage only
+    applyThemeData(theme, 'admin');
     showAlert('Theme Applied', 'Theme applied to your admin account only. Switch to "All Users" and save again to push globally.', 'mdi:palette');
   }
 }
@@ -6425,20 +6469,152 @@ async function seedSongsIfEmpty() {
 }
 
 // ============================================================
-// TTL CLEANUP — Delete setlists older than 1 month
+// TTL CLEANUP — Delete setlists older than admin-configured days
 // ============================================================
+let globalSetlistTTLDays = 7; // default; overridden by Firestore settings
+
 async function runTTLCleanup() {
   try {
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-    const cutoff = firebase.firestore.Timestamp.fromDate(oneMonthAgo);
-    const snap = await db.collection('setlists').where('createdAt', '<', cutoff).get();
+    const days = globalSetlistTTLDays || 7;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffTs = firebase.firestore.Timestamp.fromDate(cutoff);
+    const snap = await db.collection('setlists').where('createdAt', '<', cutoffTs).get();
     if (snap.empty) return;
     const batch = db.batch();
     snap.docs.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
-    console.log(`TTL cleanup: deleted ${snap.size} expired setlist(s).`);
+    console.log(`TTL cleanup: deleted ${snap.size} expired setlist(s) older than ${days} days.`);
   } catch(e) { console.error('TTL cleanup error:', e); }
+}
+
+async function saveSetlistTTL() {
+  const role = currentUserProfile?.role || '';
+  if (role !== 'Admin') return;
+  const val = parseInt(document.getElementById('admin-setlist-ttl')?.value) || 7;
+  globalSetlistTTLDays = val;
+  showSyncToast();
+  try {
+    await db.collection('settings').doc('global').set({ setlistTTLDays: val }, { merge: true });
+    hideSyncToast();
+    showAlert('Saved', `Setlists will now expire after ${val} day${val !== 1 ? 's' : ''}.`, 'mdi:check-circle');
+  } catch(e) { hideSyncToast(); console.error(e); }
+}
+
+// ============================================================
+// DELETE ALL SETLISTS — Admin danger zone with email code
+// ============================================================
+let _dasCode = null;
+let _dasCodeExpiry = null;
+
+function initiateDeleteAllSetlists() {
+  const role = currentUserProfile?.role || '';
+  if (role !== 'Admin') return;
+  // Reset modal to step 1
+  document.getElementById('das-step-1').style.display = 'block';
+  document.getElementById('das-step-2').style.display = 'none';
+  document.getElementById('das-code-error').style.display = 'none';
+  const emailEl = document.getElementById('das-email-display');
+  if (emailEl) emailEl.textContent = currentUser?.email || '(admin email)';
+  document.getElementById('das-send-label').textContent = 'Send Confirmation Code';
+  document.getElementById('das-send-btn').disabled = false;
+  _dasCode = null;
+  _dasCodeExpiry = null;
+  const modal = document.getElementById('delete-all-setlists-modal');
+  modal.style.display = 'flex';
+  _animateModalIn(modal);
+  pushState();
+}
+
+function closeDeleteAllSetlistsModal() {
+  _animateModalOut(document.getElementById('delete-all-setlists-modal'));
+  _dasCode = null;
+}
+
+function dasSendCode() {
+  // Generate a cryptographically random 6-digit code
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  _dasCode = String(arr[0] % 1000000).padStart(6, '0');
+  _dasCodeExpiry = Date.now() + 10 * 60 * 1000; // 10 min
+
+  const email = currentUser?.email || '';
+  const subject = encodeURIComponent('GigBook — Delete All Setlists Confirmation Code');
+  const body = encodeURIComponent(
+    `Your GigBook confirmation code is:\n\n${_dasCode}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, ignore this email.`
+  );
+  // Open mail client — most reliable cross-platform approach without a backend
+  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+
+  // Show step 2 after short delay so mail client has time to open
+  setTimeout(() => {
+    document.getElementById('das-step-1').style.display = 'none';
+    document.getElementById('das-step-2').style.display = 'block';
+    const input = document.getElementById('das-code-input');
+    if (input) { input.value = ''; input.focus(); }
+  }, 800);
+}
+
+function dasResend() {
+  document.getElementById('das-step-1').style.display = 'block';
+  document.getElementById('das-step-2').style.display = 'none';
+  document.getElementById('das-code-error').style.display = 'none';
+  document.getElementById('das-send-label').textContent = 'Resend Code';
+  document.getElementById('das-send-btn').disabled = false;
+  _dasCode = null;
+}
+
+function dasValidateInput() {
+  const input = document.getElementById('das-code-input');
+  const btn = document.getElementById('das-confirm-btn');
+  const ready = input && input.value.length === 6;
+  if (btn) {
+    btn.disabled = !ready;
+    btn.style.opacity = ready ? '1' : '0.5';
+    btn.style.cursor = ready ? 'pointer' : 'not-allowed';
+    btn.style.background = ready ? 'rgba(220,50,50,0.22)' : 'rgba(220,50,50,0.10)';
+    btn.style.borderColor = ready ? 'rgba(220,50,50,0.7)' : 'rgba(220,50,50,0.3)';
+  }
+  // Hide error when user is typing
+  document.getElementById('das-code-error').style.display = 'none';
+}
+
+async function dasConfirmDelete() {
+  const input = document.getElementById('das-code-input');
+  const entered = input?.value?.trim();
+  // Check expiry
+  if (!_dasCode || Date.now() > _dasCodeExpiry) {
+    document.getElementById('das-code-error').textContent = 'Code expired. Please request a new one.';
+    document.getElementById('das-code-error').style.display = 'block';
+    return;
+  }
+  if (entered !== _dasCode) {
+    document.getElementById('das-code-error').style.display = 'block';
+    document.getElementById('das-code-error').textContent = 'Incorrect code. Please try again.';
+    if (input) { input.value = ''; input.focus(); }
+    dasValidateInput();
+    return;
+  }
+  // Code matches — delete all setlists in batches of 500 (Firestore batch limit)
+  const btn = document.getElementById('das-confirm-btn');
+  if (btn) { btn.textContent = 'Deleting…'; btn.disabled = true; }
+  try {
+    let deleted = 0;
+    let snap = await db.collection('setlists').limit(500).get();
+    while (!snap.empty) {
+      const batch = db.batch();
+      snap.docs.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      deleted += snap.size;
+      snap = await db.collection('setlists').limit(500).get();
+    }
+    closeDeleteAllSetlistsModal();
+    showAlert('Done', `All setlists deleted (${deleted} total).`, 'mdi:delete-sweep');
+  } catch(e) {
+    console.error('Delete all setlists error:', e);
+    showAlert('Error', 'Something went wrong. Please try again.', 'mdi:alert-circle');
+    closeDeleteAllSetlistsModal();
+  }
 }
 
 // ============================================================
@@ -6680,7 +6856,60 @@ function _startModalDrag(e, sheet) {
 
 
 
-<!-- FILTER MENUS — at body level to avoid tab-panel opacity cascade -->
+<!-- DELETE ALL SETLISTS CONFIRMATION MODAL -->
+<div id="delete-all-setlists-modal" class="modal-overlay center" style="display:none;z-index:10000;">
+  <div class="modal-sheet center-card" style="max-width:360px;border-radius:20px;padding:24px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(220,50,50,0.12);border:2px solid rgba(220,50,50,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <iconify-icon icon="mdi:delete-sweep" style="font-size:24px;color:#e05555;"></iconify-icon>
+      </div>
+      <div>
+        <div style="color:#e05555;font-size:16px;font-weight:700;line-height:1.2;">Delete All Setlists</div>
+        <div style="color:var(--text-muted);font-size:12px;margin-top:2px;">This cannot be undone</div>
+      </div>
+    </div>
+
+    <!-- Step 1: send code -->
+    <div id="das-step-1">
+      <p style="color:var(--text-secondary);font-size:13px;margin:0 0 16px;line-height:1.5;">
+        A 6-digit confirmation code will be sent to your admin email. Enter it below to permanently delete <strong style="color:#e05555;">all setlists</strong>.
+      </p>
+      <div style="background:var(--surface-2);border-radius:10px;padding:10px 12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        <iconify-icon icon="mdi:email-outline" style="font-size:16px;color:var(--text-muted);flex-shrink:0;"></iconify-icon>
+        <span id="das-email-display" style="color:var(--text-secondary);font-size:13px;word-break:break-all;"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button id="das-send-btn" onclick="dasSendCode()" class="btn-primary" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <iconify-icon icon="mdi:email-fast" style="font-size:16px;"></iconify-icon>
+          <span id="das-send-label">Send Confirmation Code</span>
+        </button>
+        <button onclick="closeDeleteAllSetlistsModal()" class="btn-secondary" style="width:100%;">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Step 2: enter code -->
+    <div id="das-step-2" style="display:none;">
+      <p style="color:var(--text-secondary);font-size:13px;margin:0 0 4px;line-height:1.5;">Check your email for the 6-digit code and enter it below.</p>
+      <p style="color:var(--text-muted);font-size:11px;margin:0 0 14px;">Code expires in 10 minutes.</p>
+      <input id="das-code-input" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+        style="width:100%;text-align:center;font-size:28px;font-weight:800;letter-spacing:0.18em;padding:14px;border-radius:12px;border:2px solid var(--border-color);background:var(--surface-2);color:var(--lyrics-color);box-sizing:border-box;margin-bottom:14px;"
+        oninput="this.value=this.value.replace(/\D/g,'').slice(0,6); dasValidateInput();" />
+      <div id="das-code-error" style="color:#e05555;font-size:12px;margin-bottom:10px;display:none;text-align:center;">Incorrect code. Please try again.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button id="das-confirm-btn" onclick="dasConfirmDelete()" disabled
+          style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(220,50,50,0.15);border:1.5px solid rgba(220,50,50,0.4);color:#e05555;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:not-allowed;opacity:0.5;transition:all 0.2s;">
+          <iconify-icon icon="mdi:delete-forever" style="font-size:18px;"></iconify-icon>
+          Confirm — Delete Everything
+        </button>
+        <button onclick="dasResend()" style="background:transparent;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;padding:4px;">Resend code</button>
+        <button onclick="closeDeleteAllSetlistsModal()" class="btn-secondary" style="width:100%;">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <div id="song-filter-menu" style="display:none;position:fixed;background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:14px;padding:8px;min-width:168px;z-index:900;box-shadow:0 4px 20px rgba(30,10,10,0.32);" onclick="event.stopPropagation()">
           <button id="song-sort-az" onclick="setSongSort('az')" style="display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--lyrics-color);padding:6px 8px;text-align:left;font-size:13px;cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <iconify-icon icon="mdi:sort-alphabetical-ascending" style="font-size:14px;"></iconify-icon><span style="flex:1;">A–Z</span><iconify-icon id="song-sort-az-chk" icon="mdi:check" style="font-size:13px;opacity:0;color:var(--accent);"></iconify-icon>
