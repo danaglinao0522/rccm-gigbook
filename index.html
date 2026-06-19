@@ -803,9 +803,8 @@ button:active::after { background: rgba(255,255,255,0.12); }
       <button id="header-search-clear" onclick="closeHeaderSearch()" style="display:none;width:32px;height:32px;min-width:32px;margin:7px;background:var(--surface-2);border:none;border-radius:50%;color:var(--text-muted);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:background 0.15s;">✕</button>
     </div>
     <!-- Filter button -->
-    <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(60,30,30,0.18);position:relative;transition:color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+    <button id="header-filter-btn" onclick="openHeaderFilter()" style="width:46px;height:46px;border-radius:50%;background:var(--surface-1);border:1px solid var(--border-color);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(60,30,30,0.18);position:relative;transition:color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth), border-color 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
       <iconify-icon icon="mdi:tune-variant" style="font-size:20px;"></iconify-icon>
-      <span id="header-filter-dot" style="display:none;position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent);border:1.5px solid var(--surface-1);"></span>
     </button>
   </div>
 
@@ -1884,7 +1883,7 @@ window.addEventListener('popstate', () => {
 });
 function _isVisible(id) {
   const el = document.getElementById(id);
-  return el && el.style.display !== 'none';
+  return el && el.style.display !== 'none' && !el.dataset.closing;
 }
 function handleBackButton() {
   try {
@@ -2340,7 +2339,7 @@ function showUpdateModal(newVersion) {
 
 function closeUpdateModal() {
   const modal = document.getElementById('update-modal');
-  if (modal) modal.style.display = 'none';
+  if (modal) _animateModalOut(modal);
 }
 
 function reloadApp() {
@@ -2461,15 +2460,26 @@ function openHeaderFilter() {
   else if (activeTab === 'setlists') toggleSetlistFilterMenu();
   else if (activeTab === 'users') toggleUserFilterMenu();
 }
-// Sync the header filter dot with the active tab's filter button state
+// Sync the header filter button active state (no dot — button glows when filter active)
 function syncHeaderFilterDot() {
-  const dot = document.getElementById('header-filter-dot');
-  if (!dot) return;
-  let btn = null;
-  if (activeTab === 'songs') btn = document.getElementById('song-filter-btn');
-  else if (activeTab === 'setlists') btn = document.getElementById('setlist-filter-btn');
-  else if (activeTab === 'users') btn = document.getElementById('user-filter-btn');
-  dot.style.display = (btn && btn.classList.contains('has-active-filter')) ? 'block' : 'none';
+  const headerBtn = document.getElementById('header-filter-btn');
+  if (!headerBtn) return;
+  let tabBtn = null;
+  if (activeTab === 'songs') tabBtn = document.getElementById('song-filter-btn');
+  else if (activeTab === 'setlists') tabBtn = document.getElementById('setlist-filter-btn');
+  else if (activeTab === 'users') tabBtn = document.getElementById('user-filter-btn');
+  const isActive = tabBtn && tabBtn.classList.contains('has-active-filter');
+  if (isActive) {
+    headerBtn.style.borderColor = 'var(--accent)';
+    headerBtn.style.background  = 'var(--accent-glow)';
+    headerBtn.style.color       = 'var(--accent-soft)';
+    headerBtn.style.boxShadow   = '0 0 0 1.5px var(--accent) inset, 0 2px 10px rgba(60,30,30,0.18)';
+  } else {
+    headerBtn.style.borderColor = '';
+    headerBtn.style.background  = '';
+    headerBtn.style.color       = '';
+    headerBtn.style.boxShadow   = '';
+  }
 }
 
 function buildNav() {
@@ -3482,7 +3492,7 @@ function openKeyModal() {
   _animateModalIn(document.getElementById('key-modal'));
   pushState();
 }
-function closeKeyModal() { document.getElementById('key-modal').style.display = 'none'; }
+function closeKeyModal() { _animateModalOut(document.getElementById('key-modal')); }
 function selectKey(key) {
   localKey = key;
   document.getElementById('current-key-display').textContent = key;
@@ -3972,40 +3982,79 @@ function _animateModalIn(modalOverlayEl) {
   const sheet = modalOverlayEl.querySelector('.modal-sheet');
   const isCenter = sheet && sheet.classList.contains('center-card');
 
-  // ── Overlay: fade in ──────────────────────────────────────────
+  // Set start state BEFORE display:flex — impossible since element was display:none.
+  // We set start state immediately after display flip, force a reflow, THEN set end state.
+  // overlay
   modalOverlayEl.style.opacity = '0';
   modalOverlayEl.style.transition = 'none';
-  requestAnimationFrame(() => {
-    modalOverlayEl.style.transition = 'opacity 0.22s ease';
-    modalOverlayEl.style.opacity = '1';
-  });
 
-  // ── Sheet: slide up (or scale-in for center-card) ─────────────
+  // sheet start
   if (sheet) {
+    sheet.style.transition = 'none';
     if (isCenter) {
-      sheet.style.transform = 'scale(0.9) translateY(10px)';
-      sheet.style.opacity = '0';
-      sheet.style.transition = 'none';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          sheet.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.22s ease';
-          sheet.style.transform = 'scale(1) translateY(0)';
-          sheet.style.opacity = '1';
-        });
-      });
+      sheet.style.transform = 'scale(0.88) translateY(16px)';
+      sheet.style.opacity   = '0';
     } else {
       sheet.style.transform = 'translateY(100%)';
-      sheet.style.opacity = '0.6';
-      sheet.style.transition = 'none';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          sheet.style.transition = 'transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.2s ease';
-          sheet.style.transform = 'translateY(0)';
-          sheet.style.opacity = '1';
-        });
-      });
+      sheet.style.opacity   = '0.5';
     }
   }
+
+  // Force reflow so browser registers start state
+  void modalOverlayEl.offsetHeight;
+
+  // Now apply transitions to end state
+  modalOverlayEl.style.transition = 'opacity 0.25s ease';
+  modalOverlayEl.style.opacity    = '1';
+
+  if (sheet) {
+    if (isCenter) {
+      sheet.style.transition = 'transform 0.3s cubic-bezier(0.34,1.4,0.64,1), opacity 0.22s ease';
+      sheet.style.transform  = 'scale(1) translateY(0)';
+      sheet.style.opacity    = '1';
+    } else {
+      sheet.style.transition = 'transform 0.4s cubic-bezier(0.32,0.72,0,1), opacity 0.22s ease';
+      sheet.style.transform  = 'translateY(0)';
+      sheet.style.opacity    = '1';
+    }
+  }
+}
+
+function _animateModalOut(modalOverlayEl, onDone) {
+  if (!modalOverlayEl) { if (onDone) onDone(); return; }
+  if (modalOverlayEl.dataset.closing) return; // already closing
+  modalOverlayEl.dataset.closing = '1';
+
+  const sheet = modalOverlayEl.querySelector('.modal-sheet');
+  const isCenter = sheet && sheet.classList.contains('center-card');
+
+  modalOverlayEl.style.transition = 'opacity 0.2s ease';
+  modalOverlayEl.style.opacity    = '0';
+
+  if (sheet) {
+    if (isCenter) {
+      sheet.style.transition = 'transform 0.2s cubic-bezier(0.4,0,1,1), opacity 0.18s ease';
+      sheet.style.transform  = 'scale(0.92) translateY(10px)';
+      sheet.style.opacity    = '0';
+    } else {
+      sheet.style.transition = 'transform 0.28s cubic-bezier(0.4,0,1,1), opacity 0.2s ease';
+      sheet.style.transform  = 'translateY(100%)';
+      sheet.style.opacity    = '0';
+    }
+  }
+
+  setTimeout(() => {
+    modalOverlayEl.style.display    = 'none';
+    modalOverlayEl.style.opacity    = '';
+    modalOverlayEl.style.transition = '';
+    delete modalOverlayEl.dataset.closing;
+    if (sheet) {
+      sheet.style.transform  = '';
+      sheet.style.opacity    = '';
+      sheet.style.transition = '';
+    }
+    if (onDone) onDone();
+  }, 300);
 }
 
 // ============================================================
@@ -4082,7 +4131,7 @@ function openEditSongModal(songId) {
   _updateSaveSongBtn();
 }
 function closeCreateSongModal() {
-  document.getElementById('create-song-modal').style.display = 'none';
+  _animateModalOut(document.getElementById('create-song-modal'));
   stopCamera();
 }
 function setIntakeMode(mode) {
@@ -4629,7 +4678,7 @@ function openManageMembersModal() {
 }
 
 function closeManageMembersModal() {
-  document.getElementById('manage-members-modal').style.display = 'none';
+  _animateModalOut(document.getElementById('manage-members-modal'));
 }
 
 function renderManageCurrentMembers() {
@@ -4776,7 +4825,7 @@ function openSongSelectorModal() {
   document.getElementById('song-selector-modal').style.display = 'flex';
   pushState();
 }
-function closeSongSelectorModal() { document.getElementById('song-selector-modal').style.display = 'none'; }
+function closeSongSelectorModal() { _animateModalOut(document.getElementById('song-selector-modal')); }
 function filterSongSelector() {
   const q = document.getElementById('song-selector-search').value.toLowerCase();
   renderSongSelectorList(q);
@@ -4871,7 +4920,7 @@ function openCreateSetlistModal() {
   _animateModalIn(document.getElementById('create-setlist-modal'));
   pushState();
 }
-function closeCreateSetlistModal() { document.getElementById('create-setlist-modal').style.display = 'none'; }
+function closeCreateSetlistModal() { _animateModalOut(document.getElementById('create-setlist-modal')); }
 
 function toggleCustomGroupUI(checked) {
   const section = document.getElementById('custom-group-users-section');
@@ -5534,7 +5583,7 @@ function selectEditRole(r) {
   _renderEditRoleToggles();
 }
 
-function closeUserEditModal() { document.getElementById('user-edit-modal').style.display = 'none'; }
+function closeUserEditModal() { _animateModalOut(document.getElementById('user-edit-modal')); }
 
 async function saveUserEdit() {
   if (!currentEditUserId) return;
@@ -5700,7 +5749,7 @@ function openNameEditModal() {
   _animateModalIn(document.getElementById('name-edit-modal'));
   pushState();
 }
-function closeNameEditModal() { document.getElementById('name-edit-modal').style.display = 'none'; }
+function closeNameEditModal() { _animateModalOut(document.getElementById('name-edit-modal')); }
 
 async function saveDisplayName() {
   const name = document.getElementById('new-display-name').value.trim();
@@ -5725,8 +5774,7 @@ function showTutorialModal() {
 }
 function closeTutorialModal() {
   const dontShow = document.getElementById('dont-show-tutorial').checked;
-  document.getElementById('tutorial-modal').style.display = 'none';
-  if (dontShow) saveTutorialPref(false);
+  _animateModalOut(document.getElementById('tutorial-modal'), () => { if (dontShow) saveTutorialPref(false); });
 }
 
 function showAutoscrollTutorialModal() {
@@ -5739,8 +5787,7 @@ function showAutoscrollTutorialModal() {
 function closeAutoscrollTutorialModal() {
   const dontShow = document.getElementById('dont-show-autoscroll-tutorial')?.checked;
   const modal = document.getElementById('autoscroll-tutorial-modal');
-  if (modal) modal.style.display = 'none';
-  if (dontShow) saveAutoscrollTutorialPref(false);
+  _animateModalOut(modal, () => { if (dontShow) saveAutoscrollTutorialPref(false); });
 }
 async function saveAutoscrollTutorialPref(val) {
   if (!currentUser) return;
@@ -5838,7 +5885,7 @@ function openLogoChangeModal() {
   _animateModalIn(document.getElementById('logo-change-modal'));
 }
 function closeLogoChangeModal() {
-  document.getElementById('logo-change-modal').style.display = 'none';
+  _animateModalOut(document.getElementById('logo-change-modal'));
 }
 function previewLogoInput() {
   const val = document.getElementById('logo-url-input').value.trim();
@@ -6357,7 +6404,7 @@ function showAlert(title, message, icon='mdi:information') {
   _animateModalIn(document.getElementById('alert-modal'));
   pushState();
 }
-function closeAlertModal() { document.getElementById('alert-modal').style.display = 'none'; }
+function closeAlertModal() { _animateModalOut(document.getElementById('alert-modal')); }
 
 // ============================================================
 // SETLIST LIMIT MODAL
@@ -6388,7 +6435,7 @@ function showSetlistLimitModal(maxAllowed) {
 }
 
 function closeSetlistLimitModal() {
-  document.getElementById('setlist-limit-modal').style.display = 'none';
+  _animateModalOut(document.getElementById('setlist-limit-modal'));
 }
 
 async function deleteSetlistFromLimit(id) {
