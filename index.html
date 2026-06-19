@@ -3247,6 +3247,8 @@ function openSongSheet(songId, fromSetlist) {
   pushState();
   stopAutoScroll();
   _bpmActive = false;
+  // Calibrate BPM to song length after a short delay so the DOM has rendered
+  setTimeout(_asAutoCalibrateBpm, 120);
   updateAutoscrollFabIcon();
   if (_isAutoscrollFabHidden()) {
     document.getElementById('autoscroll-fab').style.display = 'none';
@@ -3581,9 +3583,37 @@ let autoScrollAccumulator = 0;
 let _bpm = 72;
 let _bpmActive = false;
 
+// ── BPM → px/s conversion ──────────────────────────────────────────────────
+// Uses an exponential curve so low BPM feels slow and high BPM feels fast.
+// The curve is anchored: 72 BPM = comfortable reading pace for an average song.
+// Range: 20 BPM ≈ 8 px/s (very slow) → 200 BPM ≈ 400 px/s (very fast).
+// Formula: pps = BASE * 2^((bpm - 72) / 36)
+//   every 36 BPM doubles the speed — feels natural like musical tempo doubling.
+const _AS_BASE_PPS = 60; // px/s at 72 BPM for an "average" song
 function bpmToPixelsPerSecond(bpm) {
-  // 60 BPM → ~20 px/s feels comfortable for reading; scales linearly
-  return bpm * (20 / 60);
+  return _AS_BASE_PPS * Math.pow(2, (bpm - 72) / 36);
+}
+
+// ── Content-adaptive BPM ────────────────────────────────────────────────────
+// Measures the actual scrollable content and picks a BPM so the song takes
+// about TARGET_READ_SECS to scroll through at 72 BPM equivalent.
+// Call this when a song sheet opens to suggest the right default BPM.
+const _AS_TARGET_READ_SECS = 180; // reference constant (kept for legacy)
+function _asAutoCalibrateBpm() {
+  const content = document.getElementById('main-content');
+  if (!content) return;
+  const scrollableH = content.scrollHeight - content.clientHeight;
+  if (scrollableH < 80) return; // not enough content
+  const viewH = content.clientHeight || 700;
+  // Target: scroll duration grows with sqrt(content) so longer songs scroll faster
+  // but not so fast you lose your place. 40s per "screen equivalent".
+  const targetSecs = 40 * Math.sqrt(scrollableH / viewH);
+  const neededPps  = scrollableH / targetSecs;
+  // Invert exponential: bpm = 72 + 36 * log2(pps / BASE)
+  const rawBpm = 72 + 36 * Math.log2(neededPps / _AS_BASE_PPS);
+  // Clamp: 55 = gentle pace, 120 = very fast but still readable
+  _bpm = Math.round(Math.max(55, Math.min(120, rawBpm)));
+  _asUpdateSpeedBadge(null);
 }
 
 function setAutoScroll(val) {
@@ -3864,6 +3894,9 @@ function adjustSheetFont(delta) {
   sheetFontSize = Math.max(SHEET_FONT_BASE * SHEET_ZOOM_MIN, Math.min(SHEET_FONT_BASE * SHEET_ZOOM_MAX, sheetFontSize + delta));
   document.documentElement.style.setProperty('--sheet-font-size', sheetFontSize + 'px');
   updateZoomIndicator();
+  // Re-calibrate scroll speed since content height changed
+  clearTimeout(adjustSheetFont._calibTimer);
+  adjustSheetFont._calibTimer = setTimeout(_asAutoCalibrateBpm, 200);
 }
 function zoomStep(dir) {
   // Step ~10% of base per tap, snapped to whole px
