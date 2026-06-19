@@ -226,6 +226,11 @@
     .zoom-btn { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth); flex-shrink: 0; }
     .zoom-btn:hover { background: var(--surface-3); border-color: var(--accent); }
     .zoom-btn:active { transform: scale(0.93); }
+    /* Setlist position dot indicator */
+    .setlist-dot { width:7px; height:7px; border-radius:50%; background:var(--border-subtle); transition:background 0.2s, transform 0.2s; flex-shrink:0; cursor:pointer; }
+    .setlist-dot.active { background:var(--accent); transform:scale(1.35); }
+    .setlist-dot-num { font-size:11px; font-weight:700; color:var(--text-muted); padding:1px 7px; background:var(--surface-2); border-radius:20px; border:1px solid var(--border-subtle); line-height:1.6; cursor:pointer; transition:color 0.2s, background 0.2s, border-color 0.2s; }
+    .setlist-dot-num.active { color:var(--accent-soft); border-color:var(--accent); background:var(--accent-glow); }
     .ctrl-pill { display: flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 10px; color: var(--text-secondary); cursor: pointer; font-size: 12px; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth); white-space: nowrap; }
     .ctrl-pill:hover { background: var(--surface-3); border-color: var(--border-subtle); }
     .ctrl-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-soft); }
@@ -866,6 +871,8 @@ button:active::after { background: rgba(255,255,255,0.12); }
               <iconify-icon icon="mdi:heart-outline" style="font-size:22px;color:var(--text-muted);"></iconify-icon>
             </button>
           </div>
+          <!-- SETLIST POSITION INDICATOR — dots with index badge -->
+          <div id="setlist-dot-indicator" style="display:none;align-items:center;justify-content:center;gap:5px;padding:6px 0 2px;flex-wrap:wrap;"></div>
           <!-- MUSICIAN/LEAD/SUBADMIN/ADMIN CONTROLS -->
           <div id="musician-controls" style="margin-top:8px;">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
@@ -2172,6 +2179,8 @@ function signOut() {
   currentUser = null; currentUserProfile = null;
   currentSongId = null; currentSetlistId = null; currentDetailUserId = null;
   openedFromSetlist = false; _setlistOpenedFromUserDetail = null;
+  const _dotEl2 = document.getElementById('setlist-dot-indicator');
+  if (_dotEl2) { _dotEl2.style.display = 'none'; _dotEl2.innerHTML = ''; }
   // ── Reset tab state so the next user always starts on Songs ──
   activeTab = 'songs';
   // Reset all tab panels back to initial state
@@ -3282,6 +3291,7 @@ function openSongSheet(songId, fromSetlist) {
   setupSongControls();
   updateHomeBtn(true);
   updateSongSheetHeartBtn();
+  renderSetlistDotIndicator();
   if (tutorialEnabled && (currentUserProfile?.showTutorial !== false)) {
     setTimeout(showTutorialModal, 500);
   }
@@ -3408,6 +3418,8 @@ function closeSongSheet() {
   const songsTabHeader = document.querySelector('#tab-songs > div:first-child');
   if (songsTabHeader) songsTabHeader.style.display = '';
   currentSongId = null;
+  const _dotEl = document.getElementById('setlist-dot-indicator');
+  if (_dotEl) { _dotEl.style.display = 'none'; _dotEl.innerHTML = ''; }
   if (openedFromSetlist) {
     openedFromSetlist = false;
     document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); });
@@ -4029,18 +4041,78 @@ function setupSwipeListeners() {
 }
 function navigateSong(dir) {
   if (openedFromSetlist) {
-    // Navigate only within the current setlist's songs
     const setlistSongs = currentSetlistSongs
       .map(sid => allSongs.find(s => s.id === sid))
       .filter(Boolean);
     const idx = setlistSongs.findIndex(s => s.id === currentSongId);
-    const next = setlistSongs[idx + dir];
+    // Loop: last → first, first → last
+    const next = setlistSongs[(idx + dir + setlistSongs.length) % setlistSongs.length];
     if (next) openSongSheet(next.id, true);
   } else {
     const sorted = getSortedSongs();
     const idx = sorted.findIndex(s => s.id === currentSongId);
     const next = sorted[idx + dir];
     if (next) openSongSheet(next.id, false);
+  }
+}
+
+// ── Setlist dot position indicator ──────────────────────────────────────────
+function renderSetlistDotIndicator() {
+  const container = document.getElementById('setlist-dot-indicator');
+  if (!container) return;
+
+  // Only show when viewing a song from within a setlist
+  if (!openedFromSetlist || !currentSetlistSongs.length) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+
+  const songs = currentSetlistSongs
+    .map(sid => allSongs.find(s => s.id === sid))
+    .filter(Boolean);
+  const total = songs.length;
+  if (total < 2) { container.style.display = 'none'; return; }
+
+  const currentIdx = songs.findIndex(s => s.id === currentSongId);
+  container.innerHTML = '';
+  container.style.display = 'flex';
+
+  const MAX_DOTS = 7; // show individual dots up to this count, numbers beyond
+
+  if (total <= MAX_DOTS) {
+    // Show one dot per song
+    songs.forEach((song, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'setlist-dot' + (i === currentIdx ? ' active' : '');
+      dot.title = song.title || '';
+      dot.onclick = () => openSongSheet(song.id, true);
+      container.appendChild(dot);
+    });
+  } else {
+    // Show numbered badges: [1] … [active] … [total]
+    // Always show first, prev, current, next, last — collapse others with ellipsis
+    const show = new Set([0, total - 1, currentIdx]);
+    if (currentIdx > 0) show.add(currentIdx - 1);
+    if (currentIdx < total - 1) show.add(currentIdx + 1);
+
+    let lastShown = -1;
+    [...show].sort((a, b) => a - b).forEach(i => {
+      if (lastShown !== -1 && i > lastShown + 1) {
+        // Ellipsis gap
+        const gap = document.createElement('span');
+        gap.style.cssText = 'color:var(--text-muted);font-size:11px;letter-spacing:0.05em;user-select:none;';
+        gap.textContent = '···';
+        container.appendChild(gap);
+      }
+      const badge = document.createElement('span');
+      badge.className = 'setlist-dot-num' + (i === currentIdx ? ' active' : '');
+      badge.textContent = i + 1;
+      badge.title = songs[i]?.title || '';
+      badge.onclick = () => openSongSheet(songs[i].id, true);
+      container.appendChild(badge);
+      lastShown = i;
+    });
   }
 }
 function getSortedSongs() {
