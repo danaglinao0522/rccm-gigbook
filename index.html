@@ -231,79 +231,12 @@
     #setlist-dot-indicator {
       display: block;
       overflow: hidden;
-      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, margin-bottom 0.35s ease;
-      max-height: 0; opacity: 0; margin-bottom: 0;
+      transition: max-height 0.3s ease, opacity 0.25s ease;
+      max-height: 0; opacity: 0;
     }
     #setlist-dot-indicator.visible {
-      max-height: 64px; opacity: 1; margin-bottom: 10px;
+      max-height: 24px; opacity: 1;
     }
-    .sdot-track {
-      display: flex; align-items: center; gap: 0;
-      background: var(--surface-2); border: 1px solid var(--border-subtle);
-      border-radius: 20px; padding: 4px 6px;
-      overflow: visible; position: relative;
-      --sdot-left: 4px; --sdot-w: 20px;
-    }
-    /* Sliding accent pill behind the active item */
-    .sdot-track::before {
-      content: ''; position: absolute; top: 3px; bottom: 3px;
-      border-radius: 14px; background: var(--accent-glow);
-      border: 1px solid var(--accent);
-      transition: left 0.3s cubic-bezier(0.34,1.2,0.64,1), width 0.3s cubic-bezier(0.34,1.2,0.64,1);
-      pointer-events: none;
-      left: var(--sdot-left); width: var(--sdot-w);
-    }
-    .sdot-item {
-      position: relative; z-index: 1;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 12px; cursor: pointer;
-      transition: color 0.2s ease;
-      user-select: none; flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-    /* Dot style (≤7 songs) */
-    .sdot-dot {
-      width: 20px; height: 20px;
-    }
-    .sdot-dot::after {
-      content: ''; display: block;
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--border-color);
-      margin: auto;
-      transition: background 0.25s ease, transform 0.25s cubic-bezier(0.34,1.4,0.64,1);
-    }
-    .sdot-dot.active::after {
-      background: var(--accent); transform: scale(1.5);
-    }
-    /* Number badge style (>7 songs) */
-    .sdot-num {
-      min-width: 24px; height: 20px; padding: 0 6px;
-      font-size: 11px; font-weight: 700;
-      color: var(--text-muted);
-    }
-    .sdot-num.active { color: var(--accent-soft); }
-    /* Ellipsis separator */
-    .sdot-sep {
-      font-size: 10px; color: var(--text-muted); padding: 0 2px;
-      letter-spacing: 0.05em; pointer-events: none; flex-shrink: 0;
-      display: flex; align-items: center;
-    }
-    /* Prev/next chevron buttons */
-    .sdot-nav {
-      display: flex; align-items: center; justify-content: center;
-      width: 24px; height: 24px; border-radius: 50%;
-      background: transparent; border: none; cursor: pointer;
-      color: var(--text-muted); flex-shrink: 0; padding: 0;
-      transition: color 0.15s, background 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .sdot-nav:active { background: var(--surface-3); color: var(--accent-soft); }
-    /* Counter label */
-    .sdot-counter {
-      font-size: 11px; font-weight: 600; color: var(--text-muted);
-      white-space: nowrap; padding: 0 4px;
-    }
-    .sdot-counter strong { color: var(--accent-soft); }
     .ctrl-pill { display: flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 10px; color: var(--text-secondary); cursor: pointer; font-size: 12px; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth); white-space: nowrap; }
     .ctrl-pill:hover { background: var(--surface-3); border-color: var(--border-subtle); }
     .ctrl-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-soft); }
@@ -2255,7 +2188,7 @@ function signOut() {
   currentSongId = null; currentSetlistId = null; currentDetailUserId = null;
   openedFromSetlist = false; _setlistOpenedFromUserDetail = null;
   const _dotEl2 = document.getElementById('setlist-dot-indicator');
-  if (_dotEl2) { _dotEl2.classList.remove('visible'); setTimeout(() => { _dotEl2.innerHTML = ''; }, 350); }
+  if (_dotEl2) { _dotEl2.classList.remove('visible'); setTimeout(() => { _dotEl2.innerHTML = ''; }, 300); }
   // ── Reset tab state so the next user always starts on Songs ──
   activeTab = 'songs';
   // Reset all tab panels back to initial state
@@ -3494,7 +3427,7 @@ function closeSongSheet() {
   if (songsTabHeader) songsTabHeader.style.display = '';
   currentSongId = null;
   const _dotEl = document.getElementById('setlist-dot-indicator');
-  if (_dotEl) { _dotEl.classList.remove('visible'); setTimeout(() => { _dotEl.innerHTML = ''; }, 350); }
+  if (_dotEl) { _dotEl.classList.remove('visible'); setTimeout(() => { _dotEl.innerHTML = ''; }, 300); }
   if (openedFromSetlist) {
     openedFromSetlist = false;
     document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); });
@@ -4131,14 +4064,14 @@ function navigateSong(dir) {
   }
 }
 
-// ── Setlist dot position indicator ──────────────────────────────────────────
+// ── Setlist position indicator (simple number counter above title) ────────────
 function renderSetlistDotIndicator() {
   const container = document.getElementById('setlist-dot-indicator');
   if (!container) return;
 
   if (!openedFromSetlist || !currentSetlistSongs.length) {
     container.classList.remove('visible');
-    setTimeout(() => { container.innerHTML = ''; }, 350);
+    setTimeout(() => { container.innerHTML = ''; }, 300);
     return;
   }
 
@@ -4148,88 +4081,16 @@ function renderSetlistDotIndicator() {
   const total = songs.length;
   if (total < 2) {
     container.classList.remove('visible');
-    setTimeout(() => { container.innerHTML = ''; }, 350);
+    setTimeout(() => { container.innerHTML = ''; }, 300);
     return;
   }
 
   const currentIdx = songs.findIndex(s => s.id === currentSongId);
-  const MAX_DOTS = 9;
 
-  // Build inner HTML
-  let html = '';
+  container.innerHTML = `<span style="font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:0.03em;">Song ${currentIdx + 1} of ${total}</span>`;
 
-  if (total <= MAX_DOTS) {
-    // ── Dot mode: one dot per song with sliding pill ──
-    html += `<div style="display:flex;align-items:center;gap:6px;">`;
-    // Prev button
-    html += `<button class="sdot-nav" onclick="navigateSong(-1)" title="Previous song">
-      <iconify-icon icon="mdi:chevron-left" style="font-size:16px;"></iconify-icon>
-    </button>`;
-    // Track with dots
-    html += `<div class="sdot-track" id="sdot-track-inner" style="flex:1;justify-content:center;">`;
-    songs.forEach((song, i) => {
-      html += `<div class="sdot-item sdot-dot${i === currentIdx ? ' active' : ''}"
-        onclick="navigateSong(${i - currentIdx})"
-        title="${escHtml(song.title || '')}"
-        data-idx="${i}"></div>`;
-    });
-    html += `</div>`;
-    // Next button
-    html += `<button class="sdot-nav" onclick="navigateSong(1)" title="Next song">
-      <iconify-icon icon="mdi:chevron-right" style="font-size:16px;"></iconify-icon>
-    </button>`;
-    // Counter
-    html += `<span class="sdot-counter"><strong>${currentIdx + 1}</strong>/${total}</span>`;
-    html += `</div>`;
-  } else {
-    // ── Number badge mode: show window of visible items ──
-    const window5 = new Set([0, total - 1, currentIdx]);
-    if (currentIdx > 0) window5.add(currentIdx - 1);
-    if (currentIdx < total - 1) window5.add(currentIdx + 1);
-    const visible = [...window5].sort((a, b) => a - b);
-
-    html += `<div style="display:flex;align-items:center;gap:4px;">`;
-    html += `<button class="sdot-nav" onclick="navigateSong(-1)" title="Previous song">
-      <iconify-icon icon="mdi:chevron-left" style="font-size:16px;"></iconify-icon>
-    </button>`;
-    html += `<div class="sdot-track" id="sdot-track-inner" style="flex:1;justify-content:center;gap:2px;">`;
-    let last = -1;
-    visible.forEach(i => {
-      if (last !== -1 && i > last + 1) {
-        html += `<span class="sdot-sep">···</span>`;
-      }
-      const isActive = i === currentIdx;
-      const diff = i - currentIdx;
-      html += `<div class="sdot-item sdot-num${isActive ? ' active' : ''}"
-        onclick="navigateSong(${diff})"
-        title="${escHtml(songs[i]?.title || '')}"
-        data-idx="${i}">${i + 1}</div>`;
-      last = i;
-    });
-    html += `</div>`;
-    html += `<button class="sdot-nav" onclick="navigateSong(1)" title="Next song">
-      <iconify-icon icon="mdi:chevron-right" style="font-size:16px;"></iconify-icon>
-    </button>`;
-    html += `<span class="sdot-counter"><strong>${currentIdx + 1}</strong>/${total}</span>`;
-    html += `</div>`;
-  }
-
-  container.innerHTML = html;
-
-  // Use two rAFs: first to let the DOM paint, second to measure and show
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const track = document.getElementById('sdot-track-inner');
-      const activeEl = track?.querySelector('.sdot-item.active');
-      if (track && activeEl) {
-        // offsetLeft/offsetWidth work even at max-height:0
-        const left = activeEl.offsetLeft;
-        const width = activeEl.offsetWidth;
-        track.style.setProperty('--sdot-left', left + 'px');
-        track.style.setProperty('--sdot-w', width + 'px');
-      }
-      container.classList.add('visible');
-    });
+    requestAnimationFrame(() => { container.classList.add('visible'); });
   });
 }
 function getSortedSongs() {
