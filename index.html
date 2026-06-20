@@ -229,18 +229,20 @@
 
     /* ── Setlist position indicator ───────────────────────────────────────── */
     #setlist-dot-indicator {
+      display: block;
       overflow: hidden;
-      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
-      max-height: 0; opacity: 0;
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, margin-bottom 0.35s ease;
+      max-height: 0; opacity: 0; margin-bottom: 0;
     }
     #setlist-dot-indicator.visible {
-      max-height: 56px; opacity: 1;
+      max-height: 64px; opacity: 1; margin-bottom: 10px;
     }
     .sdot-track {
       display: flex; align-items: center; gap: 0;
       background: var(--surface-2); border: 1px solid var(--border-subtle);
       border-radius: 20px; padding: 4px 6px;
-      overflow: hidden; position: relative;
+      overflow: visible; position: relative;
+      --sdot-left: 4px; --sdot-w: 20px;
     }
     /* Sliding accent pill behind the active item */
     .sdot-track::before {
@@ -249,7 +251,7 @@
       border: 1px solid var(--accent);
       transition: left 0.3s cubic-bezier(0.34,1.2,0.64,1), width 0.3s cubic-bezier(0.34,1.2,0.64,1);
       pointer-events: none;
-      left: var(--sdot-left, 4px); width: var(--sdot-w, 20px);
+      left: var(--sdot-left); width: var(--sdot-w);
     }
     .sdot-item {
       position: relative; z-index: 1;
@@ -930,7 +932,7 @@ button:active::after { background: rgba(255,255,255,0.12); }
         <div id="song-sheet-subheader" style="padding:10px var(--view-px) 8px;border-bottom:1px solid var(--border-color);margin-bottom:8px;">
 
           <!-- SETLIST POSITION INDICATOR — above title, hidden when not in setlist -->
-          <div id="setlist-dot-indicator" style="display:none;margin-bottom:10px;"></div>
+          <div id="setlist-dot-indicator"></div>
 
           <!-- TITLE ROW -->
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
@@ -4214,20 +4216,20 @@ function renderSetlistDotIndicator() {
 
   container.innerHTML = html;
 
-  // Position the sliding accent pill behind the active dot
+  // Use two rAFs: first to let the DOM paint, second to measure and show
   requestAnimationFrame(() => {
-    const track = document.getElementById('sdot-track-inner');
-    const activeEl = track?.querySelector('.sdot-item.active');
-    if (track && activeEl) {
-      const trackRect = track.getBoundingClientRect();
-      const activeRect = activeEl.getBoundingClientRect();
-      const left = activeRect.left - trackRect.left - 1; // -1 for border
-      const width = activeRect.width;
-      track.style.setProperty('--sdot-left', left + 'px');
-      track.style.setProperty('--sdot-w', width + 'px');
-    }
-    // Trigger slide-in animation
-    container.classList.add('visible');
+    requestAnimationFrame(() => {
+      const track = document.getElementById('sdot-track-inner');
+      const activeEl = track?.querySelector('.sdot-item.active');
+      if (track && activeEl) {
+        // offsetLeft/offsetWidth work even at max-height:0
+        const left = activeEl.offsetLeft;
+        const width = activeEl.offsetWidth;
+        track.style.setProperty('--sdot-left', left + 'px');
+        track.style.setProperty('--sdot-w', width + 'px');
+      }
+      container.classList.add('visible');
+    });
   });
 }
 function getSortedSongs() {
