@@ -226,11 +226,82 @@
     .zoom-btn { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--lyrics-color); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth); flex-shrink: 0; }
     .zoom-btn:hover { background: var(--surface-3); border-color: var(--accent); }
     .zoom-btn:active { transform: scale(0.93); }
-    /* Setlist position dot indicator */
-    .setlist-dot { width:7px; height:7px; border-radius:50%; background:var(--border-subtle); transition:background 0.2s, transform 0.2s; flex-shrink:0; cursor:pointer; }
-    .setlist-dot.active { background:var(--accent); transform:scale(1.35); }
-    .setlist-dot-num { font-size:11px; font-weight:700; color:var(--text-muted); padding:1px 7px; background:var(--surface-2); border-radius:20px; border:1px solid var(--border-subtle); line-height:1.6; cursor:pointer; transition:color 0.2s, background 0.2s, border-color 0.2s; }
-    .setlist-dot-num.active { color:var(--accent-soft); border-color:var(--accent); background:var(--accent-glow); }
+
+    /* ── Setlist position indicator ───────────────────────────────────────── */
+    #setlist-dot-indicator {
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+      max-height: 0; opacity: 0;
+    }
+    #setlist-dot-indicator.visible {
+      max-height: 56px; opacity: 1;
+    }
+    .sdot-track {
+      display: flex; align-items: center; gap: 0;
+      background: var(--surface-2); border: 1px solid var(--border-subtle);
+      border-radius: 20px; padding: 4px 6px;
+      overflow: hidden; position: relative;
+    }
+    /* Sliding accent pill behind the active item */
+    .sdot-track::before {
+      content: ''; position: absolute; top: 3px; bottom: 3px;
+      border-radius: 14px; background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      transition: left 0.3s cubic-bezier(0.34,1.2,0.64,1), width 0.3s cubic-bezier(0.34,1.2,0.64,1);
+      pointer-events: none;
+      left: var(--sdot-left, 4px); width: var(--sdot-w, 20px);
+    }
+    .sdot-item {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; cursor: pointer;
+      transition: color 0.2s ease;
+      user-select: none; flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Dot style (≤7 songs) */
+    .sdot-dot {
+      width: 20px; height: 20px;
+    }
+    .sdot-dot::after {
+      content: ''; display: block;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border-color);
+      margin: auto;
+      transition: background 0.25s ease, transform 0.25s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    .sdot-dot.active::after {
+      background: var(--accent); transform: scale(1.5);
+    }
+    /* Number badge style (>7 songs) */
+    .sdot-num {
+      min-width: 24px; height: 20px; padding: 0 6px;
+      font-size: 11px; font-weight: 700;
+      color: var(--text-muted);
+    }
+    .sdot-num.active { color: var(--accent-soft); }
+    /* Ellipsis separator */
+    .sdot-sep {
+      font-size: 10px; color: var(--text-muted); padding: 0 2px;
+      letter-spacing: 0.05em; pointer-events: none; flex-shrink: 0;
+      display: flex; align-items: center;
+    }
+    /* Prev/next chevron buttons */
+    .sdot-nav {
+      display: flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: transparent; border: none; cursor: pointer;
+      color: var(--text-muted); flex-shrink: 0; padding: 0;
+      transition: color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sdot-nav:active { background: var(--surface-3); color: var(--accent-soft); }
+    /* Counter label */
+    .sdot-counter {
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      white-space: nowrap; padding: 0 4px;
+    }
+    .sdot-counter strong { color: var(--accent-soft); }
     .ctrl-pill { display: flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 10px; color: var(--text-secondary); cursor: pointer; font-size: 12px; transition: background 0.15s var(--ease-smooth), border-color 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth); white-space: nowrap; }
     .ctrl-pill:hover { background: var(--surface-3); border-color: var(--border-subtle); }
     .ctrl-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-soft); }
@@ -855,9 +926,13 @@ button:active::after { background: rgba(255,255,255,0.12); }
         </div>
       </div>
 
-      <!-- SONG SHEET VIEW -->
       <div id="song-sheet-view" style="display:none;">
-        <div id="song-sheet-subheader" style="padding:8px var(--view-px);border-bottom:1px solid var(--border-color);margin-bottom:8px;">
+        <div id="song-sheet-subheader" style="padding:10px var(--view-px) 8px;border-bottom:1px solid var(--border-color);margin-bottom:8px;">
+
+          <!-- SETLIST POSITION INDICATOR — above title, hidden when not in setlist -->
+          <div id="setlist-dot-indicator" style="display:none;margin-bottom:10px;"></div>
+
+          <!-- TITLE ROW -->
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
             <div style="flex:1;min-width:0;">
               <h2 id="sheet-song-title" style="color:var(--lyrics-color);font-size:16px;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h2>
@@ -871,8 +946,6 @@ button:active::after { background: rgba(255,255,255,0.12); }
               <iconify-icon icon="mdi:heart-outline" style="font-size:22px;color:var(--text-muted);"></iconify-icon>
             </button>
           </div>
-          <!-- SETLIST POSITION INDICATOR — dots with index badge -->
-          <div id="setlist-dot-indicator" style="display:none;align-items:center;justify-content:center;gap:5px;padding:6px 0 2px;flex-wrap:wrap;"></div>
           <!-- MUSICIAN/LEAD/SUBADMIN/ADMIN CONTROLS -->
           <div id="musician-controls" style="margin-top:8px;">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
@@ -2180,7 +2253,7 @@ function signOut() {
   currentSongId = null; currentSetlistId = null; currentDetailUserId = null;
   openedFromSetlist = false; _setlistOpenedFromUserDetail = null;
   const _dotEl2 = document.getElementById('setlist-dot-indicator');
-  if (_dotEl2) { _dotEl2.style.display = 'none'; _dotEl2.innerHTML = ''; }
+  if (_dotEl2) { _dotEl2.classList.remove('visible'); setTimeout(() => { _dotEl2.innerHTML = ''; }, 350); }
   // ── Reset tab state so the next user always starts on Songs ──
   activeTab = 'songs';
   // Reset all tab panels back to initial state
@@ -3419,7 +3492,7 @@ function closeSongSheet() {
   if (songsTabHeader) songsTabHeader.style.display = '';
   currentSongId = null;
   const _dotEl = document.getElementById('setlist-dot-indicator');
-  if (_dotEl) { _dotEl.style.display = 'none'; _dotEl.innerHTML = ''; }
+  if (_dotEl) { _dotEl.classList.remove('visible'); setTimeout(() => { _dotEl.innerHTML = ''; }, 350); }
   if (openedFromSetlist) {
     openedFromSetlist = false;
     document.querySelectorAll('.tab-panel').forEach(p => { p.classList.remove('active'); });
@@ -4061,10 +4134,9 @@ function renderSetlistDotIndicator() {
   const container = document.getElementById('setlist-dot-indicator');
   if (!container) return;
 
-  // Only show when viewing a song from within a setlist
   if (!openedFromSetlist || !currentSetlistSongs.length) {
-    container.style.display = 'none';
-    container.innerHTML = '';
+    container.classList.remove('visible');
+    setTimeout(() => { container.innerHTML = ''; }, 350);
     return;
   }
 
@@ -4072,48 +4144,91 @@ function renderSetlistDotIndicator() {
     .map(sid => allSongs.find(s => s.id === sid))
     .filter(Boolean);
   const total = songs.length;
-  if (total < 2) { container.style.display = 'none'; return; }
+  if (total < 2) {
+    container.classList.remove('visible');
+    setTimeout(() => { container.innerHTML = ''; }, 350);
+    return;
+  }
 
   const currentIdx = songs.findIndex(s => s.id === currentSongId);
-  container.innerHTML = '';
-  container.style.display = 'flex';
+  const MAX_DOTS = 9;
 
-  const MAX_DOTS = 7; // show individual dots up to this count, numbers beyond
+  // Build inner HTML
+  let html = '';
 
   if (total <= MAX_DOTS) {
-    // Show one dot per song
+    // ── Dot mode: one dot per song with sliding pill ──
+    html += `<div style="display:flex;align-items:center;gap:6px;">`;
+    // Prev button
+    html += `<button class="sdot-nav" onclick="navigateSong(-1)" title="Previous song">
+      <iconify-icon icon="mdi:chevron-left" style="font-size:16px;"></iconify-icon>
+    </button>`;
+    // Track with dots
+    html += `<div class="sdot-track" id="sdot-track-inner" style="flex:1;justify-content:center;">`;
     songs.forEach((song, i) => {
-      const dot = document.createElement('div');
-      dot.className = 'setlist-dot' + (i === currentIdx ? ' active' : '');
-      dot.title = song.title || '';
-      dot.onclick = () => openSongSheet(song.id, true);
-      container.appendChild(dot);
+      html += `<div class="sdot-item sdot-dot${i === currentIdx ? ' active' : ''}"
+        onclick="navigateSong(${i - currentIdx})"
+        title="${escHtml(song.title || '')}"
+        data-idx="${i}"></div>`;
     });
+    html += `</div>`;
+    // Next button
+    html += `<button class="sdot-nav" onclick="navigateSong(1)" title="Next song">
+      <iconify-icon icon="mdi:chevron-right" style="font-size:16px;"></iconify-icon>
+    </button>`;
+    // Counter
+    html += `<span class="sdot-counter"><strong>${currentIdx + 1}</strong>/${total}</span>`;
+    html += `</div>`;
   } else {
-    // Show numbered badges: [1] … [active] … [total]
-    // Always show first, prev, current, next, last — collapse others with ellipsis
-    const show = new Set([0, total - 1, currentIdx]);
-    if (currentIdx > 0) show.add(currentIdx - 1);
-    if (currentIdx < total - 1) show.add(currentIdx + 1);
+    // ── Number badge mode: show window of visible items ──
+    const window5 = new Set([0, total - 1, currentIdx]);
+    if (currentIdx > 0) window5.add(currentIdx - 1);
+    if (currentIdx < total - 1) window5.add(currentIdx + 1);
+    const visible = [...window5].sort((a, b) => a - b);
 
-    let lastShown = -1;
-    [...show].sort((a, b) => a - b).forEach(i => {
-      if (lastShown !== -1 && i > lastShown + 1) {
-        // Ellipsis gap
-        const gap = document.createElement('span');
-        gap.style.cssText = 'color:var(--text-muted);font-size:11px;letter-spacing:0.05em;user-select:none;';
-        gap.textContent = '···';
-        container.appendChild(gap);
+    html += `<div style="display:flex;align-items:center;gap:4px;">`;
+    html += `<button class="sdot-nav" onclick="navigateSong(-1)" title="Previous song">
+      <iconify-icon icon="mdi:chevron-left" style="font-size:16px;"></iconify-icon>
+    </button>`;
+    html += `<div class="sdot-track" id="sdot-track-inner" style="flex:1;justify-content:center;gap:2px;">`;
+    let last = -1;
+    visible.forEach(i => {
+      if (last !== -1 && i > last + 1) {
+        html += `<span class="sdot-sep">···</span>`;
       }
-      const badge = document.createElement('span');
-      badge.className = 'setlist-dot-num' + (i === currentIdx ? ' active' : '');
-      badge.textContent = i + 1;
-      badge.title = songs[i]?.title || '';
-      badge.onclick = () => openSongSheet(songs[i].id, true);
-      container.appendChild(badge);
-      lastShown = i;
+      const isActive = i === currentIdx;
+      const diff = i - currentIdx;
+      html += `<div class="sdot-item sdot-num${isActive ? ' active' : ''}"
+        onclick="navigateSong(${diff})"
+        title="${escHtml(songs[i]?.title || '')}"
+        data-idx="${i}">${i + 1}</div>`;
+      last = i;
     });
+    html += `</div>`;
+    html += `<button class="sdot-nav" onclick="navigateSong(1)" title="Next song">
+      <iconify-icon icon="mdi:chevron-right" style="font-size:16px;"></iconify-icon>
+    </button>`;
+    html += `<span class="sdot-counter"><strong>${currentIdx + 1}</strong>/${total}</span>`;
+    html += `</div>`;
   }
+
+  container.innerHTML = html;
+
+  // Position the sliding accent pill behind the active dot
+  requestAnimationFrame(() => {
+    const track = document.getElementById('sdot-track-inner');
+    const activeEl = track?.querySelector('.sdot-item.active');
+    if (track && activeEl) {
+      const trackRect = track.getBoundingClientRect();
+      const activeRect = activeEl.getBoundingClientRect();
+      const left = activeRect.left - trackRect.left - 1; // -1 for border
+      const width = activeRect.width;
+      track.style.setProperty('--sdot-left', left + 'px');
+      track.style.setProperty('--sdot-w', width + 'px');
+    }
+    // Trigger slide-in animation
+    container.classList.add('visible');
+  });
 }
 function getSortedSongs() {
   let songs = [...allSongs];
